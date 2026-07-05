@@ -9,67 +9,52 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 min-h-screen">
     <div class="max-w-2xl mx-auto p-4">
-        <header class="bg-emerald-700 p-6 rounded-3xl text-white mb-6">
+        <header class="bg-gradient-to-r from-emerald-700 to-teal-600 p-6 rounded-3xl text-white mb-8 shadow-xl">
             <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-brain text-4xl"></i>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-3xl">🧠</div>
                     <div>
-                        <h1 class="text-3xl font-bold">LifeAI</h1>
+                        <h1 class="text-4xl font-bold">LifeAI</h1>
                         <p class="text-emerald-100">Global AI Life Assistant</p>
                     </div>
                 </div>
-                <select id="language" onchange="changeLanguage()" class="bg-white text-black rounded-2xl px-4 py-2 text-sm">
-                    <option value="en">English</option>
-                    <option value="yo">Yoruba</option>
-                    <option value="ha">Hausa</option>
-                    <option value="ig">Igbo</option>
-                    <option value="fr">French</option>
-                </select>
+                <button onclick="toggleDark()" class="text-3xl">🌙</button>
             </div>
         </header>
 
-        <div class="flex border-b mb-6">
+        <div class="flex border-b mb-8">
             <button onclick="switchTab(0)" class="flex-1 py-4 tab-active" id="tab0">Tasks</button>
-            <button onclick="switchTab(1)" class="flex-1 py-4" id="tab1">Budget</button>
-            <button onclick="switchTab(2)" class="flex-1 py-4" id="tab2">Goals</button>
+            <button onclick="switchTab(1)" class="flex-1 py-4" id="tab1">Progress</button>
+            <button onclick="switchTab(2)" class="flex-1 py-4" id="tab2">Report</button>
         </div>
 
         <div id="content"></div>
     </div>
 
     <script>
-        let currentLang = "en";
-        const translations = {
-            en: { newTask: "+ New Task", tasks: "Tasks", budget: "Budget", goals: "Goals" },
-            yo: { newTask: "+ Iṣẹ Tuntun", tasks: "Awọn Iṣẹ", budget: "Isuna", goals: "Awọn Ibi" },
-            ha: { newTask: "+ Sabon Aiki", tasks: "Ayyuka", budget: "Kasafin Kudi", goals: "Manufa" },
-            ig: { newTask: "+ Ọrụ Ọhụrụ", tasks: "Ọrụ", budget: "Ọnụ Ego", goals: "Ebumnuche" },
-            fr: { newTask: "+ Nouvelle Tâche", tasks: "Tâches", budget: "Budget", goals: "Objectifs" }
-        };
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-        function changeLanguage() {
-            currentLang = document.getElementById('language').value;
-            switchTab(0); // Refresh current tab
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
         }
 
         function switchTab(n) {
             document.querySelectorAll('button').forEach((b,i) => b.classList.toggle('tab-active', i===n));
             const content = document.getElementById('content');
-            const t = translations[currentLang];
             if (n === 0) {
                 content.innerHTML = `
-                    <button onclick="addTask()" class="w-full py-4 bg-emerald-600 text-white rounded-3xl mb-6">${t.newTask}</button>
+                    <button onclick="startVoice()" class="w-full py-5 bg-emerald-600 text-white rounded-3xl mb-8 flex items-center justify-center gap-3 text-lg">
+                        <i class="fas fa-microphone"></i> Speak to Add Task
+                    </button>
                     <div id="task-list" class="space-y-3"></div>
                 `;
                 renderTasks();
             } else if (n === 1) {
-                content.innerHTML = `<p class="text-center py-12">${t.budget} coming soon</p>`;
+                content.innerHTML = `<div class="bg-white dark:bg-gray-800 p-8 rounded-3xl text-center"><div class="text-6xl mb-4">📊</div><p class="text-xl">Progress Charts</p></div>`;
             } else {
-                content.innerHTML = `<p class="text-center py-12">${t.goals} coming soon</p>`;
+                content.innerHTML = `<div class="bg-white dark:bg-gray-800 p-8 rounded-3xl text-center"><h2 class="text-2xl font-bold">Monthly Summary</h2><p>${tasks.filter(t=>t.done).length} tasks completed</p></div>`;
             }
         }
-
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
         function renderTasks() {
             const container = document.getElementById('task-list');
@@ -77,7 +62,7 @@
                 <div class="bg-white dark:bg-gray-800 p-5 rounded-3xl flex justify-between items-center">
                     <div class="flex items-center gap-4">
                         <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})">
-                        <span class="${t.done?'line-through':''}">${t.text}</span>
+                        <span class="${t.done?'line-through text-gray-400':''}">${t.text}</span>
                     </div>
                     <button onclick="deleteTask(${i})" class="text-red-500">🗑</button>
                 </div>
@@ -86,24 +71,36 @@
 
         function toggleTask(i) {
             tasks[i].done = !tasks[i].done;
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+            saveTasks();
             renderTasks();
         }
 
         function deleteTask(i) {
-            if(confirm("Delete?")) {
+            if(confirm("Delete task?")) {
                 tasks.splice(i,1);
-                localStorage.setItem('tasks', JSON.stringify(tasks));
+                saveTasks();
                 renderTasks();
             }
         }
 
-        function addTask() {
-            const text = prompt("New task?");
-            if(text) {
-                tasks.push({text, done:false});
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                renderTasks();
+        function startVoice() {
+            if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.onresult = (event) => {
+                    const text = event.results[0][0].transcript;
+                    tasks.push({text, done:false});
+                    saveTasks();
+                    renderTasks();
+                    alert("Task added: " + text);
+                };
+                recognition.start();
+            } else {
+                const text = prompt("Type your task:");
+                if(text) {
+                    tasks.push({text, done:false});
+                    saveTasks();
+                    renderTasks();
+                }
             }
         }
 
