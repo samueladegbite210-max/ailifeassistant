@@ -86,3 +86,17 @@ color:#3B82F6;
 margin:0;
 color:#B5C0D0;
 }
+button{
+    background:#3B82F6;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:10px;
+    margin:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#2563EB;
+}
