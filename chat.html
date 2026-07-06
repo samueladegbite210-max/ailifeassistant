@@ -115,7 +115,14 @@ ${input.value}
 input.value="";
 
 chat.scrollTop=chat.scrollHeight;
+setTimeout(() => {
+    const aiMessage = document.createElement("div");
+    aiMessage.className = "ai-message";
+    aiMessage.innerHTML = "🤖 I'm still being built. Soon I'll answer like ChatGPT!";
 
+    chat.appendChild(aiMessage);
+    chat.scrollTop = chat.scrollHeight;
+}, 1000);
 }
 
 </script>
