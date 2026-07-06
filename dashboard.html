@@ -90,11 +90,21 @@ Ask AI
 </div>
 
 <div class="card">
-<h2>Today's Tasks</h2>
+    <h2>Today's Tasks</h2>
 
-<p>✅ Build AI Life Assistant</p>
-<p>⬜ Review project ideas</p>
-<p>⬜ Plan tomorrow</p>
+    <input
+        type="text"
+        id="taskInput"
+        placeholder="Enter a new task..."
+        style="width:100%;padding:12px;border-radius:10px;border:none;margin-bottom:10px;">
+
+    <button onclick="addTask()" class="button">
+        Add Task
+    </button>
+
+    <ul id="taskList" style="margin-top:20px;list-style:none;padding:0;">
+        <li>✅ Build AI Life Assistant</li>
+    </ul>
 </div>
 
 <div class="card">
@@ -122,6 +132,31 @@ Ask AI
 </div>
 
 </div>
+<script>
+function addTask() {
 
+    let input = document.getElementById("taskInput");
+    let task = input.value.trim();
+
+    if (task === "") return;
+
+    let list = document.getElementById("taskList");
+
+    let item = document.createElement("li");
+    item.innerHTML = "⬜ " + task;
+
+    item.onclick = function () {
+        if (item.innerHTML.startsWith("⬜")) {
+            item.innerHTML = item.innerHTML.replace("⬜", "✅");
+        } else {
+            item.innerHTML = item.innerHTML.replace("✅", "⬜");
+        }
+    };
+
+    list.appendChild(item);
+
+    input.value = "";
+}
+</script>
 </body>
 </html>
