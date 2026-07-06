@@ -1,1 +1,152 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Chat - AI Life Assistant</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0B0F1A;
+color:white;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+header{
+background:#161B22;
+padding:20px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+}
+
+.chat{
+flex:1;
+padding:20px;
+overflow-y:auto;
+}
+
+.message{
+margin-bottom:20px;
+padding:15px;
+border-radius:15px;
+max-width:80%;
+}
+
+.ai{
+background:#1D232D;
+}
+
+.user{
+background:#2563EB;
+margin-left:auto;
+}
+
+.input-area{
+display:flex;
+padding:15px;
+background:#161B22;
+}
+
+input{
+flex:1;
+padding:15px;
+border:none;
+border-radius:12px;
+font-size:16px;
+outline:none;
+}
+
+button{
+margin-left:10px;
+padding:15px 20px;
+background:#2563EB;
+color:white;
+border:none;
+border-radius:12px;
+font-weight:bold;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+🤖 AI Life Assistant
+</header>
+
+<div class="chat" id="chat">
+
+<div class="message ai">
+👋 Hello Samuel! I'm your AI Life Assistant.
+How can I help you today?
+</div>
+
+</div>
+
+<div class="input-area">
+
+<input
+id="message"
+type="text"
+placeholder="Type a message...">
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+</div>
+
+<script>
+
+function sendMessage(){
+
+let input=document.getElementById("message");
+
+let text=input.value.trim();
+
+if(text==="") return;
+
+let chat=document.getElementById("chat");
+
+chat.innerHTML+=`
+<div class="message user">
+${text}
+</div>
+`;
+
+setTimeout(()=>{
+
+chat.innerHTML+=`
+<div class="message ai">
+I'm still learning 😊
+
+Soon I'll answer your questions using AI.
+</div>
+`;
+
+chat.scrollTop=chat.scrollHeight;
+
+},500);
+
+input.value="";
+
+chat.scrollTop=chat.scrollHeight;
+
+}
+
+</script>
+
+</body>
+</html>
