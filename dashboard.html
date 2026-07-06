@@ -156,6 +156,21 @@ function addTask() {
     list.appendChild(item);
 
     input.value = "";
+}function sendMessage() {
+    const input = document.getElementById("userInput");
+    const messages = document.getElementById("messages");
+
+    if (input.value.trim() === "") return;
+
+    const userMessage = document.createElement("div");
+    userMessage.className = "user-message";
+    userMessage.innerHTML = input.value;
+
+    messages.appendChild(userMessage);
+
+    input.value = "";
+
+    messages.scrollTop = messages.scrollHeight;
 }
 </script>
 </body>
