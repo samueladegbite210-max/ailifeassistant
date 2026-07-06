@@ -1,1 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes - AI Life Assistant</title>
 
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0B0F1A;
+    color:white;
+}
+
+header{
+    background:#111827;
+    padding:20px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.container{
+    padding:20px;
+}
+
+textarea{
+    width:100%;
+    height:250px;
+    border:none;
+    border-radius:12px;
+    padding:15px;
+    font-size:16px;
+    resize:none;
+}
+
+button{
+    width:100%;
+    margin-top:15px;
+    padding:15px;
+    background:#2563EB;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+📝 Notes
+</header>
+
+<div class="container">
+
+<textarea id="notes" placeholder="Write your notes here..."></textarea>
+
+<button onclick="saveNote()">
+Save Note
+</button>
+
+</div>
+
+<script>
+
+const notes=document.getElementById("notes");
+
+notes.value=localStorage.getItem("notes") || "";
+
+function saveNote(){
+
+localStorage.setItem("notes",notes.value);
+
+alert("✅ Note Saved!");
+
+}
+
+</script>
+
+</body>
+</html>
