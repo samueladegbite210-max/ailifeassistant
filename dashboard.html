@@ -321,15 +321,15 @@ document.getElementById("eventCount").textContent =
     "Small daily progress leads to big success.",
     "Stay organized and plan tomorrow before sleeping."
 ];
-
-const today = new Date().getDate();
-    const today = new Date();
+const today = new Date();
 
 document.getElementById("todayDate").textContent =
 today.toDateString();
 
+const day = today.getDate();
+
 document.getElementById("tipText").textContent =
-tips[today % tips.length];
+tips[day % tips.length];
 </script>
 </body>
 </html>
