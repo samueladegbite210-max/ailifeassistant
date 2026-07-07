@@ -3,15 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Goals - AI Life Assistant</title>
+
 <link rel="stylesheet" href="style.css">
+
 <style>
 body{
     margin:0;
     font-family:Arial,sans-serif;
     background:#0B0F1A;
     color:white;
+    padding-bottom:100px;
 }
+
 header{
     background:#111827;
     padding:20px;
@@ -19,16 +24,21 @@ header{
     font-size:24px;
     font-weight:bold;
 }
+
 .container{
     padding:20px;
 }
+
 input{
     width:100%;
     padding:15px;
     border:none;
     border-radius:10px;
     margin-bottom:15px;
+    box-sizing:border-box;
+    font-size:16px;
 }
+
 button{
     width:100%;
     padding:15px;
@@ -37,7 +47,13 @@ button{
     border:none;
     border-radius:10px;
     font-size:16px;
+    cursor:pointer;
 }
+
+button:hover{
+    background:#1D4ED8;
+}
+
 .goal{
     background:#1F2937;
     padding:15px;
@@ -45,7 +61,29 @@ button{
     border-radius:10px;
 }
 </style>
+
 </head>
+
+<body>
+
+<header>
+🎯 Goals
+</header>
+
+<div class="container">
+
+<input
+    id="goal"
+    placeholder="Enter a new goal">
+
+<button onclick="saveGoal()">
+    Add Goal
+</button>
+
+<div id="goals"></div>
+
+</div>
+
 <div class="navbar">
     <a href="dashboard.html">🏠<br>Home</a>
     <a href="chat.html">🤖<br>AI</a>
@@ -53,46 +91,36 @@ button{
     <a href="calendar.html">📅<br>Calendar</a>
     <a href="profile.html">👤<br>Profile</a>
 </div>
-<body>
-    </html>
-
-<header>🎯 Goals</header>
-
-<div class="container">
-
-<input
-id="goal"
-placeholder="Enter a new goal">
-
-<button onclick="saveGoal()">Add Goal</button>
-
-<div id="goals"></div>
-
-</div>
 
 <script>
 
-const goals=document.getElementById("goals");
+const goals = document.getElementById("goals");
 
-goals.innerHTML=localStorage.getItem("goals") || "";
+goals.innerHTML = localStorage.getItem("goals") || "";
 
 function saveGoal(){
 
-const input=document.getElementById("goal");
+    const input = document.getElementById("goal");
 
-if(input.value.trim()==="") return;
+    if(input.value.trim() === "") return;
 
-goals.innerHTML += `
-<div class="goal">
-🎯 ${input.value}
-</div>
-`;
+    goals.innerHTML += `
+        <div class="goal">
+            🎯 ${input.value}
+        </div>
+    `;
 
-localStorage.setItem("goals",goals.innerHTML);
+    localStorage.setItem("goals", goals.innerHTML);
 
-input.value="";
-
+    input.value = "";
+    input.focus();
 }
+
+document.getElementById("goal").addEventListener("keypress", function(event){
+    if(event.key === "Enter"){
+        saveGoal();
+    }
+});
 
 </script>
 
