@@ -109,3 +109,8 @@ placeholder="🔍 Search notes, goals, events..."
 >
 
 </div>
+#todayDate{
+    font-size:18px;
+    color:#60A5FA;
+    font-weight:bold;
+}
