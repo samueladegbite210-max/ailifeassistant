@@ -14,9 +14,12 @@
     text-decoration:none;
     text-align:center;
     font-size:14px;
+}   /* ← You forgot this closing brace */
+
 body{
     padding:20px;
     padding-bottom:120px;
+
 }
 .summary{
     display:grid;
