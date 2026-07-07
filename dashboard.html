@@ -80,7 +80,10 @@ font-size:18px;
     <p>Your smart productivity companion</p>
 </div>
     <div class="card">
-
+<div class="card">
+    <h3>📅 Today's Date</h3>
+    <p id="todayDate">Loading...</p>
+</div>
 <input
 type="text"
 id="search"
@@ -320,6 +323,10 @@ document.getElementById("eventCount").textContent =
 ];
 
 const today = new Date().getDate();
+    const today = new Date();
+
+document.getElementById("todayDate").textContent =
+today.toDateString();
 
 document.getElementById("tipText").textContent =
 tips[today % tips.length];
