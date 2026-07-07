@@ -105,12 +105,26 @@ function saveGoal(){
 
     if(input.value.trim() === "") return;
 
-    goals.innerHTML += `
+   goals.innerHTML += `
 <div class="goal">
-    🎯 ${input.value}
+    <span onclick="toggleGoal(this)" style="cursor:pointer;">
+        ⬜ ${input.value}
+    </span>
+
+    <br><br>
+goals.innerHTML += `
+<div class="goal">
+    <span onclick="toggleGoal(this)" style="cursor:pointer;">
+        ⬜ ${input.value}
+    </span>
 
     <br><br>
 
+    <button onclick="deleteGoal(this)">
+        🗑 Delete
+    </button>
+</div>
+`;
     <button onclick="deleteGoal(this)">
         🗑 Delete
     </button>
