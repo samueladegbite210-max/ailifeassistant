@@ -106,6 +106,77 @@ Add Task
 <a href="#">👤<br>Profile</a>
 
 </div>
+<script>
 
+// ==========================
+// Welcome Message
+// ==========================
+
+const username = localStorage.getItem("username") || "Samuel";
+
+document.getElementById("welcomeText").textContent =
+"👋 Welcome Back, " + username;
+
+
+// ==========================
+// Live Date
+// ==========================
+
+function updateDate(){
+
+    const today = new Date();
+
+    document.getElementById("todayDate").textContent =
+    today.toDateString();
+
+}
+
+updateDate();
+
+
+// ==========================
+// Live Time
+// ==========================
+
+function updateClock(){
+
+    const now = new Date();
+
+    document.getElementById("currentTime").textContent =
+    now.toLocaleTimeString();
+
+}
+
+updateClock();
+
+setInterval(updateClock,1000);
+
+
+// ==========================
+// AI Tip of the Day
+// ==========================
+
+const tips = [
+
+"Complete your hardest task first.",
+
+"Small daily progress leads to big success.",
+
+"Review your goals every morning.",
+
+"Stay organized and plan tomorrow today.",
+
+"Focus on one task at a time.",
+
+"Never stop learning."
+
+];
+
+const today = new Date();
+
+document.getElementById("tipText").textContent =
+tips[today.getDate() % tips.length];
+
+</script>
 </body>
 </html>
