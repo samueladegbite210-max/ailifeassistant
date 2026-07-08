@@ -56,8 +56,8 @@ if (tipText) {
 // ===============================
 // Tasks (Professional Version)
 // ===============================
-
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    localStorage.removeItem("tasks");
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const taskList = document.getElementById("taskList");
 
@@ -154,7 +154,7 @@ function updateProductivity() {
     document.getElementById("progressText").textContent = score + "% Completed";
 
 }
-}
+
 // ====================================
 // Tasks
 // ====================================
