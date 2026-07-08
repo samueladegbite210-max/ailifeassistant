@@ -234,16 +234,16 @@ document.getElementById("eventCount").textContent =
 (localStorage.getItem("events") || "")
 .split('class="event"').length - 1;
 
-
 // ===============================
 // Tasks
 // ===============================
 
-const taskList =
-document.getElementById("taskList");
+const taskList = document.getElementById("taskList");
 
-taskList.innerHTML =
-localStorage.getItem("tasks") || "";
+taskList.innerHTML = localStorage.getItem("tasks") || "";
+
+// Restore events after loading saved tasks
+attachTaskEvents();
 
 updateTaskCount();
 updateProductivity();
@@ -251,10 +251,9 @@ updateProductivity();
 function addTask(){
 
     const input = document.getElementById("taskInput");
-
     const task = input.value.trim();
 
-    if(task==="") return;
+    if(task === "") return;
 
     const item = document.createElement("li");
 
@@ -263,18 +262,25 @@ function addTask(){
         <button class="deleteBtn">🗑️</button>
     `;
 
+    taskList.appendChild(item);
+
+    attachEventsToItem(item);
+
+    input.value = "";
+
+    saveTasks();
+}
+
+function attachEventsToItem(item){
+
     item.querySelector("span").onclick = function(){
 
         if(this.innerHTML.startsWith("⬜")){
-
             this.innerHTML =
             this.innerHTML.replace("⬜","✅");
-
         }else{
-
             this.innerHTML =
             this.innerHTML.replace("✅","⬜");
-
         }
 
         saveTasks();
@@ -289,18 +295,30 @@ function addTask(){
 
     };
 
-    taskList.appendChild(item);
+}
 
-    input.value="";
+function attachTaskEvents(){
 
-    saveTasks();
+    document.querySelectorAll("#taskList li").forEach(function(item){
+        attachEventsToItem(item);
+    });
+
+}
+
 function saveTasks(){
+
     localStorage.setItem("tasks", taskList.innerHTML);
+
+    updateTaskCount();
+    updateProductivity();
+
 }
 
 function updateTaskCount(){
+
     document.getElementById("taskCount").textContent =
     taskList.children.length;
+
 }
 
 function updateProductivity(){
@@ -311,14 +329,16 @@ function updateProductivity(){
 
         if(taskList.children[i].innerHTML.includes("✅")){
             completed++;
+
         }
 
     }
 
     const total = taskList.children.length;
 
-    const score =
-    total === 0 ? 0 : Math.round((completed / total) * 100);
+    const score = total === 0
+        ? 0
+        : Math.round((completed / total) * 100);
 
     const productivity = document.getElementById("productivity");
 
@@ -326,81 +346,8 @@ function updateProductivity(){
         productivity.textContent = score + "%";
     }
 
-
 }
 
-const item =
-document.createElement("li");
-
-item.innerHTML = "⬜ " + task;
-
-item.style.cursor = "pointer";
-
-item.onclick = function(){
-
-if(item.innerHTML.startsWith("⬜")){
-
-item.innerHTML =
-item.innerHTML.replace("⬜","✅");
-
-}else{
-
-item.innerHTML =
-item.innerHTML.replace("✅","⬜");
-
-}
-
-saveTasks();
-
-};
-
-taskList.appendChild(item);
-
-input.value="";
-
-saveTasks();
-updateTaskCount();
-updateProductivity();
-}
-
-function saveTasks(){
-
-localStorage.setItem(
-"tasks",
-taskList.innerHTML
-);
-
-updateTaskCount();
-updateProductivity();
-
-}
-
-function updateTaskCount(){
-
-document.getElementById("taskCount").textContent =
-taskList.children.length;
-
-}
-function updateProductivity(){
-
-let completed = 0;
-
-for(let i=0;i<taskList.children.length;i++){
-
-if(taskList.children[i].innerHTML.includes("✅")){
-
-completed++;
-
-}
-
-
-
-const total = taskList.children.length;
-
-const score =
-total===0
-?0
-:Math.round((completed/total)*100);
 
 
 }
