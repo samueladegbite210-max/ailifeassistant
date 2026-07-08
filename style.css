@@ -148,3 +148,33 @@ button:hover,
     color:#60A5FA;
     font-weight:bold;
 }
+#taskInput{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+    background:#fff;
+    color:#000;
+}
+
+#taskList{
+    list-style:none;
+    padding:0;
+    margin-top:20px;
+}
+
+#taskList li{
+    background:#1F2937;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:10px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+#taskList li:hover{
+    background:#374151;
+}
