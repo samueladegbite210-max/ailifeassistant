@@ -72,6 +72,7 @@ updateTaskCount();
 updateProductivity();
 updateBadge();
 updateStatistics();
+updateAIMessage();
 }
 
 function addTask(){
