@@ -121,21 +121,26 @@
 
 <div class="card">
 
-    <h2>Today's Tasks</h2>
+    <h2>✅ Today's Tasks</h2>
 
     <input
-    type="text"
-    id="taskInput"
-    placeholder="📝 Enter a new task">
+        type="text"
+        id="taskInput"
+        placeholder="Enter a new task...">
+
+    <select id="taskPriority">
+
+        <option value="🟢">🟢 Low Priority</option>
+        <option value="🟡">🟡 Medium Priority</option>
+        <option value="🔴">🔴 High Priority</option>
+
+    </select>
 
     <button onclick="addTask()" class="button">
         Add Task
     </button>
 
-    <ul
-        id="taskList"
-        style="list-style:none;padding:0;margin-top:20px;">
-    </ul>
+    <ul id="taskList"></ul>
 
 </div>
 
