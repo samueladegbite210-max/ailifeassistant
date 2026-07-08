@@ -201,3 +201,44 @@ button:hover,
     font-size:16px;
     color:#9CA3AF;
 }
+#taskList li{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#1F2937;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    margin-bottom:10px;
+
+}
+
+.deleteBtn{
+
+    width:auto;
+
+    margin:0;
+
+    padding:8px 12px;
+
+    background:#EF4444;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+}
+
+.deleteBtn:hover{
+
+    background:#DC2626;
+
+}
