@@ -66,19 +66,24 @@ renderTasks();
 function addTask() {
 
     const input = document.getElementById("taskInput");
+    const priority = document.getElementById("taskPriority").value;
+
     const text = input.value.trim();
 
-    if (text === "") return;
+    if(text === "") return;
 
     tasks.push({
         text: text,
+        priority: priority,
         done: false
     });
 
     input.value = "";
 
     saveTasks();
+
 }
+    
 
 function renderTasks() {
 
