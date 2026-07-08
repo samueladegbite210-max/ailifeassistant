@@ -401,6 +401,46 @@ box.innerText.toLowerCase().includes(value)
     now.toLocaleTimeString();
 
 }
+   const productivity =
+document.getElementById("productivityScore").textContent =
+score + "%";
+
+document.getElementById("progressBar").style.width =
+score + "%";
+
+document.getElementById("progressText").textContent =
+score + "% Completed";
+
+const progressBar =
+document.getElementById("progressBar");
+
+const progressText =
+document.getElementById("progressText");
+
+if(progressBar){
+    progressBar.style.width = score + "%";
+}
+
+if(progressText){
+    progressText.textContent = score + "% Completed";
+}
+ // Update Productivity Score
+document.getElementById("productivityScore").textContent =
+score + "%";
+
+// Update Progress Bar
+const progressBar = document.getElementById("progressBar");
+
+if(progressBar){
+    progressBar.style.width = score + "%";
+}
+
+// Update Progress Text
+const progressText = document.getElementById("progressText");
+
+if(progressText){
+    progressText.textContent = score + "% Completed";
+}       
 
 updateClock();
 
