@@ -241,3 +241,33 @@ function updateStreak(){
 }
 
 updateStreak();
+// ====================================
+// Dashboard Statistics
+// ====================================
+
+function updateStatistics(){
+
+    const notes =
+    localStorage.getItem("notes") || "";
+
+    const goals =
+    localStorage.getItem("goals") || "";
+
+    const events =
+    localStorage.getItem("events") || "";
+
+    document.getElementById("statsNotes").textContent =
+    notes.trim() === "" ? 0 : 1;
+
+    document.getElementById("statsGoals").textContent =
+    (goals.match(/class="goal"/g) || []).length;
+
+    document.getElementById("statsEvents").textContent =
+    (events.match(/class="event"/g) || []).length;
+
+    document.getElementById("statsTasks").textContent =
+    taskList.children.length;
+
+}
+
+updateStatistics();
