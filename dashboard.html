@@ -255,7 +255,22 @@ function deleteTask(index){
     saveTasks();
 
 }
+function editTask(index){
 
+    const newTask = prompt(
+        "Edit your task:",
+        tasks[index].text
+    );
+
+    if(newTask === null) return;
+
+    if(newTask.trim() === "") return;
+
+    tasks[index].text = newTask.trim();
+
+    saveTasks();
+
+}
 function saveTasks(){
 
     localStorage.setItem("tasks",JSON.stringify(tasks));
