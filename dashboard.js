@@ -55,3 +55,143 @@ if (tipText) {
     tips[day % tips.length];
 
 }
+// ====================================
+// Tasks
+// ====================================
+
+const taskList = document.getElementById("taskList");
+
+if(taskList){
+
+    taskList.innerHTML =
+    localStorage.getItem("tasks") || "";
+
+    restoreTaskEvents();
+
+    updateTaskCount();
+
+    updateProductivity();
+
+}
+
+function addTask(){
+
+    const input =
+    document.getElementById("taskInput");
+
+    const task =
+    input.value.trim();
+
+    if(task === "") return;
+
+    const item =
+    document.createElement("li");
+
+    item.innerHTML = `
+        <span>⬜ ${task}</span>
+        <button class="deleteBtn">🗑️</button>
+    `;
+
+    taskList.appendChild(item);
+
+    attachTaskEvents(item);
+
+    input.value = "";
+
+    saveTasks();
+
+}
+
+function attachTaskEvents(item){
+
+    item.querySelector("span").onclick = function(){
+
+        this.textContent =
+        this.textContent.startsWith("⬜")
+        ? this.textContent.replace("⬜","✅")
+        : this.textContent.replace("✅","⬜");
+
+        saveTasks();
+
+    };
+
+    item.querySelector(".deleteBtn").onclick = function(){
+
+        item.remove();
+
+        saveTasks();
+
+    };
+
+}
+
+function restoreTaskEvents(){
+
+    document.querySelectorAll("#taskList li")
+    .forEach(function(item){
+
+        attachTaskEvents(item);
+
+    });
+
+}
+
+function saveTasks(){
+
+    localStorage.setItem(
+        "tasks",
+        taskList.innerHTML
+    );
+
+    updateTaskCount();
+
+    updateProductivity();
+
+}
+
+function updateTaskCount(){
+
+    const taskCount =
+    document.getElementById("taskCount");
+
+    if(taskCount){
+
+        taskCount.textContent =
+        taskList.children.length;
+
+    }
+
+}
+
+function updateProductivity(){
+
+    let completed = 0;
+
+    for(let i=0;i<taskList.children.length;i++){
+
+        if(taskList.children[i].innerHTML.includes("✅")){
+
+            completed++;
+
+        }
+
+    }
+
+    const total =
+    taskList.children.length;
+
+    const score =
+    total===0
+    ?0
+    :Math.round((completed/total)*100);
+
+    document.getElementById("productivityScore").textContent =
+    score + "%";
+
+    document.getElementById("progressBar").style.width =
+    score + "%";
+
+    document.getElementById("progressText").textContent =
+    score + "% Completed";
+
+}
