@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dashboard - AI Life Assistant</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
 <div class="header">
     <h1 id="welcomeText">👋 Welcome Back</h1>
     <p>Your smart productivity companion</p>
@@ -12,8 +26,7 @@
     <input
         type="text"
         id="search"
-        placeholder="🔍 Search notes, goals, events..."
-    >
+        placeholder="🔍 Search notes, goals, events...">
 </div>
 
 <div class="card" id="aiTip">
@@ -41,121 +54,124 @@
 </div>
 
 <div class="card">
+    <h3>⚡ Quick Actions</h3>
 
-<h3>⚡ Quick Actions</h3>
+    <a href="chat.html" class="button">🤖 Ask AI</a>
 
-<a href="chat.html" class="button">
-🤖 Ask AI
-</a>
+    <a href="notes.html" class="button">📝 New Note</a>
 
-<a href="notes.html" class="button">
-📝 New Note
-</a>
+    <a href="calendar.html" class="button">📅 Add Event</a>
 
-<a href="calendar.html" class="button">
-📅 Add Event
-</a>
+    <a href="goals.html" class="button">🎯 Add Goal</a>
+</div>
+    <div class="card">
+
+    <h2>🤖 AI Assistant</h2>
+
+    <p>Need help? Open AI Assistant anytime.</p>
+
+    <a href="chat.html" class="button">
+        Open AI Chat
+    </a>
 
 </div>
 
 <div class="card">
 
-<h2>🤖 AI Assistant</h2>
+    <h2>Today's Tasks</h2>
 
-<p>Need help? Open AI Assistant anytime.</p>
+    <input
+        type="text"
+        id="taskInput"
+        placeholder="Enter a new task...">
 
-<a href="chat.html" class="button">
-Open AI Chat
-</a>
+    <button onclick="addTask()" class="button">
+        Add Task
+    </button>
 
-</div>
-
-<div class="card">
-
-<h2>Today's Tasks</h2>
-
-<input
-type="text"
-id="taskInput"
-placeholder="Enter a new task...">
-
-<button onclick="addTask()" class="button">
-Add Task
-</button>
-
-<ul
-id="taskList"
-style="margin-top:20px;list-style:none;padding:0;">
-</ul>
+    <ul
+        id="taskList"
+        style="list-style:none;padding:0;margin-top:20px;">
+    </ul>
 
 </div>
 
 <div class="card">
 
-<h2>Today's Goal</h2>
+    <h2>🎯 Today's Goal</h2>
 
-<p>🎯 Finish AI Life Assistant Version 1.0</p>
+    <p>Finish AI Life Assistant Version 1.0</p>
+
+</div>
+
+<div class="card">
+
+    <h3>📈 Productivity Score</h3>
+
+    <h2 id="productivityScore">0%</h2>
+
+    <p>Complete more tasks to increase your score.</p>
 
 </div>
 
 <div class="grid">
 
-<a href="notes.html" style="text-decoration:none;color:white;">
-<div class="box">
-📝<br>Notes
-</div>
-</a>
+    <a href="notes.html" style="text-decoration:none;color:white;">
+        <div class="box">
+            📝<br>Notes
+        </div>
+    </a>
 
-<a href="calendar.html" style="text-decoration:none;color:white;">
-<div class="box">
-📅<br>Calendar
-</div>
-</a>
+    <a href="calendar.html" style="text-decoration:none;color:white;">
+        <div class="box">
+            📅<br>Calendar
+        </div>
+    </a>
 
-<a href="goals.html" style="text-decoration:none;color:white;">
-<div class="box">
-🎯<br>Goals
-</div>
-</a>
+    <a href="goals.html" style="text-decoration:none;color:white;">
+        <div class="box">
+            🎯<br>Goals
+        </div>
+    </a>
 
-<a href="profile.html" style="text-decoration:none;color:white;">
-<div class="box">
-👤<br>Profile
-</div>
-</a>
+    <a href="profile.html" style="text-decoration:none;color:white;">
+        <div class="box">
+            👤<br>Profile
+        </div>
+    </a>
 
-<a href="settings.html" style="text-decoration:none;color:white;">
-<div class="box">
-⚙️<br>Settings
-</div>
-</a>
+    <a href="settings.html" style="text-decoration:none;color:white;">
+        <div class="box">
+            ⚙️<br>Settings
+        </div>
+    </a>
 
 </div>
 
 <div class="navbar">
 
-<a href="dashboard.html">
-🏠<br>Home
-</a>
+    <a href="dashboard.html">
+        🏠<br>Home
+    </a>
 
-<a href="chat.html">
-🤖<br>AI
-</a>
+    <a href="chat.html">
+        🤖<br>AI
+    </a>
 
-<a href="notes.html">
-📝<br>Notes
-</a>
+    <a href="notes.html">
+        📝<br>Notes
+    </a>
 
-<a href="calendar.html">
-📅<br>Calendar
-</a>
+    <a href="calendar.html">
+        📅<br>Calendar
+    </a>
 
-<a href="profile.html">
-👤<br>Profile
-</a>
+    <a href="profile.html">
+        👤<br>Profile
+    </a>
 
 </div>
-<script>
+    <script>
 
 // ===============================
 // Welcome Message
@@ -178,7 +194,7 @@ today.toDateString();
 
 
 // ===============================
-// AI Tip of the Day
+// AI Tip
 // ===============================
 
 const tips = [
@@ -211,12 +227,14 @@ document.getElementById("eventCount").textContent =
 // Tasks
 // ===============================
 
-const taskList = document.getElementById("taskList");
+const taskList =
+document.getElementById("taskList");
 
 taskList.innerHTML =
 localStorage.getItem("tasks") || "";
 
 updateTaskCount();
+updateProductivity();
 
 function addTask(){
 
@@ -255,7 +273,7 @@ saveTasks();
 
 taskList.appendChild(item);
 
-input.value = "";
+input.value="";
 
 saveTasks();
 
@@ -269,6 +287,7 @@ taskList.innerHTML
 );
 
 updateTaskCount();
+updateProductivity();
 
 }
 
@@ -276,6 +295,32 @@ function updateTaskCount(){
 
 document.getElementById("taskCount").textContent =
 taskList.children.length;
+
+}
+
+function updateProductivity(){
+
+let completed = 0;
+
+for(let i=0;i<taskList.children.length;i++){
+
+if(taskList.children[i].innerHTML.includes("✅")){
+
+completed++;
+
+}
+
+}
+
+const total = taskList.children.length;
+
+const score =
+total===0
+?0
+:Math.round((completed/total)*100);
+
+document.getElementById("productivityScore").textContent =
+score + "%";
 
 }
 
@@ -303,5 +348,10 @@ box.innerText.toLowerCase().includes(value)
 });
 
 </script>
+
 </body>
 </html>
+
+
+
+    
