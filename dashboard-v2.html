@@ -175,7 +175,113 @@ const today = new Date();
 
 document.getElementById("tipText").textContent =
 tips[today.getDate() % tips.length];
+// ==========================
+// Tasks
+// ==========================
 
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+const taskList = document.getElementById("taskList");
+
+renderTasks();
+
+function addTask(){
+
+    const input = document.getElementById("taskInput");
+
+    const text = input.value.trim();
+
+    if(text === "") return;
+
+    tasks.push({
+        text: text,
+        done: false
+    });
+
+    input.value = "";
+
+    saveTasks();
+
+}
+
+function renderTasks(){
+
+    taskList.innerHTML = "";
+
+    tasks.forEach((task,index)=>{
+
+        const li = document.createElement("li");
+
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.alignItems = "center";
+        li.style.marginBottom = "10px";
+
+        li.innerHTML = `
+            <span style="cursor:pointer;">
+                ${task.done ? "✅" : "⬜"} ${task.text}
+            </span>
+
+            <button onclick="deleteTask(${index})">🗑️</button>
+        `;
+
+        li.querySelector("span").onclick = function(){
+
+            tasks[index].done = !tasks[index].done;
+
+            saveTasks();
+
+        };
+
+        taskList.appendChild(li);
+
+    });
+
+    updateTaskCount();
+    updateProductivity();
+
+}
+
+function deleteTask(index){
+
+    tasks.splice(index,1);
+
+    saveTasks();
+
+}
+
+function saveTasks(){
+
+    localStorage.setItem("tasks",JSON.stringify(tasks));
+
+    renderTasks();
+
+}
+
+function updateTaskCount(){
+
+    document.getElementById("taskCount").textContent = tasks.length;
+
+}
+
+function updateProductivity(){
+
+    const completed = tasks.filter(task=>task.done).length;
+
+    const total = tasks.length;
+
+    const score = total===0 ? 0 : Math.round((completed/total)*100);
+
+    document.getElementById("productivityScore").textContent =
+    score + "%";
+
+    document.getElementById("progressBar").style.width =
+    score + "%";
+
+    document.getElementById("progressText").textContent =
+    score + "% Completed";
+
+}
 </script>
 </body>
 </html>
