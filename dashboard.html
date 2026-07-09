@@ -66,7 +66,15 @@
 type="text"
 id="taskInput"
 placeholder="Enter a task...">
+<select id="taskPriority">
 
+    <option value="High">🔴 High Priority</option>
+
+    <option value="Medium" selected>🟡 Medium Priority</option>
+
+    <option value="Low">🟢 Low Priority</option>
+
+</select>
 <button onclick="addTask()" class="button">
     Add Task
 </button>
@@ -193,10 +201,14 @@ function addTask(){
 
     if(text === "") return;
 
-    tasks.push({
-        text: text,
-        done: false
-    });
+ const priority =
+document.getElementById("taskPriority").value;
+
+tasks.push({
+    text: text,
+    done: false,
+    priority: priority
+});
 console.log(tasks);
     input.value = "";
 
@@ -219,7 +231,12 @@ function renderTasks(){
 
         li.innerHTML = `
     <span style="cursor:pointer;">
-      ${task.done ? "✅" : "☐"} ${task.text}
+      ${task.done ? "✅" : "☐"}
+
+${task.priority === "High" ? "🔴" :
+ task.priority === "Medium" ? "🟡" : "🟢"}
+
+${task.text}
     </span>
 
     <div>
