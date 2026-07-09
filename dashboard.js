@@ -531,7 +531,7 @@ function updateAchievement(){
 // ==========================
 
 let goals = JSON.parse(localStorage.getItem("goals")) || [];
-console.log(goals);
+localStorage.removeItem("goals");
 const goalList = document.getElementById("goalList");
 
 renderGoals();
