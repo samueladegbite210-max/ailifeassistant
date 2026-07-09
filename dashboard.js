@@ -230,5 +230,106 @@ updateClock();
 updateAITip();
 
 renderTasks();
-
+renderGoals();
 setInterval(updateClock,1000);
+// ==========================
+// Goals
+// ==========================
+
+let goals = JSON.parse(localStorage.getItem("goals")) || [];
+
+const goalList = document.getElementById("goalList");
+
+function renderGoals(){
+
+    if(!goalList) return;
+
+    goalList.innerHTML = "";
+
+    goals.forEach((goal,index)=>{
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <span style="cursor:pointer;">
+                ${goal.done ? "✅" : "🎯"} ${goal.text}
+            </span>
+
+            <button onclick="deleteGoal(${index})">
+                🗑️
+            </button>
+        `;
+
+        li.querySelector("span").onclick = function(){
+
+            goals[index].done = !goals[index].done;
+
+            saveGoals();
+
+        };
+
+        goalList.appendChild(li);
+
+    });
+
+    updateGoalCount();
+
+}
+
+function addGoal(){
+
+    const input = document.getElementById("goalInput");
+
+    if(!input) return;
+
+    const text = input.value.trim();
+
+    if(text==="") return;
+
+    goals.push({
+
+        text:text,
+
+        done:false
+
+    });
+
+    input.value="";
+
+    saveGoals();
+
+}
+
+function deleteGoal(index){
+
+    goals.splice(index,1);
+
+    saveGoals();
+
+}
+
+function saveGoals(){
+
+    localStorage.setItem(
+
+        "goals",
+
+        JSON.stringify(goals)
+
+    );
+
+    renderGoals();
+
+}
+
+function updateGoalCount(){
+
+    const counter = document.getElementById("goalCount");
+
+    if(counter){
+
+        counter.textContent = goals.length;
+
+    }
+
+}
