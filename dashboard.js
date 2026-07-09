@@ -485,3 +485,44 @@ function updateStreak(){
 }
 
 updateStreak();
+    // ==========================
+// Achievement Badge
+// ==========================
+
+function updateAchievement(){
+
+    const completed =
+    tasks.filter(task => task.done).length;
+
+    let badge = "🌱 Beginner";
+    let text = "Complete your first task.";
+
+    if(completed >= 100){
+
+        badge = "👑 Productivity Master";
+        text = "Amazing dedication!";
+
+    }else if(completed >= 50){
+
+        badge = "🥇 Gold";
+        text = "50 tasks completed.";
+
+    }else if(completed >= 25){
+
+        badge = "🥈 Silver";
+        text = "25 tasks completed.";
+
+    }else if(completed >= 10){
+
+        badge = "🥉 Bronze";
+        text = "10 tasks completed.";
+
+    }
+
+    document.getElementById("achievementBadge").textContent =
+    badge;
+
+    document.getElementById("achievementText").textContent =
+    text;
+
+}
