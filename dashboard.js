@@ -82,4 +82,153 @@ updateDate();
 updateClock();
 updateAITip();
 
-setInterval(updateClock, 1000);
+setInterval(updateClock, 1000);// ==========================
+// Tasks
+// ==========================
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+const taskList = document.getElementById("taskList");
+
+function renderTasks(){
+
+    if(!taskList) return;
+
+    taskList.innerHTML = "";
+
+    tasks.forEach((task,index)=>{
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <span style="cursor:pointer;">
+                ${task.done ? "✅" : "⬜"} ${task.text}
+            </span>
+
+            <button onclick="deleteTask(${index})">
+                🗑️
+            </button>
+        `;
+
+        li.querySelector("span").onclick = function(){
+
+            tasks[index].done = !tasks[index].done;
+
+            saveTasks();
+
+        };
+
+        taskList.appendChild(li);
+
+    });
+
+    updateTaskCount();
+
+    updateProductivity();
+
+}
+
+function addTask(){
+
+    const input = document.getElementById("taskInput");
+
+    if(!input) return;
+
+    const text = input.value.trim();
+
+    if(text==="") return;
+
+    tasks.push({
+
+        text:text,
+
+        done:false
+
+    });
+
+    input.value="";
+
+    saveTasks();
+
+}
+
+function deleteTask(index){
+
+    tasks.splice(index,1);
+
+    saveTasks();
+
+}
+
+function saveTasks(){
+
+    localStorage.setItem(
+
+        "tasks",
+
+        JSON.stringify(tasks)
+
+    );
+
+    renderTasks();
+
+}
+
+function updateTaskCount(){
+
+    const counter = document.getElementById("taskCount");
+
+    if(counter){
+
+        counter.textContent = tasks.length;
+
+    }
+
+}
+
+function updateProductivity(){
+
+    const completed = tasks.filter(
+
+        task=>task.done
+
+    ).length;
+
+    const total = tasks.length;
+
+    const score =
+
+    total===0
+
+    ?0
+
+    :Math.round((completed/total)*100);
+
+    document.getElementById(
+
+        "productivityScore"
+
+    ).textContent = score+"%";
+
+    document.getElementById(
+
+        "progressBar"
+
+    ).style.width = score+"%";
+
+    document.getElementById(
+
+        "progressText"
+
+    ).textContent =
+
+        score+"% Completed";
+
+}
+updateDate();
+updateClock();
+updateAITip();
+
+renderTasks();
+
+setInterval(updateClock,1000);
