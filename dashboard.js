@@ -2,7 +2,7 @@
 // AI Life Assistant Dashboard
 // Version 2.0
 // ==========================
-
+alert("dashboard.js loaded");
 // Welcome Message
 const username = localStorage.getItem("username") || "Samuel";
 
