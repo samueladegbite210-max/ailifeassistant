@@ -440,7 +440,7 @@ renderGoals();
 
 function addGoal(){
 
-    alert("Add Goal clicked!");
+    
 
     const input = document.getElementById("goalInput");
 
@@ -460,8 +460,7 @@ function addGoal(){
 
     saveGoals();
 
-    alert("Goal saved!");
-
+    
 
 
 }
