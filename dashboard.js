@@ -431,7 +431,7 @@ function updateAchievement(){
 // ==========================
 // Goals
 // ==========================
-
+alert("Goals loaded");
 let goals = JSON.parse(localStorage.getItem("goals")) || [];
 
 const goalList = document.getElementById("goalList");
