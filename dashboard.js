@@ -225,13 +225,7 @@ function updateProductivity(){
         score+"% Completed";
 
 }
-updateDate();
-updateClock();
-updateAITip();
 
-renderTasks();
-renderGoals();
-setInterval(updateClock,1000);
 // ==========================
 // Goals
 // ==========================
@@ -333,3 +327,15 @@ function updateGoalCount(){
     }
 
 }
+// ==========================
+// Start Dashboard
+// ==========================
+
+updateDate();
+updateClock();
+updateAITip();
+
+renderTasks();
+renderGoals();
+
+setInterval(updateClock,1000);
