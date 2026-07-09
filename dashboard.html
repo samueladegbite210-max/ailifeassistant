@@ -221,7 +221,17 @@ function renderTasks(){
     taskList.innerHTML = "";
 
     tasks.forEach((task,index)=>{
+tasks.sort((a, b) => {
 
+    const order = {
+        High: 1,
+        Medium: 2,
+        Low: 3
+    };
+
+    return order[a.priority] - order[b.priority];
+
+});
         const li = document.createElement("li");
 
         li.style.display = "flex";
