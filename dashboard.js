@@ -37,13 +37,26 @@ setInterval(updateClock, 1000);
 
 // AI Tip of the Day
 const tips = [
-    "Complete your hardest task first.",
-    "Take a 5-minute break after every hour of work.",
-    "Review your goals every morning.",
-    "Finish one task before starting another.",
-    "Small daily progress leads to big success.",
-    "Stay organized and plan tomorrow before sleeping."
+    "💪 Complete your hardest task first.",
+    "📚 Learn something new every day.",
+    "🎯 Focus on one task at a time.",
+    "💧 Don't forget to drink water.",
+    "😴 Get enough sleep to stay productive.",
+    "🚀 Small progress every day leads to big success.",
+    "🧠 Plan your day before you start working."
 ];
+
+function updateAITip() {
+
+    const tipText = document.getElementById("tipText");
+
+    if (!tipText) return;
+
+    const day = new Date().getDate();
+
+    tipText.textContent = tips[day % tips.length];
+
+}
 
 const tipText = document.getElementById("tipText");
 
@@ -156,130 +169,8 @@ function updateProductivity() {
 
     document.getElementById("progressBar").style.width = score + "%";
 
-    document.getElementById("progressText").textContent = score + "% Completed";
+    document.getElementById("progressText").textContent = score + "% 
 
-}
-
-// ====================================
-// Tasks
-// ====================================
-
-const taskList = document.getElementById("taskList");
-
-if(taskList){
-
-    taskList.innerHTML =
-    localStorage.getItem("tasks") || "";
-
-    restoreTaskEvents();
-
-updateTaskCount();
-updateProductivity();
-updateBadge();
-updateStatistics();
-updateAIMessage();
-}
-
-function addTask(){
-
-    const input =
-    document.getElementById("taskInput");
-
-    const task =
-    input.value.trim();
-
-    if(task === "") return;
-
-    const item =
-    document.createElement("li");
-
-    item.innerHTML = `
-        <span>⬜ ${task}</span>
-        <button class="deleteBtn">🗑️</button>
-    `;
-
-    taskList.appendChild(item);
-
-    attachTaskEvents(item);
-
-    input.value = "";
-
-    saveTasks();
-
-}
-
-function attachTaskEvents(item){
-
-    item.querySelector("span").onclick = function(){
-
-        this.textContent =
-        this.textContent.startsWith("⬜")
-        ? this.textContent.replace("⬜","✅")
-        : this.textContent.replace("✅","⬜");
-
-        saveTasks();
-
-    };
-
-    item.querySelector(".deleteBtn").onclick = function(){
-
-        item.remove();
-
-        saveTasks();
-
-    };
-
-}
-
-function restoreTaskEvents(){
-
-    document.querySelectorAll("#taskList li")
-    .forEach(function(item){
-
-        attachTaskEvents(item);
-
-    });
-
-}
-
-function saveTasks(){
-
-    localStorage.setItem(
-        "tasks",
-        taskList.innerHTML
-    );
-
-    updateTaskCount();
-
-    updateProductivity();
-
-}
-
-function updateTaskCount(){
-
-    const taskCount =
-    document.getElementById("taskCount");
-
-    if(taskCount){
-
-        taskCount.textContent =
-        taskList.children.length;
-
-    }
-
-}
-
-function updateProductivity(){
-
-    let completed = 0;
-
-    for(let i=0;i<taskList.children.length;i++){
-
-        if(taskList.children[i].innerHTML.includes("✅")){
-
-            completed++;
-
-        }
 
     }
 
