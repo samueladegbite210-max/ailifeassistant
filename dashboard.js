@@ -70,7 +70,7 @@ const taskList = document.getElementById("taskList");
 renderTasks();
 
 function addTask(){
-
+alert("Task button clicked");
     const input = document.getElementById("taskInput");
 
     const priority =
