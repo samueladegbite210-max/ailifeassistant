@@ -247,3 +247,26 @@ function updateGoalCount() {
     }
 
 }
+
+function updateProductivity(){
+
+    const completed =
+    tasks.filter(task => task.done).length;
+
+    const total = tasks.length;
+
+    const score =
+    total === 0
+    ? 0
+    : Math.round((completed / total) * 100);
+
+    document.getElementById("productivityScore").textContent =
+    score + "%";
+
+    document.getElementById("progressBar").style.width =
+    score + "%";
+
+    document.getElementById("progressText").textContent =
+    score + "% Completed";
+
+}
