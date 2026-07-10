@@ -132,7 +132,61 @@ placeholder="Enter a task...">
 
 </div>
 
-    
+    <div class="card">
+
+    <h2>📅 Add New Event</h2>
+
+    <input
+        type="text"
+        id="eventTitle"
+        placeholder="Event Title">
+
+    <input
+        type="date"
+        id="eventDate">
+
+    <input
+        type="time"
+        id="eventTime">
+
+    <input
+        type="text"
+        id="eventLocation"
+        placeholder="Location">
+
+    <textarea
+        id="eventNotes"
+        placeholder="Notes"></textarea>
+
+    <select id="eventReminder">
+        <option value="none">🔕 No Reminder</option>
+        <option value="10">10 Minutes Before</option>
+        <option value="30">30 Minutes Before</option>
+        <option value="60">1 Hour Before</option>
+        <option value="1440">1 Day Before</option>
+    </select>
+
+    <select id="eventRepeat">
+        <option value="none">No Repeat</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+    </select>
+
+    <button onclick="addEvent()">
+        Save Event
+    </button>
+
+</div>
+
+<div class="card">
+
+    <h2>📆 Upcoming Events</h2>
+
+    <ul id="eventList"></ul>
+
+</div>
 
 <div class="card">
     <h3>🔥 Daily Streak</h3>
