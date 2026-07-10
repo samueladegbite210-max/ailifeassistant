@@ -136,7 +136,7 @@ cursor:pointer;
 
     document.getElementById("taskCount").textContent =
     tasks.length;
-
+updateProductivity();
 }
 
 function deleteTask(index){
