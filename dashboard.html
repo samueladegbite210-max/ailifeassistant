@@ -140,31 +140,33 @@ placeholder="Enter a task...">
         type="text"
         id="eventTitle"
         placeholder="Event Title">
-style="width:100%; margin:10px 0; padding:12px; border-radius:10px;"
+<input style="width:100%">
     <input
         type="date"
         id="eventDate">
-style="width:100%; margin:10px 0; padding:12px; border-radius:10px;"
+
+    <input style="width:100%">
+>
     <input
         type="time"
         id="eventTime">
-style="width:100%; margin:10px 0; padding:12px; border-radius:10px;"
+<input style="width:100%">
     <input
         type="text"
         id="eventLocation"
         placeholder="Location">
-style="width:100%; margin:10px 0; padding:12px; border-radius:10px;"
+<input style="width:100%">
     <textarea
         id="eventNotes"
         placeholder="Notes"></textarea>
-style="width:100%; margin:10px 0; padding:12px; border-radius:10px;"
+<input style="width:100%">
     <select id="eventReminder">
         <option value="none">🔕 No Reminder</option>
         <option value="10">10 Minutes Before</option>
         <option value="30">30 Minutes Before</option>
         <option value="60">1 Hour Before</option>
         <option value="1440">1 Day Before</option>
-        style="width:100%; margin:10px 0; padding:12px; border-radius:10px;"
+        <input style="width:100%">
     </select>
 
     <select id="eventRepeat">
@@ -173,7 +175,9 @@ style="width:100%; margin:10px 0; padding:12px; border-radius:10px;"
         <option value="weekly">Weekly</option>
         <option value="monthly">Monthly</option>
         <option value="yearly">Yearly</option>
+        <input style="width:100%">
     </select>
+    
 
     <button onclick="addEvent()">
         Save Event
