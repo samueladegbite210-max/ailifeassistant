@@ -155,6 +155,9 @@ function saveTasks(){
     );
 
     renderTasks();
+    updateAssistant();
+    renderGoals();
+    updateAssistant();
 
 
 }
@@ -331,3 +334,47 @@ function updateStreak() {
 }
 
 updateStreak();
+// ==========================
+// Smart AI Assistant
+// ==========================
+
+function updateAssistant() {
+
+    const hour = new Date().getHours();
+
+    let greeting = "";
+
+    if (hour < 12) {
+
+        greeting = "🌅 Good Morning";
+
+    } else if (hour < 18) {
+
+        greeting = "☀️ Good Afternoon";
+
+    } else {
+
+        greeting = "🌙 Good Evening";
+
+    }
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    const total = tasks.length;
+
+    const message =
+        `${greeting}, ${username}! You have ${total} task${total === 1 ? "" : "s"} and ${goals.length} goal${goals.length === 1 ? "" : "s"} today. You've completed ${completed} task${completed === 1 ? "" : "s"}. Keep going! 🚀`;
+
+    const assistant =
+        document.getElementById("assistantMessage");
+
+    if (assistant) {
+
+        assistant.textContent = message;
+
+    }
+
+}
+
+updateAssistant();
