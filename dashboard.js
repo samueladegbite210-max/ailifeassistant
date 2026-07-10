@@ -107,9 +107,18 @@ function renderTasks(){
         ${task.text}
         </span>
 
-        <button onclick="deleteTask(${index})">
-        🗑️
-        </button>
+        <button
+onclick="deleteTask(${index})"
+style="
+padding:6px 10px;
+width:auto;
+height:auto;
+border:none;
+border-radius:8px;
+cursor:pointer;
+">
+🗑️
+</button>
         `;
 
         li.querySelector("span").onclick = function(){
