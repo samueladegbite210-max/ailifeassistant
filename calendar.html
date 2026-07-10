@@ -170,11 +170,11 @@ function addEvent() {
         reminder,
         repeat
     });
-
+alert("Step 1: Event added");
     localStorage.setItem("events", JSON.stringify(events));
-
+alert("Step 2: Saved to localStorage");
     renderEvents();
-
+alert("Step 3: Events rendered");
     document.getElementById("eventTitle").value = "";
     document.getElementById("eventDate").value = "";
     document.getElementById("eventTime").value = "";
