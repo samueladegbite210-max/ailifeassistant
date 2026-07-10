@@ -547,3 +547,67 @@ function updateGoalCount(){
 
 } 
     
+const eventList = document.getElementById("eventList");
+
+let events = JSON.parse(localStorage.getItem("events")) || [];
+
+renderEvents();
+
+function addEvent() {
+
+    const title = document.getElementById("eventTitle").value.trim();
+    const date = document.getElementById("eventDate").value;
+    const time = document.getElementById("eventTime").value;
+    const location = document.getElementById("eventLocation").value.trim();
+    const notes = document.getElementById("eventNotes").value.trim();
+    const reminder = document.getElementById("eventReminder").value;
+    const repeat = document.getElementById("eventRepeat").value;
+
+    if (title === "" || date === "") {
+        alert("Please enter an event title and date.");
+        return;
+    }
+
+    events.push({
+        title,
+        date,
+        time,
+        location,
+        notes,
+        reminder,
+        repeat
+    });
+
+    localStorage.setItem("events", JSON.stringify(events));
+
+    renderEvents();
+
+    document.getElementById("eventTitle").value = "";
+    document.getElementById("eventDate").value = "";
+    document.getElementById("eventTime").value = "";
+    document.getElementById("eventLocation").value = "";
+    document.getElementById("eventNotes").value = "";
+    document.getElementById("eventReminder").value = "none";
+    document.getElementById("eventRepeat").value = "none";
+}
+
+function renderEvents() {
+
+    eventList.innerHTML = "";
+
+    events.forEach((event) => {
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <strong>${event.title}</strong><br>
+            📅 ${event.date}
+            ${event.time ? "🕒 " + event.time : ""}<br>
+            ${event.location ? "📍 " + event.location + "<br>" : ""}
+        `;
+
+        eventList.appendChild(li);
+
+    });
+
+}
