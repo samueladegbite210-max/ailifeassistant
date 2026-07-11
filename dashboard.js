@@ -378,3 +378,42 @@ function updateAssistant() {
 }
 
 updateAssistant();
+// ==========================
+// Events
+// ==========================
+
+function renderEvents() {
+
+    const eventList = document.getElementById("eventList");
+
+    if (!eventList) return;
+
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+
+    eventList.innerHTML = "";
+
+    events.forEach((event) => {
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <strong>${event.title}</strong><br>
+            📅 ${event.date}
+            ${event.time ? "<br>🕒 " + event.time : ""}
+        `;
+
+        eventList.appendChild(li);
+
+    });
+
+    const eventCount = document.getElementById("eventCount");
+
+    if (eventCount) {
+
+        eventCount.textContent = events.length;
+
+    }
+
+}
+
+renderEvents();
