@@ -365,3 +365,11 @@ button:hover,
     color:#B0B8C5;
     font-size:18px;
 }
+.side-menu{
+    left:-300px;
+    transition:0.3s ease;
+}
+
+.side-menu.active{
+    left:0;
+}
