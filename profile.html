@@ -72,105 +72,109 @@ button:hover{
 
 <body>
 
-<header>
-👤 My Profile
+<header class="header">
+
+    <h1>👤 My Profile</h1>
+
+    <p>Manage your AI Life Assistant account</p>
+
 </header>
 
 <div class="container">
 
-<input
-type="text"
-id="name"
-placeholder="👤 Full Name">
+    <div class="card">
 
-<input
-type="email"
-id="email"
-placeholder="📧 Email Address">
+        <div class="profile-avatar">
 
-<input
-type="tel"
-id="phone"
-placeholder="📱 Phone Number">
+            👤
 
-<button onclick="saveProfile()">
-💾 Save Profile
-</button>
+        </div>
 
-<div class="profile-card">
+        <h2 id="profileName">Samuel</h2>
 
-<h2>Profile Preview</h2>
+        <p>⭐ AI Life Explorer</p>
 
-<p><strong>Name:</strong> <span id="previewName">Not Set</span></p>
+    </div>
 
-<p><strong>Email:</strong> <span id="previewEmail">Not Set</span></p>
+    <div class="summary">
 
-<p><strong>Phone:</strong> <span id="previewPhone">Not Set</span></p>
+        <div class="card">
 
-</div>
+            <h2 id="taskCountProfile">0</h2>
+
+            <p>Tasks</p>
+
+        </div>
+
+        <div class="card">
+
+            <h2 id="goalCountProfile">0</h2>
+
+            <p>Goals</p>
+
+        </div>
+
+        <div class="card">
+
+            <h2 id="eventCountProfile">0</h2>
+
+            <p>Events</p>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3>🔥 Daily Streak</h3>
+
+        <h2 id="streakProfile">0 Days</h2>
+
+    </div>
+
+    <div class="card">
+
+        <h3>📈 Productivity</h3>
+
+        <h2 id="productivityProfile">0%</h2>
+
+    </div>
+
+    <div class="card">
+
+        <button class="button">
+            ⚙️ Settings
+        </button>
+
+        <button class="button">
+            🌙 Dark Mode
+        </button>
+
+        <button class="button">
+            ℹ️ About App
+        </button>
+
+    </div>
 
 </div>
 
 <div class="navbar">
-    <a href="dashboard.html">🏠<br>Home</a>
-    <a href="chat.html">🤖<br>AI</a>
-    <a href="notes.html">📝<br>Notes</a>
-    <a href="calendar.html">📅<br>Calendar</a>
-    <a href="profile.html">👤<br>Profile</a>
+
+<a href="dashboard.html">🏠<br>Home</a>
+
+<a href="chat.html">🤖<br>AI</a>
+
+<a href="tasks.html">✅<br>Tasks</a>
+
+<a href="goals.html">🎯<br>Goals</a>
+
+<a href="profile.html">👤<br>Profile</a>
+
 </div>
 
-<script>
+<script src="dashboard.js"></script>
 
-const nameInput = document.getElementById("name");
-const emailInput = document.getElementById("email");
-const phoneInput = document.getElementById("phone");
-
-nameInput.value = localStorage.getItem("username") || "";
-emailInput.value = localStorage.getItem("email") || "";
-phoneInput.value = localStorage.getItem("phone") || "";
-
-function updatePreview(){
-
-    document.getElementById("previewName").textContent =
-        nameInput.value || "Not Set";
-
-    document.getElementById("previewEmail").textContent =
-        emailInput.value || "Not Set";
-
-    document.getElementById("previewPhone").textContent =
-        phoneInput.value || "Not Set";
-}
-
-function saveProfile(){
-
-    localStorage.setItem("username", nameInput.value);
-
-    localStorage.setItem("email", emailInput.value);
-
-    localStorage.setItem("phone", phoneInput.value);
-
-    updatePreview();
-
-    alert("✅ Profile Saved!");
-
-    nameInput.focus();
-}
-
-updatePreview();
-
-[nameInput, emailInput, phoneInput].forEach(function(input){
-
-    input.addEventListener("keypress", function(event){
-
-        if(event.key === "Enter"){
-            saveProfile();
-        }
-
-    });
-
-});
-
-</script>
+    
 
 </body>
 </html>
