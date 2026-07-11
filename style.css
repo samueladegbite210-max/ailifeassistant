@@ -449,3 +449,18 @@ button:hover,
     font-size:23px;
     line-height:1.5;
 }
+.box{
+    background:#1D232D;
+    border-radius:18px;
+    padding:25px;
+    text-align:center;
+    text-decoration:none;
+    color:white;
+    font-size:18px;
+    transition:.3s;
+}
+
+.box:hover{
+    background:#2563EB;
+    transform:translateY(-5px);
+}
