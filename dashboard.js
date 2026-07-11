@@ -446,3 +446,40 @@ menuBtn.onclick = function () {
 closeBtn.onclick = function () {
     sideMenu.classList.remove("active");
 };
+// ==========================
+// Next Event
+// ==========================
+
+function loadNextEvent(){
+
+    const nextEvent = document.getElementById("nextEvent");
+
+    if(!nextEvent) return;
+
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+
+    if(events.length === 0){
+
+        nextEvent.innerHTML = "<p>No upcoming events.</p>";
+
+        return;
+
+    }
+
+    events.sort((a,b)=> new Date(a.date) - new Date(b.date));
+
+    const event = events[0];
+
+    nextEvent.innerHTML = `
+        <h2>${event.title}</h2>
+
+        <p>📅 ${event.date}</p>
+
+        ${event.time ? `<p>🕒 ${event.time}</p>` : ""}
+
+        ${event.location ? `<p>📍 ${event.location}</p>` : ""}
+    `;
+
+}
+
+loadNextEvent();
