@@ -154,6 +154,36 @@ const msg = text.toLowerCase();
 if(msg.includes("hello") || msg.includes("hi")){
     reply = "👋 Hello Samuel! How can I help you today?";
 }
+    else if(msg.includes("open tasks")){
+    reply = "✅ Opening Tasks...";
+    setTimeout(function(){
+        window.location.href = "tasks.html";
+    },1000);
+}
+else if(msg.includes("open notes")){
+    reply = "📝 Opening Notes...";
+    setTimeout(function(){
+        window.location.href = "notes.html";
+    },1000);
+}
+else if(msg.includes("open calendar")){
+    reply = "📅 Opening Calendar...";
+    setTimeout(function(){
+        window.location.href = "calendar.html";
+    },1000);
+}
+else if(msg.includes("open goals")){
+    reply = "🎯 Opening Goals...";
+    setTimeout(function(){
+        window.location.href = "goals.html";
+    },1000);
+}
+else if(msg.includes("open profile")){
+    reply = "👤 Opening Profile...";
+    setTimeout(function(){
+        window.location.href = "profile.html";
+    },1000);
+}
 else if(msg.includes("task")){
     reply = "✅ You can manage all your tasks from the Tasks page.";
 }
