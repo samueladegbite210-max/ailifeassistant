@@ -246,7 +246,15 @@ function saveTasks(){
 
 }
 
+function deleteTask(index){
 
+    tasks.splice(index,1);
+
+    saveTasks();
+
+}
+
+renderTasks();
 }
 // ==========================
 // Productivity
