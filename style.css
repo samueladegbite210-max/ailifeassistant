@@ -566,3 +566,58 @@ button:hover,
     margin-bottom:10px;
 
 }
+/* Calendar Grid */
+
+.calendar-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(7,1fr);
+
+    gap:10px;
+
+    margin-top:20px;
+
+}
+
+.day-name{
+
+    text-align:center;
+
+    font-weight:bold;
+
+    color:#60A5FA;
+
+}
+
+.day{
+
+    background:#111827;
+
+    border-radius:12px;
+
+    padding:15px 0;
+
+    text-align:center;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.day:hover{
+
+    background:#2563EB;
+
+    transform:scale(1.05);
+
+}
+
+.empty{
+
+    background:transparent;
+
+    cursor:default;
+
+}
