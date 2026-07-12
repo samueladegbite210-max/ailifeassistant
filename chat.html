@@ -147,17 +147,37 @@ function sendMessage(){
 
     setTimeout(function(){
 
-        chat.innerHTML += `
-            <div class="message ai">
-                🤖 You said: "${text}"
+        let reply = "";
 
-                <br><br>
+const msg = text.toLowerCase();
 
-                I'm still under development.
+if(msg.includes("hello") || msg.includes("hi")){
+    reply = "👋 Hello Samuel! How can I help you today?";
+}
+else if(msg.includes("task")){
+    reply = "✅ You can manage all your tasks from the Tasks page.";
+}
+else if(msg.includes("goal")){
+    reply = "🎯 Your goals help keep you focused. Keep going!";
+}
+else if(msg.includes("calendar") || msg.includes("event")){
+    reply = "📅 You can view and manage your events in the Calendar page.";
+}
+else if(msg.includes("note")){
+    reply = "📝 Your notes are saved automatically.";
+}
+else if(msg.includes("thank")){
+    reply = "😊 You're welcome, Samuel!";
+}
+else{
+    reply = "🤖 I'm still learning. A smarter AI assistant is coming soon!";
+}
 
-                Soon I'll become a real AI assistant.
-            </div>
-        `;
+chat.innerHTML += `
+<div class="message ai">
+${reply}
+</div>
+`;
 
         chat.scrollTop = chat.scrollHeight;
 
