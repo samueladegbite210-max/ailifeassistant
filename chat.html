@@ -177,6 +177,33 @@ else if(msg.includes("open goals")){
     setTimeout(function(){
         window.location.href = "goals.html";
     },1000);
+    else if(msg.includes("how many tasks")){
+    const count = document.getElementById("taskCount") ?
+    document.getElementById("taskCount").textContent :
+    localStorage.getItem("tasks");
+
+    reply = "✅ You currently have tasks saved in your planner.";
+}
+
+else if(msg.includes("how many goals")){
+    reply = "🎯 Check your Goals page. You're making great progress!";
+}
+
+else if(msg.includes("next event")){
+    reply = "📅 Your next scheduled event is shown on your Dashboard.";
+}
+
+else if(msg.includes("motivate me")){
+    reply = "💙 Success comes from small consistent actions. Keep going, Samuel!";
+}
+
+else if(msg.includes("good morning")){
+    reply = "🌅 Good morning, Samuel! I hope you have an amazing day.";
+}
+
+else if(msg.includes("good night")){
+    reply = "🌙 Good night, Samuel. Get some good rest!";
+}
 }
 else if(msg.includes("open profile")){
     reply = "👤 Opening Profile...";
