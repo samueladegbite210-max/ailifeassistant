@@ -1,7 +1,25 @@
 // ===============================
 // AI Life Assistant Dashboard 3.0
 // ===============================
+// ==========================
+// USER INFORMATION
+// ==========================
 
+// Default user name
+
+let username = localStorage.getItem("profileName") || "Samuel";
+
+// Load saved tasks
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+// Load saved goals
+
+let goals = JSON.parse(localStorage.getItem("goals")) || [];
+
+// Load saved events
+
+let events = JSON.parse(localStorage.getItem("events")) || [];
 // Welcome Message
 const username = localStorage.getItem("username") || "Samuel";
 
@@ -10,7 +28,43 @@ const welcomeText = document.getElementById("welcomeText");
 if (welcomeText) {
     welcomeText.textContent = "👋 Welcome Back, " + username;
 }
+// ==========================
+// DATE & TIME
+// ==========================
 
+function updateDateTime(){
+
+    const now = new Date();
+
+    const dateElement = document.getElementById("todayDate");
+
+    const timeElement = document.getElementById("currentTime");
+
+    if(dateElement){
+
+        dateElement.textContent =
+        now.toDateString();
+
+    }
+
+    if(timeElement){
+
+        timeElement.textContent =
+        now.toLocaleTimeString([],{
+
+            hour:"2-digit",
+
+            minute:"2-digit"
+
+        });
+
+    }
+
+}
+
+updateDateTime();
+
+setInterval(updateDateTime,1000);
 // Today's Date
 function updateDate() {
     const todayDate = document.getElementById("todayDate");
@@ -345,27 +399,35 @@ updateStreak();
 // Smart AI Assistant
 // ==========================
 
-function updateAssistant() {
+// ==========================
+// GREETING
+// ==========================
+
+function getGreeting(){
 
     const hour = new Date().getHours();
 
-let greeting = "";
+    if(hour >= 5 && hour < 12){
 
-if (hour >= 5 && hour < 12) {
+        return "🌅 Good Morning";
 
-    greeting = "🌅 Good Morning";
+    }
 
-} else if (hour >= 12 && hour < 17) {
+    if(hour >= 12 && hour < 17){
 
-    greeting = "☀️ Good Afternoon";
+        return "☀️ Good Afternoon";
 
-} else if (hour >= 17 && hour < 21) {
+    }
 
-    greeting = "🌇 Good Evening";
+    if(hour >= 17 && hour < 21){
 
-} else {
+        return "🌇 Good Evening";
 
-    greeting = "🌙 Good Night";
+    }
+
+    return "🌙 Good Night";
+
+
 
 }
     const completed = tasks.filter(task => task.done).length;
