@@ -1,100 +1,77 @@
-// ========================================
-// AI LIFE ASSISTANT
-// Version 2.5
-// ========================================
+// ==========================
+// AI Life Assistant Dashboard
+// ==========================
 
-// ---------- USER ----------
+const username = localStorage.getItem("profileName") || "Samuel";
 
-const username =
-localStorage.getItem("profileName") || "Samuel";
-
-
-// ---------- DATE & TIME ----------
-
-function updateDateTime(){
+// Date & Time
+function updateDateTime() {
 
     const now = new Date();
 
-    const date =
-    document.getElementById("todayDate");
+    const date = document.getElementById("todayDate");
+    const time = document.getElementById("currentTime");
 
-    const time =
-    document.getElementById("currentTime");
-
-    if(date){
-
-        date.textContent =
-        now.toDateString();
-
+    if (date) {
+        date.textContent = now.toDateString();
     }
 
-    if(time){
-
-        time.textContent =
-        now.toLocaleTimeString([],{
-
-            hour:"2-digit",
-
-            minute:"2-digit",
-
-            second:"2-digit"
-
+    if (time) {
+        time.textContent = now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
         });
-
     }
-
 }
 
-setInterval(updateDateTime,1000);
-
-updateDateTime();
-
-
-// ---------- GREETING ----------
-
-function updateGreeting(){
+// Greeting
+function updateGreeting() {
 
     const welcome = document.getElementById("welcomeText");
     const assistant = document.getElementById("assistantMessage");
 
-    if(!welcome) return;
+    let greeting;
 
     const hour = new Date().getHours();
 
-    let greeting = "";
-
-    if(hour >= 5 && hour < 12){
-
+    if (hour < 12) {
         greeting = "🌅 Good Morning";
-
-    }else if(hour >= 12 && hour < 17){
-
+    } else if (hour < 17) {
         greeting = "☀️ Good Afternoon";
-
-    }else if(hour >= 17 && hour < 21){
-
+    } else if (hour < 21) {
         greeting = "🌇 Good Evening";
-
-    }else{
-
+    } else {
         greeting = "🌙 Good Night";
-
     }
 
-    welcome.textContent = `${greeting}, ${username}`;
+    if (welcome) {
+        welcome.textContent = `${greeting}, ${username}`;
+    }
 
-    if(assistant){
-
+    if (assistant) {
         assistant.innerHTML = `
 📅 Today is a brand-new opportunity.<br><br>
-
-I'm here to help you manage your tasks, goals, and events.
-
+I'm here to help you manage your tasks, goals and events.<br><br>
 💙 Let's make today productive together!
-        `;
-
+`;
     }
-
 }
 
+// Menu
+const sideMenu = document.getElementById("sideMenu");
+const menuBtn = document.getElementById("menuBtn");
+const closeBtn = document.getElementById("closeBtn");
+
+if (menuBtn && sideMenu) {
+    menuBtn.onclick = () => sideMenu.classList.add("active");
+}
+
+if (closeBtn && sideMenu) {
+    closeBtn.onclick = () => sideMenu.classList.remove("active");
+}
+
+// Start Dashboard
+updateDateTime();
 updateGreeting();
+setInterval(updateDateTime, 1000);
