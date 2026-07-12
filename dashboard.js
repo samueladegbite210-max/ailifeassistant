@@ -464,24 +464,3 @@ document
 
 });
 
-<script>
-function sendMessage(){
-
-const input=document.getElementById("userInput");
-
-const chat=document.getElementById("chatBox");
-
-if(input.value.trim()=="") return;
-
-chat.innerHTML +=
-"<p><strong>🙂 You:</strong> "+input.value+"</p>";
-
-chat.innerHTML +=
-"<p><strong>🤖 AI:</strong> I'm still learning. My full AI brain is coming soon.</p>";
-
-chat.scrollTop=chat.scrollHeight;
-
-input.value="";
-
-}
-</script>
