@@ -331,3 +331,47 @@ function updateAchievement(){
 }
 
 updateAchievement();
+// ==========================
+// Daily Streak
+// ==========================
+
+function updateDailyStreak(){
+
+    const streakCount = document.getElementById("streakCount");
+    const streakMessage = document.getElementById("streakMessage");
+
+    if(!streakCount || !streakMessage) return;
+
+    const today = new Date().toDateString();
+
+    let streak = parseInt(localStorage.getItem("dailyStreak")) || 0;
+    const lastVisit = localStorage.getItem("lastVisit");
+
+    if(lastVisit !== today){
+
+        streak++;
+
+        localStorage.setItem("dailyStreak", streak);
+        localStorage.setItem("lastVisit", today);
+
+    }
+
+    streakCount.textContent = streak + (streak === 1 ? " Day" : " Days");
+
+    if(streak >= 30){
+
+        streakMessage.textContent = "🏆 Incredible! 30-day streak!";
+
+    }else if(streak >= 7){
+
+        streakMessage.textContent = "🔥 Amazing! Keep your streak alive!";
+
+    }else{
+
+        streakMessage.textContent = "💪 Keep opening the app every day!";
+
+    }
+
+}
+
+updateDailyStreak();
