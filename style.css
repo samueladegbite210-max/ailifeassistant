@@ -518,3 +518,32 @@ button:hover,
     color:white;
 
 }
+/* Light Mode */
+
+.light-mode{
+
+    background:#F3F4F6;
+
+    color:#111827;
+
+}
+
+.light-mode .card{
+
+    background:white;
+
+    color:#111827;
+
+}
+
+.light-mode .navbar{
+
+    background:white;
+
+}
+
+.light-mode .navbar a{
+
+    color:#111827;
+
+}
