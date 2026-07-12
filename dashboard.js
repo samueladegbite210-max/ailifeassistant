@@ -81,17 +81,13 @@ function updateGreeting(){
 
     }
 
-    welcome.textContent = `${greeting}, ${username}`;
+    assistant.innerHTML = `
+📅 Today is a brand-new opportunity.<br><br>
 
-    if(assistant){
+I'm here to help you manage your tasks, goals, and events.
 
-        assistant.innerHTML = `
-        Welcome back! 😊<br><br>
-
-        I'm ready to help you stay organized today.
-
-        🚀 Let's make today productive!
-        `;
+💙 Let's make today productive together!
+`;
 
     }
 
