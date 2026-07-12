@@ -120,34 +120,45 @@ updateClock();
 updateTip();
 
 setInterval(updateClock, 1000);
+
+
 // ==========================
-// Tasks
+// TASKS
 // ==========================
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 const taskList = document.getElementById("taskList");
 
-renderTasks();
-
 function addTask(){
-alert("Task button clicked");
+
     const input = document.getElementById("taskInput");
 
-    const priority =
-    document.getElementById("taskPriority").value;
+    const priority = document.getElementById("taskPriority");
 
     const text = input.value.trim();
 
-    if(text === "") return;
+    if(text === ""){
+
+        alert("Please enter a task.");
+
+        return;
+
+    }
 
     tasks.push({
-        text: text,
-        priority: priority,
-        done: false
+
+        text:text,
+
+        priority:priority.value,
+
+        done:false
+
     });
 
-    input.value = "";
+    input.value="";
+
+    priority.value="Medium";
 
     saveTasks();
 
@@ -155,37 +166,43 @@ alert("Task button clicked");
 
 function renderTasks(){
 
-    taskList.innerHTML = "";
+    if(!taskList) return;
+
+    taskList.innerHTML="";
 
     tasks.forEach((task,index)=>{
 
-        const li = document.createElement("li");
+        const li=document.createElement("li");
 
-        li.innerHTML = `
+        li.innerHTML=`
+
         <span style="cursor:pointer;">
+
         ${task.done ? "✅" : "⬜"}
-     ${task.priority || "🟡 Medium"}
+
         ${task.text}
+
+        <small>
+
+        (${task.priority})
+
+        </small>
+
         </span>
 
-        <button
-onclick="deleteTask(${index})"
-style="
-padding:6px 10px;
-width:auto;
-height:auto;
-border:none;
-border-radius:8px;
-cursor:pointer;
-">
-🗑️
-</button>
+        <button class="deleteBtn"
+
+        onclick="deleteTask(${index})">
+
+        🗑️
+
+        </button>
+
         `;
 
-        li.querySelector("span").onclick = function(){
+        li.querySelector("span").onclick=function(){
 
-            tasks[index].done =
-            !tasks[index].done;
+            tasks[index].done=!tasks[index].done;
 
             saveTasks();
 
@@ -195,9 +212,8 @@ cursor:pointer;
 
     });
 
-    document.getElementById("taskCount").textContent =
-    tasks.length;
-updateProductivity();
+    updateProductivity();
+
 }
 
 function deleteTask(index){
@@ -211,14 +227,24 @@ function deleteTask(index){
 function saveTasks(){
 
     localStorage.setItem(
+
         "tasks",
+
         JSON.stringify(tasks)
+
     );
 
     renderTasks();
+
     updateAssistant();
-    renderGoals();
-    updateAssistant();
+
+    loadDailyBrief();
+
+    loadNotifications();
+
+    loadProfileStats();
+
+}
 
 
 }
