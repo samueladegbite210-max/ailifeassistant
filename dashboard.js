@@ -307,52 +307,75 @@ function updateProductivity(){
 // Goals
 // ==========================
 
+// ==========================
+// GOALS
+// ==========================
+
 let goals = JSON.parse(localStorage.getItem("goals")) || [];
 
 const goalList = document.getElementById("goalList");
 
-renderGoals();
-
-function addGoal() {
+function addGoal(){
 
     const input = document.getElementById("goalInput");
 
     const text = input.value.trim();
 
-    if (text === "") return;
+    if(text === ""){
+
+        alert("Please enter a goal.");
+
+        return;
+
+    }
 
     goals.push({
-        text: text,
-        done: false
+
+        text:text,
+
+        done:false
+
     });
 
-    input.value = "";
+    input.value="";
 
     saveGoals();
 
 }
 
-function renderGoals() {
+function renderGoals(){
 
-    if (!goalList) return;
+    if(!goalList) return;
 
-    goalList.innerHTML = "";
+    goalList.innerHTML="";
 
-    goals.forEach((goal, index) => {
+    goals.forEach((goal,index)=>{
 
-        const li = document.createElement("li");
+        const li=document.createElement("li");
 
-        li.innerHTML = `
-            <span style="cursor:pointer;">
-                ${goal.done ? "✅" : "🎯"} ${goal.text}
-            </span>
+        li.innerHTML=`
 
-            <button onclick="deleteGoal(${index})">🗑️</button>
+        <span style="cursor:pointer;">
+
+        ${goal.done ? "🏆" : "🎯"}
+
+        ${goal.text}
+
+        </span>
+
+        <button class="deleteBtn"
+
+        onclick="deleteGoal(${index})">
+
+        🗑️
+
+        </button>
+
         `;
 
-        li.querySelector("span").onclick = function () {
+        li.querySelector("span").onclick=function(){
 
-            goals[index].done = !goals[index].done;
+            goals[index].done=!goals[index].done;
 
             saveGoals();
 
@@ -364,21 +387,36 @@ function renderGoals() {
 
     updateGoalCount();
 
+
 }
 
-function deleteGoal(index) {
+function deleteGoal(index){
 
-    goals.splice(index, 1);
+    goals.splice(index,1);
 
     saveGoals();
 
 }
 
-function saveGoals() {
+function saveGoals(){
 
-    localStorage.setItem("goals", JSON.stringify(goals));
+    localStorage.setItem(
+
+        "goals",
+
+        JSON.stringify(goals)
+
+    );
 
     renderGoals();
+
+    updateAssistant();
+
+    loadDailyBrief();
+
+    loadNotifications();
+
+    loadProfileStats();
 
 }
 
@@ -389,7 +427,7 @@ function updateGoalCount() {
     if (goalCount) {
 
         goalCount.textContent = goals.length;
-
+renderGoals();
     }
 
 }
