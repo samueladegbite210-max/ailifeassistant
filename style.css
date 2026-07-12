@@ -401,36 +401,39 @@ button:hover,
 
 .clock-section{
     text-align:center;
-    margin-bottom:30px;
+    margin:20px 0;
 }
 
 #todayDate{
-    color:#5B8DFF;
-    font-size:26px;
+    font-size:22px;
+    color:#60A5FA;
     font-weight:bold;
 }
 
 #currentTime{
-    color:white;
-    font-size:48px;
-    margin-top:10px;
+    font-size:46px;
     font-weight:bold;
+    margin-top:8px;
+    color:white;
 }
 
 .welcome{
     text-align:center;
-    margin-bottom:35px;
+    margin:25px 0 35px;
 }
 
 .welcome h1{
-    font-size:52px;
-    margin-bottom:15px;
+    font-size:34px;
+    font-weight:700;
+    margin-bottom:12px;
 }
 
 .welcome p{
-    color:#AAB4C5;
-    font-size:23px;
-    line-height:1.5;
+    font-size:18px;
+    color:#B5C0D0;
+    line-height:1.6;
+    max-width:600px;
+    margin:0 auto;
 }
 .box{
     background:#1D232D;
