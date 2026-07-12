@@ -20,13 +20,8 @@ let goals = JSON.parse(localStorage.getItem("goals")) || [];
 // Load saved events
 
 let events = JSON.parse(localStorage.getItem("events")) || [];
-// Welcome Message
-const username = localStorage.getItem("username") || "Samuel";
 
-const welcomeText = document.getElementById("welcomeText");
 
-if (welcomeText) {
-    welcomeText.textContent = "👋 Welcome Back, " + username;
 }
 // ==========================
 // DATE & TIME
