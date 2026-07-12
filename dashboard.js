@@ -291,3 +291,43 @@ function updateProductivity(){
 }
 
 updateProductivity();
+// ==========================
+// Achievement Badge
+// ==========================
+
+function updateAchievement(){
+
+    const badge = document.getElementById("achievementBadge");
+    const text = document.getElementById("achievementText");
+
+    if(!badge || !text) return;
+
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    const completed = tasks.filter(task => task.done).length;
+
+    if(completed >= 10){
+
+        badge.textContent = "👑 Productivity Master";
+        text.textContent = "Amazing! You completed 10 tasks.";
+
+    }else if(completed >= 5){
+
+        badge.textContent = "🔥 Task Champion";
+        text.textContent = "Fantastic! You completed 5 tasks.";
+
+    }else if(completed >= 1){
+
+        badge.textContent = "🌟 First Step";
+        text.textContent = "Great job! You completed your first task.";
+
+    }else{
+
+        badge.textContent = "🚀 Ready to Begin";
+        text.textContent = "Complete your first task to unlock achievements.";
+
+    }
+
+}
+
+updateAchievement();
