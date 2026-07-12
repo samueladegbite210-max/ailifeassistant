@@ -103,3 +103,41 @@ function deleteEvent(index){
     
 }
     
+// ==========================
+// Next Upcoming Event
+// ==========================
+
+function loadNextEvent(){
+
+    const nextEventBox = document.getElementById("nextEvent");
+
+    if(!nextEventBox) return;
+
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+
+    if(events.length === 0){
+
+        nextEventBox.innerHTML = "<p>No upcoming events.</p>";
+
+        return;
+
+    }
+
+    events.sort(function(a,b){
+
+        return new Date(a.date + " " + (a.time || "00:00")) -
+               new Date(b.date + " " + (b.time || "00:00"));
+
+    });
+
+    const next = events[0];
+
+    nextEventBox.innerHTML = `
+        <strong>📅 ${next.title}</strong><br>
+        ${next.date}<br>
+        ${next.time ? "🕒 " + next.time : ""}
+    `;
+
+}
+
+loadNextEvent();
