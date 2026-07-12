@@ -645,7 +645,54 @@ function loadNotifications(){
     }
 
     box.innerHTML = html;
+    
 
 }
 
 loadNotifications();
+// ==========================
+// AI Daily Brief
+// ==========================
+
+function loadDailyBrief(){
+
+    const brief = document.getElementById("dailyBrief");
+
+    if(!brief) return;
+
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+
+    const pendingTasks = tasks.filter(task => !task.done).length;
+
+    const completedTasks = tasks.filter(task => task.done).length;
+
+    let message = "";
+
+    if(events.length === 0 && pendingTasks === 0){
+
+        message =
+        "🎉 Amazing! You have no pending tasks or events today. Enjoy your day!";
+
+    }else{
+
+        message = `
+        👋 Good job, Samuel!<br><br>
+
+        ✅ Pending Tasks: <b>${pendingTasks}</b><br>
+
+        📅 Upcoming Events: <b>${events.length}</b><br>
+
+        🎯 Completed Tasks: <b>${completedTasks}</b><br><br>
+
+        💡 AI Tip:<br>
+
+        Finish your highest-priority task first for a productive day.
+        `;
+
+    }
+
+    brief.innerHTML = message;
+
+}
+
+loadDailyBrief();
