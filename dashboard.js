@@ -135,3 +135,50 @@ if(tip){
     tip.textContent = tips[today % tips.length];
 
 }
+// ==========================
+// AI Daily Brief
+// ==========================
+
+function loadDailyBrief(){
+
+    const brief = document.getElementById("dailyBrief");
+
+    if(!brief) return;
+
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+
+    let message = "";
+
+    if(tasks.length === 0 && goals.length === 0 && events.length === 0){
+
+        message = `
+🎉 Welcome, ${username}!<br><br>
+
+You don't have any tasks, goals or events yet.<br><br>
+
+Start by adding your first task to begin your productive journey. 🚀
+`;
+
+    }else{
+
+        message = `
+👋 ${username}<br><br>
+
+📋 Tasks: ${tasks.length}<br>
+
+🎯 Goals: ${goals.length}<br>
+
+📅 Events: ${events.length}<br><br>
+
+💪 Keep making progress every day!
+`;
+
+    }
+
+    brief.innerHTML = message;
+
+}
+
+loadDailyBrief();
