@@ -75,3 +75,63 @@ if (closeBtn && sideMenu) {
 updateDateTime();
 updateGreeting();
 setInterval(updateDateTime, 1000);
+// ==========================
+// Dashboard Summary
+// ==========================
+
+function updateSummary(){
+
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+
+    const taskCount = document.getElementById("taskCount");
+    const goalCount = document.getElementById("goalCount");
+    const eventCount = document.getElementById("eventCount");
+
+    if(taskCount){
+        taskCount.textContent = tasks.length;
+    }
+
+    if(goalCount){
+        goalCount.textContent = goals.length;
+    }
+
+    if(eventCount){
+        eventCount.textContent = events.length;
+    }
+
+}
+
+updateSummary();
+// ==========================
+// AI Tip of the Day
+// ==========================
+
+const tips = [
+
+"💪 Start your day with your most important task.",
+
+"🎯 Focus on progress, not perfection.",
+
+"📅 Check your calendar before starting work.",
+
+"💧 Stay hydrated and take short breaks.",
+
+"🚀 Small steps every day create big success.",
+
+"📚 Learn one new thing today.",
+
+"😊 Smile—you’re building something amazing!"
+
+];
+
+const tip = document.getElementById("tipText");
+
+if(tip){
+
+    const today = new Date().getDate();
+
+    tip.textContent = tips[today % tips.length];
+
+}
