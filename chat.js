@@ -83,6 +83,65 @@ function aiReply(text){
         reply = "🌙 Good night. Sleep well.";
     }
 
+        // Open Tasks
+else if(msg.includes("open tasks")){
+    reply = "✅ Opening your Tasks...";
+    addMessage("ai", reply);
+
+    setTimeout(function(){
+        window.location.href = "tasks.html";
+    },1000);
+
+    return;
+}
+
+// Open Goals
+else if(msg.includes("open goals")){
+    reply = "🎯 Opening your Goals...";
+    addMessage("ai", reply);
+
+    setTimeout(function(){
+        window.location.href = "goals.html";
+    },1000);
+
+    return;
+}
+
+// Open Calendar
+else if(msg.includes("open calendar")){
+    reply = "📅 Opening your Calendar...";
+    addMessage("ai", reply);
+
+    setTimeout(function(){
+        window.location.href = "calendar.html";
+    },1000);
+
+    return;
+}
+
+// Open Notes
+else if(msg.includes("open notes")){
+    reply = "📝 Opening your Notes...";
+    addMessage("ai", reply);
+
+    setTimeout(function(){
+        window.location.href = "notes.html";
+    },1000);
+
+    return;
+}
+
+// Open Profile
+else if(msg.includes("open profile")){
+    reply = "👤 Opening your Profile...";
+    addMessage("ai", reply);
+
+    setTimeout(function(){
+        window.location.href = "profile.html";
+    },1000);
+
+    return;
+}
     // Motivation
     else if(msg.includes("motivate me")){
         reply = "💙 Don't give up. Small progress every day leads to big success.";
