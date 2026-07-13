@@ -112,7 +112,7 @@ function aiReply(text){
 else if(
     msg.includes("how many goals") ||
     msg.includes("goal count") ||
-    msg.includes("my goals")
+    
 ){
 
     if(goals.length === 0){
