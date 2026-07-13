@@ -1,6 +1,24 @@
-// Get elements
+// =====================================
+// AI Life Assistant Chat v2.0
+// Part 1 - Setup
+// =====================================
+
+// Elements
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
+
+// Add a message to the chat
+function addMessage(type, text){
+
+    chat.innerHTML += `
+    <div class="message ${type}">
+        ${text}
+    </div>
+    `;
+
+    chat.scrollTop = chat.scrollHeight;
+
+}
 
 // Send message
 function sendMessage(){
@@ -9,247 +27,79 @@ function sendMessage(){
 
     if(text === "") return;
 
-    chat.innerHTML += `
-    <div class="message user">
-        ${text}
-    </div>
-    `;
+    addMessage("user", text);
 
     input.value = "";
-    chat.scrollTop = chat.scrollHeight;
 
     setTimeout(function(){
 
-        const msg = text.toLowerCase();
-        let reply = "";
+        aiReply(text);
 
-        // Greetings
-        if(msg.includes("hello") || msg.includes("hi")){
-            reply = "👋 Hello Samuel! How can I help you today?";
-        // Calendar
-else if(
-msg.includes("calendar") ||
-msg.includes("show my calendar") ||
-msg.includes("open calendar") ||
-msg.includes("go to calendar") ||
-msg.includes("take me to calendar")
-){
-reply="📅 Opening your Calendar...";
-setTimeout(()=>{
-window.location.href="calendar.html";
-},1000);
-}
-
-// Tasks
-else if(
-msg.includes("task") ||
-msg.includes("tasks") ||
-msg.includes("open tasks") ||
-msg.includes("show my tasks") ||
-msg.includes("go to tasks")
-){
-reply="✅ Opening your Tasks...";
-setTimeout(()=>{
-window.location.href="tasks.html";
-},1000);
-}
-
-// Goals
-else if(
-msg.includes("goal") ||
-msg.includes("goals") ||
-msg.includes("open goals") ||
-msg.includes("show my goals")
-){
-reply="🎯 Opening your Goals...";
-setTimeout(()=>{
-window.location.href="goals.html";
-},1000);
-}
-
-// Notes
-else if(
-msg.includes("note") ||
-msg.includes("notes") ||
-msg.includes("open notes") ||
-msg.includes("show my notes")
-){
-reply="📝 Opening your Notes...";
-setTimeout(()=>{
-window.location.href="notes.html";
-},1000);
-}
-
-// Profile
-else if(
-msg.includes("profile") ||
-msg.includes("my profile") ||
-msg.includes("open profile")
-){
-reply="👤 Opening your Profile...";
-setTimeout(()=>{
-window.location.href="profile.html";
-},1000);
-}
-}
-
-        // Open pages
-        else if(msg.includes("open tasks")){
-            reply = "✅ Opening Tasks...";
-            setTimeout(()=>window.location.href="tasks.html",1000);
-        }
-
-        else if(msg.includes("open notes")){
-            reply = "📝 Opening Notes...";
-            setTimeout(()=>window.location.href="notes.html",1000);
-        }
-
-        else if(msg.includes("open goals")){
-            reply = "🎯 Opening Goals...";
-            setTimeout(()=>window.location.href="goals.html",1000);
-        }
-
-        else if(msg.includes("open calendar")){
-            reply = "📅 Opening Calendar...";
-            setTimeout(()=>window.location.href="calendar.html",1000);
-        }
-
-        else if(msg.includes("open profile")){
-            reply = "👤 Opening Profile...";
-            setTimeout(()=>window.location.href="profile.html",1000);
-        }
-
-        // Productivity
-        else if(msg.includes("how many tasks")){
-
-    const savedTasks = localStorage.getItem("tasks") || "";
-
-    const total = (savedTasks.match(/<li/g) || []).length;
-
-    reply = `✅ You currently have ${total} task(s).`;
+    },600);
 
 }
 
-else if(msg.includes("task")){
+// Press Enter to Send
+input.addEventListener("keypress", function(event){
 
-    reply = "✅ Keep completing your tasks one at a time.";
+    if(event.key === "Enter"){
 
-}
-
-        else if(msg.includes("how many goals")){
-
-    const savedGoals =
-    localStorage.getItem("goals") || "";
-
-    const total =
-    (savedGoals.match(/class="goal"/g) || []).length;
-
-    reply = `🎯 You currently have ${total} goal(s).`;
-
-}
-
-else if(msg.includes("goal")){
-
-    reply = "🎯 Stay focused. Every small step gets you closer to your goal.";
-
-}
-
-        else if(msg.includes("how many events")){
-
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-
-    reply = `📅 You currently have ${events.length} event(s).`;
-
-}
-
-else if(msg.includes("calendar") || msg.includes("event")){
-
-    reply = "📅 Don't forget to check your upcoming events.";
-
-}
-
-        else if(msg.includes("how many notes")){
-
-    const notes = localStorage.getItem("notes") || "";
-
-    if(notes.trim() === ""){
-
-        reply = "📝 You don't have any notes yet.";
-
-    }else{
-
-        reply = "📝 You already have notes saved.";
-
-    }
-
-}
-
-else if(msg.includes("note")){
-
-    reply = "📝 Your notes are saved automatically.";
-
-}
-        // Motivation
-        else if(msg.includes("motivate me")){
-            reply = "💙 Don't give up. Consistency beats perfection.";
-        }
-
-        else if(msg.includes("thank")){
-            reply = "😊 You're welcome, Samuel!";
-        }
-
-        else if(msg.includes("good morning")){
-            reply = "🌅 Good morning! Let's make today productive.";
-        }
-
-        else if(msg.includes("good night")){
-            reply = "🌙 Good night. Get some good rest.";
-        }
-
-        // Default reply
-        else{
-            reply = "🤖 I'm still learning. More AI features are coming soon!";
-        }
-
-        chat.innerHTML += `
-        <div class="message ai">
-            ${reply}
-        </div>
-        `;
-
-        chat.scrollTop = chat.scrollHeight;
-
-    },800);
-
-}
-
-// Press Enter
-input.addEventListener("keypress",function(event){
-    if(event.key==="Enter"){
         sendMessage();
+
     }
+
 });
+// =====================================
+// Part 2 - AI Brain
+// =====================================
 
-// Voice input
-function startVoice(){
+function aiReply(text){
 
-    if(!('webkitSpeechRecognition' in window)){
-        alert("Voice recognition is not supported on this browser.");
-        return;
+    const msg = text.toLowerCase();
+
+    let reply = "";
+
+    // Greetings
+    if(
+        msg.includes("hello") ||
+        msg.includes("hi")
+    ){
+        reply = "👋 Hello Samuel! How can I help you today?";
     }
 
-    const recognition = new webkitSpeechRecognition();
+    else if(msg.includes("good morning")){
+        reply = "🌅 Good morning! Have a productive day.";
+    }
 
-    recognition.lang="en-US";
+    else if(msg.includes("good afternoon")){
+        reply = "☀️ Good afternoon!";
+    }
 
-    recognition.start();
+    else if(msg.includes("good evening")){
+        reply = "🌇 Good evening!";
+    }
 
-    recognition.onresult=function(event){
+    else if(msg.includes("good night")){
+        reply = "🌙 Good night. Sleep well.";
+    }
 
-        input.value = event.results[0][0].transcript;
+    // Motivation
+    else if(msg.includes("motivate me")){
+        reply = "💙 Don't give up. Small progress every day leads to big success.";
+    }
 
-        sendMessage();
+    // Thank you
+    else if(
+        msg.includes("thank") ||
+        msg.includes("thanks")
+    ){
+        reply = "😊 You're welcome!";
+    }
 
-    };
+    else{
+        reply = "🤖 I'm still learning. More AI features are coming soon!";
+    }
+
+    addMessage("ai", reply);
 
 }
