@@ -59,9 +59,23 @@ function sendMessage(){
             reply = "✅ Keep completing your tasks one at a time.";
         }
 
-        else if(msg.includes("goal")){
-            reply = "🎯 Stay focused. Every small step gets you closer to your goal.";
-        }
+        else if(msg.includes("how many goals")){
+
+    const savedGoals =
+    localStorage.getItem("goals") || "";
+
+    const total =
+    (savedGoals.match(/class="goal"/g) || []).length;
+
+    reply = `🎯 You currently have ${total} goal(s).`;
+
+}
+
+else if(msg.includes("goal")){
+
+    reply = "🎯 Stay focused. Every small step gets you closer to your goal.";
+
+}
 
         else if(msg.includes("calendar") || msg.includes("event")){
             reply = "📅 Don't forget to check your upcoming events.";
