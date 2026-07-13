@@ -267,9 +267,20 @@ else if(msg.startsWith("create a task called ")){
 
 }
     // Create Note
-else if(msg.startsWith("save a note called ")){
+// Create Note
+else if(
+    msg.startsWith("save a note called ") ||
+    msg.startsWith("create a note called ") ||
+    msg.startsWith("add a note called ")
+){
 
-    const noteText = text.replace(/save a note called /i, "").trim();
+    let noteText = text;
+
+    noteText = noteText.replace(/save a note called /i, "");
+    noteText = noteText.replace(/create a note called /i, "");
+    noteText = noteText.replace(/add a note called /i, "");
+
+    noteText = noteText.trim();
 
     if(noteText === ""){
 
