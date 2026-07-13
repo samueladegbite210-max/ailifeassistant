@@ -26,7 +26,36 @@ function sendMessage(){
         // Greetings
         if(msg.includes("hello") || msg.includes("hi")){
             reply = "👋 Hello Samuel! How can I help you today?";
-        }
+        }else if(msg.includes("open tasks")){
+    reply = "✅ Opening your Tasks...";
+    setTimeout(() => {
+        window.location.href = "tasks.html";
+    },1000);
+}
+else if(msg.includes("open goals")){
+    reply = "🎯 Opening your Goals...";
+    setTimeout(() => {
+        window.location.href = "goals.html";
+    },1000);
+}
+else if(msg.includes("open calendar")){
+    reply = "📅 Opening your Calendar...";
+    setTimeout(() => {
+        window.location.href = "calendar.html";
+    },1000);
+}
+else if(msg.includes("open notes")){
+    reply = "📝 Opening your Notes...";
+    setTimeout(() => {
+        window.location.href = "notes.html";
+    },1000);
+}
+else if(msg.includes("open profile")){
+    reply = "👤 Opening your Profile...";
+    setTimeout(() => {
+        window.location.href = "profile.html";
+    },1000);
+}
 
         // Open pages
         else if(msg.includes("open tasks")){
