@@ -303,6 +303,34 @@ else if(
     }
 
 }
+    // Create Goal
+else if(
+    msg.startsWith("create a goal called ") ||
+    msg.startsWith("add a goal called ")
+){
+
+    let goalText = text;
+
+    goalText = goalText.replace(/create a goal called /i,"");
+    goalText = goalText.replace(/add a goal called /i,"");
+
+    goalText = goalText.trim();
+
+    if(goalText === ""){
+
+        reply = "❌ Please enter a goal.";
+
+    }else{
+
+        goals.push(goalText);
+
+        localStorage.setItem("goals", JSON.stringify(goals));
+
+        reply = "🎯 Goal created successfully!";
+
+    }
+
+}
 // Keep this LAST
 
 else{
