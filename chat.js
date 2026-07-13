@@ -56,7 +56,7 @@ input.addEventListener("keypress", function(event){
 function aiReply(text){
 
     const msg = text.toLowerCase();
-
+const notes = localStorage.getItem("notes") || "";
     let reply = "";
 
     // Greetings
@@ -129,6 +129,23 @@ else if(msg.includes("open notes")){
     },1000);
 
     return;
+}
+    // Number of notes
+else if(
+    msg.includes("how many notes") ||
+    msg.includes("note count")
+){
+
+    if(notes.trim() === ""){
+        reply = "📝 You don't have any notes yet.";
+    }else{
+
+        const words = notes.trim().split(/\s+/).length;
+
+        reply = "📝 You currently have 1 note with about " + words + " words.";
+
+    }
+
 }
 
 // Open Profile
