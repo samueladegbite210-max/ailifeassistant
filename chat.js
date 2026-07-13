@@ -303,7 +303,7 @@ else if(
     }
 
 }
-    // Create Goal
+   // Create Goal
 else if(
     msg.startsWith("create a goal called ") ||
     msg.startsWith("add a goal called ")
@@ -311,8 +311,8 @@ else if(
 
     let goalText = text;
 
-    goalText = goalText.replace(/create a goal called /i,"");
-    goalText = goalText.replace(/add a goal called /i,"");
+    goalText = goalText.replace(/create a goal called /i, "");
+    goalText = goalText.replace(/add a goal called /i, "");
 
     goalText = goalText.trim();
 
@@ -322,11 +322,15 @@ else if(
 
     }else{
 
-        goals.push(goalText);
+        goals.push({
+            id: Date.now(),
+            text: goalText,
+            done: false
+        });
 
         localStorage.setItem("goals", JSON.stringify(goals));
 
-        reply = "🎯 Goal created successfully!";
+        reply = "🎯 Goal \"" + goalText + "\" created successfully!";
 
     }
 
