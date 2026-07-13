@@ -240,10 +240,11 @@ else if(
     else if(msg.includes("thank") || msg.includes("thanks")){
         reply = "😊 You're welcome!";
     }
+
 // Create Task
 else if(msg.startsWith("create a task called ")){
 
-    const taskName = text.substring(22).trim();
+    const taskName = text.replace(/create a task called /i, "").trim();
 
     if(taskName === ""){
 
@@ -260,13 +261,17 @@ else if(msg.startsWith("create a task called ")){
 
         localStorage.setItem("tasks", JSON.stringify(tasks));
 
-        reply = "✅ Task created successfully!";
+        reply = "✅ Task \"" + taskName + "\" created successfully!";
 
     }
 
 }
-
 // Keep this LAST
+
 else{
     reply = "🤖 I'm still learning. More AI features are coming soon!";
+}
+
+addMessage("ai", reply);
+
 }
