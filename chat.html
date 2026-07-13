@@ -179,11 +179,9 @@ else if(msg.includes("open goals")){
     setTimeout(function(){
         window.location.href = "goals.html";
     },1000);
-    else if(msg.includes("how many tasks")){
-    const count = document.getElementById("taskCount") ?
-    document.getElementById("taskCount").textContent :
-    localStorage.getItem("tasks");
+}
 
+else if(msg.includes("how many tasks")){
     reply = "✅ You currently have tasks saved in your planner.";
 }
 
