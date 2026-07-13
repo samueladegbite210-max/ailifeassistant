@@ -54,7 +54,6 @@ input.addEventListener("keypress", function(event){
 // =====================================
 
 function aiReply(text){
-function aiReply(text){
 
     const msg = text.toLowerCase();
 
