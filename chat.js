@@ -486,6 +486,91 @@ else if(
     }
 
 } 
+    // ======================
+// Count Tasks
+// ======================
+
+else if(
+    msg.includes("how many tasks") ||
+    msg.includes("task count")
+){
+
+    reply = "✅ You currently have " + tasks.length + " task(s).";
+
+}
+    // ======================
+// Count Goals
+// ======================
+
+else if(
+    msg.includes("how many goals") ||
+    msg.includes("goal count")
+){
+
+    reply = "🎯 You currently have " + goals.length + " goal(s).";
+
+}
+    // ======================
+// Count Notes
+// ======================
+
+else if(
+    msg.includes("how many notes") ||
+    msg.includes("note count")
+){
+
+    if(notes.trim()==""){
+
+        reply="📝 You don't have any notes.";
+
+    }else{
+
+        const total = notes.split("\n\n").length;
+
+        reply="📝 You currently have "+total+" note(s).";
+
+    }
+
+}
+    // ======================
+// Count Events
+// ======================
+
+else if(
+    msg.includes("how many events") ||
+    msg.includes("event count")
+){
+
+    reply="📅 You currently have "+events.length+" event(s).";
+
+}
+    // ======================
+// Next Event
+// ======================
+
+else if(
+    msg.includes("next event") ||
+    msg.includes("upcoming event")
+){
+
+    if(events.length===0){
+
+        reply="📅 You don't have any upcoming events.";
+
+    }else{
+
+        const event=events[0];
+
+        reply=
+        "📅 <strong>Next Event</strong><br><br>"+
+        "📝 "+event.title+"<br>"+
+        "📆 "+event.date+"<br>"+
+        "🕒 "+event.time+"<br>"+
+        "📍 "+event.location;
+
+    }
+
+}
 else{
 
         reply="🤖 I'm still learning. More AI features are coming soon!";
