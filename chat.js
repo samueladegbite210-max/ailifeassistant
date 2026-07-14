@@ -1,13 +1,15 @@
-// =====================================
+// =======================================
 // AI Life Assistant v3.0
 // Chat System
-// =====================================
+// =======================================
 
-// Elements
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
 
+// ======================
 // Add Message
+// ======================
+
 function addMessage(type, text){
 
     chat.innerHTML += `
@@ -20,7 +22,10 @@ function addMessage(type, text){
 
 }
 
+// ======================
 // Send Message
+// ======================
+
 function sendMessage(){
 
     const text = input.value.trim();
@@ -39,19 +44,22 @@ function sendMessage(){
 
 }
 
-// Press Enter
-input.addEventListener("keypress", function(event){
+// ======================
+// Enter Key
+// ======================
 
-    if(event.key === "Enter"){
+input.addEventListener("keypress", function(e){
+
+    if(e.key === "Enter"){
 
         sendMessage();
 
     }
 
 });
-// =====================================
+// =======================================
 // AI Brain
-// =====================================
+// =======================================
 
 function aiReply(text){
 
@@ -64,11 +72,14 @@ function aiReply(text){
 
     let reply = "";
 
-    // =========================
+    // ======================
     // Greetings
-    // =========================
+    // ======================
 
-    if(msg.includes("hello") || msg.includes("hi")){
+    if(
+        msg.includes("hello") ||
+        msg.includes("hi")
+    ){
 
         reply = "👋 Hello Samuel! How can I help you today?";
 
@@ -98,15 +109,19 @@ function aiReply(text){
 
     }
 
-    // =========================
+    // ======================
     // Navigation
-    // =========================
+    // ======================
 
-    else if(msg.includes("open home")){
+    else if(
+        msg.includes("open home") ||
+        msg.includes("go home") ||
+        msg.includes("dashboard")
+    ){
 
-        reply = "🏠 Opening Home...";
+        reply="🏠 Opening Home...";
 
-        addMessage("ai", reply);
+        addMessage("ai",reply);
 
         setTimeout(function(){
 
@@ -118,11 +133,15 @@ function aiReply(text){
 
     }
 
-    else if(msg.includes("open tasks")){
+    else if(
+        msg.includes("open task") ||
+        msg.includes("open tasks") ||
+        msg.includes("go to tasks")
+    ){
 
-        reply = "✅ Opening Tasks...";
+        reply="✅ Opening Tasks...";
 
-        addMessage("ai", reply);
+        addMessage("ai",reply);
 
         setTimeout(function(){
 
@@ -134,11 +153,14 @@ function aiReply(text){
 
     }
 
-    else if(msg.includes("open goals")){
+    else if(
+        msg.includes("open goal") ||
+        msg.includes("open goals")
+    ){
 
-        reply = "🎯 Opening Goals...";
+        reply="🎯 Opening Goals...";
 
-        addMessage("ai", reply);
+        addMessage("ai",reply);
 
         setTimeout(function(){
 
@@ -150,11 +172,13 @@ function aiReply(text){
 
     }
 
-    else if(msg.includes("open calendar")){
+    else if(
+        msg.includes("open calendar")
+    ){
 
-        reply = "📅 Opening Calendar...";
+        reply="📅 Opening Calendar...";
 
-        addMessage("ai", reply);
+        addMessage("ai",reply);
 
         setTimeout(function(){
 
@@ -166,11 +190,14 @@ function aiReply(text){
 
     }
 
-    else if(msg.includes("open notes")){
+    else if(
+        msg.includes("open note") ||
+        msg.includes("open notes")
+    ){
 
-        reply = "📝 Opening Notes...";
+        reply="📝 Opening Notes...";
 
-        addMessage("ai", reply);
+        addMessage("ai",reply);
 
         setTimeout(function(){
 
@@ -182,11 +209,13 @@ function aiReply(text){
 
     }
 
-    else if(msg.includes("open profile")){
+    else if(
+        msg.includes("open profile")
+    ){
 
-        reply = "👤 Opening Profile...";
+        reply="👤 Opening Profile...";
 
-        addMessage("ai", reply);
+        addMessage("ai",reply);
 
         setTimeout(function(){
 
@@ -200,10 +229,10 @@ function aiReply(text){
 
     else{
 
-        reply = "🤖 AI Brain v3.0 is ready!";
+        reply="🤖 I'm still learning. More AI features are coming soon!";
 
     }
 
-    addMessage("ai", reply);
+    addMessage("ai",reply);
 
 }
