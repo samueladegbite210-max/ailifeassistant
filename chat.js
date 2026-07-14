@@ -782,7 +782,40 @@ else if(msg.startsWith("search events for ")){
     }
 
 }
-    
+    // ======================
+// Rename Task
+// ======================
+
+else if(msg.startsWith("rename task ")){
+
+    const parts = text.match(/rename task (\d+) to (.+)/i);
+
+    if(!parts){
+
+        reply = "❌ Use: Rename task 1 to Finish assignment";
+
+    }else{
+
+        const taskNumber = parseInt(parts[1]);
+        const newName = parts[2].trim();
+
+        if(taskNumber < 1 || taskNumber > tasks.length){
+
+            reply = "❌ Task not found.";
+
+        }else{
+
+            tasks[taskNumber - 1].text = newName;
+
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+
+            reply = "✏️ Task " + taskNumber + " renamed to \"" + newName + "\".";
+
+        }
+
+    }
+
+}
 else{
 
         reply="🤖 I'm still learning. More AI features are coming soon!";
