@@ -431,6 +431,126 @@ else if(
     }
 
 }
+    // ======================
+// Search Tasks
+// ======================
+
+else if(msg.startsWith("search tasks for ")){
+
+    const keyword = msg.replace("search tasks for ","").trim();
+
+    const results = tasks.filter(task =>
+        task.text.toLowerCase().includes(keyword)
+    );
+
+    if(results.length === 0){
+
+        reply = "❌ No matching tasks found.";
+
+    }else{
+
+        reply = "✅ <strong>Matching Tasks</strong><br><br>";
+
+        results.forEach(function(task,index){
+
+            reply +=
+            (task.done ? "✅ " : "⬜ ") +
+            (index+1) + ". " +
+            task.text + "<br>";
+
+        });
+
+    }
+
+}
+    // ======================
+// Search Goals
+// ======================
+
+else if(msg.startsWith("search goals for ")){
+
+    const keyword = msg.replace("search goals for ","").trim();
+
+    const results = goals.filter(goal =>
+        goal.text.toLowerCase().includes(keyword)
+    );
+
+    if(results.length === 0){
+
+        reply = "❌ No matching goals found.";
+
+    }else{
+
+        reply = "🎯 <strong>Matching Goals</strong><br><br>";
+
+        results.forEach(function(goal,index){
+
+            reply +=
+            (goal.done ? "✅ " : "⬜ ") +
+            (index+1) + ". " +
+            goal.text + "<br>";
+
+        });
+
+    }
+
+}
+    // ======================
+// Search Notes
+// ======================
+
+else if(msg.startsWith("search notes for ")){
+
+    const keyword = msg.replace("search notes for ","").trim();
+
+    if(notes.toLowerCase().includes(keyword)){
+
+        reply =
+        "📝 <strong>Found in Notes</strong><br><br>" +
+        notes.replace(/\n/g,"<br>");
+
+    }else{
+
+        reply = "❌ No matching notes found.";
+
+    }
+
+}
+    // ======================
+// Search Events
+// ======================
+
+else if(msg.startsWith("search events for ")){
+
+    const keyword = msg.replace("search events for ","").trim();
+
+    const results = events.filter(event =>
+        event.title.toLowerCase().includes(keyword)
+    );
+
+    if(results.length === 0){
+
+        reply = "❌ No matching events found.";
+
+    }else{
+
+        reply = "📅 <strong>Matching Events</strong><br><br>";
+
+        results.forEach(function(event,index){
+
+            reply +=
+            (index+1)+". "+
+            event.title+
+            "<br>📆 "+
+            event.date+
+            "<br><br>";
+
+        });
+
+    }
+
+}
+    
 // Keep this LAST
 
 else{
