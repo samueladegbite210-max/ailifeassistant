@@ -77,9 +77,11 @@ function aiReply(text){
     // ======================
 
     if(
-        msg.includes("hello") ||
-        msg.includes("hi")
-    ){
+    msg === "hi" ||
+    msg === "hello" ||
+    msg.startsWith("hi ") ||
+    msg.startsWith("hello ")
+){
 
         reply = "👋 Hello Samuel! How can I help you today?";
 
