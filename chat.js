@@ -858,43 +858,46 @@ else if(msg.startsWith("set task ")){
     }
 
 }
-   // Complete Task
+   
+// Complete Task By Name
+// =========================
+
 else if(
-    msg.startsWith("complete task ") ||
-    msg.startsWith("finish task ") ||
-    msg.startsWith("mark task ")
+    msg.startsWith("finish ") ||
+    msg.startsWith("complete ")
 ){
 
-    let match = msg.match(/\d+/);
+    let taskName = msg
+        .replace("finish ", "")
+        .replace("complete ", "")
+        .trim();
 
-    if(match){
+    let found = false;
 
-        let taskNumber = parseInt(match[0]) - 1;
+    tasks.forEach(function(task){
 
-        if(taskNumber >= 0 && taskNumber < tasks.length){
+        if(task.text.toLowerCase().includes(taskName)){
 
-            tasks[taskNumber].done = true;
-
-            localStorage.setItem("tasks", JSON.stringify(tasks));
-
-            reply =
-                "✅ Task " +
-                (taskNumber + 1) +
-                " completed!";
-
-        }else{
-
-            reply = "❌ Task not found.";
+            task.done = true;
+            found = true;
 
         }
 
+    });
+
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    if(found){
+
+        reply = "✅ Task completed!";
+
     }else{
 
-        reply = "❌ Please tell me the task number.";
+        reply = "❌ I couldn't find that task.";
 
     }
 
-} 
+}
 else{
 
         reply="🤖 I'm still learning. More AI features are coming soon!";
