@@ -992,9 +992,10 @@ else if(
 // =========================
 
 else if(
-    msg.startsWith("delete goal ") ||
-    msg.startsWith("remove goal ")
-){
+    msg.startsWith("delete task ") ||
+    msg.startsWith("remove task ")
+)
+
 
     let goalName = msg
         .replace("delete goal ", "")
@@ -1022,6 +1023,7 @@ else if(
     }
 
 }
+    
 else{
 
         reply="🤖 I'm still learning. More AI features are coming soon!";
