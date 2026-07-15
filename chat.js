@@ -6,6 +6,36 @@
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
 
+const knowledge = {
+
+    "what is javascript":
+        "JavaScript is a programming language used to make websites interactive.",
+
+    "what is html":
+        "HTML is the language used to build the structure of a webpage.",
+
+    "what is css":
+        "CSS is used to style HTML and make websites beautiful.",
+
+    "who made you":
+        "I was created as part of AI Life Assistant by Samuel.",
+
+    "who are you":
+        "I'm your personal AI Life Assistant. I'm here to help you manage your life and answer your questions.",
+
+    "what is ai":
+        "Artificial Intelligence (AI) is technology that allows computers to learn, reason and solve problems.",
+
+    "what is nigeria":
+        "Nigeria is a country in West Africa with 36 states and the Federal Capital Territory, Abuja.",
+
+    "who is the president of nigeria":
+        "The current President of Nigeria is Bola Ahmed Tinubu.",
+
+    "what time is it":
+        "Look at the live clock on your dashboard 😊"
+
+};
 // ======================
 // Add Message
 // ======================
