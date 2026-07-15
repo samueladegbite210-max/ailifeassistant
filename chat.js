@@ -1030,7 +1030,73 @@ else if (
     }
 
 }
+// =========================
+// AI Knowledge
+// =========================
 
+else if(
+    msg.includes("who are you") ||
+    msg.includes("what are you")
+){
+
+    reply =
+    "🤖 I'm AI Life Assistant.\n\n" +
+    "I'm your personal AI companion.\n\n" +
+    "I can help you study, code, plan your day, answer questions, organize your life, and keep you productive.";
+
+}
+
+else if(msg.includes("what can you do")){
+
+    reply =
+    "🚀 I can help you with:\n\n" +
+    "📚 Studying\n" +
+    "💻 Programming\n" +
+    "📝 Writing\n" +
+    "📅 Planning\n" +
+    "🎯 Productivity\n" +
+    "💡 General questions\n" +
+    "😊 Motivation";
+
+}
+
+else if(msg.includes("who made you")){
+
+    reply =
+    "💙 I was built by Samuel with the help of ChatGPT.\n\n" +
+    "Together we're building AI Life Assistant.";
+
+}
+
+else if(
+    msg.includes("how are you")
+){
+
+    reply =
+    "😊 I'm doing great and I'm ready to help you!";
+
+}
+
+else if(
+    msg.includes("thank you") ||
+    msg.includes("thanks")
+){
+
+    reply =
+    "😊 You're welcome, Samuel! I'm always here to help.";
+
+}
+
+else if(
+    msg.includes("motivate me")
+){
+
+    reply =
+    "💪 Remember:\n\n" +
+    "Small progress every day becomes huge success.\n\n" +
+    "Keep building AI Life Assistant. You're getting closer every day.";
+
+}
 else{
 
     reply = "🤖 I'm still learning. More AI features are coming soon!";
