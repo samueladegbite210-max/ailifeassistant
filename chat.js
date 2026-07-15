@@ -991,24 +991,26 @@ else if(
 // Delete Goal By Name
 // =========================
 
-// =========================
-// Delete Goal
-// =========================
 
 else if (
     msg.startsWith("delete goal ") ||
-    msg.startsWith("remove goal ")
+    msg.startsWith("remove goal ") ||
+    msg.startsWith("delete ") ||
+    msg.startsWith("remove ")
 ) {
 
     let goalName = msg
         .replace("delete goal ", "")
         .replace("remove goal ", "")
-        .trim();
+        .replace("delete ", "")
+        .replace("remove ", "")
+        .trim()
+        .toLowerCase();
 
     let originalLength = goals.length;
 
     const updatedGoals = goals.filter(function(goal){
-        return !goal.text.toLowerCase().includes(goalName.toLowerCase());
+        return goal.text.toLowerCase() !== goalName;
     });
 
     localStorage.setItem("goals", JSON.stringify(updatedGoals));
@@ -1018,7 +1020,6 @@ else if (
     }else{
         reply = "❌ I couldn't find that goal.";
     }
-
 }
 else{
 
