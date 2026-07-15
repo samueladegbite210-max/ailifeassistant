@@ -934,6 +934,59 @@ else if(
     }
 
 }
+    // =========================
+// Rename Task
+// =========================
+
+else if(
+    msg.startsWith("rename ") ||
+    msg.startsWith("change ")
+){
+
+    let command = msg;
+
+    command = command.replace("rename ", "");
+    command = command.replace("change ", "");
+
+    if(command.includes(" to ")){
+
+        let parts = command.split(" to ");
+
+        let oldName = parts[0].trim();
+        let newName = parts[1].trim();
+
+        let found = false;
+
+        tasks.forEach(function(task){
+
+            if(task.text.toLowerCase().includes(oldName)){
+
+                task.text = newName;
+                found = true;
+
+            }
+
+        });
+
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        if(found){
+
+            reply = "✏️ Task renamed successfully!";
+
+        }else{
+
+            reply = "❌ I couldn't find that task.";
+
+        }
+
+    }else{
+
+        reply = "❌ Use: Rename old task to new task.";
+
+    }
+
+}
 else{
 
         reply="🤖 I'm still learning. More AI features are coming soon!";
