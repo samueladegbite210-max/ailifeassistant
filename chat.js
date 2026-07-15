@@ -898,6 +898,42 @@ else if(
     }
 
 }
+    // =========================
+// Delete Task By Name
+// =========================
+
+else if(
+    msg.startsWith("delete ") ||
+    msg.startsWith("remove ")
+){
+
+    let taskName = msg
+        .replace("delete ", "")
+        .replace("remove ", "")
+        .replace("task ", "")
+        .trim();
+
+    let originalLength = tasks.length;
+
+    const updatedTasks = tasks.filter(function(task){
+
+        return !task.text.toLowerCase().includes(taskName);
+
+    });
+
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+    if(updatedTasks.length < originalLength){
+
+        reply = "🗑️ Task deleted successfully!";
+
+    }else{
+
+        reply = "❌ I couldn't find that task.";
+
+    }
+
+}
 else{
 
         reply="🤖 I'm still learning. More AI features are coming soon!";
