@@ -57,6 +57,40 @@ I'm here to help you manage your tasks, goals and events.<br><br>
 `;
     }
 }
+// AI Greeting
+function loadAIGreeting() {
+
+    const hour = new Date().getHours();
+
+    let greeting = "";
+
+    if (hour < 12) {
+        greeting = "🌅 Good morning, Samuel!";
+    } else if (hour < 18) {
+        greeting = "☀️ Good afternoon, Samuel!";
+    } else {
+        greeting = "🌙 Good evening, Samuel!";
+    }
+
+    document.getElementById("aiGreeting").innerHTML = greeting;
+
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+    const events = JSON.parse(localStorage.getItem("events")) || [];
+
+    document.getElementById("aiRecommendation").innerHTML =
+        "💡 Today you have <strong>" +
+        tasks.length +
+        "</strong> task(s), <strong>" +
+        goals.length +
+        "</strong> goal(s), and <strong>" +
+        events.length +
+        "</strong> event(s).<br><br>" +
+        "My recommendation: Finish your most important task first.";
+
+}
+
+loadAIGreeting();
 
 // Menu
 const sideMenu = document.getElementById("sideMenu");
