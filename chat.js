@@ -1097,6 +1097,74 @@ else if(
     "Keep building AI Life Assistant. You're getting closer every day.";
 
 }
+    // =========================
+// HTML
+// =========================
+
+else if(
+    msg.includes("what is html")
+){
+
+    reply =
+    "🌐 HTML stands for HyperText Markup Language.\n\n" +
+    "It is used to create the structure of websites.";
+
+}
+
+// =========================
+// CSS
+// =========================
+
+else if(
+    msg.includes("what is css")
+){
+
+    reply =
+    "🎨 CSS stands for Cascading Style Sheets.\n\n" +
+    "It is used to style web pages by adding colors, fonts, layouts, and animations.";
+
+}
+
+// =========================
+// JavaScript
+// =========================
+
+else if(
+    msg.includes("what is javascript")
+){
+
+    reply =
+    "💻 JavaScript is the programming language of the web.\n\n" +
+    "It makes websites interactive by handling buttons, forms, animations, calculations, and much more.";
+
+}
+
+// =========================
+// AI
+// =========================
+
+else if(
+    msg.includes("what is ai") ||
+    msg.includes("artificial intelligence")
+){
+
+    reply =
+    "🤖 Artificial Intelligence (AI) enables computers to perform tasks that normally require human intelligence, such as learning, reasoning, understanding language, and solving problems.";
+
+}
+
+// =========================
+// ChatGPT
+// =========================
+
+else if(
+    msg.includes("what is chatgpt")
+){
+
+    reply =
+    "💙 ChatGPT is an AI assistant created by OpenAI. It can answer questions, write content, explain concepts, help with coding, and much more.";
+
+}
 else{
 
     reply = "🤖 I'm still learning. More AI features are coming soon!";
