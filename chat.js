@@ -1195,9 +1195,27 @@ else if(
     "💙 ChatGPT is an AI assistant created by OpenAI. It can answer questions, write content, explain concepts, help with coding, and much more.";
 
 }
-    else if (knowledge[msg]) {
+    else {
 
-    reply = knowledge[msg];
+    let found = false;
+
+    for (let key in knowledge) {
+
+        if (msg.includes(key) || key.includes(msg)) {
+
+            reply = knowledge[key];
+            found = true;
+            break;
+
+        }
+
+    }
+
+    if (!found) {
+
+        reply = "🤖 I'm still learning that. A future update will let me answer almost anything.";
+
+    }
 
 }
 else{
