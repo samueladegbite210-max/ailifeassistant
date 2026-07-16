@@ -40,7 +40,7 @@ function aiReply(text){
 
     let reply = "🤖 I'm still learning.";
 
-    ...
+
 }
 
     // Greetings
