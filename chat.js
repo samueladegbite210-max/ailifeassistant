@@ -53,19 +53,13 @@ function addMessage(type, text){
 
 function sendMessage(){
 
+    alert("Send button works!");
+
     const text = input.value.trim();
 
     if(text === "") return;
 
     addMessage("user", text);
-
-    input.value = "";
-
-    setTimeout(function(){
-
-        aiReply(text);
-
-    },500);
 
 }
 
