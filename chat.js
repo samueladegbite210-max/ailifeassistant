@@ -313,43 +313,110 @@ else if(
     reply = "🎯 You currently have " + goals.length + " goal(s).";
 
 }
-    // ================================
-// Create // ================================
-// Show Notes
-// ================================
+  // ======================
+// Create Note
+// ======================
 
 else if(
+    msg.startsWith("create a note called ") ||
+    msg.startsWith("save a note called ") ||
+    msg.startsWith("add a note called ")
+){
 
+    let noteText = text;
+
+    noteText = noteText.replace(/create a note called /i,"");
+    noteText = noteText.replace(/save a note called /i,"");
+    noteText = noteText.replace(/add a note called /i,"");
+
+    noteText = noteText.trim();
+
+    let currentNotes = localStorage.getItem("notes") || "";
+
+    if(currentNotes !== ""){
+        currentNotes += "\n\n";
+    }
+
+    currentNotes += noteText;
+
+    localStorage.setItem("notes", currentNotes);
+
+    reply = "📝 Note saved successfully!";
+
+}
+
+// ======================
+// Show Notes
+// ======================
+
+else if(
     msg.includes("show my note") ||
     msg.includes("show my notes") ||
     msg.includes("show note") ||
     msg.includes("show notes") ||
-    msg.includes("list my note") ||
-    msg.includes("list my notes") ||
-    msg.includes("list note") ||
-    msg.includes("list notes")
-
+    msg.includes("list my notes")
 ){
 
-    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+    let notes = localStorage.getItem("notes") || "";
 
-    if(notes.length === 0){
+    if(notes.trim() === ""){
+
+        reply = "📝 No notes found.";
+
+    }else{
+
+        reply =
+        "<strong>📝 Your Notes</strong><br><br>" +
+        notes.replace(/\n/g,"<br>");
+
+    }
+
+}
+
+// ======================
+// Count Notes
+// ======================
+
+else if(
+    msg.includes("how many notes") ||
+    msg.includes("note count")
+){
+
+    let notes = localStorage.getItem("notes") || "";
+
+    if(notes.trim() === ""){
 
         reply = "📝 You don't have any notes.";
 
     }else{
 
-        reply = "📝 <strong>Your Notes</strong><br><br>";
+        const total = notes.split("\n\n").length;
 
-        notes.forEach(function(note,index){
+        reply = "📝 You currently have " + total + " note(s).";
 
-            reply +=
-                (index + 1) +
-                ". " +
-                note.text +
-                "<br>";
+    }
 
-        });
+}
+
+// ======================
+// Search Notes
+// ======================
+
+else if(msg.startsWith("search notes for ")){
+
+    let notes = localStorage.getItem("notes") || "";
+
+    const keyword = msg.replace("search notes for ","").trim();
+
+    if(notes.toLowerCase().includes(keyword.toLowerCase())){
+
+        reply =
+        "<strong>📝 Found in Notes</strong><br><br>" +
+        notes.replace(/\n/g,"<br>");
+
+    }else{
+
+        reply = "❌ No matching notes found.";
 
     }
 
