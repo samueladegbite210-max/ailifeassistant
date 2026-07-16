@@ -155,19 +155,15 @@ function aiReply(text){
         reply = "🤖 Artificial Intelligence enables computers to learn, reason and solve problems.";
 
     }
-    // ================================
+    
+
+// ================================
 // Create Task
 // ================================
 
-else if(
-    msg.startsWith("create a task called ") ||
-    msg.startsWith("add a task called ")
-){
+else if(msg.startsWith("create a task called ")){
 
-    let taskName = text
-        .replace(/create a task called /i,"")
-        .replace(/add a task called /i,"")
-        .trim();
+    let taskName = text.replace(/create a task called /i,"").trim();
 
     if(taskName === ""){
 
@@ -176,11 +172,9 @@ else if(
     }else{
 
         tasks.push({
-
             id: Date.now(),
             text: taskName,
             done: false
-
         });
 
         localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -210,7 +204,7 @@ else if(
 
     }else{
 
-        reply = "📋 <b>Your Tasks</b><br><br>";
+        reply = "📋 <strong>Your Tasks</strong><br><br>";
 
         tasks.forEach(function(task,index){
 
