@@ -705,6 +705,98 @@ else if(msg.includes("when is my birthday")){
         : "I don't know your birthday yet.";
 
 }
+    // ================================
+// General Knowledge
+// ================================
+
+else if(msg.includes("what is nigeria")){
+
+    reply = "🇳🇬 Nigeria is a country in West Africa with 36 states and the Federal Capital Territory, Abuja.";
+
+}
+
+else if(msg.includes("capital of nigeria")){
+
+    reply = "🏛️ The capital of Nigeria is Abuja.";
+
+}
+
+else if(msg.includes("president of nigeria")){
+
+    reply = "🇳🇬 The President of Nigeria is Bola Ahmed Tinubu.";
+
+}
+
+else if(msg.includes("what is programming")){
+
+    reply = "💻 Programming is the process of writing instructions that tell a computer what to do.";
+
+}
+
+else if(msg.includes("what is python")){
+
+    reply = "🐍 Python is one of the world's most popular programming languages. It is easy to learn and is used for AI, web development, automation and data science.";
+
+}
+
+else if(msg.includes("what is java")){
+
+    reply = "☕ Java is a programming language used for Android apps, websites and enterprise software.";
+
+}
+
+else if(msg.includes("what is coding")){
+
+    reply = "💻 Coding means writing instructions that computers can understand.";
+
+}
+
+else if(msg.includes("who is albert einstein")){
+
+    reply = "🧠 Albert Einstein was a famous physicist who developed the Theory of Relativity.";
+
+}
+
+else if(msg.includes("what is the internet")){
+
+    reply = "🌍 The Internet is a worldwide network that connects billions of computers.";
+
+}
+
+else if(msg.includes("what is electricity")){
+
+    reply = "⚡ Electricity is the flow of electric charge that powers lights, machines and electronic devices.";
+
+}
+
+else if(msg.includes("what is love")){
+
+    reply = "❤️ Love is a deep feeling of care, affection and commitment toward someone or something.";
+
+}
+
+else if(msg.includes("tell me a joke")){
+
+    reply = "😂 Why do programmers prefer dark mode? Because light attracts bugs!";
+
+}
+
+else if(msg.includes("motivate me")){
+
+    reply = "💪 Every expert was once a beginner. Keep learning and never give up—you are building something amazing.";
+
+}
+
+else if(msg.includes("thank you")){
+
+    reply = "😊 You're welcome, Samuel! I'm always here to help.";
+
+}
+
+else if(msg.includes("who is samuel")){
+
+    reply = "💙 Samuel is my creator and the developer of AI Life Assistant.";
+}
 
 // ================================
 // Default Reply
