@@ -342,9 +342,15 @@ else if(msg.startsWith("create a note called ")){
 
 else if(
 
+    else if(
+
+    msg.includes("show my note") ||
     msg.includes("show my notes") ||
+    msg.includes("show note") ||
     msg.includes("show notes") ||
+    msg.includes("list my note") ||
     msg.includes("list my notes") ||
+    msg.includes("list note") ||
     msg.includes("list notes")
 
 ){
