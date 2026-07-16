@@ -313,6 +313,79 @@ else if(
     reply = "🎯 You currently have " + goals.length + " goal(s).";
 
 }
+    // ================================
+// Create Note
+// ================================
+
+else if(msg.startsWith("create a note called ")){
+
+    let noteText = text.replace(/create a note called /i,"").trim();
+
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    notes.push({
+        id: Date.now(),
+        text: noteText
+    });
+
+    localStorage.setItem("notes", JSON.stringify(notes));
+
+    reply = "📝 Note created successfully!";
+
+}
+
+// ================================
+// Show Notes
+// ================================
+
+else if(
+
+    msg.includes("show my notes") ||
+    msg.includes("show notes") ||
+    msg.includes("list my notes")
+
+){
+
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    if(notes.length === 0){
+
+        reply = "📝 You don't have any notes.";
+
+    }else{
+
+        reply = "📝 <strong>Your Notes</strong><br><br>";
+
+        notes.forEach(function(note,index){
+
+            reply +=
+            (index + 1) +
+            ". " +
+            note.text +
+            "<br>";
+
+        });
+
+    }
+
+}
+
+// ================================
+// Note Count
+// ================================
+
+else if(
+
+    msg.includes("how many notes") ||
+    msg.includes("note count")
+
+){
+
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    reply = "📝 You currently have " + notes.length + " note(s).";
+
+}
     addMessage("ai", reply);
 
 }
