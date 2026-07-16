@@ -35,7 +35,7 @@ function aiReply(text){
 
     const msg = text.toLowerCase().trim();
 
-    let reply = "";
+    let reply = "🤖 I'm still learning.";
 
     // Greetings
     if(
@@ -71,30 +71,10 @@ function aiReply(text){
         reply = "🌙 Good night. Sleep well.";
 
     }
-        else if(msg.includes("how are you")){
 
-    reply = "😊 I'm doing great! How about you?";
+    else if(msg.includes("how are you")){
 
-}
-function aiReply(text){
-
-    const msg = text.toLowerCase().trim();
-
-    let reply = "🤖 I'm still learning.";
-
-    if(msg === "hi" || msg === "hello"){
-        reply = "👋 Hello Samuel! How can I help you today?";
-    }
-    else if(msg === "how are you"){
-        reply = "😊 I'm doing great! How are you today?";
-    }
-
-    addMessage("ai", reply);
-
-}
-    else{
-
-        reply = "🤖 I'm still learning.";
+        reply = "😊 I'm doing great! How about you?";
 
     }
 
