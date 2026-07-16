@@ -2,6 +2,7 @@
 // AI Life Assistant v3.0
 // Chat System
 // =======================================
+alert("chat.js loaded successfully");
 const knowledge = {
 
     "what is javascript":
