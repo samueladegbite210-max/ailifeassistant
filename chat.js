@@ -314,35 +314,11 @@ else if(
 
 }
     // ================================
-// Create Note
-// ================================
-
-else if(msg.startsWith("create a note called ")){
-
-    let noteText = text.replace(/create a note called /i,"").trim();
-
-    let notes = JSON.parse(localStorage.getItem("notes")) || [];
-
-    notes.push({
-        id: Date.now(),
-        text: noteText
-    });
-
-    localStorage.setItem("notes", JSON.stringify(notes));
-
-    reply = "📝 Note created successfully!";
-
-}
-
-
-
-// ================================
+// Create // ================================
 // Show Notes
 // ================================
 
 else if(
-
-    else if(
 
     msg.includes("show my note") ||
     msg.includes("show my notes") ||
@@ -374,32 +350,6 @@ else if(
                 "<br>";
 
         });
-
-    }
-
-}
-
-// ================================
-// Note Count
-// ================================
-
-else if(
-
-    msg.includes("how many notes") ||
-    msg.includes("note count") ||
-    msg.includes("count notes")
-
-){
-
-    let notes = JSON.parse(localStorage.getItem("notes")) || [];
-
-    if(notes.length === 0){
-
-        reply = "📝 You don't have any notes.";
-
-    }else{
-
-        reply = "📝 You currently have " + notes.length + " note(s).";
 
     }
 
