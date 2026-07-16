@@ -342,7 +342,46 @@ else if(
   // ======================
 // Create Note
 // ======================
+else if(
 
+    msg.includes("i have") &&
+    (
+        msg.includes("tomorrow") ||
+        msg.includes("today") ||
+        msg.includes("monday") ||
+        msg.includes("tuesday") ||
+        msg.includes("wednesday") ||
+        msg.includes("thursday") ||
+        msg.includes("friday") ||
+        msg.includes("saturday") ||
+        msg.includes("sunday")
+    )
+
+){
+
+    events.push({
+
+        title: text,
+
+        date: new Date().toISOString().split("T")[0],
+
+        time: "",
+
+        location: "",
+
+        notes: "",
+
+        reminder: "none",
+
+        repeat: "none"
+
+    });
+
+    localStorage.setItem("events", JSON.stringify(events));
+
+    reply = "📅 I've added that to your events.";
+
+}
 else if(
     msg.startsWith("create a note called ") ||
     msg.startsWith("save a note called ") ||
