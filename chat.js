@@ -640,6 +640,72 @@ else if(msg.startsWith("search events for ")){
     }
 
 }
+    // ======================
+// Remember Information
+// ======================
+
+else if(msg.startsWith("my name is ")){
+
+    let name = text.replace(/my name is /i,"").trim();
+
+    memory.name = name;
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "😊 Nice to meet you, " + name + ". I'll remember your name.";
+
+}
+
+else if(msg.startsWith("my favorite color is ")){
+
+    let color = text.replace(/my favorite color is /i,"").trim();
+
+    memory.favoriteColor = color;
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "🎨 I'll remember that your favorite color is " + color + ".";
+
+}
+
+else if(msg.startsWith("my birthday is ")){
+
+    let birthday = text.replace(/my birthday is /i,"").trim();
+
+    memory.birthday = birthday;
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "🎂 I'll remember that your birthday is " + birthday + ".";
+
+}// ======================
+// Recall Memory
+// ======================
+
+else if(msg.includes("what is my name")){
+
+    reply = memory.name
+        ? "😊 Your name is " + memory.name + "."
+        : "I don't know your name yet.";
+
+}
+
+else if(msg.includes("what is my favorite color")){
+
+    reply = memory.favoriteColor
+        ? "🎨 Your favorite color is " + memory.favoriteColor + "."
+        : "I don't know your favorite color yet.";
+
+}
+
+else if(msg.includes("when is my birthday")){
+
+    reply = memory.birthday
+        ? "🎂 Your birthday is " + memory.birthday + "."
+        : "I don't know your birthday yet.";
+
+}
+    
     addMessage("ai", reply);
 
 }
