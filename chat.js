@@ -334,6 +334,8 @@ else if(msg.startsWith("create a note called ")){
 
 }
 
+
+
 // ================================
 // Show Notes
 // ================================
@@ -342,7 +344,8 @@ else if(
 
     msg.includes("show my notes") ||
     msg.includes("show notes") ||
-    msg.includes("list my notes")
+    msg.includes("list my notes") ||
+    msg.includes("list notes")
 
 ){
 
@@ -359,10 +362,10 @@ else if(
         notes.forEach(function(note,index){
 
             reply +=
-            (index + 1) +
-            ". " +
-            note.text +
-            "<br>";
+                (index + 1) +
+                ". " +
+                note.text +
+                "<br>";
 
         });
 
@@ -377,13 +380,22 @@ else if(
 else if(
 
     msg.includes("how many notes") ||
-    msg.includes("note count")
+    msg.includes("note count") ||
+    msg.includes("count notes")
 
 ){
 
     let notes = JSON.parse(localStorage.getItem("notes")) || [];
 
-    reply = "📝 You currently have " + notes.length + " note(s).";
+    if(notes.length === 0){
+
+        reply = "📝 You don't have any notes.";
+
+    }else{
+
+        reply = "📝 You currently have " + notes.length + " note(s).";
+
+    }
 
 }
     addMessage("ai", reply);
