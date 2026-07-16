@@ -118,6 +118,7 @@ else if(msg.includes("what is ai") || msg.includes("artificial intelligence")){
 
     reply = "🤖 Artificial Intelligence enables computers to learn, reason and solve problems.";
 
-}  addMessage("ai", reply);
+}  
+    addMessage("ai", reply);
 
 }
