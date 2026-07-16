@@ -22,16 +22,60 @@ function sendMessage() {
     aiReply(text);
 
 }
+input.addEventListener("keypress", function(e){
+
+    if(e.key === "Enter"){
+
+        sendMessage();
+
+    }
+
+});
 function aiReply(text){
 
-    alert(text);
+    const msg = text.toLowerCase().trim();
 
-    const msg = text.toLowerCase();
+    let reply = "";
 
-    let reply = "🤖 I'm still learning.";
+    // Greetings
+    if(
+        msg === "hi" ||
+        msg === "hello" ||
+        msg === "hey"
+    ){
 
-    if(msg === "hi"){
-        reply = "Hello!";
+        reply = "👋 Hello Samuel! How can I help you today?";
+
+    }
+
+    else if(msg.includes("good morning")){
+
+        reply = "🌅 Good morning! Have a productive day.";
+
+    }
+
+    else if(msg.includes("good afternoon")){
+
+        reply = "☀️ Good afternoon!";
+
+    }
+
+    else if(msg.includes("good evening")){
+
+        reply = "🌇 Good evening!";
+
+    }
+
+    else if(msg.includes("good night")){
+
+        reply = "🌙 Good night. Sleep well.";
+
+    }
+
+    else{
+
+        reply = "🤖 I'm still learning.";
+
     }
 
     addMessage("ai", reply);
