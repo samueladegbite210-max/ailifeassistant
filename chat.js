@@ -71,6 +71,11 @@ function aiReply(text){
         reply = "🌙 Good night. Sleep well.";
 
     }
+        else if(msg.includes("how are you")){
+
+    reply = "😊 I'm doing great! How about you?";
+
+}
 
     else{
 
