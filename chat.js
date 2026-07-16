@@ -53,13 +53,22 @@ function addMessage(type, text){
 
 function sendMessage(){
 
-    alert("Send button works!");
+    // Remove this after testing
+    // alert("Send button works!");
 
     const text = input.value.trim();
 
     if(text === "") return;
 
     addMessage("user", text);
+
+    input.value = "";
+
+    setTimeout(function(){
+
+        aiReply(text);
+
+    }, 500);
 
 }
 
@@ -87,6 +96,7 @@ function aiReply(text){
     let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let goals = JSON.parse(localStorage.getItem("goals")) || [];
 let events = JSON.parse(localStorage.getItem("events")) || [];
+    let notes = localStorage.getItem("notes") || "";
     let reply = "";
 
     // ======================
