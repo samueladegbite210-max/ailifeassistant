@@ -819,14 +819,22 @@ else if(/^[0-9+\-*/(). x]+$/i.test(msg)){
     }
 
 }
-    // ================================
-// Date & Time
+    
+
+// ================================
+// Date
 // ================================
 
 else if(
+
     msg.includes("what is today's date") ||
+    msg.includes("what is today date") ||
+    msg.includes("today's date") ||
+    msg.includes("today date") ||
+    msg.includes("date today") ||
     msg.includes("what is the date") ||
-    msg.includes("today's date")
+    msg.includes("current date")
+
 ){
 
     reply = "📅 Today is " + new Date().toDateString();
