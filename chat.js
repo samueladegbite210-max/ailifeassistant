@@ -826,19 +826,20 @@ else if (/^[0-9+\-*/(). x]+$/i.test(msg)) {
 // Date & Time
 // ================================
 
+// ================================
+// Date & Time
+// ================================
+
 else if(
 
-    msg.includes("what is today's date") ||
-    msg.includes("what is today date") ||
-    msg.includes("what's today's date") ||
-    msg.includes("what's today date") ||
+    msg.includes("date") ||
     msg.includes("today's date") ||
     msg.includes("today date") ||
-    msg.includes("date today") ||
     msg.includes("current date") ||
+    msg.includes("what is today's date") ||
+    msg.includes("what's today's date") ||
     msg.includes("what is the date") ||
-    msg.includes("what's the date") ||
-    msg === "date"
+    msg.includes("what's the date")
 
 ){
 
@@ -848,22 +849,21 @@ else if(
 
 else if(
 
+    msg.includes("time") ||
     msg.includes("what time is it") ||
     msg.includes("current time") ||
     msg.includes("time now") ||
-    msg.includes("what's the time") ||
-    msg.includes("tell me the time") ||
-    msg === "time"
+    msg.includes("tell me the time")
 
 ){
 
-    reply = "🕒 The current time is " +
-        new Date().toLocaleTimeString();
+    reply = "🕒 The current time is " + new Date().toLocaleTimeString();
 
 }
 
 else if(
 
+    msg.includes("day") ||
     msg.includes("what day is today") ||
     msg.includes("today is what day") ||
     msg.includes("current day")
@@ -880,15 +880,16 @@ else if(
         "Saturday"
     ];
 
-    reply = "📆 Today is " + days[new Date().getDay()];
+    reply = "📆 Today is " + days[new Date().getDay()]
 
 }
 
 else if(
 
-    msg.includes("what month is this") ||
+    msg.includes("month") ||
+    msg.includes("what month is it") ||
     msg.includes("current month") ||
-    msg.includes("what month is it")
+    msg.includes("what month is this")
 
 ){
 
@@ -907,24 +908,21 @@ else if(
         "December"
     ];
 
-    reply = "📅 This month is " +
-        months[new Date().getMonth()];
+    reply = "📅 This month is " + months[new Date().getMonth()];
 
 }
 
 else if(
 
+    msg.includes("year") ||
     msg.includes("what year is it") ||
     msg.includes("current year")
 
 ){
 
-    reply = "📅 The current year is " +
-        new Date().getFullYear();
+    reply = "📅 The current year is " + new Date().getFullYear();
 
-}  
- 
-// ================================
+}
 // Default Reply
 // ================================
 
