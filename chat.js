@@ -1082,6 +1082,95 @@ else if(
     reply = "🌤️ I can't check live weather yet, but that feature is coming soon! In Version 2.0 I'll be able to show real-time weather for any city.";
 
 }
+    // ================================
+// Smart Memory 2.0
+// ================================
+
+// My name is...
+if(msg.startsWith("my name is ")){
+
+    memory.name = text.replace(/my name is/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "😊 Nice to meet you, " + memory.name + ". I'll remember that.";
+
+}
+
+// I live in...
+else if(msg.includes("i live in")){
+
+    memory.city = text.replace(/.*i live in/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "📍 I'll remember that you live in " + memory.city + ".";
+
+}
+
+// I work as...
+else if(msg.includes("i work as")){
+
+    memory.job = text.replace(/.*i work as/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "💼 I'll remember that you work as " + memory.job + ".";
+
+}
+
+// My favorite food is...
+else if(msg.includes("my favorite food is")){
+
+    memory.favoriteFood = text.replace(/.*my favorite food is/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "🍕 I'll remember that your favorite food is " + memory.favoriteFood + ".";
+
+}
+
+// I use...
+else if(msg.includes("i use")){
+
+    memory.phone = text.replace(/.*i use/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "📱 I'll remember that you use " + memory.phone + ".";
+
+}
+    else if(msg.includes("where do i live")){
+
+    reply = memory.city
+        ? "📍 You live in " + memory.city + "."
+        : "I don't know where you live yet.";
+
+}
+
+else if(msg.includes("what is my job")){
+
+    reply = memory.job
+        ? "💼 You work as " + memory.job + "."
+        : "I don't know your job yet.";
+
+}
+
+else if(msg.includes("what is my favorite food")){
+
+    reply = memory.favoriteFood
+        ? "🍕 Your favorite food is " + memory.favoriteFood + "."
+        : "I don't know your favorite food yet.";
+
+}
+
+else if(msg.includes("what phone do i use")){
+
+    reply = memory.phone
+        ? "📱 You use " + memory.phone + "."
+        : "I don't know what phone you use yet.";
+
+}
 // Default Reply
 // ================================
 
