@@ -920,106 +920,127 @@ else if(
     reply = "📅 The current year is " + new Date().getFullYear();
 
 }
-    // ================================
+   
+// ================================
 // Natural Conversation
 // ================================
 
+// TIRED
 else if(
-    msg.includes("i'm tired") ||
-    msg.includes("im tired") ||
-    msg.includes("i am tired")
+    msg.includes("tired") ||
+    msg.includes("exhausted") ||
+    msg.includes("sleepy")
 ){
 
-    reply = "😴 You sound tired. Try to get some rest, drink some water, and don't overwork yourself.";
+    reply = "😴 You sound tired. Get some rest, drink water, and take care of yourself.";
 
 }
 
+// HUNGRY
 else if(
-    msg.includes("i'm hungry") ||
-    msg.includes("im hungry") ||
-    msg.includes("i am hungry")
+    msg.includes("hungry") ||
+    msg.includes("need food") ||
+    msg.includes("starving")
 ){
 
-    reply = "🍽️ Maybe it's time for a good meal. Don't skip your meals!";
+    reply = "🍽️ Sounds like you're hungry. Go grab something delicious to eat!";
 
 }
 
+// HAPPY
 else if(
-    msg.includes("i'm happy") ||
-    msg.includes("im happy") ||
-    msg.includes("i am happy")
+    msg.includes("happy") ||
+    msg.includes("excited") ||
+    msg.includes("feeling good") ||
+    msg.includes("i feel good")
 ){
 
-    reply = "😊 That's wonderful! I'm happy to hear that.";
+    reply = "😊 That's wonderful! I'm really happy you're feeling good today.";
 
 }
 
+// SAD
 else if(
-    msg.includes("i'm sad") ||
-    msg.includes("im sad") ||
-    msg.includes("i am sad")
+    msg.includes("sad") ||
+    msg.includes("upset") ||
+    msg.includes("depressed") ||
+    msg.includes("feeling down")
 ){
 
-    reply = "💙 I'm sorry you're feeling sad. If you want to talk, I'm here for you.";
+    reply = "💙 I'm sorry you're feeling that way. I'm here if you want to talk.";
 
 }
 
+// BORED
 else if(
-    msg.includes("i'm bored") ||
-    msg.includes("im bored") ||
-    msg.includes("i am bored")
+    msg.includes("bored")
 ){
 
-    reply = "🎮 Let's do something productive! You could create a goal, review your tasks, or learn something new.";
+    reply = "🎮 You're bored? Let's learn something new, review your goals, or create a new project.";
 
 }
 
+// WORK
 else if(
-    msg.includes("i'm going to work") ||
-    msg.includes("im going to work") ||
-    msg.includes("going to work")
+    msg.includes("going to work") ||
+    msg.includes("at work") ||
+    msg.includes("i'm working") ||
+    msg.includes("working now") ||
+    msg.includes("im working")
 ){
 
-    reply = "💼 Have a productive day at work. Stay safe and do your best!";
+    reply = "💼 Have a productive day! Stay safe and do your best.";
 
 }
 
+// THANK YOU
+else if(
+    msg.includes("thank you") ||
+    msg.includes("thanks") ||
+    msg.includes("thank u") ||
+    msg.includes("thx")
+){
+
+    reply = "❤️ You're very welcome! I'm always here whenever you need me.";
+
+}
+
+// GOOD LUCK
 else if(
     msg.includes("good luck")
 ){
 
-    reply = "🍀 Thank you! I wish you good luck too.";
+    reply = "🍀 Thank you! I wish you success in everything you do.";
 
 }
 
+// I LOVE YOU
 else if(
-    msg.includes("thank you") ||
-    msg.includes("thanks")
+    msg.includes("i love you") ||
+    msg.includes("love you")
 ){
 
-    reply = "❤️ You're welcome! I'm always happy to help.";
+    reply = "❤️ Thank you! I appreciate you too. I'll always be here to help you.";
 
 }
 
+// GOOD JOB
 else if(
-    msg.includes("i love you")
+    msg.includes("good job") ||
+    msg.includes("well done") ||
+    msg.includes("nice work")
 ){
 
-    reply = "❤️ Thank you! I'm always here to help and support you.";
+    reply = "😊 Thank you! That really means a lot.";
 
 }
 
-else if(
-    msg.includes("good job")
-){
-
-    reply = "😊 Thank you! That means a lot.";
-
-}
-
+// BYE
 else if(
     msg.includes("bye") ||
-    msg.includes("goodbye")
+    msg.includes("goodbye") ||
+    msg.includes("see you") ||
+    msg.includes("see you later")
 ){
 
     reply = "👋 Goodbye! Have a wonderful day. I'll be here whenever you need me.";
