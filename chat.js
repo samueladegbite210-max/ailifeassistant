@@ -1,4 +1,4 @@
-// ================================
+ // ================================
 // AI Life Assistant 
 // ================================
 
@@ -1081,20 +1081,34 @@ else if(
 
 }
     
+
+
 // ================================
 // Smart Memory
 // ================================
 
-else if(msg.startsWith("my name is ")){
+// Save Name
+else if(
+    msg.startsWith("my name is ") ||
+    msg.startsWith("i am ") ||
+    msg.startsWith("i'm ")
+){
 
-    memory.name = text.replace(/my name is/i,"").trim();
+    let name = text
+        .replace(/my name is/i,"")
+        .replace(/i am/i,"")
+        .replace(/i'm/i,"")
+        .trim();
+
+    memory.name = name;
 
     localStorage.setItem("memory", JSON.stringify(memory));
 
-    reply = "😊 Nice to meet you, " + memory.name + ". I'll remember your name.";
+    reply = "😊 Nice to meet you, " + name + ". I'll remember your name.";
 
 }
 
+// Save Location
 else if(
     msg.includes("i live in") ||
     msg.includes("i do live in") ||
@@ -1117,39 +1131,76 @@ else if(
 
     reply = "📍 I'll remember that you live in " + city + ".";
 
-
 }
 
-else if(msg.startsWith("i work as ")){
+// Save Job
+else if(
+    msg.startsWith("i work as ") ||
+    msg.startsWith("my job is ") ||
+    msg.startsWith("i am a ")
+){
 
-    memory.job = text.replace(/i work as/i,"").trim();
+    let job = text
+        .replace(/i work as/i,"")
+        .replace(/my job is/i,"")
+        .replace(/i am a/i,"")
+        .trim();
+
+    memory.job = job;
 
     localStorage.setItem("memory", JSON.stringify(memory));
 
-    reply = "💼 I'll remember that you work as " + memory.job + ".";
+    reply = "💼 I'll remember that you work as " + job + ".";
 
 }
 
-else if(msg.startsWith("my favorite food is ")){
+// Save Favorite Food
+else if(
+    msg.startsWith("my favorite food is ") ||
+    msg.startsWith("i like to eat ")
+){
 
-    memory.favoriteFood = text.replace(/my favorite food is/i,"").trim();
+    let food = text
+        .replace(/my favorite food is/i,"")
+        .replace(/i like to eat/i,"")
+        .trim();
+
+    memory.favoriteFood = food;
 
     localStorage.setItem("memory", JSON.stringify(memory));
 
-    reply = "🍕 I'll remember your favorite food is " + memory.favoriteFood + ".";
+    reply = "🍕 I'll remember your favorite food is " + food + ".";
 
 }
 
-else if(msg.startsWith("i use ")){
+// Save Phone
+else if(
+    msg.startsWith("i use ") ||
+    msg.startsWith("my phone is ")
+){
 
-    memory.phone = text.replace(/i use/i,"").trim();
+    let phone = text
+        .replace(/i use/i,"")
+        .replace(/my phone is/i,"")
+        .trim();
+
+    memory.phone = phone;
 
     localStorage.setItem("memory", JSON.stringify(memory));
 
-    reply = "📱 I'll remember that you use " + memory.phone + ".";
+    reply = "📱 I'll remember that you use " + phone + ".";
 
 }
-    else if(msg.includes("what is my name")){
+
+// ================================
+// Recall Memory
+// ================================
+
+// Name
+else if(
+    msg.includes("what is my name") ||
+    msg.includes("who am i")
+){
 
     reply = memory.name
         ? "😊 Your name is " + memory.name + "."
@@ -1157,7 +1208,11 @@ else if(msg.startsWith("i use ")){
 
 }
 
-else if(msg.includes("where do i live")){
+// City
+else if(
+    msg.includes("where do i live") ||
+    msg.includes("where am i from")
+){
 
     reply = memory.city
         ? "📍 You live in " + memory.city + "."
@@ -1165,7 +1220,11 @@ else if(msg.includes("where do i live")){
 
 }
 
-else if(msg.includes("what is my job")){
+// Job
+else if(
+    msg.includes("what is my job") ||
+    msg.includes("where do i work")
+){
 
     reply = memory.job
         ? "💼 You work as " + memory.job + "."
@@ -1173,7 +1232,11 @@ else if(msg.includes("what is my job")){
 
 }
 
-else if(msg.includes("what is my favorite food")){
+// Favorite Food
+else if(
+    msg.includes("what is my favorite food") ||
+    msg.includes("what food do i like")
+){
 
     reply = memory.favoriteFood
         ? "🍕 Your favorite food is " + memory.favoriteFood + "."
@@ -1181,7 +1244,11 @@ else if(msg.includes("what is my favorite food")){
 
 }
 
-else if(msg.includes("what phone do i use")){
+// Phone
+else if(
+    msg.includes("what phone do i use") ||
+    msg.includes("what is my phone")
+){
 
     reply = memory.phone
         ? "📱 You use " + memory.phone + "."
