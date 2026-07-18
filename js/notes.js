@@ -1,3 +1,4 @@
+let notes = localStorage.getItem("notes") || "";
 
 function noteReply(msg, text){
 
