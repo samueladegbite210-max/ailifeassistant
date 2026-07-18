@@ -145,9 +145,7 @@ let reply = "🤖 I'm still learning.";
 
 
 
-    reply = "🎯 You currently have " + goals.length + " goal(s).";
-
-}
+ 
   // ======================
 // Create Note
 // ======================
@@ -872,9 +870,7 @@ else if(
         : "I don't know what phone you use yet.";
 
 }
- // ================================
-// Smart Greetings
-// ================================
+ 
 
 
 // Default Reply
