@@ -1,3 +1,4 @@
+alert("memory.js loaded");
 let memory = JSON.parse(localStorage.getItem("memory")) || {
     name:"",
     birthday:"",
