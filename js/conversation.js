@@ -1,4 +1,3 @@
-
 function conversationReply(msg, text){
 
     // Greetings
@@ -40,7 +39,19 @@ function conversationReply(msg, text){
 
     if(msg.includes("thank you") || msg.includes("thanks")){
 
-        return "❤️ You're very welcome!";
+        return "❤️ You're welcome! I'm always here to help.";
+
+    }
+
+    if(msg.includes("good luck")){
+
+        return "🍀 Good luck! I wish you success.";
+
+    }
+
+    if(msg.includes("i love you")){
+
+        return "❤️ Thank you! I appreciate you too.";
 
     }
 
