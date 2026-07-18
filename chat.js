@@ -8,7 +8,6 @@ let goals = JSON.parse(localStorage.getItem("goals")) || [];
 let events = JSON.parse(localStorage.getItem("events")) || [];
 let notes = localStorage.getItem("notes") || "";
 let memory = JSON.parse(localStorage.getItem("memory")) || {
-
     name: "",
     birthday: "",
     favoriteColor: "",
@@ -25,7 +24,6 @@ let memory = JSON.parse(localStorage.getItem("memory")) || {
     dream: "",
     phone: "",
     language: ""
-
 };
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
@@ -1083,7 +1081,98 @@ else if(
 
 }
     
+// ================================
+// Smart Memory
+// ================================
 
+else if(msg.startsWith("my name is ")){
+
+    memory.name = text.replace(/my name is/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "😊 Nice to meet you, " + memory.name + ". I'll remember your name.";
+
+}
+
+else if(msg.startsWith("i live in ")){
+
+    memory.city = text.replace(/i live in/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "📍 I'll remember that you live in " + memory.city + ".";
+
+}
+
+else if(msg.startsWith("i work as ")){
+
+    memory.job = text.replace(/i work as/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "💼 I'll remember that you work as " + memory.job + ".";
+
+}
+
+else if(msg.startsWith("my favorite food is ")){
+
+    memory.favoriteFood = text.replace(/my favorite food is/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "🍕 I'll remember your favorite food is " + memory.favoriteFood + ".";
+
+}
+
+else if(msg.startsWith("i use ")){
+
+    memory.phone = text.replace(/i use/i,"").trim();
+
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    reply = "📱 I'll remember that you use " + memory.phone + ".";
+
+}
+    else if(msg.includes("what is my name")){
+
+    reply = memory.name
+        ? "😊 Your name is " + memory.name + "."
+        : "I don't know your name yet.";
+
+}
+
+else if(msg.includes("where do i live")){
+
+    reply = memory.city
+        ? "📍 You live in " + memory.city + "."
+        : "I don't know where you live yet.";
+
+}
+
+else if(msg.includes("what is my job")){
+
+    reply = memory.job
+        ? "💼 You work as " + memory.job + "."
+        : "I don't know your job yet.";
+
+}
+
+else if(msg.includes("what is my favorite food")){
+
+    reply = memory.favoriteFood
+        ? "🍕 Your favorite food is " + memory.favoriteFood + "."
+        : "I don't know your favorite food yet.";
+
+}
+
+else if(msg.includes("what phone do i use")){
+
+    reply = memory.phone
+        ? "📱 You use " + memory.phone + "."
+        : "I don't know what phone you use yet.";
+
+}
 // Default Reply
 // ================================
 
