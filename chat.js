@@ -250,18 +250,20 @@ else if(msg.startsWith("create a task called ")){
 else if(
 
     hasIntent(msg,[
-        "show my tasks",
-        "show tasks",
-        "list my tasks",
-        "list tasks",
-        "what are my tasks",
-        "my tasks",
-        "do i have any tasks",
-        "pending tasks",
-        "to do list",
-        "todo list",
-        "what should i do today"
-    ])
+    "show my tasks",
+    "show tasks",
+    "list my tasks",
+    "list tasks",
+    "what are my tasks",
+    "my tasks",
+    "do i have any tasks",
+    "pending tasks",
+    "to do list",
+    "to-do list",
+    "todo list",
+    "what's on my to-do list",
+    "what is on my to-do list"
+])
 
 ){
     if(tasks.length === 0){
@@ -463,12 +465,14 @@ else if(
 else if(
 
     hasIntent(msg,[
-        "show notes",
-        "show my notes",
-        "list my notes",
-        "my notes",
-        "what are my notes"
-    ])
+    "show notes",
+    "show my notes",
+    "list my notes",
+    "my notes",
+    "what are my notes",
+    "do i have any notes",
+    "note list"
+])
 
 ){
 
@@ -577,13 +581,14 @@ else if(
 else if(
 
     hasIntent(msg,[
-        "show events",
-        "show my events",
-        "my events",
-        "list my events",
-        "what are my events",
-        "upcoming events"
-    ])
+    "show notes",
+    "show my notes",
+    "list my notes",
+    "my notes",
+    "what are my notes",
+    "do i have any notes",
+    "note list"
+])
 
 ){
 
