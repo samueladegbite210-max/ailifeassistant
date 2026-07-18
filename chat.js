@@ -112,6 +112,15 @@ if(conversation){
     return;
 
 }
+ let calculator = calculatorReply(msg);
+
+if(calculator){
+
+    addMessage("ai", calculator);
+
+    return;
+
+}
     let reply = "🤖 I'm still learning.";
 
 
@@ -767,31 +776,7 @@ else if(msg.includes("who is samuel")){
     reply = "💙 Samuel is my creator and the developer of AI Life Assistant.";
 }
 
-  // ================================
-// Calculator
-// ================================
-
-else if (/^[0-9+\-*/(). x]+$/i.test(msg)) {
-
-    try {
-
-        let expression = msg.replace(/x/gi, "*");
-
-        let result = eval(expression);
-
-        reply = "🧮 Answer: <strong>" + result + "</strong>";
-
-    } catch (error) {
-
-        reply = "❌ Sorry, I couldn't calculate that.";
-
-    }
-
-}
-    
-
-
-
+ 
 // ================================
 // Date & Time
 // ================================
