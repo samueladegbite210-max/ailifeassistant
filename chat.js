@@ -590,27 +590,29 @@ else if(
 }
 
 // ================================
-// Show Events
+// Show Events (Smart)
 // ================================
 
+else if(hasAny(msg,[
 
+    "show my events",
+    "show events",
+    "my events",
+    "events",
+    "event list",
+    "list events",
+    "list my events",
+    "what are my events",
+    "do i have events",
+    "do i have any events",
+    "can i see my events",
+    "upcoming events"
 
-    else if(
-
-    msg.includes("show my events") ||
-    msg.includes("show events") ||
-    msg.includes("list my events") ||
-    msg.includes("list events") ||
-    msg.includes("do i have any events") ||
-    msg.includes("any events") ||
-    msg.includes("upcoming events")
-
-
-){
+])){
 
     if(events.length === 0){
 
-        reply = "📅 No events found.";
+        reply = "📅 You don't have any events yet.";
 
     }else{
 
@@ -623,6 +625,8 @@ else if(
                 event.title +
                 "<br>" +
                 "📆 " + event.date +
+                "<br>" +
+                "🕒 " + (event.time || "No time") +
                 "<br><br>";
 
         });
@@ -630,32 +634,34 @@ else if(
     }
 
 }
-
 // ================================
-// Event Count
+// Event Count (Smart)
 // ================================
 
-else if(
+else if(hasAny(msg,[
 
-    msg.includes("how many events") ||
-    msg.includes("event count")
+    "how many events",
+    "event count",
+    "number of events",
+    "total events"
 
-){
+])){
 
     reply = "📅 You currently have " + events.length + " event(s).";
 
 }
-
 // ================================
-// Next Event
+// Next Event (Smart)
 // ================================
 
-else if(
+else if(hasAny(msg,[
 
-    msg.includes("next event") ||
-    msg.includes("upcoming event")
+    "next event",
+    "upcoming event",
+    "my next event",
+    "what is my next event"
 
-){
+])){
 
     if(events.length === 0){
 
