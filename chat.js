@@ -3,7 +3,7 @@
 // ================================
 
 // Storage
-alert("chat.js loaded");
+
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
 
