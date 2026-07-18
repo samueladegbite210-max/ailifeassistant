@@ -130,7 +130,15 @@ if(dateTime){
     return;
 
 }
- 
+ let knowledge = knowledgeReply(msg);
+
+if(knowledge){
+
+    addMessage("ai", knowledge);
+
+    return;
+
+}
     let reply = "🤖 I'm still learning.";
 
 
@@ -786,8 +794,8 @@ else if(msg.includes("who is samuel")){
     reply = "💙 Samuel is my creator and the developer of AI Life Assistant.";
 }
 
- 
-
+ return null;
+}
 
 
    
