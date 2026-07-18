@@ -247,23 +247,20 @@ else if(msg.startsWith("create a task called ")){
 // ================================
 
 
-else if(
 
-    hasIntent(msg,[
-    "show my tasks",
-    "show tasks",
-    "list my tasks",
-    "list tasks",
-    "what are my tasks",
-    "my tasks",
-    "do i have any tasks",
-    "pending tasks",
-    "to do list",
-    "to-do list",
-    "todo list",
-    "what's on my to-do list",
-    "what is on my to-do list"
-])
+
+    else if(
+
+    msg.includes("show my tasks") ||
+    msg.includes("show tasks") ||
+    msg.includes("list my tasks") ||
+    msg.includes("list tasks") ||
+    msg.includes("do i have any tasks") ||
+    msg.includes("what's on my to-do list") ||
+    msg.includes("what is on my to-do list") ||
+    msg.includes("to-do list") ||
+    msg.includes("todo list")
+
 
 ){
     if(tasks.length === 0){
@@ -337,22 +334,21 @@ else if(msg.startsWith("create a goal called ")){
 
 else if(
 
-    hasIntent(msg,[
-        "show my goals",
-        "show goals",
-        "list my goals",
-        "list goals",
-        "my goals",
-        "what are my goals",
-        "do i have any goals",
-        "goal list"
-    ])
+    msg.includes("show my goals") ||
+    msg.includes("show goals") ||
+    msg.includes("list my goals") ||
+    msg.includes("list goals") ||
+    msg.includes("do i have any goals") ||
+    msg.includes("any goals") ||
+    msg.includes("what are my goals") ||
+    msg.includes("what's on my goals") ||
+    msg.includes("goal list")
 
 ){
 
     if(goals.length === 0){
 
-        reply = "🎯 You don't have any goals.";
+        reply = "🎯 You don't have any goals yet.";
 
     }else{
 
@@ -361,18 +357,17 @@ else if(
         goals.forEach(function(goal,index){
 
             reply +=
-            (goal.done ? "✅ " : "⬜ ") +
-            (index + 1) +
-            ". " +
-            goal.text +
-            "<br>";
+                (goal.done ? "✅ " : "⬜ ") +
+                (index + 1) +
+                ". " +
+                goal.text +
+                "<br>";
 
         });
 
     }
 
 }
-
 // ================================
 // Goal Count
 // ================================
@@ -462,17 +457,15 @@ else if(
 // Show Notes
 // ======================
 
-else if(
 
-    hasIntent(msg,[
-    "show notes",
-    "show my notes",
-    "list my notes",
-    "my notes",
-    "what are my notes",
-    "do i have any notes",
-    "note list"
-])
+    else if(
+
+    msg.includes("show my notes") ||
+    msg.includes("show notes") ||
+    msg.includes("list my notes") ||
+    msg.includes("list notes") ||
+    msg.includes("do i have any notes") ||
+    msg.includes("any notes")
 
 ){
 
@@ -578,17 +571,18 @@ else if(
 // Show Events
 // ================================
 
-else if(
 
-    hasIntent(msg,[
-    "show notes",
-    "show my notes",
-    "list my notes",
-    "my notes",
-    "what are my notes",
-    "do i have any notes",
-    "note list"
-])
+
+    else if(
+
+    msg.includes("show my events") ||
+    msg.includes("show events") ||
+    msg.includes("list my events") ||
+    msg.includes("list events") ||
+    msg.includes("do i have any events") ||
+    msg.includes("any events") ||
+    msg.includes("upcoming events")
+
 
 ){
 
