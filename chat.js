@@ -248,27 +248,24 @@ else if(msg.startsWith("create a task called ")){
 
 }
 
-// ================================
-// Show Tasks
-// ================================
+else if(hasAny(msg, [
 
+    "show my tasks",
+    "show tasks",
+    "task list",
+    "list tasks",
+    "list my tasks",
+    "what are my tasks",
+    "what's on my to-do list",
+    "what's on my todo list",
+    "do i have any tasks",
+    "do i have tasks",
+    "my tasks",
+    "to do list",
+    "todo list"
 
+])){
 
-
-    else if(
-
-    msg.includes("show my tasks") ||
-    msg.includes("show tasks") ||
-    msg.includes("list my tasks") ||
-    msg.includes("list tasks") ||
-    msg.includes("do i have any tasks") ||
-    msg.includes("what's on my to-do list") ||
-    msg.includes("what is on my to-do list") ||
-    msg.includes("to-do list") ||
-    msg.includes("todo list")
-
-
-){
     if(tasks.length === 0){
 
         reply = "📋 You don't have any tasks.";
@@ -291,7 +288,6 @@ else if(msg.startsWith("create a task called ")){
     }
 
 }
-
 // ================================
 // Task Count
 // ================================
