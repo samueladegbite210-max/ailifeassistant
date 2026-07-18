@@ -104,47 +104,72 @@ function aiReply(text){
 
     const msg = text.toLowerCase().trim();
 let conversation = conversationReply(msg, text);
-
-if(conversation){
+if (conversation) {
     addMessage("ai", conversation);
     return;
 }
 
 let knowledge = knowledgeReply(msg);
-
-if(knowledge){
+if (knowledge) {
     addMessage("ai", knowledge);
     return;
 }
 
 let calculator = calculatorReply(msg);
-
-if(calculator){
+if (calculator) {
     addMessage("ai", calculator);
     return;
 }
 
 let dateTime = dateTimeReply(msg);
-
-if(dateTime){
+if (dateTime) {
     addMessage("ai", dateTime);
     return;
 }
+
 let task = taskReply(msg, text);
-
-if(task){
-
+if (task) {
     addMessage("ai", task);
-
     return;
-
 }
-let reply = "🤖 I'm still learning.";
 
+let goal = goalReply(msg, text);
+if (goal) {
+    addMessage("ai", goal);
+    return;
+}
 
+let note = noteReply(msg, text);
+if (note) {
+    addMessage("ai", note);
+    return;
+}
 
+let event = eventReply(msg, text);
+if (event) {
+    addMessage("ai", event);
+    return;
+}
 
+let memory = memoryReply(msg, text);
+if (memory) {
+    addMessage("ai", memory);
+    return;
+}
 
+let natural = naturalReply(msg);
+if (natural) {
+    addMessage("ai", natural);
+    return;
+}
+
+let weather = weatherReply(msg);
+if (weather) {
+    addMessage("ai", weather);
+    return;
+}
+
+addMessage("ai", "🤖 I'm still learning.");
  
   // ======================
 // Create Note
