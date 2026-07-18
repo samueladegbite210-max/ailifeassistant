@@ -89,7 +89,13 @@ function hasIntent(msg, phrases){
     });
 
 }
+function hasAny(msg, words){
 
+    return words.some(function(word){
+        return msg.includes(word);
+    });
+
+}
 // ================================
 // AI Brain
 // ================================
