@@ -338,19 +338,26 @@ else if(msg.startsWith("create a goal called ")){
 // Show Goals
 // ================================
 
-else if(
+// ================================
+// Show Goals (Smart)
+// ================================
 
-    msg.includes("show my goals") ||
-    msg.includes("show goals") ||
-    msg.includes("list my goals") ||
-    msg.includes("list goals") ||
-    msg.includes("do i have any goals") ||
-    msg.includes("any goals") ||
-    msg.includes("what are my goals") ||
-    msg.includes("what's on my goals") ||
-    msg.includes("goal list")
+else if(hasAny(msg,[
 
-){
+    "show my goals",
+    "show goals",
+    "goal list",
+    "list goals",
+    "list my goals",
+    "my goals",
+    "what are my goals",
+    "what's my goals",
+    "do i have goals",
+    "do i have any goals",
+    "show goal",
+    "goals"
+
+])){
 
     if(goals.length === 0){
 
@@ -363,11 +370,11 @@ else if(
         goals.forEach(function(goal,index){
 
             reply +=
-                (goal.done ? "✅ " : "⬜ ") +
-                (index + 1) +
-                ". " +
-                goal.text +
-                "<br>";
+            (goal.done ? "✅ " : "⬜ ") +
+            (index + 1) +
+            ". " +
+            goal.text +
+            "<br>";
 
         });
 
@@ -378,12 +385,19 @@ else if(
 // Goal Count
 // ================================
 
-else if(
+// ================================
+// Goal Count (Smart)
+// ================================
 
-    msg.includes("how many goals") ||
-    msg.includes("goal count")
+else if(hasAny(msg,[
 
-){
+    "how many goals",
+    "goal count",
+    "number of goals",
+    "total goals",
+    "how much goals"
+
+])){
 
     reply = "🎯 You currently have " + goals.length + " goal(s).";
 
