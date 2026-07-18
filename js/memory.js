@@ -1,3 +1,21 @@
+let memory = JSON.parse(localStorage.getItem("memory")) || {
+    name:"",
+    birthday:"",
+    favoriteColor:"",
+    favoriteFood:"",
+    favoriteDrink:"",
+    favoriteMovie:"",
+    favoriteMusic:"",
+    favoriteSport:"",
+    job:"",
+    school:"",
+    country:"",
+    city:"",
+    relationship:"",
+    dream:"",
+    phone:"",
+    language:""
+};
 function memoryReply(msg, text){
 
     // Save Name
