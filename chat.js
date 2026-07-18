@@ -334,9 +334,7 @@ else if(msg.startsWith("create a goal called ")){
 
 }
 
-// ================================
-// Show Goals
-// ================================
+
 
 // ================================
 // Show Goals (Smart)
@@ -381,9 +379,7 @@ else if(hasAny(msg,[
     }
 
 }
-// ================================
-// Goal Count
-// ================================
+
 
 // ================================
 // Goal Count (Smart)
@@ -473,27 +469,31 @@ else if(
 
 }
 
+/// ======================
+// Show Notes (Smart)
 // ======================
-// Show Notes
-// ======================
 
+else if(hasAny(msg,[
 
-    else if(
+    "show my notes",
+    "show notes",
+    "list my notes",
+    "list notes",
+    "my notes",
+    "notes",
+    "what are my notes",
+    "do i have notes",
+    "do i have any notes",
+    "can i see my notes",
+    "note list"
 
-    msg.includes("show my notes") ||
-    msg.includes("show notes") ||
-    msg.includes("list my notes") ||
-    msg.includes("list notes") ||
-    msg.includes("do i have any notes") ||
-    msg.includes("any notes")
-
-){
+])){
 
     let notes = localStorage.getItem("notes") || "";
 
     if(notes.trim() === ""){
 
-        reply = "📝 No notes found.";
+        reply = "📝 You don't have any notes yet.";
 
     }else{
 
@@ -504,15 +504,18 @@ else if(
     }
 
 }
-
+ // ======================
+// Note Count (Smart)
 // ======================
-// Count Notes
-// ======================
 
-else if(
-    msg.includes("how many notes") ||
-    msg.includes("note count")
-){
+else if(hasAny(msg,[
+
+    "how many notes",
+    "note count",
+    "number of notes",
+    "total notes"
+
+])){
 
     let notes = localStorage.getItem("notes") || "";
 
@@ -529,7 +532,6 @@ else if(
     }
 
 }
-
 // ======================
 // Search Notes
 // ======================
