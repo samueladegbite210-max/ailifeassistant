@@ -1,3 +1,4 @@
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 function taskReply(msg, text){
 
     // Create Task
