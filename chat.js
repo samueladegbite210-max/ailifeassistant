@@ -3,28 +3,7 @@
 // ================================
 
 // Storage
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-let goals = JSON.parse(localStorage.getItem("goals")) || [];
-let events = JSON.parse(localStorage.getItem("events")) || [];
-let notes = localStorage.getItem("notes") || "";
-let memory = JSON.parse(localStorage.getItem("memory")) || {
-    name: "",
-    birthday: "",
-    favoriteColor: "",
-    favoriteFood: "",
-    favoriteDrink: "",
-    favoriteMovie: "",
-    favoriteMusic: "",
-    favoriteSport: "",
-    job: "",
-    school: "",
-    country: "",
-    city: "",
-    relationship: "",
-    dream: "",
-    phone: "",
-    language: ""
-};
+
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
 
