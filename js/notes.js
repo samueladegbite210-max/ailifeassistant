@@ -1,3 +1,4 @@
+alert("noteReply called");
 alert("notes loaded");
 
 let notes = JSON.parse(localStorage.getItem("notes")) || [];
