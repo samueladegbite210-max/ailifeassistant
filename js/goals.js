@@ -1,5 +1,5 @@
 alert("Goals loaded");
-
+let goals = JSON.parse(localStorage.getItem("goals")) || [];
     function goalReply(msg, text){
 
     // Create Goal
