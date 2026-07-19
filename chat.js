@@ -155,13 +155,22 @@ if(search){
     addMessage("ai", search);
     return;
 }
- let brain = brainReply(msg, text);
+ alert("Before Brain");
+
+let brain = brainReply(msg, text);
+
+alert("After Brain");
 
 if(brain){
     addMessage("ai", brain);
     return;
 }
- let advice = adviceReply(msg);
+ 
+ alert("Before Advice");
+
+let advice = adviceReply(msg);
+
+alert("After Advice");
 
 if(advice){
     addMessage("ai", advice);
