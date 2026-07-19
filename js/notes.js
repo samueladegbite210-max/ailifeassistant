@@ -5,9 +5,12 @@ function noteReply(msg, text){
 
     // Create Note
     if(
-        msg.startsWith("create a note called ") ||
-        msg.startsWith("add a note called ") ||
-        msg.startsWith("save a note called ")
+ msg.startsWith("create a note ") ||
+msg.startsWith("create note ") ||
+msg.startsWith("add a note ") ||
+msg.startsWith("add note ") ||
+msg.startsWith("save note ") ||
+msg.startsWith("save a note ")
     ){
 
         let noteText = text
@@ -32,13 +35,17 @@ function noteReply(msg, text){
 
     // Show Notes
     if(hasAny(msg,[
-        "show my notes",
-        "show notes",
-        "my notes",
-        "list notes",
-        "list my notes"
-    ])){
-
+    "show my note",
+    "show my notes",
+    "show note",
+    "show notes",
+    "my note",
+    "my notes",
+    "list note",
+    "list notes",
+    "list my note",
+    "list my notes"
+]))
         if(notes.length === 0){
             return "📝 You don't have any notes yet.";
         }
