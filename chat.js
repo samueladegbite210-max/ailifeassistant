@@ -80,8 +80,15 @@ function hasAny(msg, words){
 // ================================
 function aiReply(text){
 
+    const msg = text.toLowerCase().trim();
+
+    let conversation = conversationReply(msg, text);
+
+    if(conversation){
+        addMessage("ai", conversation);
+        return;
+    }
+
     addMessage("ai","🤖 AI is alive!");
 
 }
-
-        
