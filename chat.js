@@ -113,15 +113,12 @@ function aiReply(text){
         return;
     }
 
-alert("Calling goalReply...");
-
 let goal = goalReply(msg, text);
 
-alert("Goal returned: " + goal);
-    if(goal){
-        addMessage("ai", goal);
-        return;
-    }
+if(goal){
+    addMessage("ai", goal);
+    return;
+}
 
     let note = noteReply(msg, text);
     if(note){
