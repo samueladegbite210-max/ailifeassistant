@@ -1,4 +1,5 @@
 alert("notes loaded");
+
 let notes = JSON.parse(localStorage.getItem("notes")) || [];
 
 function noteReply(msg, text){
@@ -46,12 +47,7 @@ function noteReply(msg, text){
         let reply = "📝 <strong>Your Notes</strong><br><br>";
 
         notes.forEach(function(note,index){
-
-            reply +=
-                (index+1) + ". " +
-                note.text +
-                "<br>";
-
+            reply += (index + 1) + ". " + note.text + "<br>";
         });
 
         return reply;
@@ -65,7 +61,6 @@ function noteReply(msg, text){
     ])){
 
         return "📝 You currently have " + notes.length + " note(s).";
-
     }
 
     return null;
