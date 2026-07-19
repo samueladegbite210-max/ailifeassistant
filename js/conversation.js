@@ -1,9 +1,44 @@
 function conversationReply(msg, text){
 
-    if(msg === "hi"){
-        return "👋 Hello Samuel!";
+    if(msg === "hi" || msg === "hello" || msg === "hey"){
+        return "👋 Hello Samuel! How can I help you today?";
+    }
+
+    if(msg.includes("how are you")){
+        return "😊 I'm doing great! How about you?";
+    }
+
+    if(msg.includes("good morning")){
+        return "🌅 Good morning, Samuel!";
+    }
+
+    if(msg.includes("good afternoon")){
+        return "☀️ Good afternoon, Samuel!";
+    }
+
+    if(msg.includes("good evening")){
+        return "🌇 Good evening, Samuel!";
+    }
+
+    if(msg.includes("good night")){
+        return "🌙 Good night, Samuel! Sleep well.";
+    }
+
+    if(msg.includes("who are you")){
+        return "🤖 I'm AI Life Assistant, your personal AI companion.";
+    }
+
+    if(msg.includes("who made you") || msg.includes("who created you")){
+        return "💙 I was built by Samuel with the help of ChatGPT.";
+    }
+
+    if(msg.includes("thank you") || msg.includes("thanks")){
+        return "❤️ You're welcome! I'm always here to help.";
+    }
+
+    if(msg.includes("bye") || msg.includes("goodbye")){
+        return "👋 Goodbye! Have a wonderful day.";
     }
 
     return null;
-
 }
