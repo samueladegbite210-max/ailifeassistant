@@ -82,13 +82,18 @@ function aiReply(text){
 
     const msg = text.toLowerCase().trim();
 
+    alert("1");
+
+    alert(typeof conversationReply);
+
     let conversation = conversationReply(msg, text);
+
+    alert("2");
 
     if(conversation){
         addMessage("ai", conversation);
         return;
     }
 
-    addMessage("ai","🤖 AI is alive!");
-
+    addMessage("ai", "🤖 AI is alive!");
 }
