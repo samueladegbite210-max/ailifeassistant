@@ -1,4 +1,4 @@
-alert("Conversation loaded");
+
 function conversationReply(msg, text){
 
     if(msg === "hi" || msg === "hello" || msg === "hey"){
