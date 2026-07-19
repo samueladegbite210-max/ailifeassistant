@@ -83,7 +83,8 @@ function aiReply(text){
     const msg = text.toLowerCase().trim();
 
     let conversation = conversationReply(msg, text);
-    if(conversation){
+    alert("Conversation result: " + conversation);
+ if(conversation){
         addMessage("ai", conversation);
         return;
     }
