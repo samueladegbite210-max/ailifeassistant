@@ -1,87 +1,30 @@
-
 function dateTimeReply(msg){
 
-    // Date
+    const now = new Date();
+
     if(
-        msg.includes("today's date") ||
-        msg.includes("today date") ||
-        msg.includes("current date") ||
-        msg.includes("what is today's date") ||
-        msg.includes("what's today's date") ||
-        msg.includes("what is the date") ||
-        msg.includes("what's the date")
-    ){
-
-        return "📅 Today is " + new Date().toDateString();
-
-    }
-
-    // Time
-    if(
-        msg.includes("what time is it") ||
+        msg.includes("time") ||
         msg.includes("current time") ||
-        msg.includes("time now") ||
-        msg.includes("tell me the time")
+        msg.includes("what time is it")
     ){
 
-        return "🕒 The current time is " + new Date().toLocaleTimeString();
+        return "🕒 Current time: " + now.toLocaleTimeString();
 
     }
 
-    // Day
     if(
-        msg.includes("what day is today") ||
-        msg.includes("today is what day") ||
-        msg.includes("current day")
+        msg.includes("date") ||
+        msg.includes("today") ||
+        msg.includes("what is today's date")
     ){
 
-        const days = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday"
-        ];
-
-        return "📆 Today is " + days[new Date().getDay()];
+        return "📅 Today is " + now.toDateString();
 
     }
 
-    // Month
-    if(
-        msg.includes("what month is it") ||
-        msg.includes("current month") ||
-        msg.includes("what month is this")
-    ){
+    if(msg.includes("day")){
 
-        const months = [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December"
-        ];
-
-        return "📅 This month is " + months[new Date().getMonth()];
-
-    }
-
-    // Year
-    if(
-        msg.includes("what year is it") ||
-        msg.includes("current year")
-    ){
-
-        return "📅 The current year is " + new Date().getFullYear();
+        return "📆 Today is " + now.toLocaleDateString(undefined,{weekday:"long"});
 
     }
 
