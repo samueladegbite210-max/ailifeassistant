@@ -82,7 +82,7 @@ function hasAny(msg, words){
 function aiReply(text){
 
     const msg = text.toLowerCase().trim();
-
+alert("AI received: " + msg);
     let conversation = conversationReply(msg, text);
     if(conversation){
         addMessage("ai", conversation);
