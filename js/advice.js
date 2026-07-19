@@ -1,6 +1,7 @@
-alert("Advice received: " + msg);
-function adviceReply(msg){
 
+function adviceReply(msg){
+alert("Advice received: " + msg);
+    
     // Food
     if(
         msg.includes("what should i eat") ||
