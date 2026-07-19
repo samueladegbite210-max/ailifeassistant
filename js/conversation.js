@@ -1,3 +1,4 @@
+alert("conversation.js loaded");
 function conversationReply(msg, text){
 
     // Greetings
