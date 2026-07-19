@@ -149,7 +149,12 @@ if(goal){
         addMessage("ai", weather);
         return;
     }
+let search = searchReply(msg);
 
+if(search){
+    addMessage("ai", search);
+    return;
+}
     addMessage("ai", "🤖 I'm still learning.");
 
 }
