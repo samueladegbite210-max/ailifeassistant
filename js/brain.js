@@ -1,4 +1,4 @@
-alert("brain.js");
+alert("brain.js loaded");
 function brainReply(msg, text){
     // ===== Greetings =====
     if(hasAny(msg,[
