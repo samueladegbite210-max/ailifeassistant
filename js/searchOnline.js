@@ -1,6 +1,6 @@
-alert("search.js loaded");
+alert("searchOnline.js loaded");
 
-function searchReply(msg){
+function searchOnlineReply(msg){
 
     if(
         msg.includes("search") ||
