@@ -23,3 +23,12 @@ function loadData(key, defaultValue){
     return data ? JSON.parse(data) : defaultValue;
 
 }
+function match(msg, keywords){
+
+    msg = msg.toLowerCase();
+
+    return keywords.some(function(word){
+        return msg.includes(word);
+    });
+
+}
