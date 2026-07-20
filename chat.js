@@ -171,7 +171,11 @@ if(advice){
     addMessage("ai", advice);
     return;
 }
+alert("Reached search");
+
 let online = searchOnlineReply(msg);
+
+alert("Online = " + online);
 
 if(online){
     addMessage("ai", online);
