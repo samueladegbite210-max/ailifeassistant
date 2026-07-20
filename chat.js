@@ -143,6 +143,12 @@ if(goal){
         return;
     }
 
+ let food = foodReply(msg);
+
+if(food){
+    addMessage("ai", food);
+    return;
+}
     let weather = weatherReply(msg);
     if(weather){
         addMessage("ai", weather);
@@ -170,15 +176,7 @@ let advice = adviceReply(msg);
 if(advice){
  addMessage("ai", advice);
     return;
-}
- let food = foodReply(msg);
 
-if(food){
-    addMessage("ai", food);
-    return;
-}
-    addMessage("ai", advice);
-    return;
 }
 
 // Default reply
