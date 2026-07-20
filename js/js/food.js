@@ -2,12 +2,14 @@ alert("food.jsloaded");
 function foodReply(msg){
 
     if(
-        msg.includes("what should i eat") ||
-        msg.includes("what can i eat") ||
-        msg.includes("what do i eat")
-    ){
-        return "🍽️ You could eat rice and chicken, beans, eggs, bread, noodles, fruit or vegetables. Try to eat something balanced and drink plenty of water.";
-    }
+        if(
+    msg.includes("what should i eat") ||
+    msg.includes("what can i eat") ||
+    msg.includes("recommend food") ||
+    msg.includes("food")
+){
+    return "🍽️ I'd recommend rice, chicken, eggs, beans, vegetables, fruits or anything healthy that's available.";
+}
 
     if(msg.includes("i am hungry") || msg.includes("i'm hungry")){
         return "🍽️ Sounds like you're hungry! Try eating a healthy meal instead of skipping food.";
