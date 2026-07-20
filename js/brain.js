@@ -33,31 +33,29 @@ function brainReply(msg, text){
     }
     
     // ===== Food =====
-if(hasAny(msg,[
-    "hungry",
-    "food",
-    "eat",
-    "meal",
-    "breakfast",
-    "lunch",
-    "dinner",
-    "what should i eat",
-    "what can i eat",
-    "recommend food"
-])){
-    return "🍽️ I'd recommend something healthy like rice, chicken, eggs, beans, fruits or vegetables. Drink plenty of water too!";
+// FOOD
+if(
+    msg.includes("eat") ||
+    msg.includes("food") ||
+    msg.includes("hungry") ||
+    msg.includes("meal") ||
+    msg.includes("breakfast") ||
+    msg.includes("lunch") ||
+    msg.includes("dinner")
+){
+    return "🍽️ I recommend eating something healthy like rice, chicken, beans, eggs, vegetables, fruits, or whatever balanced meal you enjoy.";
 }
 
 // ===== Sleep =====
-if(hasAny(msg,[
-    "sleep",
-    "sleeping",
-    "i feel like sleeping",
-    "i want to sleep",
-    "need sleep",
-    "should i sleep"
-])){
-    return "😴 You sound tired. Get some rest. A good sleep will help you recover.";
+// SLEEP
+if(
+    msg.includes("sleep") ||
+    msg.includes("sleeping") ||
+    msg.includes("tired") ||
+    msg.includes("rest")
+){
+    return "😴 You sound tired. I think you should get some rest and drink some water. Your body needs it.";
+
 }
     // ===== Motivation =====
     if(
