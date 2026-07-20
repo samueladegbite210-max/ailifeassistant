@@ -1,7 +1,11 @@
-
 function conversationReply(msg, text){
 
-    if(msg === "hi" || msg === "hello" || msg === "hey"){
+    // Greetings
+    if(
+        msg === "hi" ||
+        msg === "hello" ||
+        msg === "hey"
+    ){
         return "👋 Hello Samuel! How can I help you today?";
     }
 
@@ -25,21 +29,40 @@ function conversationReply(msg, text){
         return "🌙 Good night, Samuel! Sleep well.";
     }
 
-    if(msg.includes("who are you")){
+    // Identity
+    if(
+        msg.includes("who are you")
+    ){
         return "🤖 I'm AI Life Assistant, your personal AI companion.";
     }
 
-    if(msg.includes("who made you") || msg.includes("who created you")){
+    // Creator
+    if(
+        msg.includes("who made you") ||
+        msg.includes("who create you") ||
+        msg.includes("who created you") ||
+        msg.includes("who build you") ||
+        msg.includes("who built you")
+    ){
         return "💙 I was built by Samuel with the help of ChatGPT.";
     }
 
-    if(msg.includes("thank you") || msg.includes("thanks")){
+    // Thanks
+    if(
+        msg.includes("thank you") ||
+        msg.includes("thanks")
+    ){
         return "❤️ You're welcome! I'm always here to help.";
     }
 
-    if(msg.includes("bye") || msg.includes("goodbye")){
+    // Bye
+    if(
+        msg.includes("bye") ||
+        msg.includes("goodbye")
+    ){
         return "👋 Goodbye! Have a wonderful day.";
     }
 
     return null;
+
 }
