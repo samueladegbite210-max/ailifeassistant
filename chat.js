@@ -154,34 +154,29 @@ if(search){
     addMessage("ai", search);
     return;
 }
- alert("Before Brain");
-
-let brain = brainReply(msg, text);
-
-alert("After Brain");
-
-if(brain){
-    addMessage("ai", brain);
-    return;
-}
- 
- alert("Before Advice");
-
-let advice = adviceReply(msg);
-
-alert("After Advice");
-
-if(advice){
-    addMessage("ai", advice);
-    return;
-}
  let online = searchOnlineReply(msg);
 
 if(online){
     addMessage("ai", online);
     return;
 }
-    addMessage("ai", "🤖 I'm still learning.");
 
+// Brain
+let brain = brainReply(msg, text);
+
+if(brain){
+    addMessage("ai", brain);
+    return;
 }
 
+// Advice
+let advice = adviceReply(msg);
+
+if(advice){
+    addMessage("ai", advice);
+    return;
+}
+
+// Default reply
+addMessage("ai","🤖 I'm still learning. Ask me another question!");
+}
