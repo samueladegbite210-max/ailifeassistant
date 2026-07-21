@@ -2,22 +2,18 @@ alert("🌐 internet.js loaded");
 
 async function internetReply(msg){
 
-    if(
-        !msg.includes("search") &&
-        !msg.includes("find") &&
-        !msg.includes("look up")
-    ){
-        return null;
-    }
-
     let query = msg
         .replace("search","")
         .replace("find","")
         .replace("look up","")
+        .replace("who is","")
+        .replace("what is","")
+        .replace("tell me about","")
+        .replace("explain","")
         .trim();
 
-    if(query===""){
-        return "🌐 What do you want me to search?";
+    if(query === ""){
+        return null;
     }
 
     try{
@@ -29,7 +25,7 @@ async function internetReply(msg){
         const response = await fetch(url);
 
         if(!response.ok){
-            return "❌ I couldn't find anything about " + query;
+            return null;
         }
 
         const data = await response.json();
@@ -38,14 +34,11 @@ async function internetReply(msg){
             return "🌍 " + data.extract;
         }
 
-        return "❌ No information found.";
+        return null;
 
     }catch(error){
-
         console.log(error);
-
-        return "⚠️ Internet connection error.";
-
+        return null;
     }
 
 }
