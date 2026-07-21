@@ -81,13 +81,16 @@ async function aiReply(text){
 
     const msg = text.toLowerCase().trim();
 
-    let conversation = conversationReply(msg, text);
-    
- if(conversation){
-        addMessage("ai", conversation);
+    let answer = await smartAIReply(msg);
+
+    if(answer){
+        addMessage("ai", answer);
         return;
     }
 
+    addMessage("ai","🤖 I'm still learning.");
+
+}
     let knowledge = knowledgeReply(msg);
     if(knowledge){
         addMessage("ai", knowledge);
