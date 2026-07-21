@@ -2,6 +2,7 @@
 // AI Life Assistant - Goals
 // ==========================
 
+
 let goals = JSON.parse(localStorage.getItem("goals")) || [];
 
 const goalTitle = document.getElementById("goalTitle");
@@ -91,18 +92,21 @@ function renderGoals(){
 
         ${goal.deadline ? `<p>📅 ${goal.deadline}</p>` : ""}
 
-        <button onclick="toggleGoal(${goal.id})">
+        <button onclick="editGoal(${goal.id})">
+✏️ Edit
+</button>
 
-            ${goal.done ? "↩ Mark Pending" : "✅ Complete"}
+<button onclick="editGoal(${goal.id})">
+✏️ Edit
+</button>
 
-        </button>
+<button onclick="toggleGoal(${goal.id})">
+${goal.done ? "↩ Mark Pending" : "✅ Complete"}
+</button>
 
-        <button onclick="deleteGoal(${goal.id})">
-
-            🗑 Delete
-
-        </button>
-
+<button onclick="deleteGoal(${goal.id})">
+🗑 Delete
+</button>
         `;
 
         goalList.appendChild(card);
@@ -142,18 +146,108 @@ function deleteGoal(id){
 function updateGoalSummary(){
 
     const total = goals.length;
-
     const completed = goals.filter(goal => goal.done).length;
-
     const pending = total - completed;
 
-    document.getElementById("totalGoals").textContent = total;
+    const totalBox = document.getElementById("totalGoals");
+    const completedBox = document.getElementById("completedGoals");
+    const pendingBox = document.getElementById("pendingGoals");
 
-    document.getElementById("completedGoals").textContent = completed;
-
-    document.getElementById("pendingGoals").textContent = pending;
+    if(totalBox) totalBox.textContent = total;
+    if(completedBox) completedBox.textContent = completed;
+    if(pendingBox) pendingBox.textContent = pending;
 
 }
+// ==========================
+// Edit Goal
+// ==========================
 
+function editGoal(id){
+
+    const goal = goals.find(g => g.id === id);
+
+    if(!goal) return;
+
+    goalTitle.value = goal.title;
+    goalDescription.value = goal.description;
+    goalDeadline.value = goal.deadline;
+    goalCategory.value = goal.category;
+
+    goals = goals.filter(g => g.id !== id);
+
+    saveGoals();
+
+}
+// ==========================
+// Search Goals
+// ==========================
+
+document.getElementById("searchGoal").addEventListener("input", function(){
+
+    const keyword = this.value.toLowerCase().trim();
+
+    if(keyword === ""){
+        renderGoals();
+        return;
+    }
+
+    goalList.innerHTML = "";
+
+    goals
+    .filter(function(goal){
+
+        return (
+
+            (goal.title || "").toLowerCase().includes(keyword) ||
+
+            (goal.description || "").toLowerCase().includes(keyword) ||
+
+            (goal.category || "").toLowerCase().includes(keyword)
+
+        );
+
+    })
+
+    .forEach(function(goal){
+
+        const card = document.createElement("div");
+
+        card.className = "card";
+
+        card.innerHTML = `
+
+        <h3>${goal.done ? "✅" : "🎯"} ${goal.title}</h3>
+
+        ${goal.description ? `<p>${goal.description}</p>` : ""}
+
+        ${goal.category ? `<p>📂 ${goal.category}</p>` : ""}
+
+        ${goal.deadline ? `<p>📅 ${goal.deadline}</p>` : ""}
+
+        <button onclick="toggleGoal(${goal.id})">
+
+            ${goal.done ? "↩ Mark Pending" : "✅ Complete"}
+
+        </button>
+
+        <button onclick="deleteGoal(${goal.id})">
+
+            🗑 Delete
+
+        </button>
+
+        `;
+
+        goalList.appendChild(card);
+
+    });
+
+    if(goalList.innerHTML === ""){
+
+        goalList.innerHTML = "<p>❌ No matching goals found.</p>";
+
+    }
+
+});
 // Start
 renderGoals();
