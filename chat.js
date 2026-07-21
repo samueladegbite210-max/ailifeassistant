@@ -81,6 +81,49 @@ async function aiReply(text){
 
     const msg = text.toLowerCase().trim();
 const goalSummary = getGoalSummary();
+ // ==========================
+// Goal Summary
+// ==========================
+
+if (
+    msg.includes("how many goals") ||
+    msg.includes("goal summary")
+){
+
+    aiReply(
+`📊 Goal Summary
+
+🎯 Total Goals: ${goalSummary.total}
+✅ Completed: ${goalSummary.completed}
+⏳ Pending: ${goalSummary.pending}`
+    );
+
+    return;
+}
+ if (
+    msg.includes("show my goals") ||
+    msg.includes("list my goals")
+){
+
+    if(goalSummary.total === 0){
+
+        aiReply("You don't have any goals yet.");
+
+        return;
+    }
+
+    let text = "🎯 Your Goals:\n\n";
+
+    goalSummary.goals.forEach(function(goal){
+
+        text += `${goal.done ? "✅" : "🎯"} ${goal.title}\n`;
+
+    });
+
+    aiReply(text);
+
+    return;
+}
     let answer = await smartAIReply(msg);
 
     if(answer){
