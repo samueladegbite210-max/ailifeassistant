@@ -672,3 +672,11 @@ button:hover,
     color:#111;
     outline:none;
 }
+#voiceBtn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:15px;
+    font-size:18px;
+    cursor:pointer;
+}
