@@ -416,19 +416,24 @@ updateDailyStreak();
 const dashboardTasks = JSON.parse(localStorage.getItem("tasks")) || [];
 const dashboardGoals = JSON.parse(localStorage.getItem("goals")) || [];
 const dashboardEvents = JSON.parse(localStorage.getItem("events")) || [];
+
 let recommendation = "";
 
-if(tasks.length > 0){
-    recommendation = "✅ Your next task is: " + tasks[0].text;
+if (dashboardTasks.length > 0) {
+    recommendation = "✅ Your next task is: " + dashboardTasks[0].text;
 }
-else if(goals.length > 0){
-    recommendation = "🎯 Work towards your goal: " + goals[0].text;
+else if (dashboardGoals.length > 0) {
+    recommendation = "🎯 Work towards your goal: " + dashboardGoals[0].text;
 }
-else if(events.length > 0){
-    recommendation = "📅 Upcoming event: " + events[0].title;
+else if (dashboardEvents.length > 0) {
+    recommendation = "📅 Upcoming event: " + dashboardEvents[0].title;
 }
-else{
+else {
     recommendation = "💙 You have nothing planned today. Let's create something productive!";
 }
 
-document.getElementById("aiRecommendation").innerHTML = 
+const recommendationBox = document.getElementById("aiRecommendation");
+
+if (recommendationBox) {
+    recommendationBox.innerHTML = recommendation;
+}
