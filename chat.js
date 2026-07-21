@@ -90,6 +90,32 @@ async function aiReply(text){
 window.addEventListener("load", function () {
     startVoiceRecognition();
 });
+ function startVoiceRecognition(){
+
+    if(!("webkitSpeechRecognition" in window)){
+        alert("❌ Your browser doesn't support voice recognition.");
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onresult = function(event){
+
+        const text = event.results[0][0].transcript;
+
+        input.value = text;
+
+        sendMessage();
+
+    };
+
+    recognition.start();
+
+}
     addMessage("ai","🤖 I'm still learning.");
 
 }
