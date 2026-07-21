@@ -4,17 +4,23 @@
 
 let goals = JSON.parse(localStorage.getItem("goals")) || [];
 
-const goalInput = document.getElementById("goalInput");
+const goalTitle = document.getElementById("goalTitle");
+const goalDescription = document.getElementById("goalDescription");
+const goalDeadline = document.getElementById("goalDeadline");
+const goalCategory = document.getElementById("goalCategory");
+
 const goalList = document.getElementById("goalList");
-
 // Add Goal
-function addGoal(){
+function saveGoal(){
 
-    const text = goalInput.value.trim();
+    const title = goalTitle.value.trim();
+    const description = goalDescription.value.trim();
+    const deadline = goalDeadline.value;
+    const category = goalCategory.value;
 
-    if(text === ""){
+    if(title === ""){
 
-        alert("Please enter a goal.");
+        alert("Please enter a goal title.");
 
         return;
 
@@ -24,7 +30,13 @@ function addGoal(){
 
         id: Date.now(),
 
-        text: text,
+        title: title,
+
+        description: description,
+
+        deadline: deadline,
+
+        category: category,
 
         done: false
 
@@ -32,7 +44,10 @@ function addGoal(){
 
     saveGoals();
 
-    goalInput.value = "";
+    goalTitle.value = "";
+    goalDescription.value = "";
+    goalDeadline.value = "";
+    goalCategory.value = "Personal";
 
 }
 
@@ -54,45 +69,49 @@ function renderGoals(){
 
         goalList.innerHTML = "<p>No goals yet.</p>";
 
+        updateGoalSummary();
+
         return;
 
     }
 
-    goals.forEach(goal=>{
+    goals.forEach(function(goal){
 
-        const li = document.createElement("li");
+        const card = document.createElement("div");
 
-        li.innerHTML = `
+        card.className = "card";
 
-        <span
-        onclick="toggleGoal(${goal.id})"
-        style="
-        cursor:pointer;
-        text-decoration:${goal.done ? "line-through" : "none"};
-        ">
+        card.innerHTML = `
 
-        ${goal.done ? "🎯✅" : "🎯"}
+        <h3>${goal.done ? "✅" : "🎯"} ${goal.title}</h3>
 
-        ${goal.text}
+        ${goal.description ? `<p>${goal.description}</p>` : ""}
 
-        </span>
+        ${goal.category ? `<p>📂 ${goal.category}</p>` : ""}
 
-        <button
-        class="deleteBtn"
-        onclick="deleteGoal(${goal.id})">
+        ${goal.deadline ? `<p>📅 ${goal.deadline}</p>` : ""}
 
-        🗑️
+        <button onclick="toggleGoal(${goal.id})">
+
+            ${goal.done ? "↩ Mark Pending" : "✅ Complete"}
+
+        </button>
+
+        <button onclick="deleteGoal(${goal.id})">
+
+            🗑 Delete
 
         </button>
 
         `;
 
-        goalList.appendChild(li);
+        goalList.appendChild(card);
 
     });
 
-}
+    updateGoalSummary();
 
+}
 // Complete Goal
 function toggleGoal(id){
 
@@ -118,6 +137,21 @@ function deleteGoal(id){
     goals = goals.filter(goal=>goal.id !== id);
 
     saveGoals();
+
+}
+function updateGoalSummary(){
+
+    const total = goals.length;
+
+    const completed = goals.filter(goal => goal.done).length;
+
+    const pending = total - completed;
+
+    document.getElementById("totalGoals").textContent = total;
+
+    document.getElementById("completedGoals").textContent = completed;
+
+    document.getElementById("pendingGoals").textContent = pending;
 
 }
 
