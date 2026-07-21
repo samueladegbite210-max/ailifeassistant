@@ -277,6 +277,29 @@ function updateGoalProgress(){
     }
 
 }
+// ==========================
+// AI Access to Goals
+// ==========================
+
+function getGoals() {
+    return JSON.parse(localStorage.getItem("goals")) || [];
+}
+function getGoalSummary(){
+
+    const goals = getGoals();
+
+    const total = goals.length;
+    const completed = goals.filter(g => g.done).length;
+    const pending = total - completed;
+
+    return {
+        total,
+        completed,
+        pending,
+        goals
+    };
+
+}
 // Start
 
 renderGoals();
