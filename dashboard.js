@@ -412,50 +412,7 @@ function updateDailyStreak(){
 
 updateDailyStreak();
 
-function clearNote(){
 
-    if(confirm("Delete this note?")){
-
-        notes.value = "";
-
-        localStorage.removeItem("notes");
-
-        alert("🗑 Note Deleted");
-
-    }
-
-}
-document
-.getElementById("searchNote")
-.addEventListener("input", function(){
-
-    const keyword =
-    this.value.toLowerCase();
-
-    const text =
-    notes.value.toLowerCase();
-
-    if(keyword.length === 0){
-
-        notes.style.border = "none";
-
-        return;
-
-    }
-
-    if(text.includes(keyword)){
-
-        notes.style.border =
-        "3px solid #22C55E";
-
-    }else{
-
-        notes.style.border =
-        "3px solid #EF4444";
-
-    }
-
-});
 const dashboardTasks = JSON.parse(localStorage.getItem("tasks")) || [];
 const dashboardGoals = JSON.parse(localStorage.getItem("goals")) || [];
 const dashboardEvents = JSON.parse(localStorage.getItem("events")) || [];
