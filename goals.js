@@ -90,7 +90,12 @@ function renderGoals(){
 
         ${goal.category ? `<p>📂 ${goal.category}</p>` : ""}
 
-        ${goal.deadline ? `<p>📅 ${goal.deadline}</p>` : ""}
+        <label for="goalDeadline">📅 Deadline</label>
+
+<input
+type="date"
+id="goalDeadline"
+class="goal-input">
 
     
 
