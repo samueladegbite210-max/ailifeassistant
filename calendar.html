@@ -175,17 +175,44 @@ button:hover{
 </button>
 
     </div>
-
+<input
+type="text"
+id="searchEvent"
+placeholder="🔍 Search Events">
     <div class="card">
 
         <h2>📆 Upcoming Events</h2>
 
-        <ul id="eventList"></ul>
+        <div id="eventList"></div>
 
     </div>
 
 </div>
+<div class="card">
 
+<h2>📊 Calendar Summary</h2>
+
+<p>Total Events:
+<span id="totalEvents">0</span></p>
+
+<p>Today's Events:
+<span id="todayEvents">0</span></p>
+
+<p>Upcoming:
+<span id="futureEvents">0</span></p>
+
+</div>
+    <div class="card">
+
+<h2>📅 Today's Event</h2>
+
+<div id="todayEvent">
+
+No events today.
+
+</div>
+
+</div>
 <div class="navbar">
     <a href="dashboard.html">🏠<br>Home</a>
     <a href="chat.html">🤖<br>AI</a>
