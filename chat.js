@@ -77,7 +77,7 @@ function hasAny(msg, words){
 // ================================
 // AI Brain
 // ================================
-function aiReply(text){
+async function aiReply(text){
 
     const msg = text.toLowerCase().trim();
 
