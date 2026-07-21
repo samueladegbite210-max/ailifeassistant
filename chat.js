@@ -80,7 +80,14 @@ function hasAny(msg, words){
 async function aiReply(text){
 
     const msg = text.toLowerCase().trim();
-const goalSummary = getGoalSummary();
+const goals = JSON.parse(localStorage.getItem("goals")) || [];
+
+const goalSummary = {
+    total: goals.length,
+    completed: goals.filter(g => g.done).length,
+    pending: goals.filter(g => !g.done).length,
+    goals: goals
+};
 
 // ==========================
 // Goal Summary
