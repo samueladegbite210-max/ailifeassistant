@@ -165,7 +165,7 @@ if(online){
  alert("Reached Brain");
 
 let brain = aiBrainReply(msg);
-
+alert("MSG = " + msg);
 alert("Message: " + msg);
 alert("Brain reply: " + brain);
 
