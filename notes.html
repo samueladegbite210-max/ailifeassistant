@@ -162,7 +162,40 @@ document.addEventListener("keydown", function(event){
     }
 
 });
-    
+    function loadNotes(){
+
+    const container = document.getElementById("notesList");
+
+    if(!container) return;
+
+    let allNotes = JSON.parse(localStorage.getItem("allNotes")) || [];
+
+    container.innerHTML = "";
+
+    allNotes.forEach(function(note){
+
+        container.innerHTML += `
+        <div class="card">
+
+            <h3>${note.title}</h3>
+
+            <p>${note.content}</p>
+
+            <button onclick="editNote(${note.id})">
+            ✏️ Edit
+            </button>
+
+            <button onclick="deleteNote(${note.id})">
+            🗑 Delete
+            </button>
+
+        </div>
+        `;
+
+    });
+
+}
+    loadNotes();
 
 </script>
 
