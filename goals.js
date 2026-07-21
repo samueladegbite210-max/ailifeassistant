@@ -247,7 +247,38 @@ ${goal.done ? "↩ Mark Pending" : "✅ Complete"}
     }
 
 });
+// ==========================
+// Goal Progress
+// ==========================
+
+function updateGoalProgress(){
+
+    const total = goals.length;
+
+    const completed = goals.filter(goal => goal.done).length;
+
+    const percent = total === 0
+        ? 0
+        : Math.round((completed / total) * 100);
+
+    const bar = document.getElementById("goalProgressBar");
+    const text = document.getElementById("goalProgressText");
+
+    if(bar){
+
+        bar.style.width = percent + "%";
+
+    }
+
+    if(text){
+
+        text.textContent = percent + "% Completed";
+
+    }
+
+}
 // Start
-localStorage.removeItem("goals");
-goals = [];
+
 renderGoals();
+updateGoalSummary();
+updateGoalProgress();
