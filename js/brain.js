@@ -1,5 +1,5 @@
 alert("brain.js loaded");
-
+alert(typeof match);
 function aiBrainReply(msg){
 
     // ===== GREETINGS =====
