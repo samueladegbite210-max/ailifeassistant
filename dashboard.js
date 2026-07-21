@@ -516,36 +516,4 @@ else{
     recommendation = "💙 You have nothing planned today. Let's create something productive!";
 }
 
-document.getElementById("aiRecommendation").innerHTML = recommendation;
-// Existing dashboard code above...
-
-// =========================
-// AI Tip of the Day
-// =========================
-
-const tips = [
-    "💧 Drink more water today.",
-    "📚 Learn something new today.",
-    "💪 Small progress every day matters.",
-    "😴 Get enough sleep tonight.",
-    "🎯 Focus on one important goal today."
-];
-
-const tipElement = document.getElementById("tipText");
-
-if(tipElement){
-    const today = new Date();
-    tipElement.textContent = tips[today.getDate() % tips.length];
-}
-
-// =========================
-// Voice Button
-// =========================
-
-const voiceBtn = document.getElementById("voiceBtn");
-
-if(voiceBtn){
-    voiceBtn.onclick = function(){
-        alert("🎤 Voice AI is coming soon!");
-    };
-}
+document.getElementById("aiRecommendation").innerHTML = 
