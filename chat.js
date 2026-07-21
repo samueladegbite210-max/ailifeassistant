@@ -87,7 +87,9 @@ async function aiReply(text){
         addMessage("ai", answer);
         return;
     }
-
+window.addEventListener("load", function () {
+    startVoiceRecognition();
+});
     addMessage("ai","🤖 I'm still learning.");
 
 }
