@@ -65,7 +65,9 @@ button:hover{
 📝 Notes
 </header>
 
-    <input
+<div class="container">
+
+<input
 type="text"
 id="noteTitle"
 placeholder="📝 Note Title">
@@ -80,11 +82,19 @@ placeholder="Write your note here..."></textarea>
 
 <hr>
 
+<input
+type="text"
+id="searchNote"
+placeholder="🔍 Search notes...">
+
 <div id="notesList"></div>
 
 <button onclick="clearNote()">
 🗑 Clear Note
 </button>
+
+</div>
+
 <div class="navbar">
     <a href="dashboard.html">🏠<br>Home</a>
     <a href="chat.html">🤖<br>AI</a>
@@ -176,9 +186,31 @@ document.addEventListener("keydown", function(event){
             </button>
 
         </div>
+        
         `;
 
     });
+
+}
+    function clearNote(){
+
+    if(confirm("Delete current note?")){
+
+        document.getElementById("noteTitle").value = "";
+        notes.value = "";
+
+    }
+
+}
+    function editNote(id){
+
+    alert("Edit feature coming next.");
+
+}
+
+function deleteNote(id){
+
+    alert("Delete feature coming next.");
 
 }
     loadNotes();
