@@ -81,7 +81,8 @@ async function aiReply(text){
 
     const msg = text.toLowerCase().trim();
 const goalSummary = getGoalSummary();
- // ==========================
+
+// ==========================
 // Goal Summary
 // ==========================
 
@@ -90,7 +91,8 @@ if (
     msg.includes("goal summary")
 ){
 
-    aiReply(
+    addMessage(
+        "ai",
 `📊 Goal Summary
 
 🎯 Total Goals: ${goalSummary.total}
@@ -100,66 +102,48 @@ if (
 
     return;
 }
- if (
+
+// ==========================
+// Show Goals
+// ==========================
+
+if (
     msg.includes("show my goals") ||
     msg.includes("list my goals")
 ){
 
     if(goalSummary.total === 0){
 
-        aiReply("You don't have any goals yet.");
+        addMessage("ai","You don't have any goals yet.");
 
         return;
     }
 
-    let text = "🎯 Your Goals:\n\n";
+    let reply = "🎯 Your Goals:\n\n";
 
     goalSummary.goals.forEach(function(goal){
 
-        text += `${goal.done ? "✅" : "🎯"} ${goal.title}\n`;
+        reply += `${goal.done ? "✅" : "🎯"} ${goal.title || goal.text}\n`;
 
     });
 
-    aiReply(text);
+    addMessage("ai", reply);
 
     return;
 }
-    let answer = await smartAIReply(msg);
 
-    if(answer){
-        addMessage("ai", answer);
-        return;
-    }
+// ==========================
+// Normal AI
+// ==========================
 
-    addMessage("ai","🤖 I'm still learning.");
+let answer = await smartAIReply(msg);
 
-}
-    window.addEventListener("load", function () {
-    startVoiceRecognition();
-});
- function startVoiceRecognition(){
+if(answer){
 
-    if(!("webkitSpeechRecognition" in window)){
-        alert("❌ Your browser doesn't support voice recognition.");
-        return;
-    }
+    addMessage("ai", answer);
 
-    const recognition = new webkitSpeechRecognition();
-
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onresult = function(event){
-
-        const text = event.results[0][0].transcript;
-
-        input.value = text;
-
-        sendMessage();
-
-    };
-
-    recognition.start();
+    return;
 
 }
+
+addMessage("ai","🤖 I'm still learning.");
