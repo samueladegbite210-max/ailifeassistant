@@ -88,6 +88,11 @@ const goalSummary = {
     pending: goals.filter(g => !g.done).length,
     goals: goals
 };
+ // ==========================
+// Notes Data
+// ==========================
+
+const notes = JSON.parse(localStorage.getItem("allNotes")) || [];
 // ==========================
 // Calendar Data
 // ==========================
@@ -107,6 +112,82 @@ const upcomingEvents = events.filter(function(event){
     return event.date >= today;
 
 });
+ // ==========================
+// Note Count
+// ==========================
+
+if(
+    msg.includes("how many notes") ||
+    msg.includes("note summary")
+){
+
+    addMessage(
+        "ai",
+        `📝 You currently have ${notes.length} note(s).`
+    );
+
+    return;
+
+}
+ // ==========================
+// Show Notes
+// ==========================
+
+if(
+    msg.includes("show my notes") ||
+    msg.includes("list my notes")
+){
+
+    if(notes.length === 0){
+
+        addMessage("ai","📝 You don't have any notes yet.");
+
+        return;
+
+    }
+
+    let reply = "📝 Your Notes:\n\n";
+
+    notes.forEach(function(note){
+
+        reply += `📄 ${note.title}\n`;
+
+    });
+
+    addMessage("ai", reply);
+
+    return;
+
+}
+ // ==========================
+// Last Note
+// ==========================
+
+if(
+    msg.includes("last note") ||
+    msg.includes("recent note")
+){
+
+    if(notes.length === 0){
+
+        addMessage("ai","📝 You don't have any notes.");
+
+        return;
+
+    }
+
+    const last = notes[notes.length - 1];
+
+    addMessage(
+        "ai",
+`📝 ${last.title}
+
+${last.content}`
+    );
+
+    return;
+
+}
 // ==========================
 // Goal Summary
 // ==========================
