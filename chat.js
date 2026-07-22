@@ -88,7 +88,25 @@ const goalSummary = {
     pending: goals.filter(g => !g.done).length,
     goals: goals
 };
+// ==========================
+// Calendar Data
+// ==========================
 
+const events = JSON.parse(localStorage.getItem("events")) || [];
+
+const today = new Date().toISOString().split("T")[0];
+
+const todayEvents = events.filter(function(event){
+
+    return event.date === today;
+
+});
+
+const upcomingEvents = events.filter(function(event){
+
+    return event.date >= today;
+
+});
 // ==========================
 // Goal Summary
 // ==========================
@@ -194,6 +212,80 @@ if(
     completed.forEach(function(goal){
 
         reply += `✅ ${goal.title || goal.text}\n`;
+
+    });
+
+    addMessage("ai", reply);
+
+    return;
+
+}
+ // ==========================
+// Today's Events
+// ==========================
+
+if(
+    msg.includes("today event") ||
+    msg.includes("today's event") ||
+    msg.includes("events today")
+){
+
+    if(todayEvents.length === 0){
+
+        addMessage("ai","📅 You have no events scheduled for today.");
+
+        return;
+
+    }
+
+    let reply = "📅 Today's Events:\n\n";
+
+    todayEvents.forEach(function(event){
+
+        reply += `📌 ${event.title}`;
+
+        if(event.time){
+            reply += ` (${event.time})`;
+        }
+
+        reply += "\n";
+
+    });
+
+    addMessage("ai", reply);
+
+    return;
+
+}
+ // ==========================
+// Upcoming Events
+// ==========================
+
+if(
+    msg.includes("upcoming events") ||
+    msg.includes("next event") ||
+    msg.includes("show events")
+){
+
+    if(upcomingEvents.length === 0){
+
+        addMessage("ai","📅 You have no upcoming events.");
+
+        return;
+
+    }
+
+    let reply = "📅 Upcoming Events:\n\n";
+
+    upcomingEvents.forEach(function(event){
+
+        reply += `📌 ${event.title} - ${event.date}`;
+
+        if(event.time){
+            reply += ` ${event.time}`;
+        }
+
+        reply += "\n";
 
     });
 
