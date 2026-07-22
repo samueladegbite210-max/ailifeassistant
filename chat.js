@@ -224,10 +224,14 @@ if(
 // Today's Events
 // ==========================
 
-if(
-    msg.includes("today event") ||
-    msg.includes("today's event") ||
-    msg.includes("events today")
+if (
+
+    (msg.includes("event") || msg.includes("events"))
+
+    &&
+
+    msg.includes("today")
+
 ){
 
     if(todayEvents.length === 0){
