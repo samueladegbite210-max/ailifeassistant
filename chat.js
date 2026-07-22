@@ -188,6 +188,47 @@ ${last.content}`
     return;
 
 }
+ // ==========================
+// Search Notes
+// ==========================
+
+if(msg.includes("find note") || msg.includes("search note")){
+
+    const keyword = msg
+        .replace("find note","")
+        .replace("search note","")
+        .trim();
+
+    const results = notes.filter(function(note){
+
+        return (
+            (note.title || "").toLowerCase().includes(keyword) ||
+            (note.content || "").toLowerCase().includes(keyword)
+        );
+
+    });
+
+    if(results.length === 0){
+
+        addMessage("ai","❌ I couldn't find any note about \"" + keyword + "\".");
+
+        return;
+
+    }
+
+    let reply = "📝 Search Results\n\n";
+
+    results.forEach(function(note){
+
+        reply += `📄 ${note.title}\n`;
+
+    });
+
+    addMessage("ai", reply);
+
+    return;
+
+}
 // ==========================
 // Goal Summary
 // ==========================
