@@ -284,7 +284,14 @@ if (
 
 if(hasAny(msg, ["task","tasks"])){
 
-    const taskSummary = getTaskSummary();
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+const taskSummary = {
+    total: tasks.length,
+    completed: tasks.filter(task => task.done).length,
+    pending: tasks.filter(task => !task.done).length,
+    tasks: tasks
+};
 
     addMessage(
         "ai",
