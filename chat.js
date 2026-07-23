@@ -126,109 +126,7 @@ const upcomingEvents = events.filter(function(event){
     return event.date >= today;
 
 });
-    // ==========================
-// Learn About User
-// ==========================
-
-const memory = getMemory();
-
-if(msg.startsWith("my favorite color is ")){
-
-    memory.favoriteColor = text.replace(/my favorite color is/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","💙 I'll remember that! Your favorite color is " + memory.favoriteColor + ".");
-
-    return;
-
-}
-
-if(msg.startsWith("my birthday is ")){
-
-    memory.birthday = text.replace(/my birthday is/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","🎂 Got it! I'll remember your birthday.");
-
-    return;
-
-}
-
-if(msg.startsWith("i work at ")){
-
-    memory.work = text.replace(/i work at/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","💼 Nice! I'll remember where you work.");
-
-    return;
-
-}
-
-if(msg.startsWith("my name is ")){
-
-    memory.name = text.replace(/my name is/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","😊 Nice to meet you, " + memory.name + "! I'll remember your name.");
-
-    return;
-
-}
-    // ==========================
-// Recall Memory
-// ==========================
-
-if(msg.includes("what is my favorite color")){
-
-    addMessage("ai",
-        memory.favoriteColor
-        ? "💙 Your favorite color is " + memory.favoriteColor + "."
-        : "I don't know your favorite color yet."
-    );
-
-    return;
-
-}
-
-if(msg.includes("when is my birthday")){
-
-    addMessage("ai",
-        memory.birthday
-        ? "🎂 Your birthday is " + memory.birthday + "."
-        : "I don't know your birthday yet."
-    );
-
-    return;
-
-}
-
-if(msg.includes("where do i work")){
-
-    addMessage("ai",
-        memory.work
-        ? "💼 You work at " + memory.work + "."
-        : "I don't know where you work yet."
-    );
-
-    return;
-
-}
-
-if(msg.includes("what is my name")){
-
-    addMessage("ai",
-        memory.name
-        ? "😊 Your name is " + memory.name + "."
-        : "I don't know your name yet."
-    );
-
-    return;
-
+    
 }
     // ==========================
 // AI Daily Planner
@@ -1146,6 +1044,110 @@ if(
     });
 
     addMessage("ai", reply);
+
+    return;
+
+}
+// ==========================
+// Learn About User
+// ==========================
+
+const memory = getMemory();
+
+if(msg.startsWith("my favorite color is ")){
+
+    memory.favoriteColor = text.replace(/my favorite color is/i,"").trim();
+
+    saveMemory(memory);
+
+    addMessage("ai","💙 I'll remember that! Your favorite color is " + memory.favoriteColor + ".");
+
+    return;
+
+}
+
+if(msg.startsWith("my birthday is ")){
+
+    memory.birthday = text.replace(/my birthday is/i,"").trim();
+
+    saveMemory(memory);
+
+    addMessage("ai","🎂 Got it! I'll remember your birthday.");
+
+    return;
+
+}
+
+if(msg.startsWith("i work at ")){
+
+    memory.work = text.replace(/i work at/i,"").trim();
+
+    saveMemory(memory);
+
+    addMessage("ai","💼 Nice! I'll remember where you work.");
+
+    return;
+
+}
+
+if(msg.startsWith("my name is ")){
+
+    memory.name = text.replace(/my name is/i,"").trim();
+
+    saveMemory(memory);
+
+    addMessage("ai","😊 Nice to meet you, " + memory.name + "! I'll remember your name.");
+
+    return;
+
+}
+// ==========================
+// Recall Memory
+// ==========================
+
+if(msg.includes("what is my favorite color")){
+
+    addMessage("ai",
+        memory.favoriteColor
+        ? "💙 Your favorite color is " + memory.favoriteColor + "."
+        : "I don't know your favorite color yet."
+    );
+
+    return;
+
+}
+
+if(msg.includes("when is my birthday")){
+
+    addMessage("ai",
+        memory.birthday
+        ? "🎂 Your birthday is " + memory.birthday + "."
+        : "I don't know your birthday yet."
+    );
+
+    return;
+
+}
+
+if(msg.includes("where do i work")){
+
+    addMessage("ai",
+        memory.work
+        ? "💼 You work at " + memory.work + "."
+        : "I don't know where you work yet."
+    );
+
+    return;
+
+}
+
+if(msg.includes("what is my name")){
+
+    addMessage("ai",
+        memory.name
+        ? "😊 Your name is " + memory.name + "."
+        : "I don't know your name yet."
+    );
 
     return;
 
