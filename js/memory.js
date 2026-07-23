@@ -66,7 +66,6 @@ function memoryReply(msg, text){
 
         return "I don't know your job yet.";
     }
- 
 
     return null;
 }
