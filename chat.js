@@ -1,8 +1,15 @@
-// Storage
+// ================================
+// AI Life Assistant Chat UI
+// ================================
+
+// Elements
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
 
-// ==========================
+// ================================
+// Add Message
+// ================================
+
 function addMessage(type, text){
 
     chat.innerHTML += `
@@ -15,7 +22,10 @@ function addMessage(type, text){
 
 }
 
-// ==========================
+// ================================
+// AI Reply
+// ================================
+
 async function aiReply(text){
 
     const answer = await smartAIReply(text);
@@ -24,7 +34,10 @@ async function aiReply(text){
 
 }
 
-// ==========================
+// ================================
+// Send Message
+// ================================
+
 function sendMessage(){
 
     const text = input.value.trim();
@@ -33,15 +46,19 @@ function sendMessage(){
 
     addMessage("user", text);
 
-    input.value="";
+    input.value = "";
 
     aiReply(text);
 
 }
 
-input.addEventListener("keypress",function(e){
+// ================================
+// Enter Key
+// ================================
 
-    if(e.key==="Enter"){
+input.addEventListener("keypress", function(e){
+
+    if(e.key === "Enter"){
 
         sendMessage();
 
