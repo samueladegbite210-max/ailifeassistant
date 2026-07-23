@@ -39,21 +39,7 @@ function sendMessage(){
     aiReply(text);
 
 }
-// ==========================
-// AI Memory
-// ==========================
 
-function getMemory(){
-
-    return JSON.parse(localStorage.getItem("aiMemory")) || {};
-
-}
-
-function saveMemory(memory){
-
-    localStorage.setItem("aiMemory", JSON.stringify(memory));
-
-}
 // ================================
 // Enter Key
 // ================================
@@ -94,7 +80,7 @@ function hasAny(msg, words){
 async function aiReply(text){
 
     const msg = text.toLowerCase().trim();
-    const memory = getMemory();
+    
 const goals = JSON.parse(localStorage.getItem("goals")) || [];
 const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 const notes = JSON.parse(localStorage.getItem("allNotes")) || [];
@@ -1066,147 +1052,9 @@ if(
     return;
 
 }
-// ==========================
-// Learn About User
-// ==========================
 
-const memory = getMemory();
 
-if(msg.startsWith("my favorite color is ")){
-
-    memory.favoriteColor = text.replace(/my favorite color is/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","💙 I'll remember that! Your favorite color is " + memory.favoriteColor + ".");
-
-    return;
-
-}
-
-if(msg.startsWith("my birthday is ")){
-
-    memory.birthday = text.replace(/my birthday is/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","🎂 Got it! I'll remember your birthday.");
-
-    return;
-
-}
-
-if(msg.startsWith("i work at ")){
-
-    memory.work = text.replace(/i work at/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","💼 Nice! I'll remember where you work.");
-
-    return;
-
-}
-
-if(msg.startsWith("my name is ")){
-
-    memory.name = text.replace(/my name is/i,"").trim();
-
-    saveMemory(memory);
-
-    addMessage("ai","😊 Nice to meet you, " + memory.name + "! I'll remember your name.");
-
-    return;
-
-}
-// ==========================
-// Recall Memory
-// ==========================
-
-if(msg.includes("what is my favorite color")){
-
-    addMessage("ai",
-        memory.favoriteColor
-        ? "💙 Your favorite color is " + memory.favoriteColor + "."
-        : "I don't know your favorite color yet."
-    );
-
-    return;
-
-}
-
-if(msg.includes("when is my birthday")){
-
-    addMessage("ai",
-        memory.birthday
-        ? "🎂 Your birthday is " + memory.birthday + "."
-        : "I don't know your birthday yet."
-    );
-
-    return;
-
-}
-
-if(msg.includes("where do i work")){
-
-    addMessage("ai",
-        memory.work
-        ? "💼 You work at " + memory.work + "."
-        : "I don't know where you work yet."
-    );
-
-    return;
-
-}
-
-if(msg.includes("what is my name")){
-
-    addMessage("ai",
-        memory.name
-        ? "😊 Your name is " + memory.name + "."
-        : "I don't know your name yet."
-    );
-
-    return;
-
-}
-  
-
-    // ==========================
-// Show Memory
-// ==========================
-
-if(
-
-    msg.includes("what do you remember about me") ||
-
-    msg.includes("what do you know about me")
-
-){
-
-    let memory = JSON.parse(localStorage.getItem("aiFacts")) || [];
-
-    if(memory.length === 0){
-
-        addMessage("ai","🧠 I don't know much about you yet.");
-
-        return;
-
-    }
-
-    let reply = "🧠 Here's what I remember:\n\n";
-
-    memory.forEach(function(item){
-
-        reply += "• " + item + "\n";
-
-    });
-
-    addMessage("ai", reply);
-
-    return;
-
-}
+    
 // ==========================
 // Normal AI
 // ==========================
