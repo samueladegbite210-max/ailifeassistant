@@ -94,7 +94,7 @@ function hasAny(msg, words){
 async function aiReply(text){
 
     const msg = text.toLowerCase().trim();
-    
+    const memory = getMemory();
 const goals = JSON.parse(localStorage.getItem("goals")) || [];
 const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 const notes = JSON.parse(localStorage.getItem("allNotes")) || [];
