@@ -105,7 +105,6 @@ const goalSummary = {
     goals: goals
 };
  
-}
 
 // ==========================
 // Calendar Data
