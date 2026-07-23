@@ -4,11 +4,11 @@ let goals = JSON.parse(localStorage.getItem("goals")) || [];
 
 function goalReply(msg, text){
 
-    // Reload latest goals
+    // Always reload latest goals
     goals = JSON.parse(localStorage.getItem("goals")) || [];
 
     // ==========================
-    // Smart Goal Detection
+    // SMART GOAL DETECTION
     // ==========================
 
     if(
@@ -23,19 +23,27 @@ function goalReply(msg, text){
             .replace(/i plan to/i,"")
             .trim();
 
+        if(goalName === ""){
+            return "❌ Please tell me your goal.";
+        }
+
         goals.push({
             id: Date.now(),
+            title: goalName,
             text: goalName,
-            done:false
+            description: "",
+            deadline: "",
+            category: "Personal",
+            done: false
         });
 
-        localStorage.setItem("goals",JSON.stringify(goals));
+        localStorage.setItem("goals", JSON.stringify(goals));
 
-        return "🎯 Great goal!\n\nI've added:\n🎯 " + goalName;
+        return `🎯 Great goal!\n\nI've added:\n🎯 ${goalName}`;
     }
 
     // ==========================
-    // Create Goal
+    // CREATE GOAL
     // ==========================
 
     if(
@@ -48,20 +56,27 @@ function goalReply(msg, text){
             .replace(/add a goal called/i,"")
             .trim();
 
+        if(goalName === ""){
+            return "❌ Please enter a goal name.";
+        }
+
         goals.push({
-    id: Date.now(),
-    title: goalName,
-    text: goalName,
-    done: false
-});
+            id: Date.now(),
+            title: goalName,
+            text: goalName,
+            description: "",
+            deadline: "",
+            category: "Personal",
+            done: false
+        });
 
-        localStorage.setItem("goals",JSON.stringify(goals));
+        localStorage.setItem("goals", JSON.stringify(goals));
 
-        return "🎯 Goal created successfully!";
+        return `🎯 Goal "${goalName}" created successfully!`;
     }
 
     // ==========================
-    // Goal Summary
+    // GOAL SUMMARY
     // ==========================
 
     if(
@@ -69,17 +84,18 @@ function goalReply(msg, text){
         msg.includes("how many goals")
     ){
 
-        const completed = goals.filter(g=>g.done).length;
+        const completed = goals.filter(goal => goal.done).length;
+        const pending = goals.length - completed;
 
         return `📊 Goal Summary
 
 🎯 Total Goals: ${goals.length}
 ✅ Completed: ${completed}
-⏳ Pending: ${goals.length-completed}`;
+⏳ Pending: ${pending}`;
     }
 
     // ==========================
-    // Show Goals
+    // SHOW GOALS
     // ==========================
 
     if(
@@ -88,17 +104,21 @@ function goalReply(msg, text){
         msg.includes("show goals")
     ){
 
-        if(goals.length===0){
-
+        if(goals.length === 0){
             return "🎯 You don't have any goals yet.";
-
         }
 
-        let reply="🎯 Your Goals\n\n";
+        let reply = "🎯 Your Goals\n\n";
 
-        goals.forEach(goal=>{
+        goals.forEach(function(goal){
 
-            reply += `${goal.done ? "✅":"🎯"} ${goal.title || goal.text}\n`;
+            const goalName = goal.title || goal.text;
+
+            if(goalName){
+
+                reply += `${goal.done ? "✅" : "🎯"} ${goalName}\n`;
+
+            }
 
         });
 
@@ -106,51 +126,55 @@ function goalReply(msg, text){
     }
 
     // ==========================
-    // Pending Goals
+    // PENDING GOALS
     // ==========================
 
     if(msg.includes("pending goals")){
 
-        const pending = goals.filter(g=>!g.done);
+        const pending = goals.filter(goal => !goal.done);
 
-        if(pending.length===0){
-
+        if(pending.length === 0){
             return "🎉 You have no pending goals.";
-
         }
 
-        let reply="⏳ Pending Goals\n\n";
+        let reply = "⏳ Pending Goals\n\n";
 
-        pending.forEach(goal=>{
-    if(goal.title || goal.text){
-        reply += `🎯 ${goal.title || goal.text}\n`;
-    }
-});
+        pending.forEach(function(goal){
+
+            const goalName = goal.title || goal.text;
+
+            if(goalName){
+                reply += `🎯 ${goalName}\n`;
+            }
+
+        });
 
         return reply;
     }
 
     // ==========================
-    // Completed Goals
+    // COMPLETED GOALS
     // ==========================
 
     if(msg.includes("completed goals")){
 
-        const completed = goals.filter(g=>g.done);
+        const completed = goals.filter(goal => goal.done);
 
-        if(completed.length===0){
-
-            return "You haven't completed any goals yet.";
-
+        if(completed.length === 0){
+            return "🎉 You haven't completed any goals yet.";
         }
 
-        let reply="✅ Completed Goals\n\n";
+        let reply = "✅ Completed Goals\n\n";
 
-        completed.forEach(goal=>{
-    if(goal.title || goal.text){
-        reply += `✅ ${goal.title || goal.text}\n`;
-    }
-});
+        completed.forEach(function(goal){
+
+            const goalName = goal.title || goal.text;
+
+            if(goalName){
+                reply += `✅ ${goalName}\n`;
+            }
+
+        });
 
         return reply;
     }
