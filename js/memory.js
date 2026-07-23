@@ -100,15 +100,18 @@ function memoryReply(msg, text){
 
     if(msg.startsWith("remember that ")){
 
-        memory.facts = memory.facts || [];
+    alert("Remember block reached");
 
-        const fact = text.replace(/remember that /i,"").trim();
+    memory.facts = memory.facts || [];
 
-        memory.facts.push(fact);
+    const fact = text.replace(/remember that /i,"").trim();
 
-        saveMemory();
+    memory.facts.push(fact);
 
-        return "🧠 I'll remember that.";
+    saveMemory();
+
+    return "🧠 I'll remember that.";
+
     }
 
     // ==========================
