@@ -1,5 +1,7 @@
 alert("🧠 Memory 3.0 Loaded");
-
+memory.facts = memory.facts || [];
+memory.likes = memory.likes || [];
+memory.dislikes = memory.dislikes || [];
 // =========================
 // AI Memory
 // =========================
@@ -151,14 +153,18 @@ function memoryReply(msg, text){
 
     if(msg.startsWith("remember that ")){
 
-        const fact = text.replace(/remember that /i,"").trim();
+    memory.facts = memory.facts || [];
 
-        memory.facts.push(fact);
+    const fact = text
+        .replace(/remember that /i,"")
+        .trim();
 
-        saveMemory();
+    memory.facts.push(fact);
 
-        return "🧠 I'll remember that.";
-    }
+    saveMemory();
+
+    return "🧠 I'll remember: " + fact;
+}
 
     // =========================
     // Recall
