@@ -153,6 +153,65 @@ function memoryReply(msg, text){
 
     }
     // ==========================
+// LEARN USER INFORMATION
+// ==========================
+
+if(msg.startsWith("i like ")){
+
+    memory.likes = memory.likes || [];
+    memory.likes.push(text.replace(/i like /i,"").trim());
+
+    saveMemory();
+
+    return "😊 I'll remember what you like.";
+}
+
+if(msg.startsWith("i don't like ")){
+
+    memory.dislikes = memory.dislikes || [];
+    memory.dislikes.push(text.replace(/i don't like /i,"").trim());
+
+    saveMemory();
+
+    return "👍 I'll remember what you don't like.";
+}
+
+if(msg.startsWith("my phone number is ")){
+
+    memory.phone = text.replace(/my phone number is /i,"").trim();
+
+    saveMemory();
+
+    return "📱 I'll remember your phone number.";
+}
+
+if(msg.startsWith("my email is ")){
+
+    memory.email = text.replace(/my email is /i,"").trim();
+
+    saveMemory();
+
+    return "📧 I'll remember your email.";
+}
+
+if(msg.startsWith("i am married")){
+
+    memory.relationship = "Married";
+
+    saveMemory();
+
+    return "❤️ I'll remember you're married.";
+}
+
+if(msg.startsWith("i am single")){
+
+    memory.relationship = "Single";
+
+    saveMemory();
+
+    return "❤️ I'll remember you're single.";
+}
+    // ==========================
 // SHOW EVERYTHING
 // ==========================
 
