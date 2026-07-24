@@ -153,7 +153,7 @@ function memoryReply(msg, text){
 
     if(msg.startsWith("remember that ")){
 
-    alert("Remember block reached");
+    alert("REMEMBER BLOCK WORKING");
 
     memory.facts = memory.facts || [];
 
@@ -163,7 +163,8 @@ function memoryReply(msg, text){
 
     saveMemory();
 
-    return "🧠 I'll remember that.";
+    return "🧠 I have remembered: " + fact;
+
 }
     // =========================
     // Recall
