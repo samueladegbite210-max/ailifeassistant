@@ -1,6 +1,6 @@
 
 alert("🧠 smartAI.js loaded");
-
+alert("smartAIReply is running");
 async function smartAIReply(msg){
 
     // Clean message
