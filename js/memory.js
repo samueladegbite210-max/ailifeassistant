@@ -38,12 +38,14 @@ function memoryReply(msg, text){
 
     if(msg.startsWith("i live in ")){
 
-        memory.city = text.replace(/i live in /i,"").trim();
+    const city = text.replace(/i live in /i,"").trim();
 
-        saveMemory();
+    memory.city = city;
 
-        return "📍 I'll remember that you live in " + memory.city + ".";
-    }
+    localStorage.setItem("memory", JSON.stringify(memory));
+
+    return "📍 I'll remember that you live in " + city + ".";
+}
 
     // ==========================
     // SAVE JOB
