@@ -25,7 +25,7 @@ function loadMemory(){
 }
 
 function memoryReply(msg, text){
-
+alert("memoryReply() is running");
     loadMemory();
 
     // =========================
