@@ -31,7 +31,7 @@ async function aiReply(text){
     const answer = await smartAIReply(text);
 
     addMessage("ai", answer);
-
+saveContext("ai", answer);
 }
 
 // ================================
@@ -45,7 +45,7 @@ function sendMessage(){
     if(text === "") return;
 
     addMessage("user", text);
-
+saveContext("user", text);
     input.value = "";
 
     aiReply(text);
