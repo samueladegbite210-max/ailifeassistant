@@ -23,7 +23,8 @@ function loadMemory(){
         dislikes: []
     };
 }
-
+msg = msg.toLowerCase().trim();
+text = text.trim();
 function memoryReply(msg, text){
 console.log("memoryReply:", msg);
 alert("memoryReply: " + msg);
@@ -116,39 +117,43 @@ alert("memoryReply() is running");
         return "❤️ I'll remember you're married.";
     }
 
-    // =========================
-    // Likes
-    // =========================
+   // =========================
+// SAVE LIKES
+// =========================
 
-    if(msg.startsWith("i like ")){
-alert("LIKE BLOCK");
-        const item = text.replace(/i like /i,"").trim();
+if(msg.startsWith("i like ")){
 
-        if(!memory.likes.includes(item)){
-            memory.likes.push(item);
-        }
+    alert("LIKE BLOCK");
 
-        saveMemory();
+    memory.likes = memory.likes || [];
 
-        return "😊 I'll remember that you like " + item + ".";
+    const item = text.replace(/i like /i,"").trim();
+
+    if(!memory.likes.includes(item)){
+        memory.likes.push(item);
     }
 
-    // =========================
-    // Dislikes
-    // =========================
+    saveMemory();
+
+    return "😊 I'll remember that you like " + item + ".";
+}
 
     if(msg.startsWith("i don't like ")){
 
-        const item = text.replace(/i don't like /i,"").trim();
+    alert("DISLIKE BLOCK");
 
-        if(!memory.dislikes.includes(item)){
-            memory.dislikes.push(item);
-        }
+    memory.dislikes = memory.dislikes || [];
 
-        saveMemory();
+    const item = text.replace(/i don't like /i,"").trim();
 
-        return "👍 I'll remember that you don't like " + item + ".";
+    if(!memory.dislikes.includes(item)){
+        memory.dislikes.push(item);
     }
+
+    saveMemory();
+
+    return "👍 I'll remember that you don't like " + item + ".";
+}
 
     // =========================
     // Remember Facts
