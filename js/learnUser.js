@@ -74,45 +74,7 @@ if(msg.includes("my sister is")){
     localStorage.setItem("memory", JSON.stringify(memory));
 
     return "👧 I'll remember your sister.";
-}
-    // Learn Mother
-if(msg.includes("my mother is")){
 
-    memory.mother = text.replace(/my mother is/i,"").trim();
-
-    localStorage.setItem("memory", JSON.stringify(memory));
-
-    return "👩 I'll remember your mother.";
-}
-
-// Learn Father
-if(msg.includes("my father is")){
-
-    memory.father = text.replace(/my father is/i,"").trim();
-
-    localStorage.setItem("memory", JSON.stringify(memory));
-
-    return "👨 I'll remember your father.";
-}
-
-// Learn Brother
-if(msg.includes("my brother is")){
-
-    memory.brother = text.replace(/my brother is/i,"").trim();
-
-    localStorage.setItem("memory", JSON.stringify(memory));
-
-    return "👦 I'll remember your brother.";
-}
-
-// Learn Sister
-if(msg.includes("my sister is")){
-
-    memory.sister = text.replace(/my sister is/i,"").trim();
-
-    localStorage.setItem("memory", JSON.stringify(memory));
-
-    return "👧 I'll remember your sister.";
 }
     return null;
 
