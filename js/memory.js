@@ -197,6 +197,42 @@ if(msg.startsWith("i like ")){
     if(msg.includes("what is my favorite color")){
         return memory.favoriteColor ? "🎨 Your favorite color is " + memory.favoriteColor + "." : "I don't know your favorite color.";
     }
+    // Recall Dog
+if(
+    msg.includes("what is my dog's name") ||
+    msg.includes("who is my dog") ||
+    msg.includes("my dog name")
+){
+
+    return memory.dog
+        ? "🐶 Your dog's name is " + memory.dog + "."
+        : "I don't know your dog's name yet.";
+
+}
+
+// Recall Girlfriend
+if(
+    msg.includes("who is my girlfriend") ||
+    msg.includes("what is my girlfriend's name")
+){
+
+    return memory.girlfriend
+        ? "❤️ Your girlfriend is " + memory.girlfriend + "."
+        : "I don't know your girlfriend yet.";
+
+}
+
+// Recall Wife
+if(
+    msg.includes("who is my wife") ||
+    msg.includes("what is my wife's name")
+){
+
+    return memory.wife
+        ? "❤️ Your wife is " + memory.wife + "."
+        : "I don't know your wife yet.";
+
+}
 // ==========================
 // Forget Memory
 // ==========================
