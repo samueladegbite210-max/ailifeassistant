@@ -222,48 +222,7 @@ if(
 
 }
 
-// Recall Wife
-if(
-    msg.includes("who is my wife") ||
-    msg.includes("what is my wife's name")
-){
 
-    return memory.wife
-        ? "❤️ Your wife is " + memory.wife + "."
-        : "I don't know your wife yet.";
-
-}
-    // Recall Mother
-if(msg.includes("who is my mother")){
-
-    return memory.mother
-        ? "👩 Your mother is " + memory.mother + "."
-        : "I don't know your mother yet.";
-}
-
-// Recall Father
-if(msg.includes("who is my father")){
-
-    return memory.father
-        ? "👨 Your father is " + memory.father + "."
-        : "I don't know your father yet.";
-}
-
-// Recall Brother
-if(msg.includes("who is my brother")){
-
-    return memory.brother
-        ? "👦 Your brother is " + memory.brother + "."
-        : "I don't know your brother yet.";
-}
-
-// Recall Sister
-if(msg.includes("who is my sister")){
-
-    return memory.sister
-        ? "👧 Your sister is " + memory.sister + "."
-        : "I don't know your sister yet.";
-}
 // ==========================
 // Forget Memory
 // ==========================
