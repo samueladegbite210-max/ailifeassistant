@@ -1,7 +1,5 @@
 alert("🧠 Memory 3.0 Loaded");
-memory.facts = memory.facts || [];
-memory.likes = memory.likes || [];
-memory.dislikes = memory.dislikes || [];
+
 // =========================
 // AI Memory
 // =========================
@@ -11,7 +9,9 @@ let memory = JSON.parse(localStorage.getItem("memory")) || {
     likes: [],
     dislikes: []
 };
-
+memory.facts = memory.facts || [];
+memory.likes = memory.likes || [];
+memory.dislikes = memory.dislikes || [];
 function saveMemory(){
     localStorage.setItem("memory", JSON.stringify(memory));
 }
