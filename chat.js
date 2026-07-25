@@ -12,6 +12,8 @@ const chat = document.getElementById("chatBox");
 
 function addMessage(type, text){
 
+    text = text.replace(/\n/g, "<br>");
+
     chat.innerHTML += `
         <div class="message ${type}">
             ${text}
