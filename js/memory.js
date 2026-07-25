@@ -121,7 +121,7 @@ alert("memoryReply() is running");
     // =========================
 
     if(msg.startsWith("i like ")){
-
+alert("LIKE BLOCK");
         const item = text.replace(/i like /i,"").trim();
 
         if(!memory.likes.includes(item)){
