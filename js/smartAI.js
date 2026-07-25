@@ -19,6 +19,8 @@ async function smartAIReply(msg){
     // Memory (move this near the top)
     answer = memoryReply(msg, msg);
     if(answer) return answer;
+    answer = contextReply(msg);
+    if(answer) return answer;
     answer = learnUserReply(msg, msg);
     if(answer) return answer;
     // Knowledge
