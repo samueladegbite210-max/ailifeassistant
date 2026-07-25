@@ -189,7 +189,77 @@ alert("memoryReply() is running");
     if(msg.includes("what is my favorite color")){
         return memory.favoriteColor ? "🎨 Your favorite color is " + memory.favoriteColor + "." : "I don't know your favorite color.";
     }
+// ==========================
+// Forget Memory
+// ==========================
 
+if(msg.startsWith("forget my ")){
+
+    const item = msg.replace("forget my ","").trim();
+
+    switch(item){
+
+        case "name":
+            delete memory.name;
+            break;
+
+        case "city":
+        case "location":
+            delete memory.city;
+            break;
+
+        case "job":
+            delete memory.job;
+            break;
+
+        case "birthday":
+            delete memory.birthday;
+            break;
+
+        case "favorite color":
+            delete memory.favoriteColor;
+            break;
+
+        case "favorite food":
+            delete memory.favoriteFood;
+            break;
+
+        case "phone":
+        case "phone number":
+            delete memory.phone;
+            break;
+
+        case "email":
+            delete memory.email;
+            break;
+
+        case "relationship":
+            delete memory.relationship;
+            break;
+
+        default:
+            return "❌ I couldn't find that memory.";
+    }
+
+    saveMemory();
+
+    return "🗑️ Done! I've forgotten your " + item + ".";
+}
+
+if(msg.startsWith("forget that ")){
+
+    const fact = text.replace(/forget that /i,"").trim();
+
+    memory.facts = memory.facts.filter(function(f){
+
+        return f.toLowerCase() !== fact.toLowerCase();
+
+    });
+
+    saveMemory();
+
+    return "🗑️ I forgot that.";
+}
     // =========================
     // Show Everything
     // =========================
