@@ -291,24 +291,47 @@ if(msg.startsWith("forget that ")){
         add("📧 Email: ",memory.email);
         add("❤️ Relationship: ",memory.relationship);
 
-        if(memory.likes.length){
-            reply += "\n😊 Likes:\n";
-            memory.likes.forEach(item=>reply += "• " + item + "\n");
-            hasData = true;
-        }
+  if(memory.likes && memory.likes.length){
 
-        if(memory.dislikes.length){
-            reply += "\n😒 Dislikes:\n";
-            memory.dislikes.forEach(item=>reply += "• " + item + "\n");
-            hasData = true;
-        }
+    reply += "\n😊 Likes:\n";
 
-        if(memory.facts.length){
-            reply += "\n💡 Facts:\n";
-            memory.facts.forEach(item=>reply += "• " + item + "\n");
-            hasData = true;
-        }
+    memory.likes.forEach(function(item){
 
+        reply += "• " + item + "\n";
+
+    });
+
+    hasData = true;
+
+}
+
+if(memory.dislikes && memory.dislikes.length){
+
+    reply += "\n😒 Dislikes:\n";
+
+    memory.dislikes.forEach(function(item){
+
+        reply += "• " + item + "\n";
+
+    });
+
+    hasData = true;
+
+}
+
+if(memory.facts && memory.facts.length){
+
+    reply += "\n💡 Facts:\n";
+
+    memory.facts.forEach(function(item){
+
+        reply += "• " + item + "\n";
+
+    });
+
+    hasData = true;
+
+}
         if(!hasData){
             return "🧠 I don't know much about you yet.";
         }
