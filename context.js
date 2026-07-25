@@ -8,11 +8,12 @@ function saveContext(role, message){
 
     chatContext.push({
         role: role,
-        message: message
+        message: message,
+        time: Date.now()
     });
 
-    // Keep only the latest 20 messages
-    if(chatContext.length > 20){
+    // Keep only the latest 50 messages
+    if(chatContext.length > 50){
         chatContext.shift();
     }
 
