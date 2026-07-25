@@ -25,6 +25,9 @@ function loadMemory(){
 }
 
 function memoryReply(msg, text){
+console.log("memoryReply:", msg);
+alert("memoryReply: " + msg);
+    
 alert("memoryReply() is running");
     loadMemory();
 
