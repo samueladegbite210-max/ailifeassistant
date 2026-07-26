@@ -1,8 +1,9 @@
 alert("🔥 Streak System Loaded");
 
-let streak = JSON.parse(localStorage.getItem("streak")) || {
-    days: 0,
-    lastVisit: ""
+let streak = JSON.parse(localStorage.getItem("streak")) || {};
+
+streak.days = streak.days || 0;
+streak.lastVisit = streak.lastVisit || "";
 };
 
 function saveStreak(){
