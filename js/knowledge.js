@@ -122,12 +122,12 @@ if(msg.includes("what is generator")){
 
 if(msg.includes("what is ohms law")){
     return "📘 Ohm's Law states that Voltage = Current × Resistance (V = I × R).";
-
+}
 // ==========================
 // Science
 // ==========================
 
-}
+
 
 if(msg.includes("what is gravity")){
     return "🌍 Gravity is the force that attracts objects toward the Earth.";
