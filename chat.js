@@ -40,7 +40,13 @@ async function aiReply(text){
     }
 
 }
+const streakMessage = updateStreak();
 
+if(streakMessage){
+
+    addMessage("ai", streakMessage);
+
+}
 // ================================
 // Send Message
 // ================================
