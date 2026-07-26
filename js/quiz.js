@@ -104,6 +104,11 @@ if(msg.includes("reset my quiz score")){
     return showXP();
 
 }
+    if(msg.includes("show my achievements")){
+
+    return showAchievements();
+
+}
     return null;
 
 }
