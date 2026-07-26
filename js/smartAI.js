@@ -23,6 +23,9 @@ if(answer) return answer;
     answer = profileReply(msg);
 if(answer) return answer;
     
+    answer = streakReply(msg);
+if(answer) return answer;
+    
 answer = learnUserReply(msg, msg);
 if(answer) return answer;
 
