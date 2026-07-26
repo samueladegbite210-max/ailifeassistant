@@ -30,16 +30,19 @@ Reply with A, B, C or D.`;
 
     if(msg === "b"){
 
-        return "✅ Correct! Ampere (A) is the unit of electric current.";
+    addCorrect();
 
-    }
+    return "✅ Correct!\n\nAmpere (A) is the unit of electric current.\n\n" + showQuizScore();
+
+}
 
     if(msg === "a" || msg === "c" || msg === "d"){
 
-        return "❌ Incorrect.\n\nThe correct answer is B. Ampere.";
+    addWrong();
 
-    }
+    return "❌ Incorrect.\n\nThe correct answer is B.\n\n" + showQuizScore();
 
+}
     // ==========================
     // Programming Quiz
     // ==========================
