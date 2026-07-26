@@ -34,12 +34,12 @@ function addXP(amount){
 
     saveXP();
 
-    if(levelUp){
+if(levelUp){
 
-        return "🎉 Level Up!\n\n⭐ XP: " + xpData.xp +
-               "\n🏆 Level: " + xpData.level;
+    return "🎉 Level Up!\n\n⭐ XP: " + xpData.xp +
+           "\n🏆 Level: " + xpData.level;
 
-    }
+}
 
     return "⭐ +" + amount + " XP\n\n⭐ Total XP: " +
            xpData.xp +
