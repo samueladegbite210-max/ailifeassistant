@@ -67,10 +67,22 @@ Reply with A, B, C or D.`;
 
     if(msg === "a"){
 
-        return "✅ Correct! Python is one of the best programming languages for beginners.";
+        addCorrect();
+
+return "✅ Correct!\n\nPython is one of the best programming languages for beginners.\n\n" + showQuizScore();
 
     }
+if(msg.includes("show my quiz score")){
 
+    return showQuizScore();
+
+}
+
+if(msg.includes("reset my quiz score")){
+
+    return resetQuizScore();
+
+}
     return null;
 
 }
