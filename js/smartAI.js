@@ -23,9 +23,7 @@ if(answer) return answer;
 answer = learnUserReply(msg, msg);
 if(answer) return answer;
 
-if(typeof contextReply === "function"){
-    answer = contextReply(msg);
-    if(answer) return answer;
+
 }
     
     // Knowledge
