@@ -95,6 +95,15 @@ if(msg.includes("reset my quiz score")){
     return resetQuizScore();
 
 }
+    if(
+    msg.includes("show my xp") ||
+    msg.includes("my xp") ||
+    msg.includes("xp")
+){
+
+    return showXP();
+
+}
     return null;
 
 }
