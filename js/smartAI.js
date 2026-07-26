@@ -27,6 +27,8 @@ if(answer) return answer;
     answer = knowledgeReply(msg);
     if(answer) return answer;
 
+    answer = teacherReply(msg);
+if(answer) return answer;
     // Calculator
     answer = calculatorReply(msg);
     if(answer) return answer;
