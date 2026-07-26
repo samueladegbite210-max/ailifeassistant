@@ -34,20 +34,38 @@ function addXP(amount){
 
     saveXP();
 
+let achievementMessage = checkAchievements();
+
 if(levelUp){
 
-    return "🎉 Level Up!\n\n⭐ XP: " + xpData.xp +
-           "\n🏆 Level: " + xpData.level;
+    let reply =
+        "🎉 Level Up!\n\n" +
+        "⭐ XP: " + xpData.xp +
+        "\n🏆 Level: " + xpData.level;
+
+    if(achievementMessage){
+
+        reply += "\n\n" + achievementMessage;
+
+    }
+
+    return reply;
 
 }
 
-    return "⭐ +" + amount + " XP\n\n⭐ Total XP: " +
-           xpData.xp +
-           "\n🏆 Level: " +
-           xpData.level;
+    let reply =
+    "⭐ +" + amount + " XP\n\n" +
+    "⭐ Total XP: " + xpData.xp +
+    "\n🏆 Level: " + xpData.level;
+
+if(achievementMessage){
+
+    reply += "\n\n" + achievementMessage;
 
 }
 
+return reply;
+    
 function showXP(){
 
     return "⭐ XP: " + xpData.xp +
