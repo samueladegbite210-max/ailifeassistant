@@ -468,4 +468,30 @@ const recommendationBox = document.getElementById("aiRecommendation");
 if (recommendationBox) {
     recommendationBox.innerHTML = recommendation;
 }
+
 generateDailyBriefing();
+
+function updateDashboardStats(){
+
+    const xpData = JSON.parse(localStorage.getItem("xp")) || {
+        xp:0,
+        level:1
+    };
+
+    const notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    if(document.getElementById("xpCount")){
+        document.getElementById("xpCount").textContent = xpData.xp;
+    }
+
+    if(document.getElementById("levelCount")){
+        document.getElementById("levelCount").textContent = xpData.level;
+    }
+
+    if(document.getElementById("noteCount")){
+        document.getElementById("noteCount").textContent = notes.length;
+    }
+
+
+}
+updateDashboardStats();
