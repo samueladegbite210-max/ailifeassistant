@@ -20,7 +20,7 @@ function addXP(amount){
 
     xpData.xp += amount;
 
-    let newLevel = Math.floor(xpData.xp / 100) + 1;
+    let newLevel = Math.floor(xpData.xp / 20) + 1;
 
     let levelUp = false;
 
