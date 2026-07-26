@@ -65,10 +65,20 @@ function updateStreak(){
     return null;
 
 }
+function loadStreak(){
 
+    streak = JSON.parse(localStorage.getItem("streak")) || {};
+
+    streak.days = streak.days || 0;
+    streak.lastVisit = streak.lastVisit || "";
+
+}
 function showStreak(){
+
+    loadStreak();
 
     return "🔥 Current Streak\n\n" +
            streak.days +
            " day(s)";
+
 }
