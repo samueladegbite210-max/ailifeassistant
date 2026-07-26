@@ -30,9 +30,16 @@ Reply with A, B, C or D.`;
 
     if(msg === "b"){
 
-    addCorrect();
+    
 
-    return "✅ Correct!\n\nAmpere (A) is the unit of electric current.\n\n" + showQuizScore();
+addCorrect();
+
+let xpMessage = addXP(10);
+
+return "✅ Correct!\n\nAmpere (A) is the unit of electric current.\n\n" +
+showQuizScore() +
+"\n\n" +
+xpMessage;
 
 }
 
@@ -69,7 +76,12 @@ Reply with A, B, C or D.`;
 
         addCorrect();
 
-return "✅ Correct!\n\nPython is one of the best programming languages for beginners.\n\n" + showQuizScore();
+let xpMessage = addXP(10);
+
+return "✅ Correct!\n\nPython is one of the best programming languages for beginners.\n\n" +
+showQuizScore() +
+"\n\n" +
+xpMessage;
 
     }
 if(msg.includes("show my quiz score")){
