@@ -2,7 +2,16 @@ alert("🧠 Context Reply Loaded");
 
 function contextReply(msg){
 
+    // Safety check
+    if(typeof getContext !== "function"){
+        return null;
+    }
+
     const history = getContext();
+
+    if(!Array.isArray(history)){
+        return null;
+    }
 
     if(
         msg.includes("what did i tell you") ||
@@ -18,7 +27,7 @@ function contextReply(msg){
 
         let reply = "🧠 Here's what you've told me recently:\n\n";
 
-        userMessages.slice(-5).forEach(item => {
+        userMessages.slice(-5).forEach(function(item){
             reply += "• " + item.message + "\n";
         });
 
