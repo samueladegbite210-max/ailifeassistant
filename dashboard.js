@@ -111,45 +111,8 @@ if (closeBtn && sideMenu) {
 updateDateTime();
 updateGreeting();
 setInterval(updateDateTime, 1000);
-// ==========================
-// Dashboard Summary
-// ==========================
 
-function updateSummary(){
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-
-    const completed = tasks.filter(task => task.done).length;
-
-    if(document.getElementById("taskCount")){
-        document.getElementById("taskCount").textContent = tasks.length;
-    }
-
-    if(document.getElementById("goalCount")){
-        document.getElementById("goalCount").textContent = goals.length;
-    }
-
-    if(document.getElementById("eventCount")){
-        document.getElementById("eventCount").textContent = events.length;
-    }
-
-    const score = document.getElementById("productivityScore");
-
-    if(score){
-
-        const percent = tasks.length === 0
-            ? 0
-            : Math.round((completed / tasks.length) * 100);
-
-        score.textContent = percent + "%";
-
-    }
-
-}
-
-updateSummary();
 // ==========================
 // AI Tip of the Day
 // ==========================
@@ -321,43 +284,44 @@ function loadNextEvent(){
 loadNextEvent();
 
 // ==========================
-// Productivity Score
+// Productivity Score and Summary
 // ==========================
 
-function updateProductivity(){
+function refreshDashboard(){
 
     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
-    const score = document.getElementById("productivityScore");
-    const progressBar = document.getElementById("progressBar");
-    const progressText = document.getElementById("progressText");
-
-    if(!score || !progressBar || !progressText) return;
-
-    if(tasks.length === 0){
-
-        score.textContent = "0%";
-        progressBar.style.width = "0%";
-        progressText.textContent = "0% Completed";
-
-        return;
-
-    }
+    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+    const events = JSON.parse(localStorage.getItem("events")) || [];
 
     const completed = tasks.filter(task => task.done).length;
 
-    const percent = Math.round((completed / tasks.length) * 100);
+    // Summary
+    if(document.getElementById("taskCount"))
+        document.getElementById("taskCount").textContent = tasks.length;
 
-    score.textContent = percent + "%";
+    if(document.getElementById("goalCount"))
+        document.getElementById("goalCount").textContent = goals.length;
 
-    progressBar.style.width = percent + "%";
+    if(document.getElementById("eventCount"))
+        document.getElementById("eventCount").textContent = events.length;
 
-    progressText.textContent =
-        completed + " of " + tasks.length + " Tasks Completed";
+    // Productivity
+    const percent = tasks.length === 0
+        ? 0
+        : Math.round((completed / tasks.length) * 100);
+
+    if(document.getElementById("productivityScore"))
+        document.getElementById("productivityScore").textContent = percent + "%";
+
+    if(document.getElementById("progressBar"))
+        document.getElementById("progressBar").style.width = percent + "%";
+
+    if(document.getElementById("progressText"))
+        document.getElementById("progressText").textContent =
+            completed + " of " + tasks.length + " Tasks Completed";
 
 }
-
-updateProductivity();
+refreshDashboard();
 // ==========================
 // Achievement Badge
 // ==========================
