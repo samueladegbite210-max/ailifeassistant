@@ -192,86 +192,94 @@ function loadDailyTip(){
 
 }
 
-function generateDailyBriefing(){
+// ==========================
+// Daily AI Briefing
+// ==========================
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
-    const events = JSON.parse(localStorage.getItem("events")) || [];
+function generateDailyBriefing() {
+
+    const data = getDashboardData();
+
+    const tasks = data.tasks;
+    const goals = data.goals;
+    const events = data.events;
+
+    const briefingBox = document.getElementById("briefingText");
+
+    if (!briefingBox) return;
 
     const today = new Date().toISOString().split("T")[0];
 
-    const todayEvents = events.filter(e => e.date === today);
-    const pendingTasks = tasks.filter(t => !t.done);
-    const pendingGoals = goals.filter(g => !g.done);
+    const todayEvents = events.filter(event => event.date === today);
+    const pendingTasks = tasks.filter(task => !task.done);
+    const pendingGoals = goals.filter(goal => !goal.done);
 
-    let briefing = `👋 Good day, Samuel!\n\n`;
+    let briefing = `👋 Good day, ${username}!\n\n`;
 
     briefing += `📅 Today's Events: ${todayEvents.length}\n`;
     briefing += `✅ Pending Tasks: ${pendingTasks.length}\n`;
     briefing += `🎯 Pending Goals: ${pendingGoals.length}\n\n`;
 
-    if(pendingTasks.length){
+    if (pendingTasks.length > 0) {
 
         briefing += `🔥 Focus on:\n${pendingTasks[0].text}`;
 
-  }else{
-
-    if (pendingGoals.length > 0){
+    } else if (pendingGoals.length > 0) {
 
         briefing +=
         "🎯 Great job finishing your tasks. Now focus on your remaining goals.";
 
-    }else{
+    } else {
 
         briefing +=
         "🎉 Fantastic! You're completely caught up today.";
 
     }
 
-}
-
-document.getElementById("briefingText").innerText = briefing;
+    briefingBox.innerText = briefing;
 
 }
+
 // ==========================
 // Notifications
 // ==========================
 
-function loadNotifications(){
+function loadNotifications() {
 
     const box = document.getElementById("notificationBox");
 
-    if(!box) return;
+    if (!box) return;
 
     box.innerHTML = `
-<p>🎉 Welcome back, ${username}!</p>
-<p>🤖 AI Assistant is ready.</p>
-`;
+        <p>🎉 Welcome back, ${username}!</p>
+        <p>🤖 AI Assistant is ready.</p>
+    `;
 
 }
 
 loadNotifications();
+
+
 // ==========================
 // Next Upcoming Event
 // ==========================
 
-function loadNextEvent(){
+function loadNextEvent() {
 
     const nextEvent = document.getElementById("nextEvent");
 
-    if(!nextEvent) return;
+    if (!nextEvent) return;
 
-    let events = JSON.parse(localStorage.getItem("events")) || [];
+    const events = getDashboardData().events;
 
-    if(events.length === 0){
+    if (events.length === 0) {
 
         nextEvent.innerHTML = "<p>No upcoming events.</p>";
-
         return;
 
     }
 
-    events.sort(function(a,b){
+    events.sort((a, b) => {
 
         return new Date(a.date + " " + (a.time || "00:00")) -
                new Date(b.date + " " + (b.time || "00:00"));
@@ -285,59 +293,56 @@ function loadNextEvent(){
 
         📅 ${event.date}<br>
 
-        ${event.time ? "🕒 " + event.time + "<br>" : ""}
+        ${event.time ? `🕒 ${event.time}<br>` : ""}
 
-        ${event.location ? "📍 " + event.location : ""}
+        ${event.location ? `📍 ${event.location}` : ""}
     `;
 
 }
 
 loadNextEvent();
 
+
 // ==========================
 // Dashboard Summary & Productivity
 // ==========================
 
-function refreshDashboard(){
+function refreshDashboard() {
 
     const data = getDashboardData();
 
-const tasks = data.tasks;
-const goals = data.goals;
-const events = data.events;
-const notes = data.notes;
-const xpData = data.xp;
-const streak = data.streak;
-    
+    const tasks = data.tasks;
+    const goals = data.goals;
+    const events = data.events;
+
     const completed = tasks.filter(task => task.done).length;
 
-    // Summary
     const taskCount = document.getElementById("taskCount");
     const goalCount = document.getElementById("goalCount");
     const eventCount = document.getElementById("eventCount");
 
-    if(taskCount) taskCount.textContent = tasks.length;
-    if(goalCount) goalCount.textContent = goals.length;
-    if(eventCount) eventCount.textContent = events.length;
+    if (taskCount) taskCount.textContent = tasks.length;
+    if (goalCount) goalCount.textContent = goals.length;
+    if (eventCount) eventCount.textContent = events.length;
 
-    // Productivity
-    const percent = tasks.length === 0
-        ? 0
-        : Math.round((completed / tasks.length) * 100);
+    const percent =
+        tasks.length === 0
+            ? 0
+            : Math.round((completed / tasks.length) * 100);
 
     const productivityScore = document.getElementById("productivityScore");
     const progressBar = document.getElementById("progressBar");
     const progressText = document.getElementById("progressText");
 
-    if(productivityScore)
+    if (productivityScore)
         productivityScore.textContent = percent + "%";
 
-    if(progressBar)
+    if (progressBar)
         progressBar.style.width = percent + "%";
 
-    if(progressText)
+    if (progressText)
         progressText.textContent =
-            completed + " of " + tasks.length + " Tasks Completed";
+            `${completed} of ${tasks.length} Tasks Completed`;
 
 }
 
@@ -346,46 +351,46 @@ const streak = data.streak;
 // Achievement Badge
 // ==========================
 
-function updateAchievement(){
+function updateAchievement() {
 
     const badge = document.getElementById("achievementBadge");
     const text = document.getElementById("achievementText");
 
-    if(!badge || !text) return;
+    if (!badge || !text) return;
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const tasks = getDashboardData().tasks;
+
     const completed = tasks.filter(task => task.done).length;
 
-    if(completed >= 20){
+    if (completed >= 20) {
 
         badge.textContent = "👑 Productivity Master";
         text.textContent = "Outstanding! You completed 20 tasks.";
 
-    }else if(completed >= 10){
+    } else if (completed >= 10) {
 
         badge.textContent = "🏆 Task Champion";
         text.textContent = "Excellent! You completed 10 tasks.";
 
-    }else if(completed >= 5){
+    } else if (completed >= 5) {
 
         badge.textContent = "🔥 Hard Worker";
         text.textContent = "Great job! You completed 5 tasks.";
 
-    }else if(completed >= 1){
+    } else if (completed >= 1) {
 
         badge.textContent = "🌟 First Step";
         text.textContent = "Great job! You completed your first task.";
 
-    }else{
+    } else {
 
         badge.textContent = "🚀 Ready to Begin";
-        text.textContent = "Complete your first task to unlock achievements.";
+        text.textContent =
+            "Complete your first task to unlock achievements.";
 
     }
 
 }
-
-
 // ==========================
 // AI Recommendation
 // ==========================
