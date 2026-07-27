@@ -130,4 +130,39 @@ function updateGreeting() {
 
     const hour = new Date().getHours();
 
-    if (hour < 12)
+    if (hour < 12) {
+
+        greeting = "🌅 Good Morning";
+
+    } else if (hour < 17) {
+
+        greeting = "☀️ Good Afternoon";
+
+    } else if (hour < 21) {
+
+        greeting = "🌇 Good Evening";
+
+    } else {
+
+        greeting = "🌙 Good Night";
+
+    }
+
+    setText(
+        "welcomeText",
+        `${greeting}, ${username}`
+    );
+
+    setHTML(
+        "assistantMessage",
+        `
+📅 Today is a brand-new opportunity.<br><br>
+
+I'm here to help you organize your tasks,
+goals, notes and events.<br><br>
+
+💙 Let's make today productive together!
+`
+    );
+
+}
