@@ -553,8 +553,9 @@ function updateRecommendation() {
 
     else if (goals.length > 0) {
 
-        message =
-            `🎯 Continue working on:<br><strong>${goals[0].text}</strong>`;
+       
+         message =
+`🎯 Continue working on:<br><strong>${goals[0].text || goals[0].title || "Your Goal"}</strong>`;
 
     }
 
