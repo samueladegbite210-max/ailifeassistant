@@ -1,4 +1,4 @@
-Here is the full code 
+Her
 
 // =====================================
 // AI LIFE ASSISTANT DASHBOARD
