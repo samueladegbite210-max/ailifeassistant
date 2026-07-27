@@ -166,3 +166,194 @@ goals, notes and events.<br><br>
     );
 
 }
+/*==================================================
+ AI GREETING
+==================================================*/
+
+function loadAIGreeting() {
+
+    const aiGreeting = getElement("aiGreeting");
+    const recommendation = getElement("aiRecommendation");
+
+    if (!aiGreeting || !recommendation) return;
+
+    const { tasks, goals, events } = getDashboardData();
+
+    const pendingTasks = tasks.filter(task => !task.done);
+
+    const hour = new Date().getHours();
+
+    let greeting = "";
+
+    if (hour < 12) {
+
+        greeting = "🌅 Good Morning";
+
+    } else if (hour < 18) {
+
+        greeting = "☀️ Good Afternoon";
+
+    } else {
+
+        greeting = "🌙 Good Evening";
+
+    }
+
+    aiGreeting.innerHTML = `${greeting}, ${username}!`;
+
+    recommendation.innerHTML = `
+        📊 Dashboard Summary<br><br>
+
+        ✅ Pending Tasks:
+        <strong>${pendingTasks.length}</strong><br>
+
+        🎯 Goals:
+        <strong>${goals.length}</strong><br>
+
+        📅 Events:
+        <strong>${events.length}</strong>
+    `;
+
+}
+
+
+/*==================================================
+ DAILY TIP
+==================================================*/
+
+const DAILY_TIPS = [
+
+    "💪 Start your day with your most important task.",
+
+    "🎯 Focus on progress, not perfection.",
+
+    "📅 Check your calendar before starting work.",
+
+    "💧 Stay hydrated and take short breaks.",
+
+    "🚀 Small steps every day create big success.",
+
+    "📚 Learn one new thing today.",
+
+    "😊 Smile — you're building something amazing."
+
+];
+
+function loadDailyTip() {
+
+    const tip = getElement("tipText");
+
+    if (!tip) return;
+
+    const today = new Date().getDate();
+
+    tip.textContent =
+        DAILY_TIPS[today % DAILY_TIPS.length];
+
+}
+
+
+/*==================================================
+ DAILY AI BRIEFING
+==================================================*/
+
+function generateDailyBriefing() {
+
+    const { tasks, goals, events } =
+        getDashboardData();
+
+    const briefingBox =
+        getElement("briefingText");
+
+    if (!briefingBox) return;
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    const todayEvents =
+        events.filter(event => event.date === today);
+
+    const pendingTasks =
+        tasks.filter(task => !task.done);
+
+    const pendingGoals =
+        goals.filter(goal => !goal.done);
+
+    let briefing =
+        `👋 Good day, ${username}!\n\n`;
+
+    briefing +=
+        `📅 Today's Events: ${todayEvents.length}\n`;
+
+    briefing +=
+        `✅ Pending Tasks: ${pendingTasks.length}\n`;
+
+    briefing +=
+        `🎯 Pending Goals: ${pendingGoals.length}\n\n`;
+
+    if (pendingTasks.length > 0) {
+
+        briefing +=
+            `🔥 Focus on:\n${pendingTasks[0].text}`;
+
+    } else if (pendingGoals.length > 0) {
+
+        briefing +=
+            "🎯 Great job finishing your tasks.\nNow focus on your remaining goals.";
+
+    } else {
+
+        briefing +=
+            "🎉 Fantastic!\nYou're completely caught up today.";
+
+    }
+
+    briefingBox.innerText = briefing;
+
+}
+
+
+/*==================================================
+ SMART NOTIFICATIONS
+==================================================*/
+
+function loadNotifications() {
+
+    const box =
+        getElement("notificationBox");
+
+    if (!box) return;
+
+    const { tasks, events } =
+        getDashboardData();
+
+    const pending =
+        tasks.filter(task => !task.done).length;
+
+    let html =
+        `🎉 Welcome back, ${username}!<br><br>`;
+
+    if (pending > 0) {
+
+        html +=
+            `📌 ${pending} pending task(s).<br>`;
+
+    }
+
+    if (events.length > 0) {
+
+        html +=
+            `📅 ${events.length} upcoming event(s).<br>`;
+
+    }
+
+    if (pending === 0 && events.length === 0) {
+
+        html +=
+            "💙 Nothing urgent today. Enjoy your day!";
+
+    }
+
+    box.innerHTML = html;
+
+}
