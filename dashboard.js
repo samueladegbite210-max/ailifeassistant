@@ -352,38 +352,48 @@ function updateRecommendation(){
     const goals = JSON.parse(localStorage.getItem("goals")) || [];
     const events = JSON.parse(localStorage.getItem("events")) || [];
 
-    let recommendation = "";
-
-    if(tasks.length > 0){
-
-        recommendation = "✅ Your next task is: " + tasks[0].text;
-
-    }else if(goals.length > 0){
-
-        recommendation = "🎯 Work towards your goal: " + goals[0].text;
-
-    }else if(events.length > 0){
-
-        recommendation = "📅 Upcoming event: " + events[0].title;
-
-    }else{
-
-        recommendation =
-        "💙 You have nothing planned today. Let's create something productive!";
-
-    }
-
     const box = document.getElementById("aiRecommendation");
 
-    if(box){
+    if(!box) return;
 
-        box.innerHTML = recommendation;
+    let recommendation = "";
+
+    const pendingTasks = tasks.filter(task => !task.done);
+
+    if(events.length > 0){
+
+        recommendation =
+        `📅 You have ${events.length} upcoming event(s). Don't forget to prepare.`;
+
+    }
+    else if(pendingTasks.length >= 5){
+
+        recommendation =
+        `⚠️ You have ${pendingTasks.length} pending tasks. Finish the oldest one first.`;
+
+    }
+    else if(pendingTasks.length > 0){
+
+        recommendation =
+        `✅ Your next task is: <strong>${pendingTasks[0].text}</strong>`;
+
+    }
+    else if(goals.length > 0){
+
+        recommendation =
+        `🎯 Continue working toward your goal:<br><strong>${goals[0].text}</strong>`;
+
+    }
+    else{
+
+        recommendation =
+        "💙 Everything looks good today. Why not learn something new or create a new goal?";
 
     }
 
+    box.innerHTML = recommendation;
+
 }
-
-
 // ==========================
 // XP / Level / Notes / Streak
 // ==========================
