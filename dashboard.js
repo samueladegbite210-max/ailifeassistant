@@ -321,7 +321,7 @@ function refreshDashboard(){
             completed + " of " + tasks.length + " Tasks Completed";
 
 }
-refreshDashboard();
+refreshAllDashboard();
 // ==========================
 // Achievement Badge
 // ==========================
@@ -435,3 +435,18 @@ function updateDashboardStats(){
 
 }
 updateDashboardStats();
+// ================================
+// Auto Refresh Dashboard
+// ================================
+
+function refreshAllDashboard(){
+
+    refreshDashboard();
+    updateAchievement();
+    loadNextEvent();
+    loadDailyBrief();
+    updateDashboardStats();
+
+}
+refreshAllDashboard();
+setInterval(refreshAllDashboard, 5000);
