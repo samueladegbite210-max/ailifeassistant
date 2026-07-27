@@ -181,40 +181,53 @@ goals, notes and events.<br><br>
 
 }
 
-/*==================================================
- AI GREETING
-==================================================*/
+/*=========================================
+  SMART AI GREETING
+=========================================*/
 
 function loadAIGreeting() {
 
-    let greeting = "";
+    const aiGreeting = getElement("aiGreeting");
+    const recommendation = getElement("aiRecommendation");
 
-    const hour =
-        new Date().getHours();
+    if (!aiGreeting || !recommendation) return;
+
+    const { tasks, goals, events } = getDashboardData();
+
+    const hour = new Date().getHours();
+
+    let greeting = "";
 
     if (hour < 12) {
 
         greeting = "🌅 Good Morning";
 
-    }
-    else if (hour < 18) {
+    } else if (hour < 18) {
 
         greeting = "☀️ Good Afternoon";
 
-    }
-    else {
+    } else {
 
         greeting = "🌙 Good Evening";
 
     }
 
-    setHTML(
-        "aiGreeting",
-        `${greeting}, ${username}!`
-    );
+    aiGreeting.innerHTML = `${greeting}, ${username}!`;
+
+    const pendingTasks =
+        tasks.filter(task => !task.done);
+
+    recommendation.innerHTML = `
+        📊 Dashboard Summary<br><br>
+
+        ✅ Pending Tasks: <strong>${pendingTasks.length}</strong><br>
+
+        🎯 Goals: <strong>${goals.length}</strong><br>
+
+        📅 Events: <strong>${events.length}</strong>
+    `;
 
 }
-
 /*==================================================
  DAILY TIP
 ==================================================*/
@@ -295,28 +308,43 @@ function generateDailyBriefing() {
     }
     briefingBox.innerText = briefing;
 }
-/*==================================================
- NOTIFICATIONS
-==================================================*/
+/*=========================================
+  SMART NOTIFICATIONS
+=========================================*/
+
 function loadNotifications() {
-    const notificationBox =
-        getElement("notificationBox");
-    if (!notificationBox) return;
-    const data =
-        getDashboardData();
-    const pendingTasks =
-        data.tasks.filter(task => !task.done);
-    let html =
-        `<p>🎉 Welcome back, ${username}!</p>`;
-    if (pendingTasks.length > 0) {
-        html +=
-            `<p>📌 You have ${pendingTasks.length} pending task(s).</p>`;
+
+    const box = getElement("notificationBox");
+
+    if (!box) return;
+
+    const { tasks, events } = getDashboardData();
+
+    const pending =
+        tasks.filter(task => !task.done).length;
+
+    let html = `🎉 Welcome back, ${username}!<br><br>`;
+
+    if (pending > 0) {
+
+        html += `📌 ${pending} task(s) waiting for you.<br>`;
+
     }
-    else {
-        html +=
-            `<p>🤖 AI Assistant is ready.</p>`;
+
+    if (events.length > 0) {
+
+        html += `📅 ${events.length} upcoming event(s).`;
+
     }
-    notificationBox.innerHTML = html;
+
+    if (pending === 0 && events.length === 0) {
+
+        html += "💙 Nothing urgent today. Enjoy your day!";
+
+    }
+
+    box.innerHTML = html;
+
 }
 /*==================================================
  NEXT UPCOMING EVENT
@@ -385,58 +413,70 @@ function refreshDashboard() {
     );
 }
 
-// ==========================
-// AI Recommendation
-// ==========================
+/*=========================================
+  SMART AI RECOMMENDATION
+=========================================*/
 
 function updateRecommendation() {
 
     const { tasks, goals, events } = getDashboardData();
 
-    const box = document.getElementById("aiRecommendation");
+    const box = getElement("aiRecommendation");
 
     if (!box) return;
 
-    const pendingTasks = tasks.filter(task => !task.done);
+    const pendingTasks =
+        tasks.filter(task => !task.done);
 
-    let recommendation = "";
+    let message = "";
 
-    if (events.length > 0) {
+    if (pendingTasks.length > 0) {
 
-        recommendation =
-            `📅 You have <strong>${events.length}</strong> upcoming event(s).<br>
-            Don't forget to prepare.`;
-
-    } else if (pendingTasks.length >= 5) {
-
-        recommendation =
-            `⚠️ You have <strong>${pendingTasks.length}</strong> pending tasks.<br>
-            Finish the oldest one first.`;
-
-    } else if (pendingTasks.length > 0) {
-
-        recommendation =
-            `✅ Your next task is:<br>
-            <strong>${pendingTasks[0].text}</strong>`;
-
-    } else if (goals.length > 0) {
-
-        recommendation =
-            `🎯 Continue working toward your goal:<br>
-            <strong>${goals[0].text}</strong>`;
-
-    } else {
-
-        recommendation =
-            `💙 Everything looks good today.<br>
-            Why not learn something new or create a new goal?`;
+        message =
+            `✅ Start with:<br><strong>${pendingTasks[0].text}</strong>`;
 
     }
 
-    box.innerHTML = recommendation;
+    else if (events.length > 0) {
+
+        message =
+            `📅 You have ${events.length} upcoming event(s).`;
+
+    }
+
+    else if (goals.length > 0) {
+
+        message =
+            `🎯 Continue working on:<br><strong>${goals[0].text}</strong>`;
+
+    }
+
+    else {
+
+        const ideas = [
+
+            "💡 Learn something new today.",
+
+            "🚀 Create a new goal.",
+
+            "📒 Write a new note.",
+
+            "💙 Enjoy your productive day.",
+
+            "🌟 You're doing amazing."
+
+        ];
+
+        const random =
+            Math.floor(Math.random() * ideas.length);
+
+        message = ideas[random];
+
+    }
+
+    box.innerHTML = message;
 
 }
-
 // ==========================
 // Dashboard Stats
 // ==========================
