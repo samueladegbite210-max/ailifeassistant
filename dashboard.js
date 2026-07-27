@@ -370,3 +370,122 @@ function refreshDashboard() {
         `${completed} of ${tasks.length} Tasks Completed`
     );
 }
+
+// ==========================
+// AI Recommendation
+// ==========================
+
+function updateRecommendation() {
+
+    const { tasks, goals, events } = getDashboardData();
+
+    const box = document.getElementById("aiRecommendation");
+
+    if (!box) return;
+
+    const pendingTasks = tasks.filter(task => !task.done);
+
+    let recommendation = "";
+
+    if (events.length > 0) {
+
+        recommendation =
+            `📅 You have <strong>${events.length}</strong> upcoming event(s).<br>
+            Don't forget to prepare.`;
+
+    } else if (pendingTasks.length >= 5) {
+
+        recommendation =
+            `⚠️ You have <strong>${pendingTasks.length}</strong> pending tasks.<br>
+            Finish the oldest one first.`;
+
+    } else if (pendingTasks.length > 0) {
+
+        recommendation =
+            `✅ Your next task is:<br>
+            <strong>${pendingTasks[0].text}</strong>`;
+
+    } else if (goals.length > 0) {
+
+        recommendation =
+            `🎯 Continue working toward your goal:<br>
+            <strong>${goals[0].text}</strong>`;
+
+    } else {
+
+        recommendation =
+            `💙 Everything looks good today.<br>
+            Why not learn something new or create a new goal?`;
+
+    }
+
+    box.innerHTML = recommendation;
+
+}
+
+// ==========================
+// Dashboard Stats
+// ==========================
+
+function updateDashboardStats() {
+
+    const { xp, notes, streak } = getDashboardData();
+
+    const xpCount = document.getElementById("xpCount");
+    const levelCount = document.getElementById("levelCount");
+    const noteCount = document.getElementById("noteCount");
+    const streakCount = document.getElementById("streakCount");
+
+    if (xpCount)
+        xpCount.textContent = xp.xp;
+
+    if (levelCount)
+        levelCount.textContent = xp.level;
+
+    if (noteCount)
+        noteCount.textContent = notes.length;
+
+    if (streakCount)
+        streakCount.textContent =
+            `${streak.days} Day${streak.days === 1 ? "" : "s"}`;
+
+}
+
+// ==========================
+// Refresh Entire Dashboard
+// ==========================
+
+function refreshAllDashboard() {
+
+    updateDateTime();
+    updateGreeting();
+
+    loadDailyTip();
+    loadAIGreeting();
+
+    refreshDashboard();
+    updateAchievement();
+    updateRecommendation();
+    updateDashboardStats();
+
+    loadNextEvent();
+    generateDailyBriefing();
+    loadNotifications();
+
+}
+
+// ==========================
+// Dashboard Startup
+// ==========================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    refreshAllDashboard();
+
+    setInterval(updateDateTime, 1000);
+
+    const DASHBOARD_REFRESH_INTERVAL = 10000;
+
+    setInterval(refreshAllDashboard, DASHBOARD_REFRESH_INTERVAL);
+
+});
