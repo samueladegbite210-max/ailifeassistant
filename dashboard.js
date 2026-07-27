@@ -144,53 +144,7 @@ if(tip){
     tip.textContent = tips[today % tips.length];
 
 }
-// ==========================
-// AI Daily Brief
-// ==========================
 
-function loadDailyBrief(){
-
-    const brief = document.getElementById("dailyBrief");
-
-    if(!brief) return;
-
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-
-    let message = "";
-
-    if(tasks.length === 0 && goals.length === 0 && events.length === 0){
-
-        message = `
-🎉 Welcome, ${username}!<br><br>
-
-You don't have any tasks, goals or events yet.<br><br>
-
-Start by adding your first task to begin your productive journey. 🚀
-`;
-
-    }else{
-
-        message = `
-👋 ${username}<br><br>
-
-📋 Tasks: ${tasks.length}<br>
-
-🎯 Goals: ${goals.length}<br>
-
-📅 Events: ${events.length}<br><br>
-
-💪 Keep making progress every day!
-`;
-
-    }
-
-    brief.innerHTML = message;
-
-}
-
-loadDailyBrief();
 function generateDailyBriefing(){
 
     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -326,33 +280,37 @@ refreshAllDashboard();
 // Achievement Badge
 // ==========================
 
-function updateAchievement(){
+if(completed >= 20){
 
-    const badge = document.getElementById("achievementBadge");
-    const text = document.getElementById("achievementText");
+    badge.textContent = "👑 Productivity Master";
+    text.textContent = "Outstanding! You completed 20 tasks.";
 
-    if(!badge || !text) return;
+}
+else if(completed >= 10){
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    badge.textContent = "🏆 Task Champion";
+    text.textContent = "Excellent! You completed 10 tasks.";
 
-    const completed = tasks.filter(task => task.done).length;
+}
+else if(completed >= 5){
 
-    if(completed >= 10){
+    badge.textContent = "🔥 Hard Worker";
+    text.textContent = "Great job! You completed 5 tasks.";
 
-        badge.textContent = "👑 Productivity Master";
-        text.textContent = "Amazing! You completed 10 tasks.";
+}
+else if(completed >= 1){
 
-    }else if(completed >= 5){
+    badge.textContent = "🌟 First Step";
+    text.textContent = "Great job! You completed your first task.";
 
-        badge.textContent = "🔥 Task Champion";
-        text.textContent = "Fantastic! You completed 5 tasks.";
+}
+else{
 
-    }else if(completed >= 1){
+    badge.textContent = "🚀 Ready to Begin";
+    text.textContent = "Complete your first task to unlock achievements.";
 
-        badge.textContent = "🌟 First Step";
-        text.textContent = "Great job! You completed your first task.";
-
-    }else{
+}
+    else{
 
         badge.textContent = "🚀 Ready to Begin";
         text.textContent = "Complete your first task to unlock achievements.";
