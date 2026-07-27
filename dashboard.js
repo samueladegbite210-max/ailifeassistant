@@ -238,7 +238,7 @@ function loadNextEvent(){
 loadNextEvent();
 
 // ==========================
-// Productivity Score and Summary
+// Dashboard Summary & Productivity
 // ==========================
 
 function refreshDashboard(){
@@ -250,31 +250,35 @@ function refreshDashboard(){
     const completed = tasks.filter(task => task.done).length;
 
     // Summary
-    if(document.getElementById("taskCount"))
-        document.getElementById("taskCount").textContent = tasks.length;
+    const taskCount = document.getElementById("taskCount");
+    const goalCount = document.getElementById("goalCount");
+    const eventCount = document.getElementById("eventCount");
 
-    if(document.getElementById("goalCount"))
-        document.getElementById("goalCount").textContent = goals.length;
-
-    if(document.getElementById("eventCount"))
-        document.getElementById("eventCount").textContent = events.length;
+    if(taskCount) taskCount.textContent = tasks.length;
+    if(goalCount) goalCount.textContent = goals.length;
+    if(eventCount) eventCount.textContent = events.length;
 
     // Productivity
     const percent = tasks.length === 0
         ? 0
         : Math.round((completed / tasks.length) * 100);
 
-    if(document.getElementById("productivityScore"))
-        document.getElementById("productivityScore").textContent = percent + "%";
+    const productivityScore = document.getElementById("productivityScore");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
 
-    if(document.getElementById("progressBar"))
-        document.getElementById("progressBar").style.width = percent + "%";
+    if(productivityScore)
+        productivityScore.textContent = percent + "%";
 
-    if(document.getElementById("progressText"))
-        document.getElementById("progressText").textContent =
+    if(progressBar)
+        progressBar.style.width = percent + "%";
+
+    if(progressText)
+        progressText.textContent =
             completed + " of " + tasks.length + " Tasks Completed";
 
 }
+
 
 // ==========================
 // Achievement Badge
@@ -318,36 +322,53 @@ function updateAchievement(){
     }
 
 }
-updateAchievement();
 
 
+// ==========================
+// AI Recommendation
+// ==========================
 
-const dashboardTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-const dashboardGoals = JSON.parse(localStorage.getItem("goals")) || [];
-const dashboardEvents = JSON.parse(localStorage.getItem("events")) || [];
+function updateRecommendation(){
 
-let recommendation = "";
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+    const events = JSON.parse(localStorage.getItem("events")) || [];
 
-if (dashboardTasks.length > 0) {
-    recommendation = "✅ Your next task is: " + dashboardTasks[0].text;
+    let recommendation = "";
+
+    if(tasks.length > 0){
+
+        recommendation = "✅ Your next task is: " + tasks[0].text;
+
+    }else if(goals.length > 0){
+
+        recommendation = "🎯 Work towards your goal: " + goals[0].text;
+
+    }else if(events.length > 0){
+
+        recommendation = "📅 Upcoming event: " + events[0].title;
+
+    }else{
+
+        recommendation =
+        "💙 You have nothing planned today. Let's create something productive!";
+
+    }
+
+    const box = document.getElementById("aiRecommendation");
+
+    if(box){
+
+        box.innerHTML = recommendation;
+
+    }
+
 }
-else if (dashboardGoals.length > 0) {
-    recommendation = "🎯 Work towards your goal: " + dashboardGoals[0].text;
-}
-else if (dashboardEvents.length > 0) {
-    recommendation = "📅 Upcoming event: " + dashboardEvents[0].title;
-}
-else {
-    recommendation = "💙 You have nothing planned today. Let's create something productive!";
-}
 
-const recommendationBox = document.getElementById("aiRecommendation");
 
-if (recommendationBox) {
-    recommendationBox.innerHTML = recommendation;
-}
-
-generateDailyBriefing();
+// ==========================
+// XP / Level / Notes / Streak
+// ==========================
 
 function updateDashboardStats(){
 
@@ -357,28 +378,27 @@ function updateDashboardStats(){
     };
 
     const notes = JSON.parse(localStorage.getItem("notes")) || [];
-
     const streak = JSON.parse(localStorage.getItem("streak")) || {
         days:0
     };
 
-    if(document.getElementById("xpCount")){
-        document.getElementById("xpCount").textContent = xpData.xp;
-    }
+    const xpCount = document.getElementById("xpCount");
+    const levelCount = document.getElementById("levelCount");
+    const noteCount = document.getElementById("noteCount");
+    const streakCount = document.getElementById("streakCount");
 
-    if(document.getElementById("levelCount")){
-        document.getElementById("levelCount").textContent = xpData.level;
-    }
+    if(xpCount)
+        xpCount.textContent = xpData.xp;
 
-    if(document.getElementById("noteCount")){
-        document.getElementById("noteCount").textContent = notes.length;
-    }
+    if(levelCount)
+        levelCount.textContent = xpData.level;
 
-    const streakBox = document.getElementById("streakCount");
+    if(noteCount)
+        noteCount.textContent = notes.length;
 
-    if(streakBox){
+    if(streakCount){
 
-        streakBox.textContent =
+        streakCount.textContent =
             streak.days + " Day" +
             (streak.days === 1 ? "" : "s");
 
@@ -386,27 +406,30 @@ function updateDashboardStats(){
 
 }
 
-updateDashboardStats();
 
-// ================================
-// Auto Refresh Dashboard
-// ================================
+// ==========================
+// Refresh Entire Dashboard
+// ==========================
 
 function refreshAllDashboard(){
 
-    function refreshAllDashboard(){
-
     refreshDashboard();
     updateAchievement();
+    updateRecommendation();
+    updateDashboardStats();
     loadNextEvent();
     generateDailyBriefing();
-    updateDashboardStats();
     loadAIGreeting();
 
 }
 
-// Refresh every 5 seconds
+
+// ==========================
+// Start Dashboard
+// ==========================
+
 refreshAllDashboard();
 
 const DASHBOARD_REFRESH_INTERVAL = 5000;
+
 setInterval(refreshAllDashboard, DASHBOARD_REFRESH_INTERVAL);
