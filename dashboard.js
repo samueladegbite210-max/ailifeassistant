@@ -357,3 +357,165 @@ function loadNotifications() {
     box.innerHTML = html;
 
 }
+/*==================================================
+ NEXT UPCOMING EVENT
+==================================================*/
+
+function loadNextEvent() {
+
+    const nextEvent = getElement("nextEvent");
+
+    if (!nextEvent) return;
+
+    const events = [...getDashboardData().events];
+
+    if (events.length === 0) {
+
+        nextEvent.innerHTML = "<p>No upcoming events.</p>";
+        return;
+
+    }
+
+    events.sort((a, b) => {
+
+        return (
+            new Date(a.date + " " + (a.time || "00:00")) -
+            new Date(b.date + " " + (b.time || "00:00"))
+        );
+
+    });
+
+    const event = events[0];
+
+    nextEvent.innerHTML = `
+        <strong>📅 ${event.title}</strong><br><br>
+
+        📅 ${event.date}<br>
+
+        ${event.time ? `🕒 ${event.time}<br>` : ""}
+
+        ${event.location ? `📍 ${event.location}` : ""}
+    `;
+
+}
+
+
+/*==================================================
+ DASHBOARD SUMMARY
+==================================================*/
+
+function refreshDashboard() {
+
+    const { tasks, goals, events } =
+        getDashboardData();
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    setText("taskCount", tasks.length);
+    setText("goalCount", goals.length);
+    setText("eventCount", events.length);
+
+    const percent =
+        tasks.length === 0
+            ? 0
+            : Math.round((completed / tasks.length) * 100);
+
+    setText(
+        "productivityScore",
+        percent + "%"
+    );
+
+    setWidth(
+        "progressBar",
+        percent + "%"
+    );
+
+    setText(
+        "progressText",
+        `${completed} of ${tasks.length} Tasks Completed`
+    );
+
+}
+
+
+/*==================================================
+ ACHIEVEMENT SYSTEM
+==================================================*/
+
+function updateAchievement() {
+
+    const badge =
+        getElement("achievementBadge");
+
+    const text =
+        getElement("achievementText");
+
+    if (!badge || !text) return;
+
+    const { tasks } =
+        getDashboardData();
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    if (completed >= 50) {
+
+        badge.textContent = "💎 Legend";
+
+        text.textContent =
+            "You've completed over 50 tasks.";
+
+    }
+
+    else if (completed >= 20) {
+
+        badge.textContent =
+            "👑 Productivity Master";
+
+        text.textContent =
+            "Outstanding! You completed 20 tasks.";
+
+    }
+
+    else if (completed >= 10) {
+
+        badge.textContent =
+            "🏆 Task Champion";
+
+        text.textContent =
+            "Excellent! You completed 10 tasks.";
+
+    }
+
+    else if (completed >= 5) {
+
+        badge.textContent =
+            "🔥 Hard Worker";
+
+        text.textContent =
+            "Great job! You completed 5 tasks.";
+
+    }
+
+    else if (completed >= 1) {
+
+        badge.textContent =
+            "🌟 First Step";
+
+        text.textContent =
+            "Great job! You completed your first task.";
+
+    }
+
+    else {
+
+        badge.textContent =
+            "🚀 Ready To Begin";
+
+        text.textContent =
+            "Complete your first task to unlock achievements.";
+
+    }
+
+}
