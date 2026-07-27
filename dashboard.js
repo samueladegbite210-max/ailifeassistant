@@ -519,3 +519,214 @@ function updateAchievement() {
     }
 
 }
+
+/*==================================================
+ SMART AI RECOMMENDATION
+==================================================*/
+
+function updateRecommendation() {
+
+    const { tasks, goals, events } = getDashboardData();
+
+    const box = getElement("aiRecommendation");
+
+    if (!box) return;
+
+    const pendingTasks =
+        tasks.filter(task => !task.done);
+
+    let message = "";
+
+    if (pendingTasks.length > 0) {
+
+        message =
+            `✅ Start with:<br><strong>${pendingTasks[0].text}</strong>`;
+
+    }
+
+    else if (events.length > 0) {
+
+        message =
+            `📅 You have <strong>${events.length}</strong> upcoming event(s).`;
+
+    }
+
+    else if (goals.length > 0) {
+
+        message =
+            `🎯 Continue working on:<br><strong>${goals[0].text}</strong>`;
+
+    }
+
+    else {
+
+        const ideas = [
+
+            "💡 Learn something new today.",
+
+            "🚀 Create a new goal.",
+
+            "📒 Write a new note.",
+
+            "💙 Enjoy your productive day.",
+
+            "🌟 You're doing amazing."
+
+        ];
+
+        message =
+            ideas[Math.floor(Math.random() * ideas.length)];
+
+    }
+
+    box.innerHTML = message;
+
+}
+
+
+/*==================================================
+ DASHBOARD STATS
+==================================================*/
+
+function updateDashboardStats() {
+
+    const { xp, notes, streak } =
+        getDashboardData();
+
+    setText("xpCount", xp.xp);
+
+    setText("levelCount", xp.level);
+
+    setText("noteCount", notes.length);
+
+    setText(
+        "streakCount",
+        `${streak.days} Day${streak.days === 1 ? "" : "s"}`
+    );
+
+}
+
+
+/*==================================================
+ PRODUCTIVITY INSIGHTS
+==================================================*/
+
+function updateProductivityInsights() {
+
+    const { tasks } =
+        getDashboardData();
+
+    const box =
+        getElement("productivityInsights");
+
+    if (!box) return;
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    const pending =
+        tasks.length - completed;
+
+    let message = "";
+
+    if (tasks.length === 0) {
+
+        message =
+            "🚀 No tasks yet. Create your first task to begin.";
+
+    }
+
+    else if (completed === tasks.length) {
+
+        message =
+            "🎉 Amazing! Every task has been completed today.";
+
+    }
+
+    else if (pending <= 2) {
+
+        message =
+            "🔥 You're almost done. Keep going!";
+
+    }
+
+    else {
+
+        message =
+            `💪 ${pending} task(s) remain today. Stay focused.`;
+
+    }
+
+    box.innerHTML = message;
+
+}
+
+
+/*==================================================
+ WEEKLY PROGRESS
+==================================================*/
+
+function updateWeeklyProgress() {
+
+    const box =
+        getElement("weeklyProgress");
+
+    if (!box) return;
+
+    const { tasks } =
+        getDashboardData();
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    const percent =
+        tasks.length === 0
+            ? 0
+            : Math.round(
+                (completed / tasks.length) * 100
+            );
+
+    box.innerHTML = `
+        📈 Weekly Progress
+
+        <br><br>
+
+        <strong>${percent}% Complete</strong>
+    `;
+
+}
+
+
+/*==================================================
+ AI PRODUCTIVITY SCORE
+==================================================*/
+
+function updateAIScore() {
+
+    const score =
+        getElement("aiScore");
+
+    if (!score) return;
+
+    const { tasks, streak } =
+        getDashboardData();
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    let total = completed * 5;
+
+    total += streak.days * 2;
+
+    if (total > 100)
+        total = 100;
+
+    score.innerHTML = `
+        🤖 AI Productivity Score
+
+        <br><br>
+
+        <strong>${total}/100</strong>
+    `;
+
+}
