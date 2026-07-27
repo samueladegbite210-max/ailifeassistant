@@ -239,3 +239,134 @@ function loadDailyTip() {
         ];
 
 }
+
+/*==================================================
+ DAILY AI BRIEFING
+==================================================*/
+function generateDailyBriefing() {
+    const data = getDashboardData();
+    const tasks = data.tasks;
+    const goals = data.goals;
+    const events = data.events;
+    const briefingBox =
+        getElement("briefingText");
+    if (!briefingBox) return;
+    const today =
+        new Date().toISOString().split("T")[0];
+    const todayEvents =
+        events.filter(event => event.date === today);
+    const pendingTasks =
+        tasks.filter(task => !task.done);
+    const pendingGoals =
+        goals.filter(goal => !goal.done);
+    let briefing =
+        `👋 Good day, ${username}!\n\n`;
+    briefing +=
+        `📅 Today's Events: ${todayEvents.length}\n`;
+    briefing +=
+        `✅ Pending Tasks: ${pendingTasks.length}\n`;
+    briefing +=
+        `🎯 Pending Goals: ${pendingGoals.length}\n\n`;
+    if (pendingTasks.length > 0) {
+        briefing +=
+            `🔥 Focus on:\n${pendingTasks[0].text}`;
+    }
+    else if (pendingGoals.length > 0) {
+        briefing +=
+            "🎯 Great job finishing your tasks.\nNow focus on your remaining goals.";
+    }
+    else {
+        briefing +=
+            "🎉 Fantastic!\nYou're completely caught up today.";
+    }
+    briefingBox.innerText = briefing;
+}
+/*==================================================
+ NOTIFICATIONS
+==================================================*/
+function loadNotifications() {
+    const notificationBox =
+        getElement("notificationBox");
+    if (!notificationBox) return;
+    const data =
+        getDashboardData();
+    const pendingTasks =
+        data.tasks.filter(task => !task.done);
+    let html =
+        `<p>🎉 Welcome back, ${username}!</p>`;
+    if (pendingTasks.length > 0) {
+        html +=
+            `<p>📌 You have ${pendingTasks.length} pending task(s).</p>`;
+    }
+    else {
+        html +=
+            `<p>🤖 AI Assistant is ready.</p>`;
+    }
+    notificationBox.innerHTML = html;
+}
+/*==================================================
+ NEXT UPCOMING EVENT
+==================================================*/
+function loadNextEvent() {
+    const nextEvent =
+        getElement("nextEvent");
+    if (!nextEvent) return;
+    const events =
+        [...getDashboardData().events];
+    if (events.length === 0) {
+        nextEvent.innerHTML =
+            "<p>No upcoming events.</p>";
+        return;
+    }
+    events.sort((a, b) => {
+        return (
+            new Date(a.date + " " + (a.time || "00:00")) -
+            new Date(b.date + " " + (b.time || "00:00"))
+        );
+    });
+    const event = events[0];
+    nextEvent.innerHTML = `
+        <strong>📅 ${event.title}</strong><br><br>
+        📅 ${event.date}<br>
+        ${event.time ? `🕒 ${event.time}<br>` : ""}
+        ${event.location ? `📍 ${event.location}` : ""}
+    `;
+}
+/*==================================================
+ DASHBOARD SUMMARY
+==================================================*/
+function refreshDashboard() {
+    const data =
+        getDashboardData();
+    const tasks =
+        data.tasks;
+    const goals =
+        data.goals;
+    const events =
+        data.events;
+    const completed =
+        tasks.filter(task => task.done).length;
+    setText("taskCount", tasks.length);
+    setText("goalCount", goals.length);
+    setText("eventCount", events.length);
+    const percent =
+        tasks.length === 0
+            ? 0
+            : Math.round(
+                (completed / tasks.length) * 100
+            );
+    setText(
+        "productivityScore",
+        percent + "%"
+    );
+    const progressBar =
+        getElement("progressBar");
+    if (progressBar) {
+        progressBar.style.width =
+            percent + "%";
+    }
+    setText(
+        "progressText",
+        `${completed} of ${tasks.length} Tasks Completed`
+    );
+}
