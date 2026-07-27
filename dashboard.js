@@ -280,37 +280,37 @@ refreshAllDashboard();
 // Achievement Badge
 // ==========================
 
-if(completed >= 20){
+function updateAchievement(){
 
-    badge.textContent = "👑 Productivity Master";
-    text.textContent = "Outstanding! You completed 20 tasks.";
+    const badge = document.getElementById("achievementBadge");
+    const text = document.getElementById("achievementText");
 
-}
-else if(completed >= 10){
+    if(!badge || !text) return;
 
-    badge.textContent = "🏆 Task Champion";
-    text.textContent = "Excellent! You completed 10 tasks.";
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const completed = tasks.filter(task => task.done).length;
 
-}
-else if(completed >= 5){
+    if(completed >= 20){
 
-    badge.textContent = "🔥 Hard Worker";
-    text.textContent = "Great job! You completed 5 tasks.";
+        badge.textContent = "👑 Productivity Master";
+        text.textContent = "Outstanding! You completed 20 tasks.";
 
-}
-else if(completed >= 1){
+    }else if(completed >= 10){
 
-    badge.textContent = "🌟 First Step";
-    text.textContent = "Great job! You completed your first task.";
+        badge.textContent = "🏆 Task Champion";
+        text.textContent = "Excellent! You completed 10 tasks.";
 
-}
-else{
+    }else if(completed >= 5){
 
-    badge.textContent = "🚀 Ready to Begin";
-    text.textContent = "Complete your first task to unlock achievements.";
+        badge.textContent = "🔥 Hard Worker";
+        text.textContent = "Great job! You completed 5 tasks.";
 
-}
-    else{
+    }else if(completed >= 1){
+
+        badge.textContent = "🌟 First Step";
+        text.textContent = "Great job! You completed your first task.";
+
+    }else{
 
         badge.textContent = "🚀 Ready to Begin";
         text.textContent = "Complete your first task to unlock achievements.";
@@ -318,7 +318,6 @@ else{
     }
 
 }
-
 updateAchievement();
 
 
@@ -406,8 +405,6 @@ function refreshAllDashboard(){
 
 }
 
-// Run once when the dashboard loads
-refreshAllDashboard();
 
 // Refresh every 5 seconds
 const DASHBOARD_REFRESH_INTERVAL = 5000;
