@@ -602,9 +602,9 @@ function autoSaveDashboard() {
 
 }
 
-// ============================================
-// REFRESH SYSTEM
-// ============================================
+/*=========================================
+  REFRESH ENGINE
+=========================================*/
 
 function refreshAllDashboard() {
 
@@ -630,31 +630,36 @@ function refreshAllDashboard() {
 
     loadNotifications();
 
-    autoSaveDashboard();
 
 }
-
-// ============================================
-// START DASHBOARD
-// ============================================
+/*=========================================
+  INITIALIZATION
+=========================================*/
 
 function initializeDashboard() {
 
-    dashboardHealthCheck();
+    console.log(
+        `${APP.name} v${APP.version} started successfully.`
+    );
 
     refreshAllDashboard();
 
     setInterval(
         updateDateTime,
-        CONFIG.clockRefresh
+        APP.clockInterval
     );
 
     setInterval(
         refreshAllDashboard,
-        CONFIG.dashboardRefresh
+        APP.refreshInterval
     );
 
 }
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeDashboard
+);
 
 // ============================================
 // WAIT FOR PAGE TO LOAD
