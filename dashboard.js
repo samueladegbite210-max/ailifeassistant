@@ -730,3 +730,171 @@ function updateAIScore() {
     `;
 
 }
+/*==================================================
+ REFRESH ENGINE
+==================================================*/
+
+function refreshAllDashboard() {
+
+    updateDateTime();
+
+    updateGreeting();
+
+    loadAIGreeting();
+
+    loadDailyTip();
+
+    refreshDashboard();
+
+    updateAchievement();
+
+    updateRecommendation();
+
+    updateDashboardStats();
+
+    updateProductivityInsights();
+
+    updateWeeklyProgress();
+
+    updateAIScore();
+
+    loadNextEvent();
+
+    generateDailyBriefing();
+
+    loadNotifications();
+
+}
+
+
+/*==================================================
+ AUTO SAVE
+==================================================*/
+
+function autoSaveDashboard() {
+
+    localStorage.setItem(
+
+        "dashboardLastOpened",
+
+        new Date().toISOString()
+
+    );
+
+}
+
+
+/*==================================================
+ DASHBOARD HEALTH CHECK
+==================================================*/
+
+function dashboardHealthCheck() {
+
+    console.log("================================");
+
+    console.log(`${APP.name} v${APP.version}`);
+
+    console.log("Dashboard Loaded Successfully");
+
+    console.log("User:", username);
+
+    const data = getDashboardData();
+
+    console.log("Tasks:", data.tasks.length);
+
+    console.log("Goals:", data.goals.length);
+
+    console.log("Events:", data.events.length);
+
+    console.log("Notes:", data.notes.length);
+
+    console.log("XP:", data.xp.xp);
+
+    console.log("Level:", data.xp.level);
+
+    console.log("Streak:", data.streak.days);
+
+    console.log("================================");
+
+}
+
+
+/*==================================================
+ MENU
+==================================================*/
+
+function initializeMenu() {
+
+    const sideMenu = getElement("sideMenu");
+
+    const menuBtn = getElement("menuBtn");
+
+    const closeBtn = getElement("closeBtn");
+
+    if (menuBtn && sideMenu) {
+
+        menuBtn.onclick = () => {
+
+            sideMenu.classList.add("active");
+
+        };
+
+    }
+
+    if (closeBtn && sideMenu) {
+
+        closeBtn.onclick = () => {
+
+            sideMenu.classList.remove("active");
+
+        };
+
+    }
+
+}
+
+
+/*==================================================
+ INITIALIZATION
+==================================================*/
+
+function initializeDashboard() {
+
+    dashboardHealthCheck();
+
+    initializeMenu();
+
+    autoSaveDashboard();
+
+    refreshAllDashboard();
+
+    setInterval(
+
+        updateDateTime,
+
+        APP.clockInterval
+
+    );
+
+    setInterval(() => {
+
+        autoSaveDashboard();
+
+        refreshAllDashboard();
+
+    }, APP.refreshInterval);
+
+}
+
+
+/*==================================================
+ START APP
+==================================================*/
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    initializeDashboard
+
+);
