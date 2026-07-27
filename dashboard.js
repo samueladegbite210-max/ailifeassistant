@@ -275,7 +275,7 @@ function refreshDashboard(){
             completed + " of " + tasks.length + " Tasks Completed";
 
 }
-refreshAllDashboard();
+
 // ==========================
 // Achievement Badge
 // ==========================
@@ -387,9 +387,6 @@ function updateDashboardStats(){
 }
 
 updateDashboardStats();
-// ================================
-// Auto Refresh Dashboard
-// ================================
 
 // ================================
 // Auto Refresh Dashboard
@@ -397,15 +394,19 @@ updateDashboardStats();
 
 function refreshAllDashboard(){
 
+    function refreshAllDashboard(){
+
     refreshDashboard();
     updateAchievement();
     loadNextEvent();
     generateDailyBriefing();
     updateDashboardStats();
+    loadAIGreeting();
 
 }
 
-
 // Refresh every 5 seconds
+refreshAllDashboard();
+
 const DASHBOARD_REFRESH_INTERVAL = 5000;
 setInterval(refreshAllDashboard, DASHBOARD_REFRESH_INTERVAL);
