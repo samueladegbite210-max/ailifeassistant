@@ -396,12 +396,12 @@ updateDashboardStats();
 // Auto Refresh Dashboard
 // ================================
 
-function refreshAllDashboard() {
+function refreshAllDashboard(){
 
     refreshDashboard();
     updateAchievement();
     loadNextEvent();
-    loadDailyBrief();
+    generateDailyBriefing();
     updateDashboardStats();
 
 }
