@@ -32,18 +32,26 @@ const username =
 /*==================================================
  STORAGE MANAGER
 ==================================================*/
+function safeRead(key) {
 
+    try {
+        return JSON.parse(localStorage.getItem(key) || "[]");
+    } catch (e) {
+        return [];
+    }
+
+}
 function getDashboardData() {
 
     return {
 
-        tasks: JSON.parse(localStorage.getItem("tasks") || "[]"),
+        tasks: safeRead("tasks"),
 
-        goals: JSON.parse(localStorage.getItem("goals") || "[]"),
+        goals: safeRead("goals"),
 
-        events: JSON.parse(localStorage.getItem("events") || "[]"),
+        events: safeRead("events"),
 
-        notes: JSON.parse(localStorage.getItem("notes") || "[]"),
+        notes: safeRead("notes"),
 
         xp: JSON.parse(localStorage.getItem("xp") || '{"xp":0,"level":1}'),
 
@@ -52,8 +60,6 @@ function getDashboardData() {
     };
 
 }
-
-
 /*==================================================
  HELPER FUNCTIONS
 ==================================================*/
