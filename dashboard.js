@@ -505,6 +505,116 @@ function updateDashboardStats() {
 
 }
 
+/*=========================================
+  PRODUCTIVITY INSIGHTS
+=========================================*/
+
+function updateProductivityInsights() {
+
+    const { tasks, goals, events } = getDashboardData();
+
+    const box = getElement("productivityInsights");
+
+    if (!box) return;
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    const pending =
+        tasks.length - completed;
+
+    let message = "";
+
+    if (tasks.length === 0) {
+
+        message =
+            "🚀 No tasks yet. Create your first task to begin your productivity journey.";
+
+    }
+
+    else if (completed === tasks.length) {
+
+        message =
+            "🎉 Amazing! Every task is completed today.";
+
+    }
+
+    else if (pending <= 2) {
+
+        message =
+            "🔥 You're almost done. Keep going!";
+
+    }
+
+    else {
+
+        message =
+            `💪 ${pending} task(s) remain today. Stay focused.`;
+
+    }
+
+    box.innerHTML = message;
+
+}
+/*=========================================
+  WEEKLY PROGRESS
+=========================================*/
+
+function updateWeeklyProgress() {
+
+    const box = getElement("weeklyProgress");
+
+    if (!box) return;
+
+    const { tasks } = getDashboardData();
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    const percent =
+        tasks.length === 0
+            ? 0
+            : Math.round((completed / tasks.length) * 100);
+
+    box.innerHTML = `
+        📈 Weekly Progress<br><br>
+
+        ${percent}% Complete
+    `;
+
+}
+/*=========================================
+  AI PRODUCTIVITY SCORE
+=========================================*/
+
+function updateAIScore() {
+
+    const score = getElement("aiScore");
+
+    if (!score) return;
+
+    const { tasks, streak } = getDashboardData();
+
+    const completed =
+        tasks.filter(task => task.done).length;
+
+    let total = completed * 5;
+
+    total += streak.days * 2;
+
+    if (total > 100)
+        total = 100;
+
+    score.innerHTML = `
+        🤖 AI Productivity Score
+
+        <br><br>
+
+        <strong>${total}/100</strong>
+    `;
+
+}
+
 // ==========================
 // Refresh Entire Dashboard
 // ==========================
@@ -664,11 +774,18 @@ function refreshAllDashboard() {
 
     updateDashboardStats();
 
+    updateProductivityInsights();
+
+    updateWeeklyProgress();
+
+    updateAIScore();
+
     loadNextEvent();
 
     generateDailyBriefing();
 
     loadNotifications();
+
 
 
 }
