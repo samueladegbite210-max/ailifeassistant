@@ -74,7 +74,11 @@ function loadAIGreeting() {
         greeting = "🌙 Good evening, Samuel!";
     }
 
-    document.getElementById("aiGreeting").innerHTML = greeting;
+    const aiGreeting = document.getElementById("aiGreeting");
+
+if(aiGreeting){
+    aiGreeting.innerHTML = greeting;
+}
 
     const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     const goals = JSON.parse(localStorage.getItem("goals")) || [];
@@ -135,9 +139,23 @@ const tips = [
 
 ];
 
-const tip = document.getElementById("tipText");
+function loadDailyTip(){
 
-if(tip){
+    const tips = [
+
+        "💪 Start your day with your most important task.",
+        "🎯 Focus on progress, not perfection.",
+        "📅 Check your calendar before starting work.",
+        "💧 Stay hydrated and take short breaks.",
+        "🚀 Small steps every day create big success.",
+        "📚 Learn one new thing today.",
+        "😊 Smile—you’re building something amazing!"
+
+    ];
+
+    const tip = document.getElementById("tipText");
+
+    if(!tip) return;
 
     const today = new Date().getDate();
 
@@ -420,7 +438,7 @@ function refreshAllDashboard(){
     loadNextEvent();
     generateDailyBriefing();
     loadAIGreeting();
-
+    loadDailyTip();
 }
 
 
@@ -430,6 +448,6 @@ function refreshAllDashboard(){
 
 refreshAllDashboard();
 
-const DASHBOARD_REFRESH_INTERVAL = 5000;
+const DASHBOARD_REFRESH_INTERVAL = 10000;
 
 setInterval(refreshAllDashboard, DASHBOARD_REFRESH_INTERVAL);
