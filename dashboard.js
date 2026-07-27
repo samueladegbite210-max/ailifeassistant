@@ -401,6 +401,10 @@ function updateDashboardStats(){
 
     const notes = JSON.parse(localStorage.getItem("notes")) || [];
 
+    const streak = JSON.parse(localStorage.getItem("streak")) || {
+        days:0
+    };
+
     if(document.getElementById("xpCount")){
         document.getElementById("xpCount").textContent = xpData.xp;
     }
@@ -413,16 +417,6 @@ function updateDashboardStats(){
         document.getElementById("noteCount").textContent = notes.length;
     }
 
-
-}
-updateDashboardStats();
-
-function updateDashboardStats(){
-
-    const streak = JSON.parse(localStorage.getItem("streak")) || {
-        days:0
-    };
-
     const streakBox = document.getElementById("streakCount");
 
     if(streakBox){
@@ -434,12 +428,17 @@ function updateDashboardStats(){
     }
 
 }
+
 updateDashboardStats();
 // ================================
 // Auto Refresh Dashboard
 // ================================
 
-function refreshAllDashboard(){
+// ================================
+// Auto Refresh Dashboard
+// ================================
+
+function refreshAllDashboard() {
 
     refreshDashboard();
     updateAchievement();
@@ -448,5 +447,10 @@ function refreshAllDashboard(){
     updateDashboardStats();
 
 }
+
+// Run once when the dashboard loads
 refreshAllDashboard();
-setInterval(refreshAllDashboard, 5000);
+
+// Refresh every 5 seconds
+const DASHBOARD_REFRESH_INTERVAL = 5000;
+setInterval(refreshAllDashboard, DASHBOARD_REFRESH_INTERVAL);
