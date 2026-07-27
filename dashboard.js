@@ -274,11 +274,11 @@ function generateDailyBriefing() {
         events.filter(event => event.date === today);
 
     const pendingTasks =
-        tasks.filter(task => !task.done);
+        tasks.filter(task => task.done !== true)
 
     const pendingGoals =
-        goals.filter(goal => !goal.done);
-
+goals.filter(goal => goal.done !== true);
+ 
     let briefing =
         `👋 Good day, ${username}!\n\n`;
 
