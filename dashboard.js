@@ -100,15 +100,20 @@ if(aiGreeting){
 const tasks = data.tasks;
 const goals = data.goals;
 const events = data.events;
-    document.getElementById("aiRecommendation").innerHTML =
-        "💡 Today you have <strong>" +
-        tasks.length +
-        "</strong> task(s), <strong>" +
-        goals.length +
-        "</strong> goal(s), and <strong>" +
-        events.length +
-        "</strong> event(s).<br><br>" +
-        "My recommendation: Finish your most important task first.";
+   
+    const recommendation = document.getElementById("aiRecommendation");
+
+if(recommendation){
+
+    recommendation.innerHTML =
+    "💡 Today you have <strong>" +
+    tasks.length +
+    "</strong> task(s), <strong>" +
+    goals.length +
+    "</strong> goal(s), and <strong>" +
+    events.length +
+    "</strong> event(s).<br><br>" +
+    "My recommendation: Finish your most important task first.";
 
 }
 
@@ -201,21 +206,23 @@ function generateDailyBriefing(){
 
         briefing += `🔥 Focus on:\n${pendingTasks[0].text}`;
 
+  }else{
+
+    if (pendingGoals.length > 0){
+
+        briefing +=
+        "🎯 Great job finishing your tasks. Now focus on your remaining goals.";
+
     }else{
 
-        if (pendingGoals.length > 0) {
+        briefing +=
+        "🎉 Fantastic! You're completely caught up today.";
 
-    briefing +=
-    "🎯 Great job finishing your tasks. Now focus on your remaining goals.";
-
-} else {
-
-    briefing +=
-    "🎉 Fantastic! You're completely caught up today.";
+    }
 
 }
 
-    document.getElementById("briefingText").innerText = briefing;
+document.getElementById("briefingText").innerText = briefing;
 
 }
 // ==========================
@@ -285,10 +292,15 @@ loadNextEvent();
 
 function refreshDashboard(){
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
-    const events = JSON.parse(localStorage.getItem("events")) || [];
+    const data = getDashboardData();
 
+const tasks = data.tasks;
+const goals = data.goals;
+const events = data.events;
+const notes = data.notes;
+const xpData = data.xp;
+const streak = data.streak;
+    
     const completed = tasks.filter(task => task.done).length;
 
     // Summary
@@ -372,9 +384,14 @@ function updateAchievement(){
 
 function updateRecommendation(){
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
-    const events = JSON.parse(localStorage.getItem("events")) || [];
+    const data = getDashboardData();
+
+const tasks = data.tasks;
+const goals = data.goals;
+const events = data.events;
+const notes = data.notes;
+const xpData = data.xp;
+const streak = data.streak;
 
     const box = document.getElementById("aiRecommendation");
 
