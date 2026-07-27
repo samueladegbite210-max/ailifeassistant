@@ -391,100 +391,92 @@ function updateAchievement() {
     }
 
 }
-// ==========================
+/// ==========================
 // AI Recommendation
 // ==========================
 
-function updateRecommendation(){
+function updateRecommendation() {
 
     const data = getDashboardData();
 
-const tasks = data.tasks;
-const goals = data.goals;
-const events = data.events;
-const notes = data.notes;
-const xpData = data.xp;
-const streak = data.streak;
+    const tasks = data.tasks;
+    const goals = data.goals;
+    const events = data.events;
 
     const box = document.getElementById("aiRecommendation");
 
-    if(!box) return;
-
-    let recommendation = "";
+    if (!box) return;
 
     const pendingTasks = tasks.filter(task => !task.done);
 
-    if(events.length > 0){
+    let recommendation = "";
+
+    if (events.length > 0) {
 
         recommendation =
-        `📅 You have ${events.length} upcoming event(s). Don't forget to prepare.`;
+            `📅 You have <strong>${events.length}</strong> upcoming event(s).<br>
+            Don't forget to prepare.`;
 
-    }
-    else if(pendingTasks.length >= 5){
-
-        recommendation =
-        `⚠️ You have ${pendingTasks.length} pending tasks. Finish the oldest one first.`;
-
-    }
-    else if(pendingTasks.length > 0){
+    } else if (pendingTasks.length >= 5) {
 
         recommendation =
-        `✅ Your next task is: <strong>${pendingTasks[0].text}</strong>`;
+            `⚠️ You have <strong>${pendingTasks.length}</strong> pending tasks.<br>
+            Finish the oldest one first.`;
 
-    }
-    else if(goals.length > 0){
-
-        recommendation =
-        `🎯 Continue working toward your goal:<br><strong>${goals[0].text}</strong>`;
-
-    }
-    else{
+    } else if (pendingTasks.length > 0) {
 
         recommendation =
-        "💙 Everything looks good today. Why not learn something new or create a new goal?";
+            `✅ Your next task is:<br>
+            <strong>${pendingTasks[0].text}</strong>`;
+
+    } else if (goals.length > 0) {
+
+        recommendation =
+            `🎯 Continue working toward your goal:<br>
+            <strong>${goals[0].text}</strong>`;
+
+    } else {
+
+        recommendation =
+            `💙 Everything looks good today.<br>
+            Why not learn something new or create a new goal?`;
 
     }
 
     box.innerHTML = recommendation;
 
 }
+
+
 // ==========================
-// XP / Level / Notes / Streak
+// XP • Level • Notes • Streak
 // ==========================
 
-function updateDashboardStats(){
+function updateDashboardStats() {
 
-    const xpData = JSON.parse(localStorage.getItem("xp")) || {
-        xp:0,
-        level:1
-    };
+    const data = getDashboardData();
 
-    const notes = JSON.parse(localStorage.getItem("notes")) || [];
-    const streak = JSON.parse(localStorage.getItem("streak")) || {
-        days:0
-    };
+    const xpData = data.xp;
+    const notes = data.notes;
+    const streak = data.streak;
 
     const xpCount = document.getElementById("xpCount");
     const levelCount = document.getElementById("levelCount");
     const noteCount = document.getElementById("noteCount");
     const streakCount = document.getElementById("streakCount");
 
-    if(xpCount)
+    if (xpCount)
         xpCount.textContent = xpData.xp;
 
-    if(levelCount)
+    if (levelCount)
         levelCount.textContent = xpData.level;
 
-    if(noteCount)
+    if (noteCount)
         noteCount.textContent = notes.length;
 
-    if(streakCount){
-
+    if (streakCount)
         streakCount.textContent =
-            streak.days + " Day" +
-            (streak.days === 1 ? "" : "s");
-
-    }
+            `${streak.days} Day${streak.days === 1 ? "" : "s"}`;
 
 }
 
@@ -493,7 +485,7 @@ function updateDashboardStats(){
 // Refresh Entire Dashboard
 // ==========================
 
-function refreshAllDashboard(){
+function refreshAllDashboard() {
 
     refreshDashboard();
     updateAchievement();
@@ -503,6 +495,7 @@ function refreshAllDashboard(){
     generateDailyBriefing();
     loadAIGreeting();
     loadDailyTip();
+
 }
 
 
