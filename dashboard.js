@@ -6,6 +6,21 @@
 // Username
 const username = localStorage.getItem("profileName") || "Samuel";
 
+function getDashboardData() {
+    return {
+        tasks: JSON.parse(localStorage.getItem("tasks")) || [],
+        goals: JSON.parse(localStorage.getItem("goals")) || [],
+        events: JSON.parse(localStorage.getItem("events")) || [],
+        notes: JSON.parse(localStorage.getItem("notes")) || [],
+        xp: JSON.parse(localStorage.getItem("xp")) || {
+            xp: 0,
+            level: 1
+        },
+        streak: JSON.parse(localStorage.getItem("streak")) || {
+            days: 0
+        }
+    };
+}
 // Date & Time
 function updateDateTime() {
 
@@ -80,10 +95,11 @@ if(aiGreeting){
     aiGreeting.innerHTML = greeting;
 }
 
-    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
-    const events = JSON.parse(localStorage.getItem("events")) || [];
+    const data = getDashboardData();
 
+const tasks = data.tasks;
+const goals = data.goals;
+const events = data.events;
     document.getElementById("aiRecommendation").innerHTML =
         "💡 Today you have <strong>" +
         tasks.length +
@@ -187,9 +203,17 @@ function generateDailyBriefing(){
 
     }else{
 
-        briefing += "🎉 You're all caught up today!";
+        if (pendingGoals.length > 0) {
 
-    }
+    briefing +=
+    "🎯 Great job finishing your tasks. Now focus on your remaining goals.";
+
+} else {
+
+    briefing +=
+    "🎉 Fantastic! You're completely caught up today.";
+
+}
 
     document.getElementById("briefingText").innerText = briefing;
 
