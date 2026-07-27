@@ -6,15 +6,27 @@
  Author: OpenAI + Samuel
 ==================================================*/
 
-/*==================================================
- CONFIGURATION
-==================================================*/
+/*=========================================
+  AI LIFE ASSISTANT CONFIGURATION
+=========================================*/
 
-const CONFIG = {
-    dashboardRefresh: 10000,
-    clockRefresh: 1000,
+const APP = {
+
+    name: "AI Life Assistant",
+
+    version: "2.1.0",
+
+    refreshInterval: 10000,
+
+    clockInterval: 1000,
+
     defaultUsername: "Samuel"
+
 };
+
+const username =
+    localStorage.getItem("profileName") ||
+    APP.defaultUsername;
 
 /*==================================================
  USER
@@ -23,45 +35,38 @@ const CONFIG = {
 const username =
     localStorage.getItem("profileName") ||
     CONFIG.defaultUsername;
-
-/*==================================================
- STORAGE MANAGER
-==================================================*/
+/*=========================================
+  STORAGE MANAGER
+=========================================*/
 
 function getDashboardData() {
 
     return {
 
         tasks:
-            JSON.parse(localStorage.getItem("tasks")) || [],
+            JSON.parse(localStorage.getItem("tasks") || "[]"),
 
         goals:
-            JSON.parse(localStorage.getItem("goals")) || [],
+            JSON.parse(localStorage.getItem("goals") || "[]"),
 
         events:
-            JSON.parse(localStorage.getItem("events")) || [],
+            JSON.parse(localStorage.getItem("events") || "[]"),
 
         notes:
-            JSON.parse(localStorage.getItem("notes")) || [],
+            JSON.parse(localStorage.getItem("notes") || "[]"),
 
         xp:
-            JSON.parse(localStorage.getItem("xp")) || {
-                xp: 0,
-                level: 1
-            },
+            JSON.parse(localStorage.getItem("xp") || '{"xp":0,"level":1}'),
 
         streak:
-            JSON.parse(localStorage.getItem("streak")) || {
-                days: 0
-            }
+            JSON.parse(localStorage.getItem("streak") || '{"days":0}')
 
     };
 
 }
-
-/*==================================================
- HELPER FUNCTIONS
-==================================================*/
+/*=========================================
+  HELPER FUNCTIONS
+=========================================*/
 
 function getElement(id) {
 
@@ -89,6 +94,15 @@ function setHTML(id, value) {
 
 }
 
+function setWidth(id, value) {
+
+    const element = getElement(id);
+
+    if (!element) return;
+
+    element.style.width = value;
+
+}
 /*==================================================
  DATE & TIME
 ==================================================*/
