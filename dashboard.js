@@ -833,6 +833,8 @@ function refreshAllDashboard() {
 
     updateDashboardStats();
 
+      loadWeather();
+ 
     updateProductivityInsights();
 
     updateWeeklyProgress();
