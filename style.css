@@ -820,3 +820,6 @@ box-sizing:border-box;
 background:white;
 color:black;
 }
+.backBtn{
+    margin-bottom:20px;
+}
