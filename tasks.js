@@ -185,6 +185,14 @@ function getTaskSummary(){
 
 }
 // Start
-renderTasks();
-updateTaskSummary();
-updateTaskProgress();
+function initializeTasks(){
+
+    renderTasks();
+
+    updateTaskSummary();
+
+    updateTaskProgress();
+
+}
+
+initializeTasks();
