@@ -532,3 +532,596 @@ BACK BUTTON
     font-weight:bold;
 
 }
+/*==================================================
+TASK INPUT
+==================================================*/
+
+#taskInput,
+#searchTask{
+
+    width:100%;
+
+    height:60px;
+
+    padding:0 20px;
+
+    border:none;
+
+    border-radius:15px;
+
+    font-size:18px;
+
+    background:#FFFFFF;
+
+    color:#111827;
+
+    outline:none;
+
+    margin-bottom:15px;
+
+}
+
+#taskPriority{
+
+    width:100%;
+
+    height:55px;
+
+    margin-bottom:15px;
+
+    border:none;
+
+    border-radius:15px;
+
+    background:#FFFFFF;
+
+    color:#111827;
+
+    font-size:17px;
+
+    padding:0 15px;
+
+}
+
+/*==================================================
+TASK LIST
+==================================================*/
+
+#taskList{
+
+    list-style:none;
+
+    margin-top:10px;
+
+    padding:0;
+
+}
+
+#taskList li{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#111827;
+
+    border-radius:15px;
+
+    padding:16px;
+
+    margin-bottom:12px;
+
+    transition:.25s;
+
+}
+
+#taskList li:hover{
+
+    background:#1F2937;
+
+}
+
+.taskText{
+
+    flex:1;
+
+    cursor:pointer;
+
+    font-size:17px;
+
+    color:white;
+
+}
+
+.taskDone{
+
+    text-decoration:line-through;
+
+    opacity:.65;
+
+}
+
+.taskPriority{
+
+    display:inline-block;
+
+    margin-left:10px;
+
+    padding:4px 10px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:bold;
+
+}
+
+.priority-high{
+
+    background:#EF4444;
+
+    color:white;
+
+}
+
+.priority-medium{
+
+    background:#F59E0B;
+
+    color:white;
+
+}
+
+.priority-low{
+
+    background:#22C55E;
+
+    color:white;
+
+}
+
+/*==================================================
+DELETE BUTTON
+==================================================*/
+
+.deleteBtn{
+
+    width:auto;
+
+    padding:8px 12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#EF4444;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+}
+
+.deleteBtn:hover{
+
+    background:#DC2626;
+
+}
+
+/*==================================================
+EMPTY TASK MESSAGE
+==================================================*/
+
+#emptyTasks{
+
+    display:none;
+
+    text-align:center;
+
+    color:#9CA3AF;
+
+    margin-top:15px;
+
+    font-style:italic;
+
+}
+
+/*==================================================
+PROGRESS BAR
+==================================================*/
+
+.progress-container{
+
+    width:100%;
+
+    height:18px;
+
+    background:#2C3445;
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+    margin-top:15px;
+
+}
+
+.progress-bar{
+
+    width:0%;
+
+    height:100%;
+
+    background:#22C55E;
+
+    transition:width .5s ease;
+
+}
+
+#taskProgressText{
+
+    margin-top:12px;
+
+    text-align:center;
+
+    color:#B5C0D0;
+
+    font-weight:bold;
+
+}
+
+/*==================================================
+SUMMARY BOXES
+==================================================*/
+
+.summaryBox{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:10px;
+
+}
+
+.summaryItem{
+
+    flex:1;
+
+    text-align:center;
+
+}
+
+.summaryItem h3{
+
+    color:#60A5FA;
+
+    margin-bottom:8px;
+
+}
+
+.summaryItem p{
+
+    font-size:24px;
+
+    font-weight:bold;
+
+}
+/*==================================================
+AI CARDS
+==================================================*/
+
+#dailyBriefing,
+#notificationBox,
+#nextEvent{
+
+    text-align:left;
+
+    line-height:1.7;
+
+    color:var(--text2);
+
+}
+
+#dailyBriefing h2,
+#notificationBox h3,
+#nextEvent h3{
+
+    color:#60A5FA;
+
+}
+
+/*==================================================
+WEATHER CARD
+==================================================*/
+
+#weatherText{
+
+    font-size:18px;
+
+    color:#B5C0D0;
+
+    line-height:1.7;
+
+}
+
+/*==================================================
+AI GREETING
+==================================================*/
+
+#aiGreeting{
+
+    font-size:26px;
+
+    font-weight:bold;
+
+    margin-bottom:15px;
+
+    color:#60A5FA;
+
+}
+
+#aiRecommendation{
+
+    margin-top:15px;
+
+    font-size:18px;
+
+    line-height:1.8;
+
+    color:#B5C0D0;
+
+}
+
+/*==================================================
+NOTES
+==================================================*/
+
+.note-card{
+
+    background:#111827;
+
+    border-radius:16px;
+
+    padding:18px;
+
+    margin-bottom:15px;
+
+    text-align:left;
+
+}
+
+.note-card h3{
+
+    margin-bottom:10px;
+
+    color:#60A5FA;
+
+}
+
+.note-card p{
+
+    color:#D1D5DB;
+
+}
+
+/*==================================================
+CALENDAR
+==================================================*/
+
+.calendar-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(7,1fr);
+
+    gap:10px;
+
+    margin-top:20px;
+
+}
+
+.day-name{
+
+    text-align:center;
+
+    font-weight:bold;
+
+    color:#60A5FA;
+
+}
+
+.day{
+
+    background:#111827;
+
+    border-radius:12px;
+
+    padding:15px 0;
+
+    text-align:center;
+
+    cursor:pointer;
+
+    transition:.30s;
+
+}
+
+.day:hover{
+
+    background:#2563EB;
+
+    transform:scale(1.05);
+
+}
+
+.today{
+
+    background:#2563EB;
+
+    font-weight:bold;
+
+}
+
+.empty{
+
+    background:transparent;
+
+}
+
+/*==================================================
+PROFILE
+==================================================*/
+
+.profile-avatar{
+
+    width:120px;
+
+    height:120px;
+
+    margin:20px auto;
+
+    border-radius:50%;
+
+    background:#2563EB;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:60px;
+
+    color:white;
+
+    box-shadow:0 10px 25px rgba(37,99,235,.35);
+
+}
+
+/*==================================================
+XP / LEVEL / STREAK
+==================================================*/
+
+.stat-card{
+
+    text-align:center;
+
+}
+
+.stat-card h2{
+
+    font-size:34px;
+
+    color:#60A5FA;
+
+}
+
+.stat-card p{
+
+    margin-top:10px;
+
+    color:#9CA3AF;
+
+}
+
+/*==================================================
+ACHIEVEMENTS
+==================================================*/
+
+#achievementBadge{
+
+    font-size:28px;
+
+    color:#FBBF24;
+
+    margin-bottom:10px;
+
+}
+
+#achievementText{
+
+    color:#B5C0D0;
+
+    line-height:1.7;
+
+}
+
+/*==================================================
+PRODUCTIVITY
+==================================================*/
+
+#productivityScore{
+
+    font-size:36px;
+
+    color:#22C55E;
+
+}
+
+#progressText{
+
+    margin-top:12px;
+
+    color:#9CA3AF;
+
+}
+
+/*==================================================
+LIGHT MODE
+==================================================*/
+
+.light-mode{
+
+    background:#F3F4F6;
+
+    color:#111827;
+
+}
+
+.light-mode .card{
+
+    background:white;
+
+    color:#111827;
+
+}
+
+.light-mode .navbar{
+
+    background:white;
+
+}
+
+.light-mode .navbar a{
+
+    color:#111827;
+
+}
+
+.light-mode .box{
+
+    background:#E5E7EB;
+
+    color:#111827;
+
+}
+
+.light-mode .side-menu{
+
+    background:white;
+
+}
+
+.light-mode .day{
+
+    background:#E5E7EB;
+
+    color:#111827;
+
+}
