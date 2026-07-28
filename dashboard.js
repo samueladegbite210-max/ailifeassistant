@@ -709,9 +709,7 @@ function addXP(amount) {
         xpData.xp -= 100;
         xpData.level++;
 
-        alert(
-            `🎉 Level Up!\n\nYou reached Level ${xpData.level}!`
-        );
+        showLevelPopup(xpData.level);
 
     }
 
@@ -721,6 +719,27 @@ function addXP(amount) {
     );
 
     updateDashboardStats();
+
+}
+function showLevelPopup(level){
+
+    const popup =
+    document.getElementById("levelPopup");
+
+    const levelText =
+    document.getElementById("popupLevel");
+
+    if(!popup) return;
+
+    levelText.textContent = "Level " + level;
+
+    popup.classList.add("show");
+
+    setTimeout(() => {
+
+        popup.classList.remove("show");
+
+    }, 3000);
 
 }
 /*==================================================
