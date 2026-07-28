@@ -19,19 +19,24 @@
 
 </header>
 
+    <button onclick="window.location.href='dashboard.html'" class="backBtn">
+⬅ Dashboard
+</button>
 <div class="container">
 
     <div class="card">
 
         <input
-            type="text"
-            id="taskInput"
-            placeholder="Enter a new task">
-
+type="text"
+id="taskInput"
+maxlength="100"
+placeholder="📝 Enter your task...">
         <select id="taskPriority">
-            <option value="High">🔴 High</option>
-            <option value="Medium">🟡 Medium</option>
-            <option value="Low">🟢 Low</option>
+            <option value="High">🔴 High Priority</option>
+
+<option value="Medium">🟡 Medium Priority</option>
+
+<option value="Low">🟢 Low Priority</option>
         </select>
 
         <button onclick="addTask()">
@@ -69,7 +74,7 @@
 <input
 type="text"
 id="searchTask"
-placeholder="🔍 Search Tasks">
+placeholder="🔍 Search your tasks..."
 
 </div>
 
