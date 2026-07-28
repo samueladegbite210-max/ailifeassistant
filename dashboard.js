@@ -53,7 +53,10 @@ function getDashboardData() {
 
         notes: safeRead("notes"),
 
-        xp: JSON.parse(localStorage.getItem("xp") || '{"xp":0,"level":1}'),
+        xp: JSON.parse(
+    localStorage.getItem("xp") ||
+    '{"xp":0,"level":1,"total":0}'
+),
 
         streak: JSON.parse(localStorage.getItem("streak") || '{"days":0}')
 
@@ -687,7 +690,39 @@ function updateDashboardStats() {
 
 }
 
+/*==================================================
+ XP SYSTEM
+==================================================*/
 
+function addXP(amount) {
+
+    let xpData = JSON.parse(
+        localStorage.getItem("xp") ||
+        '{"xp":0,"level":1,"total":0}'
+    );
+
+    xpData.xp += amount;
+    xpData.total += amount;
+
+    while (xpData.xp >= 100) {
+
+        xpData.xp -= 100;
+        xpData.level++;
+
+        alert(
+            `🎉 Level Up!\n\nYou reached Level ${xpData.level}!`
+        );
+
+    }
+
+    localStorage.setItem(
+        "xp",
+        JSON.stringify(xpData)
+    );
+
+    updateDashboardStats();
+
+}
 /*==================================================
  PRODUCTIVITY INSIGHTS
 ==================================================*/
