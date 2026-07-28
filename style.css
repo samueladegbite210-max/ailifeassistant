@@ -716,3 +716,90 @@ button:hover,
     font-weight:bold;
 
 }
+.level-popup{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:rgba(0,0,0,.75);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    visibility:hidden;
+
+    opacity:0;
+
+    transition:.4s;
+
+    z-index:9999;
+
+}
+
+.level-popup.show{
+
+    visibility:visible;
+
+    opacity:1;
+
+}
+
+.popup-box{
+
+    background:#1D232D;
+
+    color:white;
+
+    padding:35px;
+
+    border-radius:20px;
+
+    width:85%;
+
+    max-width:350px;
+
+    text-align:center;
+
+    animation:pop .4s ease;
+
+}
+
+.popup-box h1{
+
+    font-size:34px;
+
+}
+
+.popup-box h2{
+
+    margin-top:15px;
+
+    color:#3B82F6;
+
+}
+
+@keyframes pop{
+
+    from{
+
+        transform:scale(.5);
+
+    }
+
+    to{
+
+        transform:scale(1);
+
+    }
+
+}
