@@ -258,7 +258,81 @@ function loadDailyTip() {
 
 }
 
+/*==================================================
+ WEATHER SYSTEM
+==================================================*/
 
+async function loadWeather() {
+
+    const weatherBox = document.getElementById("weatherText");
+
+    if (!weatherBox) return;
+
+    if (!navigator.geolocation) {
+
+        weatherBox.innerHTML =
+        `
+        <h3>Location unavailable</h3>
+        <p>Your browser doesn't support GPS.</p>
+        `;
+
+        return;
+
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        async(position)=>{
+
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            try{
+
+                const url =
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code`;
+
+                const response = await fetch(url);
+
+                const data = await response.json();
+
+                weatherBox.innerHTML = `
+                    <h2>${data.current.temperature_2m}°C</h2>
+
+                    <p>Humidity: ${data.current.relative_humidity_2m}%</p>
+
+                    <p>Weather updated successfully.</p>
+                `;
+
+            }
+
+            catch(error){
+
+                weatherBox.innerHTML =
+                `
+                <h3>Weather unavailable</h3>
+
+                <p>Unable to load weather.</p>
+                `;
+
+            }
+
+        },
+
+        ()=>{
+
+            weatherBox.innerHTML =
+            `
+            <h3>Location permission denied</h3>
+
+            <p>Please enable location services.</p>
+            `;
+
+        }
+
+    );
+
+}
 /*==================================================
  DAILY AI BRIEFING
 ==================================================*/
