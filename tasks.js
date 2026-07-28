@@ -46,6 +46,10 @@ function saveTasks(){
 
     renderTasks();
 
+    updateTaskSummary();
+
+    updateTaskProgress();
+
 }
 
 // Render Tasks
@@ -105,9 +109,13 @@ function toggleTask(id){
 
         if(task.id === id){
 
-            task.done = !task.done;
+            if(!task.done){
 
-        }
+    task.done = true;
+
+    addXP(10);
+
+}
 
         return task;
 
@@ -120,7 +128,9 @@ function toggleTask(id){
 // Delete Task
 function deleteTask(id){
 
-    tasks = tasks.filter(task=>task.id !== id);
+    if(!confirm("Delete this task?")) return;
+
+    tasks = tasks.filter(task => task.id !== id);
 
     saveTasks();
 
@@ -147,7 +157,14 @@ function updateTaskProgress(){
 
     const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-    document.getElementById("taskProgressBar").style.width = percent + "%";
+    const bar =
+document.getElementById("taskProgressBar");
+
+if(bar){
+
+    bar.style.width = percent + "%";
+
+}
 
     document.getElementById("taskProgressText").textContent =
         percent + "% Completed";
