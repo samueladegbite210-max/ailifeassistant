@@ -1,1 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Tasks</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<header class="header">
+
+<h1>✅ My Tasks</h1>
+
+<p>Stay organized and productive</p>
+
+</header>
+
+<button
+class="button"
+onclick="window.location.href='dashboard.html'">
+
+⬅ Dashboard
+
+</button>
+
+<div class="container">
+
+    <!-- Add Task -->
+
+    <div class="card">
+
+        <input
+        type="text"
+        id="taskInput"
+        maxlength="100"
+        placeholder="📝 Enter your task...">
+
+        <select id="taskPriority">
+
+            <option value="High">🔴 High Priority</option>
+
+            <option value="Medium">🟡 Medium Priority</option>
+
+            <option value="Low">🟢 Low Priority</option>
+
+        </select>
+
+        <button onclick="addTask()">
+
+            Add Task
+
+        </button>
+
+    </div>
+
+    <!-- Task List -->
+
+    <div class="card">
+
+        <h2>📋 Your Tasks</h2>
+
+        <ul id="taskList"></ul>
+
+        <p id="emptyTasks">
+
+            No tasks yet.
+
+        </p>
+
+    </div>
+
+    <!-- Summary -->
+
+    <div class="card">
+
+        <h2>📊 Task Summary</h2>
+
+        <p>Total Tasks:
+            <span id="totalTasks">0</span>
+        </p>
+
+        <p>Completed:
+            <span id="completedTasks">0</span>
+        </p>
+
+        <p>Pending:
+            <span id="pendingTasks">0</span>
+        </p>
+
+    </div>
+
+    <!-- Search -->
+
+    <div class="card">
+
+        <h2>🔍 Search Tasks</h2>
+
+        <input
+        type="text"
+        id="searchTask"
+        placeholder="Search your tasks...">
+
+    </div>
+
+    <!-- Progress -->
+
+    <div class="card">
+
+        <h2>📈 Task Progress</h2>
+
+        <div class="progress-container">
+
+            <div
+            id="taskProgressBar"
+            class="progress-bar">
+
+            </div>
+
+        </div>
+
+        <p id="taskProgressText">
+
+            Nothing completed yet.
+
+        </p>
+
+    </div>
+
+</div>
+
+<!-- Bottom Navigation -->
+
+<div class="navbar">
+
+<a href="dashboard.html">🏠<br>Home</a>
+
+<a href="chat.html">🤖<br>AI</a>
+
+<a href="tasks.html">✅<br>Tasks</a>
+
+<a href="calendar.html">📅<br>Calendar</a>
+
+<a href="profile.html">👤<br>Profile</a>
+
+</div>
+
+<script src="tasks.js"></script>
+
+</body>
+</html>
