@@ -1125,3 +1125,305 @@ LIGHT MODE
     color:#111827;
 
 }
+
+/*==================================================
+POPUP
+==================================================*/
+
+.level-popup{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:rgba(0,0,0,.75);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    visibility:hidden;
+
+    opacity:0;
+
+    transition:.35s;
+
+    z-index:9999;
+
+}
+
+.level-popup.show{
+
+    visibility:visible;
+
+    opacity:1;
+
+}
+
+.popup-box{
+
+    background:#1D232D;
+
+    padding:35px;
+
+    border-radius:20px;
+
+    width:90%;
+
+    max-width:360px;
+
+    text-align:center;
+
+    animation:popupScale .35s ease;
+
+}
+
+.popup-box h1{
+
+    font-size:34px;
+
+}
+
+.popup-box h2{
+
+    color:#60A5FA;
+
+    margin-top:15px;
+
+}
+
+@keyframes popupScale{
+
+    from{
+
+        transform:scale(.6);
+
+        opacity:0;
+
+    }
+
+    to{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+}
+
+/*==================================================
+FADE ANIMATION
+==================================================*/
+
+.fade-in{
+
+    animation:fadeIn .5s ease;
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(15px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/*==================================================
+CARD HOVER
+==================================================*/
+
+.card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 15px 30px rgba(0,0,0,.35);
+
+}
+
+/*==================================================
+BUTTON EFFECT
+==================================================*/
+
+button:active{
+
+    transform:scale(.97);
+
+}
+
+/*==================================================
+SCROLLBAR
+==================================================*/
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#111827;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#2563EB;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#3B82F6;
+
+}
+
+/*==================================================
+LINKS
+==================================================*/
+
+a{
+
+    color:inherit;
+
+}
+
+a:hover{
+
+    text-decoration:none;
+
+}
+
+/*==================================================
+IMAGES
+==================================================*/
+
+img{
+
+    max-width:100%;
+
+    border-radius:15px;
+
+}
+
+/*==================================================
+RESPONSIVE TABLET
+==================================================*/
+
+@media (max-width:900px){
+
+.summary{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.grid{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+}
+
+/*==================================================
+RESPONSIVE MOBILE
+==================================================*/
+
+@media (max-width:600px){
+
+body{
+
+padding:15px;
+
+padding-bottom:110px;
+
+}
+
+.header h1{
+
+font-size:26px;
+
+}
+
+.card{
+
+padding:18px;
+
+}
+
+.summary{
+
+grid-template-columns:1fr;
+
+}
+
+.grid{
+
+grid-template-columns:1fr;
+
+}
+
+.quick-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.box{
+
+font-size:17px;
+
+}
+
+button{
+
+font-size:16px;
+
+}
+
+#currentTime{
+
+font-size:36px;
+
+}
+
+.profile-avatar{
+
+width:90px;
+
+height:90px;
+
+font-size:45px;
+
+}
+
+}
+
+/*==================================================
+THE END
+==================================================*/
