@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>🔔 Notifications</h1>
+    <p>Your personal AI notification center</p>
+</header>
+
+<button class="button" onclick="window.location.href='dashboard.html'">
+⬅ Dashboard
+</button>
+
+<!-- Notification Summary -->
+<div class="card">
+    <h2>📊 Notification Summary</h2>
+
+    <p>Total Notifications:
+        <span id="totalNotifications">0</span>
+    </p>
+
+    <p>Unread:
+        <span id="unreadNotifications">0</span>
+    </p>
+
+    <p>Read:
+        <span id="readNotifications">0</span>
+    </p>
+</div>
+
+<!-- Notification List -->
+<div class="card">
+
+    <h2>📬 Your Notifications</h2>
+
+    <ul id="notificationList"></ul>
+
+    <p id="emptyNotifications">
+        No notifications yet.
+    </p>
+
+</div>
+
+<!-- Buttons -->
+<div class="card">
+
+<button onclick="markAllRead()">
+✅ Mark All Read
+</button>
+
+<button onclick="clearNotifications()">
+🗑 Clear All
+</button>
+
+</div>
+
+<!-- Bottom Navigation -->
+<div class="navbar">
+
+<a href="dashboard.html">🏠<br>Home</a>
+
+<a href="chat.html">🤖<br>AI</a>
+
+<a href="tasks.html">✅<br>Tasks</a>
+
+<a href="calendar.html">📅<br>Calendar</a>
+
+<a href="notifications.html">🔔<br>Alerts</a>
+
+</div>
+
+<script src="notifications.js"></script>
+
+</body>
+</html>
