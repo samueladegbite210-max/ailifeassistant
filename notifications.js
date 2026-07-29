@@ -128,6 +128,54 @@ function generateSmartNotifications(){
     }
 
 }
+// ==========================
+// Daily Reminder Engine
+// ==========================
+
+function generateDailyReminders(){
+
+    const tasks =
+    JSON.parse(localStorage.getItem("tasks")) || [];
+
+    const today =
+    new Date().toDateString();
+
+    const reminderDate =
+    localStorage.getItem("lastReminderDate");
+
+    // Only run once per day
+    if(reminderDate === today){
+
+        return;
+
+    }
+
+    if(tasks.filter(task => !task.done).length > 0){
+
+        addNotification(
+            "⏰ Don't forget to complete your pending tasks today."
+        );
+
+    }
+
+    addNotification(
+        "💧 Remember to drink water today."
+    );
+
+    addNotification(
+        "🚶 Take a short break after every hour of work."
+    );
+
+    addNotification(
+        "🧠 Learn something new today."
+    );
+
+    localStorage.setItem(
+        "lastReminderDate",
+        today
+    );
+
+}
 // --------------------------
 // Render Notifications
 // --------------------------
