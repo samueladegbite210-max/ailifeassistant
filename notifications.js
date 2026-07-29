@@ -220,48 +220,162 @@ function generateDailyReminders(){
     JSON.parse(localStorage.getItem("events")) || [];
 
     // Pending Tasks
-    const pendingTasks =
-    tasks.filter(task => !task.done);
+    tasks.forEach(task=>{
 
-    if(pendingTasks.length > 0){
+    if(!task.deadline) return;
 
-        addNotification(
+    const deadline = new Date(task.deadline);
 
-            `⏰ Don't forget to complete your ${pendingTasks.length} pending task(s).`,
+    const diff =
+    Math.ceil(
 
-            "Reminder"
+        (deadline - today)
 
-        );
+        /
 
-    }
-
-    // Goals
-    const validGoals = goals.filter(goal => goal.title);
-
-if(validGoals.length > 0){
-
-    addNotification(
-
-        "🎯 Remember to work on your goals today.",
-
-        "Reminder"
+        (1000*60*60*24)
 
     );
 
-}
-
-    // Events
-    if(events.length > 0){
+    if(diff === 0){
 
         addNotification(
 
-            "📅 Check your calendar before starting your day.",
+            `📌 Task Due Today: ${task.title}`,
+
+            "Task"
+
+        );
+
+    }
+
+    else if(diff === 1){
+
+        addNotification(
+
+            `📌 Task Due Tomorrow: ${task.title}`,
+
+            "Task"
+
+        );
+
+    }
+
+    else if(diff < 0 && !task.done){
+
+        addNotification(
+
+            `🚨 Task Overdue: ${task.title}`,
+
+            "Task"
+
+        );
+
+    }
+
+});
+ // ==========================
+// Goal Deadline Reminders
+// ==========================
+
+const today = new Date();
+
+goals.forEach(goal=>{
+
+    if(!goal.deadline) return;
+
+    const deadline = new Date(goal.deadline);
+
+    const diff =
+    Math.ceil(
+
+        (deadline - today)
+
+        /
+
+        (1000*60*60*24)
+
+    );
+
+    if(diff === 0){
+
+        addNotification(
+
+            `🎯 Goal Due Today: ${goal.title}`,
 
             "Reminder"
 
         );
 
     }
+
+    else if(diff === 1){
+
+        addNotification(
+
+            `⏳ Goal Due Tomorrow: ${goal.title}`,
+
+            "Reminder"
+
+        );
+
+    }
+
+    else if(diff < 0 && !goal.done){
+
+        addNotification(
+
+            `🚨 Goal Overdue: ${goal.title}`,
+
+            "Reminder"
+
+        );
+
+    }
+
+});
+ events.forEach(event=>{
+
+    if(!event.date) return;
+
+    const eventDate = new Date(event.date);
+
+    const diff =
+    Math.ceil(
+
+        (eventDate - today)
+
+        /
+
+        (1000*60*60*24)
+
+    );
+
+    if(diff === 0){
+
+        addNotification(
+
+            `📅 Event Today: ${event.title}`,
+
+            "Calendar"
+
+        );
+
+    }
+
+    else if(diff === 1){
+
+        addNotification(
+
+            `📅 Event Tomorrow: ${event.title}`,
+
+            "Calendar"
+
+        );
+
+    }
+
+});
 
     // Health reminders
     addNotification(
