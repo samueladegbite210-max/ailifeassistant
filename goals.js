@@ -338,6 +338,22 @@ function getGoalSummary(){
 }
 // Start
 
-renderGoals();
-updateGoalSummary();
-updateGoalProgress();
+function initializeGoals(){
+
+    renderGoals();
+
+    updateGoalSummary();
+
+    updateGoalProgress();
+
+    console.log("✅ Goals Engine Loaded");
+
+}
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    initializeGoals
+
+);
