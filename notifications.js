@@ -1,7 +1,13 @@
-// ==========================
-// AI Life Assistant
-// Notifications
-// ==========================
+/*==========================================
+ AI LIFE ASSISTANT
+ Notifications.js Version 4.0
+==========================================*/
+
+"use strict";
+
+/*==========================================
+ STORAGE
+==========================================*/
 
 let notifications =
 JSON.parse(localStorage.getItem("notifications")) || [];
@@ -9,9 +15,10 @@ JSON.parse(localStorage.getItem("notifications")) || [];
 const notificationList =
 document.getElementById("notificationList");
 
-// --------------------------
-// Save Notifications
-// --------------------------
+/*==========================================
+ SAVE
+==========================================*/
+
 function saveNotifications(){
 
     localStorage.setItem(
@@ -24,25 +31,38 @@ function saveNotifications(){
     updateNotificationSummary();
 
 }
-// ==========================
-// Add Notification
-// ==========================
 
-function addNotification(message, type = "AI") {
+/*==========================================
+ ADD NOTIFICATION
+==========================================*/
+
+function addNotification(
+
+    message,
+
+    type = "AI"
+
+){
 
     const exists = notifications.find(
-        note => note.text === message && !note.read
+
+        note =>
+
+        note.text === message &&
+
+        note.read === false
+
     );
 
-    if (exists) return;
+    if(exists) return;
 
     notifications.unshift({
 
         id: Date.now(),
 
-        text: message,
+        type,
 
-        type: type,
+        text: message,
 
         read: false,
 
@@ -53,10 +73,9 @@ function addNotification(message, type = "AI") {
     saveNotifications();
 
 }
-
-// ==========================
-// Smart Notifications
-// ==========================
+/*==========================================
+ SMART NOTIFICATION ENGINE
+==========================================*/
 
 function generateSmartNotifications(){
 
@@ -69,46 +88,74 @@ function generateSmartNotifications(){
     const events =
     JSON.parse(localStorage.getItem("events")) || [];
 
-    if(tasks.filter(t=>!t.done).length>0){
+    // Pending Tasks
+    const pendingTasks =
+    tasks.filter(task => !task.done);
+
+    if(pendingTasks.length > 0){
 
         addNotification(
-            `📌 You have ${
-            tasks.filter(t=>!t.done).length
-            } pending task(s).`
+
+            `📌 You have ${pendingTasks.length} pending task(s).`,
+
+            "Task"
+
         );
 
     }
 
-    if(goals.length>0){
+    // Active Goals
+    const activeGoals =
+    goals.filter(goal => !goal.done);
+
+    if(activeGoals.length > 0){
 
         addNotification(
-            `🎯 Keep working toward your goals today.`
+
+            `🎯 ${activeGoals.length} goal(s) are still in progress.`,
+
+            "Goal"
+
         );
 
     }
 
-    if(events.length>0){
+    // Upcoming Events
+    if(events.length > 0){
 
         addNotification(
-            `📅 You have ${events.length} upcoming event(s).`
+
+            `📅 ${events.length} upcoming event(s).`,
+
+            "Calendar"
+
         );
 
     }
 
+    // Greeting
     const hour = new Date().getHours();
 
-    if(hour<12){
+    if(hour < 12){
 
         addNotification(
-            "🌅 Good Morning! Let's have a productive day."
+
+            "🌅 Good Morning! Let's have a productive day.",
+
+            "AI"
+
         );
 
     }
 
-    else if(hour<18){
+    else if(hour < 18){
 
         addNotification(
-            "☀️ Good Afternoon! Keep going."
+
+            "☀️ Good Afternoon! Keep pushing forward.",
+
+            "AI"
+
         );
 
     }
@@ -116,97 +163,174 @@ function generateSmartNotifications(){
     else{
 
         addNotification(
-            "🌙 Good Evening! Review today's progress."
+
+            "🌙 Good Evening! Review today's progress.",
+
+            "AI"
+
         );
 
     }
 
 }
-// ==========================
-// Daily Reminder Engine
-// ==========================
+
+/*==========================================
+ DAILY REMINDER ENGINE
+==========================================*/
 
 function generateDailyReminders(){
-
-    const tasks =
-    JSON.parse(localStorage.getItem("tasks")) || [];
 
     const today =
     new Date().toDateString();
 
-    const reminderDate =
+    const lastReminder =
     localStorage.getItem("lastReminderDate");
 
-    // Only run once per day
-    if(reminderDate === today){
+    // Run only once each day
+    if(lastReminder === today){
 
         return;
 
     }
 
-    if(tasks.filter(task => !task.done).length > 0){
+    const tasks =
+    JSON.parse(localStorage.getItem("tasks")) || [];
+
+    const goals =
+    JSON.parse(localStorage.getItem("goals")) || [];
+
+    const events =
+    JSON.parse(localStorage.getItem("events")) || [];
+
+    // Pending Tasks
+    const pendingTasks =
+    tasks.filter(task => !task.done);
+
+    if(pendingTasks.length > 0){
 
         addNotification(
-            "⏰ Don't forget to complete your pending tasks today."
+
+            `⏰ Don't forget to complete your ${pendingTasks.length} pending task(s).`,
+
+            "Reminder"
+
         );
 
     }
 
+    // Goals
+    if(goals.length > 0){
+
+        addNotification(
+
+            "🎯 Remember to work on your goals today.",
+
+            "Reminder"
+
+        );
+
+    }
+
+    // Events
+    if(events.length > 0){
+
+        addNotification(
+
+            "📅 Check your calendar before starting your day.",
+
+            "Reminder"
+
+        );
+
+    }
+
+    // Health reminders
     addNotification(
-        "💧 Remember to drink water today."
+
+        "💧 Drink enough water today.",
+
+        "Health"
+
     );
 
     addNotification(
-        "🚶 Take a short break after every hour of work."
+
+        "🚶 Stand up and stretch every hour.",
+
+        "Health"
+
     );
 
     addNotification(
-        "🧠 Learn something new today."
+
+        "😴 Get enough rest tonight.",
+
+        "Health"
+
     );
 
+    // Save today's reminder date
     localStorage.setItem(
+
         "lastReminderDate",
+
         today
+
     );
 
 }
-// --------------------------
-// Render Notifications
-// --------------------------
-function renderNotifications(){
 
-    notificationList.innerHTML="";
+/*==========================================
+ RENDER NOTIFICATIONS
+==========================================*/
+
+function renderNotifications(){
 
     const empty =
     document.getElementById("emptyNotifications");
 
-    if(notifications.length===0){
+    if(!notificationList) return;
 
-        empty.style.display="block";
+    notificationList.innerHTML = "";
+
+    if(notifications.length === 0){
+
+        if(empty){
+
+            empty.style.display = "block";
+
+        }
 
         return;
 
     }
 
-    empty.style.display="none";
+    if(empty){
 
-    notifications.forEach(note=>{
+        empty.style.display = "none";
 
-        const li=document.createElement("li");
+    }
 
-        li.className="notification-item";
+    notifications.forEach(note => {
 
-        li.innerHTML=`
+        const li = document.createElement("li");
+
+        li.className =
+        "notification-item";
+
+        li.innerHTML = `
 
         <div class="notification-content">
 
-            <strong>
-            ${note.read ? "📖" : "🔔"}
-            </strong>
-
             <div>
 
-                <strong>${note.type}</strong>
+                <strong>
+
+                ${getNotificationIcon(note.type)}
+
+                ${note.type}
+
+                </strong>
 
                 <p>${note.text}</p>
 
@@ -216,21 +340,31 @@ function renderNotifications(){
 
         </div>
 
-        <button
-        class="deleteBtn"
-        onclick="deleteNotification(${note.id})">
+        <div>
 
-        🗑
+            <button
+            class="deleteBtn"
+            onclick="event.stopPropagation();deleteNotification(${note.id})">
 
-        </button>
+            🗑
+
+            </button>
+
+        </div>
 
         `;
 
-        li.onclick=function(){
+        li.onclick = function(){
 
             markRead(note.id);
 
         };
+
+        if(note.read){
+
+            li.style.opacity = "0.6";
+
+        }
 
         notificationList.appendChild(li);
 
@@ -238,102 +372,85 @@ function renderNotifications(){
 
 }
 
-// --------------------------
-// Mark Read
-// --------------------------
-function markRead(id){
+/*==========================================
+ NOTIFICATION ICONS
+==========================================*/
 
-    notifications=notifications.map(note=>{
+function getNotificationIcon(type){
 
-        if(note.id===id){
+    switch(type){
 
-            note.read=true;
+        case "Task":
+            return "📌";
 
-        }
+        case "Goal":
+            return "🎯";
 
-        return note;
+        case "Calendar":
+            return "📅";
 
-    });
+        case "Reminder":
+            return "⏰";
 
-    saveNotifications();
+        case "Health":
+            return "💧";
 
-}
+        case "Achievement":
+            return "🏆";
 
-// --------------------------
-// Mark All Read
-// --------------------------
-function markAllRead(){
-
-    notifications.forEach(note=>{
-
-        note.read=true;
-
-    });
-
-    saveNotifications();
-
-}
-
-// --------------------------
-// Delete Notification
-// --------------------------
-function deleteNotification(id){
-
-    notifications=
-    notifications.filter(note=>note.id!==id);
-
-    saveNotifications();
-
-}
-
-// --------------------------
-// Clear All
-// --------------------------
-function clearNotifications(){
-
-    if(confirm("Clear all notifications?")){
-
-        notifications=[];
-
-        saveNotifications();
+        default:
+            return "🤖";
 
     }
 
 }
 
-// --------------------------
-// Summary
-// --------------------------
-function updateNotificationSummary(){
+/*==========================================
+ INITIALIZATION
+==========================================*/
 
-    const total=notifications.length;
+function initializeNotifications(){
 
-    const unread=
-    notifications.filter(n=>!n.read).length;
+    // Generate reminders (once per day)
+    generateDailyReminders();
 
-    const read=total-unread;
+    // Generate smart notifications
+    generateSmartNotifications();
 
-    document.getElementById(
-        "totalNotifications"
-    ).textContent=total;
+    // Render notification list
+    renderNotifications();
 
-    document.getElementById(
-        "unreadNotifications"
-    ).textContent=unread;
+    // Update summary cards
+    updateNotificationSummary();
 
-    document.getElementById(
-        "readNotifications"
-    ).textContent=read;
+    console.log("✅ Notifications Engine Loaded");
 
 }
 
-// --------------------------
-// Start
-// --------------------------
-generateDailyReminders();
+/*==========================================
+ AUTO REFRESH
+==========================================*/
 
-generateSmartNotifications();
+function refreshNotifications(){
 
-renderNotifications();
+    renderNotifications();
 
-updateNotificationSummary();
+    updateNotificationSummary();
+
+}
+
+/*==========================================
+ START
+==========================================*/
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    function(){
+
+        initializeNotifications();
+
+    }
+
+);
