@@ -10,6 +10,32 @@ const taskList = document.getElementById("taskList");
 const searchTask = document.getElementById("searchTask");
 
 // ==========================
+// Notifications
+// ==========================
+function createNotification(message){
+
+    let notifications =
+    JSON.parse(localStorage.getItem("notifications")) || [];
+
+    notifications.unshift({
+
+        id: Date.now(),
+
+        text: message,
+
+        read: false,
+
+        time: new Date().toLocaleString()
+
+    });
+
+    localStorage.setItem(
+        "notifications",
+        JSON.stringify(notifications)
+    );
+
+}
+// ==========================
 // Add Task
 // ==========================
 
