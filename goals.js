@@ -68,7 +68,7 @@ function saveGoals(){
     updateGoalSummary();
 
     updateGoalProgress();
-
+   refreshNotifications();
 }
 
 // Render Goals
@@ -165,6 +165,8 @@ function toggleGoal(id){
     saveGoals();
 
 }
+refreshNotifications();
+
 // Delete Goal
 function deleteGoal(id){
 
@@ -177,6 +179,7 @@ function deleteGoal(id){
 }
 
 }
+refreshNotifications();
 function updateGoalSummary(){
 
     const total = goals.length;
