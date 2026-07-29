@@ -482,7 +482,43 @@ function loadNextEvent() {
 
 }
 
+function renderTodayFocus(){
 
+    const container =
+    document.getElementById("todayFocus");
+
+    if(!container) return;
+
+    const tasks =
+    getPriorityTasks();
+
+    if(tasks.length===0){
+
+        container.innerHTML=
+
+        "🎉 Nothing urgent today.";
+
+        return;
+
+    }
+
+    container.innerHTML="";
+
+    tasks.slice(0,5).forEach(task=>{
+
+        container.innerHTML+=`
+
+        <div class="focusItem">
+
+        🔥 ${task.title}
+
+        </div>
+
+        `;
+
+    });
+
+}
 /*==================================================
  DASHBOARD SUMMARY
 ==================================================*/
