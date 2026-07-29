@@ -24,25 +24,39 @@ function saveNotifications(){
     updateNotificationSummary();
 
 }
-
-// --------------------------
+// ==========================
 // Add Notification
-// --------------------------
+// ==========================
+
 function addNotification(message){
+
+    let notifications =
+    JSON.parse(localStorage.getItem("notifications")) || [];
+
+    // Don't add the same unread notification twice
+    const exists = notifications.find(
+        note => note.text === message && !note.read
+    );
+
+    if(exists) return;
 
     notifications.unshift({
 
         id: Date.now(),
 
         text: message,
+         type: "AI",
 
-        read:false,
+        read: false,
 
-        time:new Date().toLocaleString()
+        time: new Date().toLocaleString()
 
     });
 
-    saveNotifications();
+    localStorage.setItem(
+        "notifications",
+        JSON.stringify(notifications)
+    );
 
 }
 
@@ -149,6 +163,8 @@ function renderNotifications(){
             </strong>
 
             <div>
+
+                <strong>${note.type}</strong>
 
                 <p>${note.text}</p>
 
