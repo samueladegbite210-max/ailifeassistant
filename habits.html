@@ -1,34 +1,37 @@
-<h2>💪 AI Habit Tracker</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Habit Tracker</title>
 
-<div class="progressBar">
+<link rel="stylesheet" href="style.css">
+</head>
 
-<div
+<body>
 
-id="habitProgress">
-
+<div class="top-bar">
+    <a href="dashboard.html">⬅ Back</a>
 </div>
 
+<div class="card">
+    <h2>💪 AI Habit Tracker</h2>
+
+    <div class="progressBar">
+        <div id="habitProgress"></div>
+    </div>
+
+    <p id="habitProgressText">0%</p>
+
+    <div id="habitList"></div>
 </div>
 
-<p
-
-id="habitProgressText">
-
-0%
-
-</p>
-
-<div
-
-id="habitList">
-
-</div>
 <script src="habits.js"></script>
 
 <script>
-
 renderHabits();
-
 updateHabitProgress();
-
 </script>
+
+</body>
+</html>
