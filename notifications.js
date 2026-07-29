@@ -404,7 +404,102 @@ function getNotificationIcon(type){
     }
 
 }
+/*==========================================
+UPDATE SUMMARY
+==========================================*/
 
+function updateNotificationSummary(){
+
+    const total = notifications.length;
+
+    const unread =
+    notifications.filter(note => !note.read).length;
+
+    const read = total - unread;
+
+    const totalBox =
+    document.getElementById("totalNotifications");
+
+    const unreadBox =
+    document.getElementById("unreadNotifications");
+
+    const readBox =
+    document.getElementById("readNotifications");
+
+    if(totalBox) totalBox.textContent = total;
+
+    if(unreadBox) unreadBox.textContent = unread;
+
+    if(readBox) readBox.textContent = read;
+
+}
+
+/*==========================================
+MARK READ
+==========================================*/
+
+function markRead(id){
+
+    notifications = notifications.map(note=>{
+
+        if(note.id === id){
+
+            note.read = true;
+
+        }
+
+        return note;
+
+    });
+
+    saveNotifications();
+
+}
+
+/*==========================================
+DELETE
+==========================================*/
+
+function deleteNotification(id){
+
+    notifications =
+    notifications.filter(note=>note.id !== id);
+
+    saveNotifications();
+
+}
+
+/*==========================================
+MARK ALL READ
+==========================================*/
+
+function markAllRead(){
+
+    notifications.forEach(note=>{
+
+        note.read = true;
+
+    });
+
+    saveNotifications();
+
+}
+
+/*==========================================
+CLEAR ALL
+==========================================*/
+
+function clearNotifications(){
+
+    if(confirm("Clear all notifications?")){
+
+        notifications = [];
+
+        saveNotifications();
+
+    }
+
+}
 /*==========================================
  INITIALIZATION
 ==========================================*/
