@@ -519,6 +519,37 @@ function renderTodayFocus(){
     });
 
 }
+function renderDailyPlan(){
+
+    const box =
+    document.getElementById("dailyPlan");
+
+    if(!box) return;
+
+    const plan =
+    generateDailyPlan();
+
+    if(plan.length===0){
+
+        box.innerHTML=
+
+        "🎉 You have no tasks today.";
+
+        return;
+
+    }
+
+    box.innerHTML="";
+
+    plan.forEach(item=>{
+
+        box.innerHTML +=
+
+        `<p>${item}</p>`;
+
+    });
+
+}
 /*==================================================
  DASHBOARD SUMMARY
 ==================================================*/
@@ -1061,7 +1092,9 @@ function initializeDashboard() {
         autoSaveDashboard();
 
         refreshAllDashboard();
-
+        renderTodayFocus();
+        renderDailyPlan();
+     
     }, APP.refreshInterval);
 
 }
