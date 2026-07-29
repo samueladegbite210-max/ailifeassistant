@@ -27,49 +27,87 @@ MOOD OPTIONS
 
 const moods = [
 
-"😁 Great",
+{
 
-"🙂 Good",
+emoji:"😁",
 
-"😐 Okay",
+text:"Great"
 
-"😔 Sad",
+},
 
-"😩 Stressed"
+{
+
+emoji:"🙂",
+
+text:"Good"
+
+},
+
+{
+
+emoji:"😐",
+
+text:"Okay"
+
+},
+
+{
+
+emoji:"😔",
+
+text:"Sad"
+
+},
+
+{
+
+emoji:"😩",
+
+text:"Stressed"
+
+}
 
 ];
-
 function loadMoodButtons(){
 
-    const container =
+const container =
 
-    document.getElementById("moodButtons");
+document.getElementById("moodButtons");
 
-    if(!container) return;
+container.innerHTML="";
 
-    container.innerHTML = "";
+moods.forEach(function(mood){
 
-    moods.forEach(function(mood){
+const btn =
 
-        const button =
+document.createElement("button");
 
-        document.createElement("button");
+btn.className="button";
 
-        button.className = "button";
+btn.innerHTML=
 
-        button.textContent = mood;
+`${mood.emoji}<br>${mood.text}`;
 
-        button.onclick = function(){
+btn.onclick=function(){
 
-            wellness.mood = mood;
+wellness.mood = mood;
 
-            saveWellness();
+saveWellness();
 
-        };
+document.getElementById(
 
-        container.appendChild(button);
+"selectedMood"
 
-    });
+).innerHTML=
+
+`Current Mood:
+${mood.emoji} ${mood.text}`;
+
+};
+
+container.appendChild(btn);
+
+});
 
 }
 /*=========================
