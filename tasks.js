@@ -54,7 +54,7 @@ function addTask() {
         priority: taskPriority.value,
         done: false
     });
-
+createNotification("📝 New task added: " + text);
     taskInput.value = "";
 
     saveTasks();
@@ -141,7 +141,7 @@ function toggleTask(id) {
             }
 
             task.done = !task.done;
-
+createNotification("✅ Task completed: " + task.text);
         }
 
         return task;
@@ -161,7 +161,16 @@ function deleteTask(id) {
     if (!confirm("Delete this task?")) return;
 
     tasks = tasks.filter(task => task.id !== id);
+const deleted =
+tasks.find(task=>task.id===id);
 
+if(deleted){
+
+    createNotification(
+        "🗑 Deleted task: " + deleted.text
+    );
+
+}
     saveTasks();
 
 }
