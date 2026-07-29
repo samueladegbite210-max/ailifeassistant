@@ -489,6 +489,8 @@ function loadNextEvent() {
 
 function refreshDashboard() {
 
+
+
     const { tasks, goals, events } =
         getDashboardData();
 
@@ -900,7 +902,12 @@ function refreshAllDashboard() {
     generateDailyBriefing();
 
     loadNotifications();
+if(typeof checkReminders === "function"){
 
+    checkReminders();
+
+}
+ 
 }
 
 
