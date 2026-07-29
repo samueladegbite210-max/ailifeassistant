@@ -79,6 +79,17 @@ function addNotification(
 
 function generateSmartNotifications(){
 
+ const today =
+new Date().toDateString();
+
+const lastSmart =
+localStorage.getItem("lastSmartNotification");
+
+if(lastSmart === today){
+
+    return;
+
+}
     const tasks =
     JSON.parse(localStorage.getItem("tasks")) || [];
 
@@ -173,7 +184,13 @@ function generateSmartNotifications(){
     }
 
 }
+localStorage.setItem(
 
+    "lastSmartNotification",
+
+    today
+
+);
 /*==========================================
  DAILY REMINDER ENGINE
 ==========================================*/
@@ -219,17 +236,19 @@ function generateDailyReminders(){
     }
 
     // Goals
-    if(goals.length > 0){
+    const validGoals = goals.filter(goal => goal.title);
 
-        addNotification(
+if(validGoals.length > 0){
 
-            "🎯 Remember to work on your goals today.",
+    addNotification(
 
-            "Reminder"
+        "🎯 Remember to work on your goals today.",
 
-        );
+        "Reminder"
 
-    }
+    );
+
+}
 
     // Events
     if(events.length > 0){
@@ -371,7 +390,25 @@ function renderNotifications(){
     });
 
 }
+function updateNotificationSummary(){
 
+    const total = notifications.length;
+
+    const unread = notifications.filter(
+
+        note => !note.read
+
+    ).length;
+
+    const read = total - unread;
+
+    document.getElementById("totalNotifications").textContent = total;
+
+    document.getElementById("unreadNotifications").textContent = unread;
+
+    document.getElementById("readNotifications").textContent = read;
+
+}
 /*==========================================
  NOTIFICATION ICONS
 ==========================================*/
