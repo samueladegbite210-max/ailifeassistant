@@ -54,25 +54,14 @@ function checkReminders(){
     });
 
     // Goals
-    goals.forEach(goal=>{
+    goals.forEach(goal => {
 
-        if(!goal.done){
+    addNotification(
+        "🎯 Goal Reminder: " +
+        (goal.text || goal.title || goal.name)
+    );
 
-            createReminder(
-
-                "🎯 Goal Reminder: " +
-
-                goal.text,
-
-                notifications
-
-            );
-
-        }
-
-    });
-
-}
+});
 
 function createReminder(message, notifications){
 
