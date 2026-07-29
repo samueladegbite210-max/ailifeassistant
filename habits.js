@@ -2,103 +2,74 @@
 // AI Habit Tracker
 // ==========================
 
-let habits =
-
-JSON.parse(
-
-localStorage.getItem("habits")
-
-) || [
+let habits = JSON.parse(localStorage.getItem("habits")) || [
 
 {
-
 id:1,
-
 title:"💧 Drink Water",
-
-completed:false,
-
-streak:0
-
+streak:0,
+lastCompleted:null
 },
 
 {
-
 id:2,
-
 title:"🏃 Exercise",
-
-completed:false,
-
-streak:0
-
+streak:0,
+lastCompleted:null
 },
 
 {
-
 id:3,
-
 title:"📖 Read",
-
-completed:false,
-
-streak:0
-
+streak:0,
+lastCompleted:null
 },
 
 {
-
 id:4,
-
 title:"😴 Sleep Before 11PM",
-
-completed:false,
-
-streak:0
-
+streak:0,
+lastCompleted:null
 },
 
 {
-
 id:5,
-
 title:"🙏 Pray",
-
-completed:false,
-
-streak:0
-
+streak:0,
+lastCompleted:null
 }
 
 ];
+
 function saveHabits(){
 
 localStorage.setItem(
-
 "habits",
-
 JSON.stringify(habits)
-
 );
 
 renderHabits();
-
 updateHabitProgress();
 
 }
+
 function toggleHabit(id){
+
+const today = new Date().toDateString();
+
+let xp = Number(localStorage.getItem("xp")) || 0;
 
 habits = habits.map(habit=>{
 
 if(habit.id===id){
 
-habit.completed =
+if(habit.lastCompleted !== today){
 
-!habit.completed;
-
-if(habit.completed){
+habit.lastCompleted = today;
 
 habit.streak++;
+
+xp += 10;
 
 }
 
@@ -108,20 +79,26 @@ return habit;
 
 });
 
+localStorage.setItem("xp",xp);
+
 saveHabits();
 
 }
+
 function renderHabits(){
 
-const box =
-
-document.getElementById("habitList");
+const box = document.getElementById("habitList");
 
 if(!box) return;
 
 box.innerHTML="";
 
+const today = new Date().toDateString();
+
 habits.forEach(habit=>{
+
+const completedToday =
+habit.lastCompleted === today;
 
 box.innerHTML += `
 
@@ -129,29 +106,13 @@ box.innerHTML += `
 
 <h3>${habit.title}</h3>
 
-<p>
-
-🔥 Streak:
-
-${habit.streak}
-
-day(s)
-
-</p>
+<p>🔥 Streak: ${habit.streak} day(s)</p>
 
 <button
+onclick="toggleHabit(${habit.id})"
+${completedToday ? "disabled" : ""}>
 
-onclick="toggleHabit(${habit.id})">
-
-${habit.completed
-
-?
-
-"✅ Done"
-
-:
-
-"⭕ Complete"}
+${completedToday ? "✅ Completed" : "✅ Complete"}
 
 </button>
 
@@ -162,56 +123,40 @@ ${habit.completed
 });
 
 }
+
 function updateHabitProgress(){
+
+const today = new Date().toDateString();
 
 const total = habits.length;
 
-const done =
-
-habits.filter(
-
-h=>h.completed
-
+const done = habits.filter(
+habit=>habit.lastCompleted===today
 ).length;
 
 const percent =
-
-Math.round(
-
-(done/total)*100
-
-);
+Math.round((done/total)*100);
 
 const progress =
-
-document.getElementById(
-
-"habitProgress"
-
-);
+document.getElementById("habitProgress");
 
 const text =
-
-document.getElementById(
-
-"habitProgressText"
-
-);
+document.getElementById("habitProgressText");
 
 if(progress){
 
-progress.style.width=
-
-percent+"%";
+progress.style.width = percent+"%";
 
 }
 
 if(text){
 
-text.textContent=
+text.textContent =
+`${percent}% (${done}/${total})`;
 
-percent+"%";
+}
 
 }
 
-}
+renderHabits();
+updateHabitProgress();
