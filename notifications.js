@@ -28,24 +28,21 @@ function saveNotifications(){
 // Add Notification
 // ==========================
 
-function addNotification(message){
+function addNotification(message, type = "AI") {
 
-    let notifications =
-    JSON.parse(localStorage.getItem("notifications")) || [];
-
-    // Don't add the same unread notification twice
     const exists = notifications.find(
         note => note.text === message && !note.read
     );
 
-    if(exists) return;
+    if (exists) return;
 
     notifications.unshift({
 
         id: Date.now(),
 
         text: message,
-         type: "AI",
+
+        type: type,
 
         read: false,
 
@@ -53,10 +50,7 @@ function addNotification(message){
 
     });
 
-    localStorage.setItem(
-        "notifications",
-        JSON.stringify(notifications)
-    );
+    saveNotifications();
 
 }
 
@@ -336,6 +330,8 @@ function updateNotificationSummary(){
 // --------------------------
 // Start
 // --------------------------
+generateDailyReminders();
+
 generateSmartNotifications();
 
 renderNotifications();
