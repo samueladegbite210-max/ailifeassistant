@@ -55,9 +55,19 @@ id: Date.now(),
 // Save Goals
 function saveGoals(){
 
-    localStorage.setItem("goals", JSON.stringify(goals));
+    localStorage.setItem(
+
+        "goals",
+
+        JSON.stringify(goals)
+
+    );
 
     renderGoals();
+
+    updateGoalSummary();
+
+    updateGoalProgress();
 
 }
 
@@ -121,7 +131,30 @@ function toggleGoal(id){
 
         if(goal.id === id){
 
-            goal.done = !goal.done;
+            if(!goal.done){
+
+                goal.done = true;
+
+                if(typeof addXP === "function"){
+
+                    addXP(20);
+
+                }
+
+                if(typeof addNotification === "function"){
+
+                    addNotification(
+                        `🎯 Goal Completed: ${goal.title}`,
+                        "Achievement"
+                    );
+
+                }
+
+            }else{
+
+                goal.done = false;
+
+            }
 
         }
 
@@ -132,13 +165,16 @@ function toggleGoal(id){
     saveGoals();
 
 }
-
 // Delete Goal
 function deleteGoal(id){
 
-    goals = goals.filter(goal=>goal.id !== id);
+    if(!confirm("Delete this goal?")) return;
+
+    goals = goals.filter(goal => goal.id !== id);
 
     saveGoals();
+
+}
 
 }
 function updateGoalSummary(){
