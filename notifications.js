@@ -46,6 +46,74 @@ function addNotification(message){
 
 }
 
+// ==========================
+// Smart Notifications
+// ==========================
+
+function generateSmartNotifications(){
+
+    const tasks =
+    JSON.parse(localStorage.getItem("tasks")) || [];
+
+    const goals =
+    JSON.parse(localStorage.getItem("goals")) || [];
+
+    const events =
+    JSON.parse(localStorage.getItem("events")) || [];
+
+    if(tasks.filter(t=>!t.done).length>0){
+
+        addNotification(
+            `📌 You have ${
+            tasks.filter(t=>!t.done).length
+            } pending task(s).`
+        );
+
+    }
+
+    if(goals.length>0){
+
+        addNotification(
+            `🎯 Keep working toward your goals today.`
+        );
+
+    }
+
+    if(events.length>0){
+
+        addNotification(
+            `📅 You have ${events.length} upcoming event(s).`
+        );
+
+    }
+
+    const hour = new Date().getHours();
+
+    if(hour<12){
+
+        addNotification(
+            "🌅 Good Morning! Let's have a productive day."
+        );
+
+    }
+
+    else if(hour<18){
+
+        addNotification(
+            "☀️ Good Afternoon! Keep going."
+        );
+
+    }
+
+    else{
+
+        addNotification(
+            "🌙 Good Evening! Review today's progress."
+        );
+
+    }
+
+}
 // --------------------------
 // Render Notifications
 // --------------------------
@@ -204,6 +272,8 @@ function updateNotificationSummary(){
 // --------------------------
 // Start
 // --------------------------
+generateSmartNotifications();
+
 renderNotifications();
 
 updateNotificationSummary();
