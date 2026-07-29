@@ -1423,7 +1423,21 @@ font-size:45px;
 }
 
 }
+.notification-card{
 
+    cursor:pointer;
+
+    transition:0.3s;
+
+}
+
+.notification-card:hover{
+
+    transform:translateY(-4px);
+
+    background:#2A3344;
+
+}
 /*==================================================
 THE END
 ==================================================*/
