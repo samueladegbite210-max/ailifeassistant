@@ -199,6 +199,34 @@ function updateEnergyDisplay(){
     ${wellness.energy.text}`;
 
 }
+function initializeSleep(){
+
+    const slider =
+    document.getElementById("sleepSlider");
+
+    const value =
+    document.getElementById("sleepValue");
+
+    if(!slider || !value) return;
+
+    slider.value = wellness.sleep;
+
+    value.textContent =
+    wellness.sleep + " Hours";
+
+    slider.oninput = function(){
+
+        wellness.sleep =
+        Number(this.value);
+
+        value.textContent =
+        this.value + " Hours";
+
+        saveWellness();
+
+    };
+
+}
 /*==========================================
  SAVE WELLNESS
 ==========================================*/
@@ -239,6 +267,8 @@ loadEnergyButtons();
 updateMoodDisplay();
 
 updateEnergyDisplay();
+
+initializeSleep();
 
     }
 
