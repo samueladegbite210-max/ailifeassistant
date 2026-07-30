@@ -290,7 +290,80 @@ function loadNotifications(){
     box.innerHTML = html;
 
 }
+/* ==========================================
+   XP SYSTEM
+========================================== */
 
+function getXP(){
+
+    return JSON.parse(
+        localStorage.getItem("xp") ||
+        '{"xp":0,"level":1}'
+    );
+
+}
+
+function saveXP(data){
+
+    localStorage.setItem(
+        "xp",
+        JSON.stringify(data)
+    );
+
+}
+
+function addXP(amount){
+
+    let data = getXP();
+
+    data.xp += amount;
+
+    while(data.xp >= 100){
+
+        data.xp -= 100;
+
+        data.level++;
+
+        showLevelPopup(data.level);
+
+    }
+
+    saveXP(data);
+
+    updateXP();
+
+}
+
+function updateXP(){
+
+    const data = getXP();
+
+    $("xpCount").textContent =
+    data.xp;
+
+    $("levelCount").textContent =
+    data.level;
+
+}
+function showLevelPopup(level){
+
+    const popup =
+    $("levelPopup");
+
+    if(!popup) return;
+
+    $("popupLevel").textContent =
+    "Level " + level;
+
+    popup.classList.add("show");
+
+    setTimeout(()=>{
+
+        popup.classList.remove("show");
+
+    },3000);
+
+}
 /* ==========================================
    DASHBOARD SUMMARY
 ========================================== */
@@ -538,3 +611,89 @@ function updateRecommendation(){
     box.innerHTML = message;
 
 }
+/*==================================================
+SECTION 9 — DASHBOARD CARDS
+==================================================*/
+
+function initializeDashboard() {
+
+    dashboardHealthCheck();
+
+    initializeMenu();
+
+    autoSaveDashboard();
+
+    updateDateTime();
+    updateGreeting();
+
+    loadAIGreeting();
+    loadDailyTip();
+
+    refreshDashboard();
+    updateAchievement();
+    updateRecommendation();
+    updateDashboardStats();
+
+    loadWeather();
+    loadNextEvent();
+    loadNotifications();
+
+    generateDailyBriefing();
+
+    renderTodayFocus();
+    renderDailyPlan();
+
+    updateProductivityInsights();
+    updateWeeklyProgress();
+    updateAIScore();
+
+    if (typeof checkReminders === "function") {
+        checkReminders();
+    }
+
+    setInterval(updateDateTime, 1000);
+
+    setInterval(() => {
+
+        autoSaveDashboard();
+
+        loadAIGreeting();
+
+        refreshDashboard();
+
+        updateAchievement();
+
+        updateRecommendation();
+
+        updateDashboardStats();
+
+        loadWeather();
+
+        loadNextEvent();
+
+        loadNotifications();
+
+        generateDailyBriefing();
+
+        renderTodayFocus();
+
+        renderDailyPlan();
+
+        updateProductivityInsights();
+
+        updateWeeklyProgress();
+
+        updateAIScore();
+
+        if (typeof checkReminders === "function") {
+            checkReminders();
+        }
+
+    }, APP.refreshInterval);
+
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeDashboard
+);
