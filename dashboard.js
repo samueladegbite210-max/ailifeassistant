@@ -336,66 +336,106 @@ async function loadWeather() {
     );
 
 }
-/*==================================================
- DAILY AI BRIEFING
-==================================================*/
 
-function generateDailyBriefing() {
 
-    const { tasks, goals, events } =
-        getDashboardData();
+/*==========================================
+SMART AI DAILY PLAN
+==========================================*/
 
-    const briefingBox =
-        getElement("briefingText");
+function generateDailyPlan(){
 
-    if (!briefingBox) return;
+    const tasks =
+    JSON.parse(localStorage.getItem("tasks")) || [];
 
-    const today =
-        new Date().toISOString().split("T")[0];
+    const goals =
+    JSON.parse(localStorage.getItem("goals")) || [];
 
-    const todayEvents =
-        events.filter(event => event.date === today);
+    const events =
+    JSON.parse(localStorage.getItem("events")) || [];
+
+    const wellness =
+    JSON.parse(localStorage.getItem("wellness")) || {};
+
+    const plan = [];
 
     const pendingTasks =
-        tasks.filter(task => task.done !== true)
+    tasks.filter(task => !task.done);
 
     const pendingGoals =
-goals.filter(goal => goal.done !== true);
- 
-    let briefing =
-        `👋 Good day, ${username}!\n\n`;
+    goals.filter(goal => !goal.done);
 
-    briefing +=
-        `📅 Today's Events: ${todayEvents.length}\n`;
+    // Morning
+    if(pendingTasks.length > 0){
 
-    briefing +=
-        `✅ Pending Tasks: ${pendingTasks.length}\n`;
+        plan.push(
+        "🌅 Morning: Complete your highest-priority task."
+        );
 
-    briefing +=
-        `🎯 Pending Goals: ${pendingGoals.length}\n\n`;
+    }else{
 
-    if (pendingTasks.length > 0) {
-
-        briefing +=
-            `🔥 Focus on:\n${pendingTasks[0].text}`;
-
-    } else if (pendingGoals.length > 0) {
-
-        briefing +=
-            "🎯 Great job finishing your tasks.\nNow focus on your remaining goals.";
-
-    } else {
-
-        briefing +=
-            "🎉 Fantastic!\nYou're completely caught up today.";
+        plan.push(
+        "🌅 Morning: Review your goals for today."
+        );
 
     }
 
-    briefingBox.innerText = briefing;
+    // Afternoon
+    if(events.length > 0){
+
+        plan.push(
+        "☀️ Afternoon: Check your calendar before starting new work."
+        );
+
+    }else if(pendingGoals.length > 0){
+
+        plan.push(
+        "☀️ Afternoon: Spend time working on one active goal."
+        );
+
+    }else{
+
+        plan.push(
+        "☀️ Afternoon: Learn something new for 30 minutes."
+        );
+
+    }
+
+    // Wellness
+    if((wellness.water || 0) < 8){
+
+        plan.push(
+        "💧 Drink more water today."
+        );
+
+    }
+
+    if((wellness.sleep || 0) < 7){
+
+        plan.push(
+        "😴 Try to get more sleep tonight."
+        );
+
+    }
+
+    if(
+        wellness.mood &&
+        wellness.mood.text === "Stressed"
+    ){
+
+        plan.push(
+        "💙 Take a short break and relax."
+        );
+
+    }
+
+    // Evening
+    plan.push(
+    "🌙 Evening: Review today's progress and prepare tomorrow's plan."
+    );
+
+    return plan;
 
 }
-
-
 /*==================================================
  SMART NOTIFICATIONS
 ==================================================*/
@@ -532,15 +572,17 @@ function renderDailyPlan(){
     const plan =
     generateDailyPlan();
 
-    if(plan.length===0){
+    box.innerHTML = "";
 
-        box.innerHTML=
+    plan.forEach(item=>{
 
-        "🎉 You have no tasks today.";
+        box.innerHTML += `
+        <p>${item}</p>
+        `;
 
-        return;
+    });
 
-    }
+}
 
     box.innerHTML="";
 
