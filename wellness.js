@@ -416,8 +416,8 @@ document.addEventListener(
 
     function(){
 
-        loadMoodButtons();
-
+           loadMoodButtons();  
+ 
 loadEnergyButtons();
 
 updateMoodDisplay();
@@ -427,6 +427,8 @@ updateEnergyDisplay();
 initializeSleep();
 
 initializeWater();
+
+updateWellnessScore();
 
     }
 
