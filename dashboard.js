@@ -182,7 +182,8 @@ goals, notes and events.<br><br>
 function loadAIGreeting() {
 
     const aiGreeting = getElement("aiGreeting");
-    const recommendation = getElement("aiRecommendation");
+    const recommendation =
+document.getElementById("dashboardSummary");
 
     if (!aiGreeting || !recommendation) return;
 
@@ -584,17 +585,7 @@ function renderDailyPlan(){
 
 }
 
-    box.innerHTML="";
-
-    plan.forEach(item=>{
-
-        box.innerHTML +=
-
-        `<p>${item}</p>`;
-
-    });
-
-}
+    
 /*==================================================
  DASHBOARD SUMMARY
 ==================================================*/
