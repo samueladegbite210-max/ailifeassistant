@@ -227,27 +227,7 @@ function initializeSleep(){
     };
 
 }
-/*==========================================
- SAVE WELLNESS
-==========================================*/
 
-function saveWellness(){
-
-    localStorage.setItem(
-
-        "wellness",
-
-        JSON.stringify(wellness)
-
-    );
-
-    if(typeof updateWellnessScore === "function"){
-
-        updateWellnessScore();
-
-    }
-
-}
 /*==========================================
  WATER TRACKER
 ==========================================*/
@@ -278,6 +258,151 @@ function initializeWater(){
         saveWellness();
 
     };
+
+}
+/*==========================================
+ WELLNESS SCORE
+==========================================*/
+
+function updateWellnessScore(){
+
+    let score = 0;
+
+    // Mood
+    switch(wellness.mood.text){
+
+        case "Great":
+            score += 25;
+            break;
+
+        case "Good":
+            score += 20;
+            break;
+
+        case "Okay":
+            score += 15;
+            break;
+
+        case "Sad":
+            score += 8;
+            break;
+
+        case "Stressed":
+            score += 5;
+            break;
+
+    }
+
+    // Energy
+    switch(wellness.energy.text){
+
+        case "Excellent":
+            score += 25;
+            break;
+
+        case "High":
+            score += 20;
+            break;
+
+        case "Normal":
+            score += 15;
+            break;
+
+        case "Low":
+            score += 8;
+            break;
+
+        case "Very Low":
+            score += 5;
+            break;
+
+    }
+
+    // Sleep
+    score += Math.min(wellness.sleep, 8) * 3;
+
+    // Water
+    score += Math.min(wellness.water, 8) * 3;
+
+    if(score > 100){
+
+        score = 100;
+
+    }
+
+    const scoreBox =
+    document.getElementById("wellnessScore");
+
+    const message =
+    document.getElementById("wellnessMessage");
+
+    const bar =
+    document.getElementById("wellnessProgressBar");
+
+    if(scoreBox){
+
+        scoreBox.textContent = score + "%";
+
+    }
+
+    if(bar){
+
+        bar.style.width = score + "%";
+
+    }
+
+    if(message){
+
+        if(score >= 90){
+
+            message.textContent =
+            "🔥 Excellent! You're doing amazing.";
+
+        }
+
+        else if(score >= 70){
+
+            message.textContent =
+            "😊 You're having a healthy day.";
+
+        }
+
+        else if(score >= 50){
+
+            message.textContent =
+            "🙂 You're doing okay. Keep improving.";
+
+        }
+
+        else{
+
+            message.textContent =
+            "💙 Take care of yourself today.";
+
+        }
+
+    }
+
+}
+/*==========================================
+ SAVE WELLNESS
+==========================================*/
+
+function saveWellness(){
+
+    localStorage.setItem(
+
+        "wellness",
+
+        JSON.stringify(wellness)
+
+    );
+
+    if(typeof updateWellnessScore === "function"){
+
+        updateWellnessScore();
+
+    }
 
 }
 
