@@ -680,62 +680,82 @@ function updateRecommendation() {
 
     const { tasks, goals, events } = getDashboardData();
 
+    const wellness =
+    JSON.parse(localStorage.getItem("wellness")) || {};
+
     const box = getElement("aiRecommendation");
 
     if (!box) return;
 
+    let score = 0;
+
+    // Mood
+    if (wellness.mood) {
+        switch (wellness.mood.text) {
+            case "Great": score += 25; break;
+            case "Good": score += 20; break;
+            case "Okay": score += 15; break;
+            case "Sad": score += 8; break;
+            case "Stressed": score += 5; break;
+        }
+    }
+
+    // Energy
+    if (wellness.energy) {
+        switch (wellness.energy.text) {
+            case "Excellent": score += 25; break;
+            case "High": score += 20; break;
+            case "Normal": score += 15; break;
+            case "Low": score += 8; break;
+            case "Very Low": score += 5; break;
+        }
+    }
+
+    score += Math.min(wellness.sleep || 0, 8) * 3;
+    score += Math.min(wellness.water || 0, 8) * 3;
+
+    if (score > 100) score = 100;
+
     const pendingTasks =
-        tasks.filter(task => !task.done);
+    tasks.filter(task => !task.done).length;
 
     let message = "";
 
-    if (pendingTasks.length > 0) {
+    if (score >= 90) {
 
         message =
-            `✅ Start with:<br><strong>${pendingTasks[0].text}</strong>`;
+        `🔥 Wellness Score: ${score}%<br><br>
+        Excellent! Today is perfect for finishing your biggest goal.`;
 
     }
 
-    else if (events.length > 0) {
+    else if (score >= 70) {
 
         message =
-            `📅 You have <strong>${events.length}</strong> upcoming event(s).`;
+        `🚀 Wellness Score: ${score}%<br><br>
+        You have ${pendingTasks} pending task(s). Finish the hardest one first.`;
 
     }
 
-    else if (goals.length > 0) {
+    else if (score >= 50) {
 
-       
-         message =
-`🎯 Continue working on:<br><strong>${goals[0].text || goals[0].title || "Your Goal"}</strong>`;
+        message =
+        `🙂 Wellness Score: ${score}%<br><br>
+        You're doing okay. Drink more water and complete one important task today.`;
 
     }
 
     else {
 
-        const ideas = [
-
-            "💡 Learn something new today.",
-
-            "🚀 Create a new goal.",
-
-            "📒 Write a new note.",
-
-            "💙 Enjoy your productive day.",
-
-            "🌟 You're doing amazing."
-
-        ];
-
         message =
-            ideas[Math.floor(Math.random() * ideas.length)];
+        `💙 Wellness Score: ${score}%<br><br>
+        Your energy is low today. Rest, hydrate and avoid overworking yourself.`;
 
     }
 
     box.innerHTML = message;
 
 }
-
 
 /*==================================================
  DASHBOARD STATS
