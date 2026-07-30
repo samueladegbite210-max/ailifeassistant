@@ -248,7 +248,38 @@ function saveWellness(){
     }
 
 }
+/*==========================================
+ WATER TRACKER
+==========================================*/
 
+function initializeWater(){
+
+    const slider =
+    document.getElementById("waterSlider");
+
+    const value =
+    document.getElementById("waterValue");
+
+    if(!slider || !value) return;
+
+    slider.value = wellness.water;
+
+    value.textContent =
+    wellness.water + " Glasses";
+
+    slider.oninput = function(){
+
+        wellness.water =
+        Number(this.value);
+
+        value.textContent =
+        this.value + " Glasses";
+
+        saveWellness();
+
+    };
+
+}
 
 /*==========================================
  START
