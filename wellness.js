@@ -301,6 +301,8 @@ updateEnergyDisplay();
 
 initializeSleep();
 
+initializeWater();
+
     }
 
 );
