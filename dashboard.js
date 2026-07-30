@@ -141,6 +141,157 @@ function updateGreeting(){
 
 }
 /* ==========================================
+   WEATHER
+========================================== */
+
+async function loadWeather(){
+
+    const box = $("weatherText");
+
+    if(!box) return;
+
+    box.innerHTML = "🌤 Loading weather...";
+
+    if(!navigator.geolocation){
+
+        box.innerHTML =
+        "Location not supported.";
+
+        return;
+
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        async(position)=>{
+
+            try{
+
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                const url =
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`;
+
+                const response =
+                await fetch(url);
+
+                const data =
+                await response.json();
+
+                box.innerHTML = `
+                🌡 ${data.current.temperature_2m}°C
+                <br>
+                📍 Current Location
+                `;
+
+            }
+
+            catch{
+
+                box.innerHTML =
+                "Unable to load weather.";
+
+            }
+
+        },
+
+        ()=>{
+
+            box.innerHTML =
+            "Location permission denied.";
+
+        }
+
+    );
+
+}
+
+/* ==========================================
+   NEXT EVENT
+========================================== */
+
+function loadNextEvent(){
+
+    const box = $("nextEvent");
+
+    if(!box) return;
+
+    const events =
+    getDashboardData().events;
+
+    if(events.length===0){
+
+        box.innerHTML =
+        "📅 No upcoming events.";
+
+        return;
+
+    }
+
+    events.sort((a,b)=>{
+
+        return new Date(a.date) -
+               new Date(b.date);
+
+    });
+
+    const next =
+    events[0];
+
+    box.innerHTML = `
+        <strong>${next.title}</strong>
+        <br>
+        📅 ${next.date}
+        ${next.time ? `<br>🕒 ${next.time}` : ""}
+    `;
+
+}
+/* ==========================================
+   NOTIFICATIONS
+========================================== */
+
+function loadNotifications(){
+
+    const box =
+    $("notificationBox");
+
+    if(!box) return;
+
+    const data =
+    getDashboardData();
+
+    const pending =
+    data.tasks.filter(t=>!t.done).length;
+
+    let html = "";
+
+    if(pending){
+
+        html +=
+        `📌 ${pending} pending task(s)<br>`;
+
+    }
+
+    if(data.events.length){
+
+        html +=
+        `📅 ${data.events.length} upcoming event(s)<br>`;
+
+    }
+
+    if(!pending && !data.events.length){
+
+        html =
+        "🎉 You're all caught up.";
+
+    }
+
+    box.innerHTML = html;
+
+}
+
+/* ==========================================
    DASHBOARD SUMMARY
 ========================================== */
 
