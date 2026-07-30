@@ -4,19 +4,26 @@
 
 function generateAIRecommendation(){
 
+    const greeting =
+    document.getElementById("aiGreeting");
+
+    const recommendation =
+    document.getElementById("aiRecommendation");
+
+    if(!greeting || !recommendation){
+
+        return;
+
+    }
+
     const tasks =
     JSON.parse(localStorage.getItem("tasks")) || [];
-
-    const goals =
-    JSON.parse(localStorage.getItem("goals")) || [];
 
     const events =
     JSON.parse(localStorage.getItem("events")) || [];
 
     const wellness =
     JSON.parse(localStorage.getItem("wellness")) || {};
-
-    let recommendation = "";
 
     let score = 0;
 
@@ -26,25 +33,11 @@ function generateAIRecommendation(){
 
         switch(wellness.mood.text){
 
-            case "Great":
-                score += 25;
-                break;
-
-            case "Good":
-                score += 20;
-                break;
-
-            case "Okay":
-                score += 15;
-                break;
-
-            case "Sad":
-                score += 8;
-                break;
-
-            case "Stressed":
-                score += 5;
-                break;
+            case "Great": score += 25; break;
+            case "Good": score += 20; break;
+            case "Okay": score += 15; break;
+            case "Sad": score += 8; break;
+            case "Stressed": score += 5; break;
 
         }
 
@@ -56,25 +49,11 @@ function generateAIRecommendation(){
 
         switch(wellness.energy.text){
 
-            case "Excellent":
-                score += 25;
-                break;
-
-            case "High":
-                score += 20;
-                break;
-
-            case "Normal":
-                score += 15;
-                break;
-
-            case "Low":
-                score += 8;
-                break;
-
-            case "Very Low":
-                score += 5;
-                break;
+            case "Excellent": score += 25; break;
+            case "High": score += 20; break;
+            case "Normal": score += 15; break;
+            case "Low": score += 8; break;
+            case "Very Low": score += 5; break;
 
         }
 
@@ -86,56 +65,53 @@ function generateAIRecommendation(){
 
     if(score>100){
 
-        score=100;
+        score = 100;
 
     }
 
-    const pendingTasks =
-    tasks.filter(t=>!t.done).length;
+    greeting.innerHTML =
 
-    if(score<40){
+    `🌟 Wellness Score: <strong>${score}%</strong>`;
 
-        recommendation =
+    const pending =
+    tasks.filter(task=>!task.done).length;
 
-        "💙 You're low on energy today. Focus on only important tasks, drink more water and get enough rest.";
+    if(score>=90){
+
+        recommendation.innerHTML =
+
+        "🔥 Excellent! Today is perfect for completing your biggest goal.";
 
     }
 
-    else if(score<70){
+    else if(score>=70){
 
-        recommendation =
+        recommendation.innerHTML =
 
-        `🙂 You're doing okay. You still have ${pendingTasks} pending task(s). Try completing one goal today.`;
+        `🚀 Great day! You have ${pending} pending task(s). Finish your most important task first.`;
+
+    }
+
+    else if(score>=50){
+
+        recommendation.innerHTML =
+
+        `🙂 You're doing okay. Complete one task today and drink more water.`;
 
     }
 
     else{
 
-        recommendation =
+        recommendation.innerHTML =
 
-        `🚀 Great day! Finish your biggest goal first. You have ${pendingTasks} pending task(s) and ${events.length} upcoming event(s).`;
+        "💙 Your wellness is low today. Rest, drink water and avoid overworking yourself.";
 
     }
 
- const aiBox =
-document.getElementById("aiRecommendation");
-
-if(aiBox){
-
-    aiBox.textContent = recommendation;
-
 }
 
-function initializePlanner(){
+document.addEventListener("DOMContentLoaded",function(){
 
     generateAIRecommendation();
 
-}
-
-document.addEventListener(
-
-    "DOMContentLoaded",
-
-    initializePlanner
-
-);
+});
