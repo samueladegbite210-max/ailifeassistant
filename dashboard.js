@@ -490,27 +490,30 @@ function renderTodayFocus(){
     if(!container) return;
 
     const tasks =
-    getPriorityTasks();
+    JSON.parse(localStorage.getItem("tasks")) || [];
 
-    if(tasks.length===0){
+    const pending =
+    tasks.filter(task => !task.done);
 
-        container.innerHTML=
+    if(pending.length === 0){
 
-        "🎉 Nothing urgent today.";
+        container.innerHTML = `
+        🎉 Everything is completed today!
+        `;
 
         return;
 
     }
 
-    container.innerHTML="";
+    container.innerHTML = "";
 
-    tasks.slice(0,5).forEach(task=>{
+    pending.slice(0,3).forEach(task=>{
 
-        container.innerHTML+=`
+        container.innerHTML += `
 
         <div class="focusItem">
 
-        🔥 ${task.title}
+        🔥 ${task.title || task.text}
 
         </div>
 
