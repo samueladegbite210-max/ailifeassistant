@@ -1,124 +1,124 @@
 "use strict";
 
-/*=========================
-AI WELLNESS
-=========================*/
+// ==========================
+// WELLNESS STORAGE
+// ==========================
 
-let wellness =
-
-JSON.parse(
-
-localStorage.getItem("wellness")
-
+let wellness = JSON.parse(
+    localStorage.getItem("wellness")
 ) || {
 
-mood:"🙂",
+    mood: {
+        emoji: "🙂",
+        text: "Good"
+    },
 
-energy:"😐",
+    energy: "😐",
 
-sleep:7,
+    sleep: 7,
 
-water:0
+    water: 0
 
 };
-/*=========================
-MOOD OPTIONS
-=========================*/
+
+
+// ==========================
+// MOOD OPTIONS
+// ==========================
 
 const moods = [
 
-{
+    {
+        emoji: "😁",
+        text: "Great"
+    },
 
-emoji:"😁",
+    {
+        emoji: "🙂",
+        text: "Good"
+    },
 
-text:"Great"
+    {
+        emoji: "😐",
+        text: "Okay"
+    },
 
-},
+    {
+        emoji: "😔",
+        text: "Sad"
+    },
 
-{
-
-emoji:"🙂",
-
-text:"Good"
-
-},
-
-{
-
-emoji:"😐",
-
-text:"Okay"
-
-},
-
-{
-
-emoji:"😔",
-
-text:"Sad"
-
-},
-
-{
-
-emoji:"😩",
-
-text:"Stressed"
-
-}
+    {
+        emoji: "😩",
+        text: "Stressed"
+    }
 
 ];
-function loadMoodButtons(){
 
-const container =
 
-document.getElementById("moodButtons");
+// ==========================
+// LOAD MOOD BUTTONS
+// ==========================
 
-container.innerHTML="";
+function loadMoodButtons() {
 
-moods.forEach(function(mood){
+    const container =
+        document.getElementById("moodButtons");
 
-const btn =
+    if (!container) return;
 
-document.createElement("button");
+    container.innerHTML = "";
 
-btn.className="button";
+    moods.forEach(function (mood) {
 
-btn.innerHTML=
+        const btn =
+            document.createElement("button");
 
-`${mood.emoji}<br>${mood.text}`;
+        btn.className = "button";
 
-btn.onclick = function () {
+        btn.innerHTML =
+            `${mood.emoji}<br>${mood.text}`;
 
-    wellness.mood = mood;
+        btn.onclick = function () {
 
-    document.getElementById("selectedMood").innerHTML =
-    `Current Mood: ${mood.emoji} ${mood.text}`;
+            wellness.mood = mood;
 
-    saveWellness();
+            saveWellness();
 
-};
-document.getElementById(
+            updateMoodDisplay();
 
-"selectedMood"
+        };
 
-).innerHTML=
+        container.appendChild(btn);
 
-`Current Mood:
-${mood.emoji} ${mood.text}`;
-
-};
-
-container.appendChild(btn);
-
-});
+    });
 
 }
-/*=========================
-SAVE WELLNESS
-=========================*/
 
-function saveWellness(){
+
+// ==========================
+// UPDATE MOOD DISPLAY
+// ==========================
+
+function updateMoodDisplay() {
+
+    const moodBox =
+        document.getElementById("selectedMood");
+
+    if (!moodBox) return;
+
+    moodBox.innerHTML =
+
+        `Current Mood: ${wellness.mood.emoji} ${wellness.mood.text}`;
+
+}
+
+
+// ==========================
+// SAVE WELLNESS
+// ==========================
+
+function saveWellness() {
 
     localStorage.setItem(
 
@@ -131,13 +131,21 @@ function saveWellness(){
     updateWellnessScore();
 
 }
+
+
+// ==========================
+// START
+// ==========================
+
 document.addEventListener(
 
     "DOMContentLoaded",
 
-    function(){
+    function () {
 
         loadMoodButtons();
+
+        updateMoodDisplay();
 
     }
 
