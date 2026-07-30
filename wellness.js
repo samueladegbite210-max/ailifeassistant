@@ -13,7 +13,13 @@ let wellness = JSON.parse(
         text: "Good"
     },
 
-    energy: "😐",
+    energy:{
+
+    emoji:"🙂",
+
+    text:"Normal"
+
+},
 
     sleep: 7,
 
@@ -108,7 +114,91 @@ function updateMoodDisplay(){
 
 }
 
+/*==========================================
+ ENERGY OPTIONS
+==========================================*/
 
+const energies = [
+
+    { emoji:"😴", text:"Very Low" },
+
+    { emoji:"😐", text:"Low" },
+
+    { emoji:"🙂", text:"Normal" },
+
+    { emoji:"😃", text:"High" },
+
+    { emoji:"🚀", text:"Excellent" }
+
+];
+
+
+/*==========================================
+ LOAD ENERGY BUTTONS
+==========================================*/
+
+function loadEnergyButtons(){
+
+    const container =
+    document.getElementById("energyButtons");
+
+    if(!container) return;
+
+    container.innerHTML = "";
+
+    energies.forEach(function(energy){
+
+        const btn =
+        document.createElement("button");
+
+        btn.className = "button";
+
+        btn.innerHTML =
+        `${energy.emoji}<br>${energy.text}`;
+
+        btn.onclick = function(){
+
+            wellness.energy = {
+
+                emoji:energy.emoji,
+
+                text:energy.text
+
+            };
+
+            saveWellness();
+
+            updateEnergyDisplay();
+
+        };
+
+        container.appendChild(btn);
+
+    });
+
+}
+
+
+/*==========================================
+ UPDATE ENERGY DISPLAY
+==========================================*/
+
+function updateEnergyDisplay(){
+
+    const energyBox =
+    document.getElementById("selectedEnergy");
+
+    if(!energyBox) return;
+
+    energyBox.innerHTML =
+
+    `Energy Level:<br>
+
+    ${wellness.energy.emoji}
+
+    ${wellness.energy.text}`;
+
+}
 /*==========================================
  SAVE WELLNESS
 ==========================================*/
@@ -144,7 +234,11 @@ document.addEventListener(
 
         loadMoodButtons();
 
-        updateMoodDisplay();
+loadEnergyButtons();
+
+updateMoodDisplay();
+
+updateEnergyDisplay();
 
     }
 
