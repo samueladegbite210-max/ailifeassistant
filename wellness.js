@@ -89,6 +89,17 @@ function loadMoodButtons() {
 
         };
 
+        btn.onclick = function(){
+
+    console.log("Clicked");
+
+    wellness.mood = mood;
+
+    saveWellness();
+
+    updateMoodDisplay();
+
+};
         container.appendChild(btn);
 
     });
