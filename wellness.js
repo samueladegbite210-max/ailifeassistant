@@ -88,12 +88,16 @@ btn.innerHTML=
 
 `${mood.emoji}<br>${mood.text}`;
 
-btn.onclick=function(){
+btn.onclick = function () {
 
-wellness.mood = mood;
+    wellness.mood = mood;
 
-saveWellness();
+    document.getElementById("selectedMood").innerHTML =
+    `Current Mood: ${mood.emoji} ${mood.text}`;
 
+    saveWellness();
+
+};
 document.getElementById(
 
 "selectedMood"
