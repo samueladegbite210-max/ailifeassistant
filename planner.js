@@ -117,8 +117,18 @@ function generateAIRecommendation(){
 
     }
 
-    document.getElementById("aiRecommendation").textContent =
-    recommendation;
+ const aiBox =
+document.getElementById("aiRecommendation");
+
+if(aiBox){
+
+    aiBox.textContent = recommendation;
+
+}
+
+function initializePlanner(){
+
+    generateAIRecommendation();
 
 }
 
@@ -126,6 +136,6 @@ document.addEventListener(
 
     "DOMContentLoaded",
 
-    generateAIRecommendation
+    initializePlanner
 
 );
