@@ -2,8 +2,8 @@
 
 /*==================================================
  AI LIFE ASSISTANT
- Dashboard.js Version 6.1
- Production Build (Complete + Cross-checked)
+ Dashboard.js Version 6.1.1
+ Production Build (Fixed)
 ==================================================*/
 
 
@@ -13,7 +13,7 @@
 
 const APP = {
     name: "AI Life Assistant",
-    version: "6.1.0",
+    version: "6.1.1",
     author: "Adegbite Samuel Abayomi",
     username: localStorage.getItem("profileName") || "Samuel",
     clockInterval: 1000,
@@ -296,52 +296,21 @@ function getWellnessScore() {
     return Math.max(0, Math.min(score, 100));
 }
 
-/*==========================================
-TODAY'S FOCUS
-==========================================*/
+/* ---------- TODAY'S FOCUS (FIXED) ---------- */
+function renderTodayFocus() {
+    const box = $("todayFocus");
+    if (!box) return;
 
-function renderTodayFocus(){
+    const tasks = getDashboardData().tasks || [];
+    const pending = tasks.filter(task => !task.done);
 
-    const box = document.getElementById("todayFocus");
-
-    if(!box) return;
-
-    const focus = getTodayFocus() || [];
-
-    box.innerHTML = "";
-
-    if(focus.length === 0){
-
+    if (pending.length === 0) {
         box.innerHTML = `
-        <p>🎉 No priority tasks for today.</p>
+            🎉 Excellent!<br><br>
+            All your tasks are completed today.
         `;
-
         return;
-
     }
-
-    focus.forEach(item=>{
-
-        if(typeof item === "string"){
-
-            box.innerHTML += `<p>${item}</p>`;
-
-        }
-
-        else{
-
-            box.innerHTML += `
-            <div class="focusItem">
-                🔥 ${item.text || item.title}
-            </div>
-            `;
-
-        }
-
-    });
-
-}
-
 
     // Sort by priority (higher first)
     pending.sort((a, b) => (b.priority || 0) - (a.priority || 0));
@@ -354,49 +323,25 @@ function renderTodayFocus(){
     box.innerHTML = html;
 }
 
-/*==========================================
-DAILY AI BRIEFING
-==========================================*/
-
-function renderDailyBriefing(){
-
-    const box = document.getElementById("briefingText");
-
-    if(!box) return;
+/* ---------- DAILY AI BRIEFING ---------- */
+function renderDailyBriefing() {
+    const box = $("briefingText");
+    if (!box) return;
 
     const data = getDashboardData();
-
-    const pendingTasks =
-        data.tasks.filter(task => !task.done).length;
-
-    const pendingGoals =
-        data.goals.filter(goal => !goal.done).length;
-
+    const pendingTasks = data.tasks.filter(task => !task.done).length;
+    const pendingGoals = data.goals.filter(goal => !goal.done).length;
     const score = getWellnessScore();
 
     let briefing = `👋 Hello ${APP.username}!<br><br>`;
-
     briefing += `💙 Wellness Score: <strong>${score}%</strong><br><br>`;
 
-    if(score >= 80){
-
-        briefing +=
-        "🚀 Your energy is high today. Focus on your biggest goal.<br><br>";
-
-    }
-
-    else if(score >= 60){
-
-        briefing +=
-        "💪 Today is a great day to finish your important tasks.<br><br>";
-
-    }
-
-    else{
-
-        briefing +=
-        "🌿 Take things slowly today. Prioritize your health first.<br><br>";
-
+    if (score >= 80) {
+        briefing += "🚀 Your energy is high today. Focus on your biggest goal.<br><br>";
+    } else if (score >= 60) {
+        briefing += "💪 Today is a great day to finish your important tasks.<br><br>";
+    } else {
+        briefing += "🌿 Take things slowly today. Prioritize your health first.<br><br>";
     }
 
     briefing += `📌 Pending Tasks: ${pendingTasks}<br>`;
@@ -404,53 +349,27 @@ function renderDailyBriefing(){
     briefing += `📅 Events: ${data.events.length}`;
 
     box.innerHTML = briefing;
-
 }
-/*==========================================
-AI RECOMMENDATION
-==========================================*/
 
-function updateRecommendation(){
-
-    const box = document.getElementById("aiRecommendation");
-
-    if(!box) return;
+/* ---------- AI RECOMMENDATION ---------- */
+function updateRecommendation() {
+    const box = $("aiRecommendation");
+    if (!box) return;
 
     const data = getDashboardData();
-
     const score = getWellnessScore();
-
-    const pendingTasks =
-        data.tasks.filter(task => !task.done).length;
+    const pendingTasks = data.tasks.filter(task => !task.done).length;
 
     let message = "";
 
-    if(score >= 90){
-
-        message =
-        "🏆 You are performing at your best today. Finish your biggest project.";
-
-    }
-
-    else if(score >= 70){
-
-        message =
-        `🔥 You have ${pendingTasks} task(s). Complete the hardest one first.`;
-
-    }
-
-    else if(score >= 50){
-
-        message =
-        "🙂 Stay hydrated and complete one important task before relaxing.";
-
-    }
-
-    else{
-
-        message =
-        "💙 Rest today. Drink water, recharge and avoid burnout.";
-
+    if (score >= 90) {
+        message = "🏆 You are performing at your best today. Finish your biggest project.";
+    } else if (score >= 70) {
+        message = `🔥 You have ${pendingTasks} task(s). Complete the hardest one first.`;
+    } else if (score >= 50) {
+        message = "🙂 Stay hydrated and complete one important task before relaxing.";
+    } else {
+        message = "💙 Rest today. Drink water, recharge and avoid burnout.";
     }
 
     box.innerHTML = `
@@ -458,8 +377,9 @@ function updateRecommendation(){
         <br><br>
         ${message}
     `;
-
 }
+
+
 /*==================================================
  SECTION 6 — WEATHER ENGINE
 ==================================================*/
@@ -619,8 +539,8 @@ function updateAIScore() {
     const completed = data.tasks.filter(task => task.done).length;
 
     let score = completed * 5;
-    score += data.streak.days * 2;
-    score += data.xp.level * 3;
+    score += (data.streak.days || 0) * 2;
+    score += (data.xp.level || 1) * 3;
 
     if (score > 100) score = 100;
 
@@ -756,13 +676,13 @@ function renderMotivation() {
     const box = $("motivationCard");
     if (!box) return;
 
-    const today = new Date().getDate();
-    box.innerHTML = "💡 " + MOTIVATION[today % MOTIVATION.length];
+    const day = new Date().getDate();
+    box.innerHTML = "💡 " + MOTIVATION[day % MOTIVATION.length];
 }
 
 
 /*==================================================
- SECTION 9 — NEXT EVENT (Restored from v5.0)
+ SECTION 9 — NEXT EVENT
 ==================================================*/
 
 function loadNextEvent() {
@@ -791,7 +711,7 @@ function loadNextEvent() {
 
 
 /*==================================================
- SECTION 10 — PRODUCTIVITY INSIGHTS (Restored from v5.0)
+ SECTION 10 — PRODUCTIVITY INSIGHTS
 ==================================================*/
 
 function updateProductivityInsights() {
@@ -878,7 +798,7 @@ function renderLifeScore() {
 
 
 /*==================================================
- SECTION 12 — HEALTH CHECK (Restored from v5.0)
+ SECTION 12 — HEALTH CHECK
 ==================================================*/
 
 function dashboardHealthCheck() {
@@ -907,10 +827,10 @@ function refreshDashboard() {
         renderAIInsights();
         renderMotivation();
         renderLifeScore();
-        loadNextEvent();                 // ← restored
+        loadNextEvent();
         loadNotifications();
         updateAchievement();
-        updateProductivityInsights();    // ← restored
+        updateProductivityInsights();
         updateWeeklyProgress();
         updateAIScore();
         updateXP();
