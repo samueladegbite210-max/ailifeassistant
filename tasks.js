@@ -134,15 +134,25 @@ function toggleTask(id) {
 
         if (task.id === id) {
 
-            if (!task.done && typeof addXP === "function") {
+            if(!task.done){
 
-                addXP(10);
+    task.done = true;
 
-            }
+    if(typeof addXP === "function"){
 
-            task.done = !task.done;
-createNotification("✅ Task completed: " + task.text);
-        }
+        addXP(10);
+
+    }
+
+    createNotification(
+        "✅ Task completed: " + task.text
+    );
+
+}else{
+
+    task.done = false;
+
+}
 
         return task;
 
@@ -156,25 +166,24 @@ createNotification("✅ Task completed: " + task.text);
 // Delete Task
 // ==========================
 
-function deleteTask(id) {
+function deleteTask(id){
 
-    if (!confirm("Delete this task?")) return;
+    if(!confirm("Delete this task?")) return;
 
-    tasks = tasks.filter(task => task.id !== id);
-const deleted =
-tasks.find(task=>task.id===id);
+    const deleted =
+    tasks.find(task => task.id === id);
 
-tasks =
-tasks.filter(task=>task.id!==id);
+    tasks =
+    tasks.filter(task => task.id !== id);
 
-if(deleted){
+    if(deleted){
 
-    createNotification(
-        "🗑 Deleted task: " +
-        deleted.text
-    );
+        createNotification(
+            "🗑 Deleted task: " + deleted.text
+        );
 
-}
+    }
+
     saveTasks();
 
 }
