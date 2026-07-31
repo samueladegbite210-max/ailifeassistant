@@ -296,20 +296,37 @@ function getWellnessScore() {
     return Math.max(0, Math.min(score, 100));
 }
 
-function renderTodayFocus() {
-    const box = $("todayFocus");
-    if (!box) return;
+function renderTodayFocus(){
 
-    const tasks = getDashboardData().tasks || [];
-    const pending = tasks.filter(task => !task.done);
+    const box = document.getElementById("todayFocus");
 
-    if (pending.length === 0) {
-        box.innerHTML = `
-            🎉 Excellent!<br><br>
-            All your tasks are completed today.
-        `;
-        return;
-    }
+    if(!box) return;
+
+    const focus = getTodayFocus();
+
+    box.innerHTML = "";
+
+    focus.forEach(item=>{
+
+        if(typeof item === "string"){
+
+            box.innerHTML += `<p>${item}</p>`;
+
+        }else{
+
+            box.innerHTML += `
+            <div class="focusItem">
+
+                🔥 ${item.text || item.title}
+
+            </div>
+            `;
+
+        }
+
+    });
+
+}
 
     // Sort by priority (higher first)
     pending.sort((a, b) => (b.priority || 0) - (a.priority || 0));
@@ -322,9 +339,16 @@ function renderTodayFocus() {
     box.innerHTML = html;
 }
 
-function renderDailyBriefing() {
-    const box = $("briefingText");
-    if (!box) return;
+function renderDailyBriefing(){
+
+    const box = document.getElementById("briefingText");
+
+    if(!box) return;
+
+    box.innerHTML = getDailyBriefing()
+        .replace(/\n/g,"<br>");
+
+}
 
     const data = getDashboardData();
     const pendingTasks = data.tasks.filter(task => !task.done).length;
@@ -349,9 +373,16 @@ function renderDailyBriefing() {
     box.innerHTML = briefing;
 }
 
-function updateRecommendation() {
-    const box = $("aiRecommendation");
-    if (!box) return;
+function updateRecommendation(){
+
+    const box = document.getElementById("aiRecommendation");
+
+    if(!box) return;
+
+    box.innerHTML = getRecommendation()
+        .replace(/\n/g,"<br>");
+
+}
 
     const data = getDashboardData();
     const score = getWellnessScore();
