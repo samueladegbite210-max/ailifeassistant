@@ -341,26 +341,7 @@ function renderTodayFocus(){
     });
 
 }
-function getTodayFocus(){
 
-    const data = getDashboardData();
-
-    return data.tasks
-        .filter(task => !task.done)
-        .sort((a,b) => {
-
-            const priority = {
-                High: 3,
-                Medium: 2,
-                Low: 1
-            };
-
-            return (priority[b.priority] || 0) - (priority[a.priority] || 0);
-
-        })
-        .slice(0,3);
-
-}
 
     // Sort by priority (higher first)
     pending.sort((a, b) => (b.priority || 0) - (a.priority || 0));
