@@ -296,15 +296,29 @@ function getWellnessScore() {
     return Math.max(0, Math.min(score, 100));
 }
 
+/*==========================================
+TODAY'S FOCUS
+==========================================*/
+
 function renderTodayFocus(){
 
     const box = document.getElementById("todayFocus");
 
     if(!box) return;
 
-    const focus = getTodayFocus();
+    const focus = getTodayFocus() || [];
 
     box.innerHTML = "";
+
+    if(focus.length === 0){
+
+        box.innerHTML = `
+        <p>🎉 No priority tasks for today.</p>
+        `;
+
+        return;
+
+    }
 
     focus.forEach(item=>{
 
@@ -312,13 +326,13 @@ function renderTodayFocus(){
 
             box.innerHTML += `<p>${item}</p>`;
 
-        }else{
+        }
+
+        else{
 
             box.innerHTML += `
             <div class="focusItem">
-
                 🔥 ${item.text || item.title}
-
             </div>
             `;
 
@@ -339,31 +353,49 @@ function renderTodayFocus(){
     box.innerHTML = html;
 }
 
+/*==========================================
+DAILY AI BRIEFING
+==========================================*/
+
 function renderDailyBriefing(){
 
     const box = document.getElementById("briefingText");
 
     if(!box) return;
 
-    box.innerHTML = getDailyBriefing()
-        .replace(/\n/g,"<br>");
-
-}
-
     const data = getDashboardData();
-    const pendingTasks = data.tasks.filter(task => !task.done).length;
-    const pendingGoals = data.goals.filter(goal => !goal.done).length;
+
+    const pendingTasks =
+        data.tasks.filter(task => !task.done).length;
+
+    const pendingGoals =
+        data.goals.filter(goal => !goal.done).length;
+
     const score = getWellnessScore();
 
     let briefing = `👋 Hello ${APP.username}!<br><br>`;
+
     briefing += `💙 Wellness Score: <strong>${score}%</strong><br><br>`;
 
-    if (score >= 80) {
-        briefing += "🚀 Your energy is high today. Focus on your biggest goal.<br><br>";
-    } else if (score >= 60) {
-        briefing += "💪 Today is a great day to finish your important tasks.<br><br>";
-    } else {
-        briefing += "🌿 Take things slowly today. Prioritize your health first.<br><br>";
+    if(score >= 80){
+
+        briefing +=
+        "🚀 Your energy is high today. Focus on your biggest goal.<br><br>";
+
+    }
+
+    else if(score >= 60){
+
+        briefing +=
+        "💪 Today is a great day to finish your important tasks.<br><br>";
+
+    }
+
+    else{
+
+        briefing +=
+        "🌿 Take things slowly today. Prioritize your health first.<br><br>";
+
     }
 
     briefing += `📌 Pending Tasks: ${pendingTasks}<br>`;
@@ -371,7 +403,11 @@ function renderDailyBriefing(){
     briefing += `📅 Events: ${data.events.length}`;
 
     box.innerHTML = briefing;
+
 }
+/*==========================================
+AI RECOMMENDATION
+==========================================*/
 
 function updateRecommendation(){
 
@@ -379,25 +415,41 @@ function updateRecommendation(){
 
     if(!box) return;
 
-    box.innerHTML = getRecommendation()
-        .replace(/\n/g,"<br>");
-
-}
-
     const data = getDashboardData();
+
     const score = getWellnessScore();
-    const pendingTasks = data.tasks.filter(task => !task.done).length;
+
+    const pendingTasks =
+        data.tasks.filter(task => !task.done).length;
 
     let message = "";
 
-    if (score >= 90) {
-        message = "🏆 You are performing at your best today. Finish your biggest project.";
-    } else if (score >= 70) {
-        message = `🔥 You have ${pendingTasks} task(s). Complete the hardest one first.`;
-    } else if (score >= 50) {
-        message = "🙂 Stay hydrated and complete one important task before relaxing.";
-    } else {
-        message = "💙 Rest today. Drink water, recharge and avoid burnout.";
+    if(score >= 90){
+
+        message =
+        "🏆 You are performing at your best today. Finish your biggest project.";
+
+    }
+
+    else if(score >= 70){
+
+        message =
+        `🔥 You have ${pendingTasks} task(s). Complete the hardest one first.`;
+
+    }
+
+    else if(score >= 50){
+
+        message =
+        "🙂 Stay hydrated and complete one important task before relaxing.";
+
+    }
+
+    else{
+
+        message =
+        "💙 Rest today. Drink water, recharge and avoid burnout.";
+
     }
 
     box.innerHTML = `
@@ -405,9 +457,8 @@ function updateRecommendation(){
         <br><br>
         ${message}
     `;
+
 }
-
-
 /*==================================================
  SECTION 6 — WEATHER ENGINE
 ==================================================*/
