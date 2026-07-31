@@ -195,7 +195,6 @@ function getGreeting() {
     if (hour < 21) return "🌇 Good Evening";
     return "🌙 Good Night";
 }
-
 function getMotivation() {
     const messages = [
         "💙 One small step today is better than no step.",
