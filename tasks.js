@@ -164,10 +164,14 @@ function deleteTask(id) {
 const deleted =
 tasks.find(task=>task.id===id);
 
+tasks =
+tasks.filter(task=>task.id!==id);
+
 if(deleted){
 
     createNotification(
-        "🗑 Deleted task: " + deleted.text
+        "🗑 Deleted task: " +
+        deleted.text
     );
 
 }
