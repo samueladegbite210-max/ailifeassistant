@@ -469,3 +469,227 @@ function updateRecommendation(){
 
 }
 
+/*==================================================
+SECTION 10 — NEXT EVENT
+==================================================*/
+
+function loadNextEvent(){
+
+    const box = $("nextEvent");
+
+    if(!box) return;
+
+    const events = getDashboardData().events;
+
+    if(events.length === 0){
+
+        box.innerHTML = "📅 No upcoming events.";
+
+        return;
+
+    }
+
+    events.sort((a,b)=>{
+
+        return new Date(a.date) - new Date(b.date);
+
+    });
+
+    const next = events[0];
+
+    box.innerHTML = `
+        <strong>${next.title}</strong><br>
+
+        📅 ${next.date}
+
+        ${next.time ? `<br>🕒 ${next.time}` : ""}
+
+        ${next.location ? `<br>📍 ${next.location}` : ""}
+    `;
+
+}
+/*==================================================
+SECTION 11 — SMART NOTIFICATIONS
+==================================================*/
+
+function loadNotifications(){
+
+    const box = $("notificationBox");
+
+    if(!box) return;
+
+    const data = getDashboardData();
+
+    const pendingTasks =
+        data.tasks.filter(task=>!task.done).length;
+
+    let html = `🎉 Welcome back, ${APP.username}!<br><br>`;
+
+    if(pendingTasks){
+
+        html += `📌 ${pendingTasks} pending task(s)<br>`;
+
+    }
+
+    if(data.events.length){
+
+        html += `📅 ${data.events.length} upcoming event(s)<br>`;
+
+    }
+
+    if(!pendingTasks && !data.events.length){
+
+        html += "💙 Nothing urgent today.";
+
+    }
+
+    box.innerHTML = html;
+
+}
+
+/*==================================================
+SECTION 12 — PRODUCTIVITY INSIGHTS
+==================================================*/
+
+function updateProductivityInsights(){
+
+    const box = $("productivityInsights");
+
+    if(!box) return;
+
+    const tasks = getDashboardData().tasks;
+
+    const completed =
+        tasks.filter(task=>task.done).length;
+
+    const pending =
+        tasks.length - completed;
+
+    if(tasks.length === 0){
+
+        box.innerHTML =
+        "🚀 Create your first task.";
+
+        return;
+
+    }
+
+    if(pending === 0){
+
+        box.innerHTML =
+        "🎉 Everything is completed today!";
+
+        return;
+
+    }
+
+    if(pending <= 2){
+
+        box.innerHTML =
+        "🔥 You're almost finished today.";
+
+        return;
+
+    }
+
+    box.innerHTML =
+    `💪 ${pending} task(s) remaining today.`;
+
+}
+
+/*==================================================
+SECTION 13 — REFRESH ENGINE
+==================================================*/
+
+function refreshDashboard(){
+
+    updateClock();
+
+    updateGreeting();
+
+    updateDashboardSummary();
+
+    renderTodayFocus();
+
+    renderDailyBriefing();
+
+    updateRecommendation();
+
+    loadNextEvent();
+
+    loadNotifications();
+
+    updateProductivityInsights();
+
+    loadWeather();
+
+}
+
+
+/*==================================================
+SECTION 14 — AUTO REFRESH
+==================================================*/
+
+function startRefreshEngine(){
+
+    refreshDashboard();
+
+    setInterval(
+
+        updateClock,
+
+        APP.clockInterval
+
+    );
+
+    setInterval(
+
+        refreshDashboard,
+
+        APP.refreshInterval
+
+    );
+
+}
+/*==================================================
+SECTION 15 — HEALTH CHECK
+==================================================*/
+
+function dashboardHealthCheck(){
+
+    console.log("====================================");
+
+    console.log(APP.name);
+
+    console.log("Dashboard Version:",APP.version);
+
+    console.log("User:",APP.username);
+
+    console.log("Dashboard Loaded Successfully");
+
+    console.log("====================================");
+
+}
+/*==================================================
+SECTION 16 — INITIALIZATION
+==================================================*/
+
+function initializeDashboard(){
+
+    dashboardHealthCheck();
+
+    startRefreshEngine();
+
+}
+
+/*==================================================
+START APPLICATION
+==================================================*/
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    initializeDashboard
+
+);
