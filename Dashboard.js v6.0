@@ -1544,3 +1544,100 @@ function renderLifeScore(){
     `;
 
 }
+
+/*==================================================
+ DASHBOARD REFRESH ENGINE
+==================================================*/
+
+function refreshDashboard(){
+
+    try{
+
+        updateClock();
+
+        updateGreeting();
+
+        updateDashboardSummary();
+
+        renderTodayFocus();
+
+        renderDailyBriefing();
+
+        updateRecommendation();
+
+        renderAIInsights();
+
+        renderMotivation();
+
+        renderLifeScore();
+
+        loadNextEvent();
+
+        loadNotifications();
+
+        updateAchievement();
+
+        updateProductivityInsights();
+
+        updateWeeklyProgress();
+
+        updateAIScore();
+
+        updateXP();
+
+        loadWeather();
+
+        checkReminders();
+
+        CACHE.lastRefresh = new Date();
+
+    }
+
+    catch(error){
+
+        console.error(
+
+            "Dashboard Refresh Error",
+
+            error
+
+        );
+
+    }
+
+}
+/*==================================================
+ INITIALIZATION
+==================================================*/
+
+function initializeDashboard(){
+
+    dashboardHealthCheck();
+
+    refreshDashboard();
+
+    setInterval(
+
+        updateClock,
+
+        APP.clockInterval
+
+    );
+
+    setInterval(
+
+        refreshDashboard,
+
+        APP.refreshInterval
+
+    );
+
+}
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    initializeDashboard
+
+);
