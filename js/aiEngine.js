@@ -158,4 +158,169 @@ function calculateWellness() {
     return Math.max(0, Math.min(score, 100));
 
 }
+/*==========================================
+TODAY'S FOCUS
+==========================================*/
+
+function getTodayFocus() {
+
+    const data = getAIData();
+
+    const pending = data.tasks.filter(task => !task.done);
+
+    if (pending.length === 0) {
+
+        return [
+
+            "🎉 Everything is completed today!"
+
+        ];
+
+    }
+
+    pending.sort((a, b) => {
+
+        const priority = {
+
+            High: 3,
+
+            Medium: 2,
+
+            Low: 1
+
+        };
+
+        return (priority[b.priority] || 0) -
+
+               (priority[a.priority] || 0);
+
+    });
+
+    return pending.slice(0, 3);
+
+}
+
+/*==========================================
+DAILY AI BRIEFING
+==========================================*/
+
+function getDailyBriefing() {
+
+    const data = getAIData();
+
+    const pendingTasks =
+
+        data.tasks.filter(task => !task.done).length;
+
+    const pendingGoals =
+
+        data.goals.filter(goal => !goal.done).length;
+
+    const upcomingEvents =
+
+        data.events.length;
+
+    let message = "";
+
+    message += `👋 Hello ${localStorage.getItem("profileName") || "Samuel"}!\n\n`;
+
+    message += `📌 Pending Tasks: ${pendingTasks}\n`;
+
+    message += `🎯 Goals: ${pendingGoals}\n`;
+
+    message += `📅 Events: ${upcomingEvents}\n\n`;
+
+    if (pendingTasks > 0) {
+
+        message +=
+
+        "🔥 Finish your highest-priority task first today.";
+
+    }
+
+    else if (pendingGoals > 0) {
+
+        message +=
+
+        "🚀 Spend today making progress toward your biggest goal.";
+
+    }
+
+    else {
+
+        message +=
+
+        "🎉 Excellent! You're all caught up today.";
+
+    }
+
+    return message;
+
+}
+
+/*==========================================
+SMART AI RECOMMENDATION
+==========================================*/
+
+function getRecommendation() {
+
+    const productivity = calculateProductivity();
+
+    const wellness = calculateWellness();
+
+    let recommendation = "";
+
+    if (wellness >= 80) {
+
+        recommendation +=
+
+        "🚀 You're feeling great today.\n";
+
+    }
+
+    else if (wellness >= 60) {
+
+        recommendation +=
+
+        "🙂 Your energy is good.\n";
+
+    }
+
+    else {
+
+        recommendation +=
+
+        "💙 Slow down today and recharge.\n";
+
+    }
+
+    recommendation += "\n";
+
+    if (productivity >= 80) {
+
+        recommendation +=
+
+        "🔥 You're very productive. Keep your momentum going.";
+
+    }
+
+    else if (productivity >= 50) {
+
+        recommendation +=
+
+        "💪 You're making progress. Complete one important task next.";
+
+    }
+
+    else {
+
+        recommendation +=
+
+        "📌 Focus on finishing one task before starting another.";
+
+    }
+
+    return recommendation;
+
+}
 
