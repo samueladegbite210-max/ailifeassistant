@@ -228,48 +228,47 @@ function updateGreeting() {
  SECTION 4 — SMART DASHBOARD SUMMARY
 ==================================================*/
 
-function updateDashboardSummary(){
-
+function updateDashboardSummary() {
     const data = getDashboardData();
 
     const tasks = data.tasks || [];
     const goals = data.goals || [];
     const events = data.events || [];
     const notes = data.notes || [];
+    const xp = data.xp || { xp: 0, level: 1, total: 0 };
 
-    const xp = data.xp || {
-        xp:0,
-        level:1
-    };
+    const completedTasks = tasks.filter(task => task.done).length;
+    const pendingTasks = tasks.filter(task => !task.done).length;
+    const pendingGoals = goals.filter(goal => !goal.done).length;
 
-    const completed =
-    tasks.filter(task=>task.done).length;
-
-    const productivity =
-    tasks.length === 0
-    ? 0
-    : Math.round((completed/tasks.length)*100);
+    let productivity = 0;
+    if (tasks.length > 0) {
+        productivity = Math.round((completedTasks / tasks.length) * 100);
+    }
 
     setText("taskCount", tasks.length);
     setText("goalCount", goals.length);
     setText("eventCount", events.length);
     setText("noteCount", notes.length);
-
     setText("xpCount", xp.xp);
     setText("levelCount", xp.level);
-
     setText("productivityScore", productivity + "%");
+    setText("progressText", `${completedTasks} of ${tasks.length} Tasks Completed`);
+    setWidth("progressBar", productivity + "%");
 
-    setText(
-        "progressText",
-        `${completed} of ${tasks.length} Tasks Completed`
-    );
-
-    setWidth(
-        "progressBar",
-        productivity + "%"
-    );
-
+    const summary = $("dashboardSummary");
+    if (summary) {
+        summary.innerHTML = `
+            📊 Dashboard Summary
+            <br><br>
+            ✅ Pending Tasks: <strong>${pendingTasks}</strong><br>
+            🎯 Active Goals: <strong>${pendingGoals}</strong><br>
+            📅 Upcoming Events: <strong>${events.length}</strong><br>
+            📝 Notes: <strong>${notes.length}</strong><br>
+            ⭐ XP: <strong>${xp.xp}</strong><br>
+            🏆 Level: <strong>${xp.level}</strong>
+        `;
+    }
 }
 
 
