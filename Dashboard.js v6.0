@@ -808,3 +808,739 @@ function updateRecommendation(){
     `;
 
 }
+
+/*==================================================
+ SECTION 6 — WEATHER ENGINE
+==================================================*/
+
+async function loadWeather(){
+
+    const box = $("weatherText");
+
+    if(!box) return;
+
+    box.innerHTML = "🌤 Loading weather...";
+
+    if(!navigator.geolocation){
+
+        box.innerHTML = `
+            📍 Location unavailable
+            <br><br>
+            Browser doesn't support GPS.
+        `;
+
+        return;
+
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        async(position)=>{
+
+            try{
+
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                const url =
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,is_day`;
+
+                const response =
+                await fetch(url);
+
+                const data =
+                await response.json();
+
+                const current =
+                data.current;
+
+                let icon = "☀️";
+
+                switch(current.weather_code){
+
+                    case 0:
+                        icon = "☀️";
+                        break;
+
+                    case 1:
+                    case 2:
+                    case 3:
+                        icon = "⛅";
+                        break;
+
+                    case 45:
+                    case 48:
+                        icon = "🌫️";
+                        break;
+
+                    case 51:
+                    case 53:
+                    case 55:
+                        icon = "🌦️";
+                        break;
+
+                    case 61:
+                    case 63:
+                    case 65:
+                        icon = "🌧️";
+                        break;
+
+                    case 71:
+                    case 73:
+                    case 75:
+                        icon = "❄️";
+                        break;
+
+                    case 95:
+                        icon = "⛈️";
+                        break;
+
+                }
+
+                box.innerHTML = `
+
+                    <div class="weatherCard">
+
+                        <div style="font-size:42px">
+
+                            ${icon}
+
+                        </div>
+
+                        <h2>
+
+                            ${current.temperature_2m}°C
+
+                        </h2>
+
+                        <p>
+
+                            💧 Humidity
+
+                            ${current.relative_humidity_2m}%
+
+                        </p>
+
+                        <small>
+
+                            Updated just now
+
+                        </small>
+
+                    </div>
+
+                `;
+
+            }
+
+            catch(error){
+
+                console.error(error);
+
+                box.innerHTML = `
+
+                    ⚠️ Unable to load weather
+
+                    <br><br>
+
+                    Check your internet connection.
+
+                `;
+
+            }
+
+        },
+
+        ()=>{
+
+            box.innerHTML = `
+
+                📍 Location permission denied
+
+                <br><br>
+
+                Enable Location Services
+                to see live weather.
+
+            `;
+
+        }
+
+    );
+
+}
+
+/*==================================================
+ SECTION 7 — XP • LEVEL • ACHIEVEMENTS
+==================================================*/
+
+/* ---------- XP ---------- */
+
+function updateXP(){
+
+    const xpData = getDashboardData().xp;
+
+    setText("xpCount", xpData.xp);
+
+    setText("levelCount", xpData.level);
+
+}
+
+
+/* ---------- ADD XP ---------- */
+
+function addXP(amount){
+
+    const xpData = getDashboardData().xp;
+
+    xpData.xp += amount;
+    xpData.total += amount;
+
+    while(xpData.xp >= 100){
+
+        xpData.xp -= 100;
+
+        xpData.level++;
+
+        showLevelPopup(xpData.level);
+
+    }
+
+    Storage.write("xp", xpData);
+
+    updateXP();
+
+}
+
+
+/* ---------- LEVEL POPUP ---------- */
+
+function showLevelPopup(level){
+
+    const popup = $("levelPopup");
+
+    if(!popup) return;
+
+    setText("popupLevel","Level " + level);
+
+    popup.classList.add("show");
+
+    setTimeout(()=>{
+
+        popup.classList.remove("show");
+
+    },3000);
+
+}
+
+
+/* ---------- ACHIEVEMENTS ---------- */
+
+function updateAchievement(){
+
+    const badge = $("achievementBadge");
+    const text = $("achievementText");
+
+    if(!badge || !text) return;
+
+    const completed = getDashboardData()
+        .tasks
+        .filter(task=>task.done).length;
+
+    if(completed >= 100){
+
+        badge.textContent = "💎 Legend";
+
+        text.textContent =
+        "Completed over 100 tasks.";
+
+    }
+
+    else if(completed >= 50){
+
+        badge.textContent = "👑 Master";
+
+        text.textContent =
+        "Completed over 50 tasks.";
+
+    }
+
+    else if(completed >= 20){
+
+        badge.textContent = "🏆 Champion";
+
+        text.textContent =
+        "Completed over 20 tasks.";
+
+    }
+
+    else if(completed >= 10){
+
+        badge.textContent = "🔥 Hard Worker";
+
+        text.textContent =
+        "Completed over 10 tasks.";
+
+    }
+
+    else if(completed >= 1){
+
+        badge.textContent = "🌟 First Step";
+
+        text.textContent =
+        "Completed your first task.";
+
+    }
+
+    else{
+
+        badge.textContent = "🚀 Beginner";
+
+        text.textContent =
+        "Complete a task to unlock achievements.";
+
+    }
+
+}
+
+
+/* ---------- WEEKLY PROGRESS ---------- */
+
+function updateWeeklyProgress(){
+
+    const box = $("weeklyProgress");
+
+    if(!box) return;
+
+    const tasks = getDashboardData().tasks;
+
+    const completed =
+        tasks.filter(task=>task.done).length;
+
+    const percent =
+        tasks.length === 0
+        ? 0
+        : Math.round(
+            (completed/tasks.length)*100
+        );
+
+    box.innerHTML = `
+        📈 Weekly Progress
+
+        <br><br>
+
+        <strong>${percent}% Complete</strong>
+    `;
+
+}
+
+
+/* ---------- AI PRODUCTIVITY ---------- */
+
+function updateAIScore(){
+
+    const box = $("aiScore");
+
+    if(!box) return;
+
+    const data = getDashboardData();
+
+    const completed =
+        data.tasks.filter(task=>task.done).length;
+
+    let score = completed * 5;
+
+    score += data.streak.days * 2;
+
+    score += data.xp.level * 3;
+
+    if(score > 100){
+
+        score = 100;
+
+    }
+
+    box.innerHTML = `
+        🤖 AI Productivity Score
+
+        <br><br>
+
+        <strong>${score}/100</strong>
+    `;
+
+}
+
+/*==================================================
+ SECTION 8 — SMART NOTIFICATIONS & DAILY TIPS
+==================================================*/
+
+/* ---------- DAILY TIPS ---------- */
+
+const DAILY_TIPS = [
+
+    "💪 Start with your most important task.",
+
+    "🚀 Progress is better than perfection.",
+
+    "💧 Drink enough water today.",
+
+    "📅 Always check your calendar before starting work.",
+
+    "🎯 Finish one important task before checking social media.",
+
+    "📚 Learn one new thing today.",
+
+    "🌱 Small daily improvements create huge success."
+
+];
+
+function loadDailyTip(){
+
+    const box = $("tipText");
+
+    if(!box) return;
+
+    const index =
+        new Date().getDate() % DAILY_TIPS.length;
+
+    box.innerHTML = DAILY_TIPS[index];
+
+}
+
+
+/* ---------- SMART NOTIFICATIONS ---------- */
+
+function loadNotifications(){
+
+    const box = $("notificationBox");
+
+    if(!box) return;
+
+    const data = getDashboardData();
+
+    const pendingTasks =
+        data.tasks.filter(task => !task.done).length;
+
+    let html = `🎉 Welcome back, ${APP.username}!<br><br>`;
+
+    if(pendingTasks > 0){
+
+        html += `📌 You have <strong>${pendingTasks}</strong> pending task(s).<br>`;
+
+    }
+
+    if(data.events.length > 0){
+
+        html += `📅 ${data.events.length} upcoming event(s).<br>`;
+
+    }
+
+    if(data.goals.length > 0){
+
+        html += `🎯 ${data.goals.length} active goal(s).<br>`;
+
+    }
+
+    if(
+        pendingTasks === 0 &&
+        data.events.length === 0
+    ){
+
+        html += "💙 Everything looks great today.";
+
+    }
+
+    box.innerHTML = html;
+
+}
+
+
+/* ---------- REMINDER ENGINE ---------- */
+
+function checkReminders(){
+
+    const reminders =
+        Storage.read("reminders",[]);
+
+    if(reminders.length === 0) return;
+
+    const today =
+        new Date().toDateString();
+
+    reminders.forEach(reminder=>{
+
+        if(reminder.date === today){
+
+            console.log(
+                "Reminder:",
+                reminder.title
+            );
+
+        }
+
+    });
+
+}
+
+
+/* ---------- DAILY MOTIVATION ---------- */
+
+function loadDailyMotivation(){
+
+    const box = $("motivationCard");
+
+    if(!box) return;
+
+    const messages = [
+
+        "🔥 Keep going. You're building something amazing.",
+
+        "🌟 Consistency beats talent every time.",
+
+        "🚀 Today's effort creates tomorrow's success.",
+
+        "💙 Believe in yourself and trust the process.",
+
+        "🎯 Stay focused on your vision."
+
+    ];
+
+    const index =
+        new Date().getDay() % messages.length;
+
+    box.innerHTML = messages[index];
+
+}
+/*==========================================
+AI INSIGHTS
+==========================================*/
+
+function renderAIInsights(){
+
+    const box = $("aiInsights");
+
+    if(!box) return;
+
+    const data = getDashboardData();
+
+    const tasks = data.tasks.filter(t=>!t.done).length;
+    const goals = data.goals.filter(g=>!g.done).length;
+    const events = data.events.length;
+
+    let message = "";
+
+    if(tasks > 5){
+
+        message =
+        "⚠️ You have many unfinished tasks. Focus on only one today.";
+
+    }
+
+    else if(goals > 0){
+
+        message =
+        "🎯 You are making progress toward your goals. Keep your momentum.";
+
+    }
+
+    else if(events > 0){
+
+        message =
+        "📅 You have upcoming events. Check your calendar before starting new work.";
+
+    }
+
+    else{
+
+        message =
+        "🚀 You're doing great. Why not learn something new today?";
+
+    }
+
+    box.innerHTML = message;
+
+}
+/*==========================================
+MOTIVATION
+==========================================*/
+
+const MOTIVATION = [
+
+"Success is built one small task at a time.",
+
+"Stay consistent. Small progress beats no progress.",
+
+"You are building your future every single day.",
+
+"Your future self will thank you for today's effort.",
+
+"Keep going. You're closer than yesterday.",
+
+"Discipline creates freedom.",
+
+"Progress is better than perfection."
+
+];
+
+function renderMotivation(){
+
+    const box = $("motivationCard");
+
+    if(!box) return;
+
+    const today = new Date().getDate();
+
+    box.innerHTML =
+
+    "💡 " +
+
+    MOTIVATION[today % MOTIVATION.length];
+
+}
+
+/*==================================================
+ SECTION 10 — AI LIFE SCORE™
+==================================================*/
+
+function calculateLifeScore(){
+
+    const data = getDashboardData();
+
+    let score = 0;
+
+    /* ---------- TASKS ---------- */
+
+    const tasks = data.tasks || [];
+
+    const completedTasks =
+        tasks.filter(task=>task.done).length;
+
+    if(tasks.length > 0){
+
+        score += Math.round(
+
+            (completedTasks/tasks.length) * 30
+
+        );
+
+    }
+
+    /* ---------- GOALS ---------- */
+
+    const goals = data.goals || [];
+
+    const completedGoals =
+        goals.filter(goal=>goal.done).length;
+
+    if(goals.length > 0){
+
+        score += Math.round(
+
+            (completedGoals/goals.length) * 20
+
+        );
+
+    }
+
+    /* ---------- WELLNESS ---------- */
+
+    const wellness = data.wellness || {};
+
+    score += Math.min(
+        wellness.water || 0,
+        8
+    );
+
+    score += Math.min(
+        wellness.sleep || 0,
+        8
+    );
+
+    /* ---------- STREAK ---------- */
+
+    score += Math.min(
+        data.streak.days,
+        10
+    );
+
+    /* ---------- XP ---------- */
+
+    score += Math.min(
+        data.xp.level * 2,
+        20
+    );
+
+    if(score > 100){
+
+        score = 100;
+
+    }
+
+    return score;
+
+}
+
+
+/*==================================================
+ UPDATE LIFE SCORE CARD
+==================================================*/
+
+function renderLifeScore(){
+
+    const box =
+    $("lifeScore");
+
+    if(!box) return;
+
+    const score =
+    calculateLifeScore();
+
+    let status = "";
+
+    if(score >= 90){
+
+        status = "🏆 Excellent";
+
+    }
+
+    else if(score >= 75){
+
+        status = "🚀 Great";
+
+    }
+
+    else if(score >= 60){
+
+        status = "👍 Good";
+
+    }
+
+    else if(score >= 40){
+
+        status = "🙂 Improving";
+
+    }
+
+    else{
+
+        status = "🌱 Keep Going";
+
+    }
+
+    box.innerHTML = `
+
+        <div class="lifeScoreNumber">
+
+            ${score}
+
+        </div>
+
+        <div class="lifeScoreStatus">
+
+            ${status}
+
+        </div>
+
+    `;
+
+}
