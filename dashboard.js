@@ -2,8 +2,8 @@
 
 /*==================================================
  AI LIFE ASSISTANT
- Dashboard.js Version 6.1.1
- Production Build (Fixed)
+ Dashboard.js Version 6.1.2
+ Production Build (Fixed - Side Menu + Greeting)
 ==================================================*/
 
 
@@ -13,7 +13,7 @@
 
 const APP = {
     name: "AI Life Assistant",
-    version: "6.1.1",
+    version: "6.1.2",
     author: "Adegbite Samuel Abayomi",
     username: localStorage.getItem("profileName") || "Samuel",
     clockInterval: 1000,
@@ -191,10 +191,11 @@ function getGreeting() {
     const hour = new Date().getHours();
 
     if (hour < 12) return "🌅 Good Morning";
-    if (hour < 17) return "☀️ Good Afternoon";
+    if (hour < 16) return "☀️ Good Afternoon";   // ← Fixed: Evening starts at 4 PM
     if (hour < 21) return "🌇 Good Evening";
     return "🌙 Good Night";
 }
+
 function getMotivation() {
     const messages = [
         "💙 One small step today is better than no step.",
@@ -311,8 +312,11 @@ function renderTodayFocus() {
         return;
     }
 
-    // Sort by priority (higher first)
-    pending.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+    // Fixed priority sorting (priority is a string: high / medium / low)
+    const priorityOrder = { high: 3, medium: 2, low: 1 };
+    pending.sort((a, b) => {
+        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
+    });
 
     let html = "";
     pending.slice(0, 3).forEach(task => {
@@ -812,6 +816,56 @@ function dashboardHealthCheck() {
 
 
 /*==================================================
+ SIDE MENU (NEW)
+==================================================*/
+
+function initSideMenu() {
+    const menuBtn  = document.getElementById("menuBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const sideMenu = document.getElementById("sideMenu");
+
+    if (!menuBtn || !sideMenu) {
+        console.warn("Side menu elements not found");
+        return;
+    }
+
+    // Open menu
+    menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        sideMenu.classList.add("open");
+        document.body.style.overflow = "hidden";
+    });
+
+    // Close menu
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            sideMenu.classList.remove("open");
+            document.body.style.overflow = "";
+        });
+    }
+
+    // Close when clicking any link inside the menu
+    sideMenu.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+            sideMenu.classList.remove("open");
+            document.body.style.overflow = "";
+        });
+    });
+
+    // Close when clicking outside the menu
+    document.addEventListener("click", (e) => {
+        if (sideMenu.classList.contains("open") &&
+            !sideMenu.contains(e.target) &&
+            e.target !== menuBtn &&
+            !menuBtn.contains(e.target)) {
+            sideMenu.classList.remove("open");
+            document.body.style.overflow = "";
+        }
+    });
+}
+
+
+/*==================================================
  DASHBOARD REFRESH ENGINE
 ==================================================*/
 
@@ -852,6 +906,7 @@ function refreshDashboard() {
 function initializeDashboard() {
     dashboardHealthCheck();
     refreshDashboard();
+    initSideMenu();                 // ← Side menu now works
 
     setInterval(updateClock, APP.clockInterval);
     setInterval(refreshDashboard, APP.refreshInterval);
