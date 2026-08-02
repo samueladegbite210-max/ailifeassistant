@@ -1,131 +1,151 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AI Life Assistant - Chat</title>
-
-<link rel="stylesheet" href="style.css">
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
-
-body{
-    background:#0B0F1A;
-    color:white;
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
-    padding-bottom:90px;
-}
-
-.header{
-    background:#111827;
-    padding:18px;
-    text-align:center;
-    font-size:24px;
-    font-weight:bold;
-}
-
-.chat{
-    flex:1;
-    overflow-y:auto;
-    padding:20px;
-}
-
-.message{
-    padding:12px;
-    border-radius:12px;
-    margin-bottom:15px;
-    max-width:80%;
-    word-wrap:break-word;
-}
-
-.ai{
-    background:#1F2937;
-    margin-right:auto;
-}
-
-.user{
-    background:#2563EB;
-    margin-left:auto;
-    text-align:right;
-}
-
-.bottom{
-    display:flex;
-    gap:10px;
-    padding:15px;
-    background:#111827;
-}
-
-.bottom input{
-    flex:1;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    outline:none;
-}
-
-.bottom button{
-    background:#2563EB;
-    color:white;
-    border:none;
-    padding:12px 20px;
-    border-radius:10px;
-    cursor:pointer;
-}
-
-.bottom button:hover{
-    background:#1D4ED8;
-}
-</style>
-
-</head>
-
 <body>
 
+<!-- Side Menu -->
+<div id="sideMenu" class="side-menu">
 
-<header class="header">
-🤖 AI Assistant
-</header>
+    <span id="closeBtn" class="close-btn">✖</span>
 
-<div class="container">
+    <h2>🤖 AI Life Assistant</h2>
 
-<div id="chatBox" class="card" style="height:420px;overflow-y:auto;text-align:left;">
-
-<p><strong>🤖 AI:</strong> Hello Samuel! How can I help you today?</p>
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="chat.html">🤖 AI Chat</a>
+    <a href="tasks.html">✅ Tasks</a>
+    <a href="goals.html">🎯 Goals</a>
+    <a href="calendar.html">📅 Calendar</a>
+    <a href="notes.html">📝 Notes</a>
+    <a href="habits.html">🔥 Habits</a>
+    <a href="wellness.html">💙 Wellness</a>
+    <a href="profile.html">👤 Profile</a>
+    <a href="settings.html">⚙️ Settings</a>
 
 </div>
 
-<input
-type="text"
-id="userInput"
-placeholder="Ask me anything...">
+<!-- Top Bar -->
+<div class="top-bar">
 
-<button onclick="sendMessage()">
-Send
-</button>
-<button onclick="startVoice()">
-🎤 Speak
-</button>
+    <button id="menuBtn" class="menu-btn">☰</button>
+
+    <h2>🤖 AI Assistant</h2>
+
 </div>
 
+<!-- Welcome -->
+<div class="welcome">
+
+    <h1 id="chatGreeting">
+        👋 Hello Samuel
+    </h1>
+
+    <p>
+        Your intelligent life assistant is ready.
+    </p>
+
+</div>
+
+<!-- Quick Suggestions -->
+<div class="card">
+
+    <div class="grid">
+
+        <div class="box suggestion" data-text="Plan my day">
+            📅<br>Plan My Day
+        </div>
+
+        <div class="box suggestion" data-text="Show my tasks">
+            ✅<br>Tasks
+        </div>
+
+        <div class="box suggestion" data-text="Show my goals">
+            🎯<br>Goals
+        </div>
+
+        <div class="box suggestion" data-text="Give me motivation">
+            🚀<br>Motivate Me
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Chat Messages -->
+<div class="card">
+
+    <div id="chatBox" class="chatBox">
+
+        <div class="message ai">
+
+            <strong>🤖 AI</strong>
+
+            <p>
+                Hello Samuel 👋
+                <br><br>
+                What can I help you with today?
+            </p>
+
+        </div>
+
+    </div>
+
+    <div id="typingIndicator" style="display:none">
+
+        🤖 AI is typing...
+
+    </div>
+
+</div>
+
+<!-- Input -->
+<div class="card">
+
+    <div class="chatInputRow">
+
+        <button id="attachBtn">📎</button>
+
+        <button id="imageBtn">🖼️</button>
+
+        <button id="cameraBtn">📷</button>
+
+        <button id="voiceBtn">🎤</button>
+
+    </div>
+
+    <input
+        type="text"
+        id="userInput"
+        placeholder="Ask AI anything..."
+    >
+
+    <button id="sendBtn">
+        ➤ Send
+    </button>
+
+</div>
+
+<!-- Bottom Navigation -->
 <div class="navbar">
-<a href="dashboard.html">🏠<br>Home</a>
-<a href="chat.html">🤖<br>AI</a>
-<a href="notes.html">📝<br>Notes</a>
-<a href="calendar.html">📅<br>Calendar</a>
-<a href="profile.html">👤<br>Profile</a>
+
+    <a href="dashboard.html">
+        🏠<br>Home
+    </a>
+
+    <a href="chat.html">
+        🤖<br>AI
+    </a>
+
+    <a href="notes.html">
+        📝<br>Notes
+    </a>
+
+    <a href="calendar.html">
+        📅<br>Calendar
+    </a>
+
+    <a href="profile.html">
+        👤<br>Profile
+    </a>
+
 </div>
 
-<script src="js/helpers.js?v=2"></script>
 <script src="js/conversation.js?v=2"></script>
 <script src="js/knowledge.js?v=2"></script>
 <script src="js/calculator.js?v=2"></script>
