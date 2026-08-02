@@ -847,7 +847,8 @@ function initSideMenu() {
     // Close when clicking any link inside the menu
     sideMenu.querySelectorAll("a").forEach(link => {
         link.addEventListener("click", () => {
-            sideMenu.classList.remove("open");
+            sideMenu.classList.add("active");
+         sideMenu.classList.remove("active");
             document.body.style.overflow = "";
         });
     });
