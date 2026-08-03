@@ -41,24 +41,6 @@ async function aiReply(text){
     chat.appendChild(typing);
     chatif(text.toLowerCase().includes("what did i upload")){
 
-    if(uploadedFiles.length === 0){
-
-        return "📂 You haven't uploaded any files yet.";
-
-    }
-
-    let reply = "📂 Uploaded files:\n\n";
-
-    uploadedFiles.forEach(file=>{
-
-        reply += `• ${file.name} (${file.type})\n`;
-
-    });
-
-    return reply;
-
-}.scrollTop = chat.scrollHeight;
-    
     // Disable input while AI is replying
     input.disabled = true;
     const sendBtn = document.querySelector("button[onclick='sendMessage()']");
