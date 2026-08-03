@@ -1540,6 +1540,35 @@ font-size:45px;
 
 }
 
+/*=========================
+AI Typing Indicator
+=========================*/
+
+.typing{
+
+    opacity:.7;
+
+    font-style:italic;
+
+    animation:blink 1s infinite;
+
+}
+
+@keyframes blink{
+
+    0%{
+        opacity:.3;
+    }
+
+    50%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:.3;
+    }
+
+}
 /*==================================================
 THE END
 ==================================================*/
