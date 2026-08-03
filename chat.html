@@ -109,17 +109,22 @@ body{
         📎
     </button>
 
-    <input
-        type="text"
-        id="userInput"
-        placeholder="Ask me anything..."
-        autocomplete="off">
+    <div class="chatComposer">
 
-    <button class="voiceBtn" onclick="startVoice()">
+    <button id="attachBtn" class="composerIcon">
+        ➕
+    </button>
+
+    <input
+        id="userInput"
+        type="text"
+        placeholder="Ask AI Life Assistant...">
+
+    <button id="voiceBtn" class="composerIcon">
         🎤
     </button>
 
-    <button class="sendBtn" onclick="sendMessage()">
+    <button id="sendBtn" class="sendButton">
         ➤
     </button>
 
