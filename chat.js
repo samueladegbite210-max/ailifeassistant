@@ -78,6 +78,45 @@ function sendMessage(){
     aiReply(text);
 
 }
+// ======================
+// Attachment Menu
+// ======================
+
+function openAttachmentMenu(){
+
+    document
+        .getElementById("attachmentMenu")
+        .classList.toggle("show");
+
+}
+
+function pickImage(){
+
+    document
+        .getElementById("imagePicker")
+        .click();
+
+}
+
+function pickFile(){
+
+    document
+        .getElementById("filePicker")
+        .click();
+
+}
+
+function takePhoto(){
+
+    document
+        .getElementById("imagePicker")
+        .setAttribute("capture","environment");
+
+    document
+        .getElementById("imagePicker")
+        .click();
+
+}
 
 // ================================
 // Enter Key
