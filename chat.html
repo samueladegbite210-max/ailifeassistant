@@ -92,41 +92,39 @@ body{
 <body>
 
 <header class="header">
-🤖 AI Assistant
+    🤖 AI Assistant
 </header>
 
 <div class="container">
 
-<div id="chatBox" class="card" style="height:420px;overflow-y:auto;text-align:left;">
+    <div id="chatBox"
+         class="card"
+         style="height:420px;overflow-y:auto;text-align:left;">
 
-<p><strong>🤖 AI:</strong> Hello Samuel! How can I help you today?</p>
+        <p><strong>🤖 AI:</strong> Hello Samuel! How can I help you today?</p>
 
-</div>
-
-<div class="chatInputBar">
-
-    <button class="attachBtn" onclick="openAttachmentMenu()">
-        📎
-    </button>
+    </div>
 
     <div class="chatComposer">
 
-    <button id="attachBtn" class="composerIcon">
-        ➕
-    </button>
+        <button id="attachBtn" class="composerIcon">➕</button>
 
-    <input
-        id="userInput"
-        type="text"
-        placeholder="Ask AI Life Assistant...">
+        <input
+            id="userInput"
+            type="text"
+            placeholder="Ask AI Life Assistant...">
 
-    <button id="voiceBtn" class="composerIcon">
-        🎤
-    </button>
+        <button id="voiceBtn" class="composerIcon">🎤</button>
 
-    <button id="sendBtn" class="sendButton">
-        ➤
-    </button>
+        <button
+            id="sendBtn"
+            class="sendButton"
+            onclick="sendMessage()">
+            ➤
+        </button>
+
+    </div>
+
 
 </div>
     
