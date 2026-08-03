@@ -1749,6 +1749,57 @@ Attachment Menu
     margin-bottom:10px;
 
 }
+/*==============================
+Chat Files
+==============================*/
+
+.chatFile{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    background:#111827;
+
+    padding:14px;
+
+    border-radius:14px;
+
+}
+
+.fileIcon{
+
+    font-size:34px;
+
+}
+
+.fileInfo{
+
+    flex:1;
+
+}
+
+.fileName{
+
+    font-weight:bold;
+
+    color:white;
+
+    word-break:break-word;
+
+}
+
+.fileSize{
+
+    color:#9CA3AF;
+
+    font-size:14px;
+
+    margin-top:4px;
+
+}
 /*==================================================
 THE END
 ==================================================*/
