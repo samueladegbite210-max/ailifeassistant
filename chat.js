@@ -161,6 +161,57 @@ if(imagePicker){
     });
 
 }
+// ======================
+// File Preview
+// ======================
+
+const filePicker = document.getElementById("filePicker");
+
+if(filePicker){
+
+    filePicker.addEventListener("change",function(){
+
+        const file = this.files[0];
+
+        if(!file) return;
+
+        const time = new Date().toLocaleTimeString([],{
+            hour:"2-digit",
+            minute:"2-digit"
+        });
+
+        chat.innerHTML += `
+            <div class="message user">
+
+                <div class="chatFile">
+
+                    <div class="fileIcon">📄</div>
+
+                    <div class="fileInfo">
+
+                        <div class="fileName">${file.name}</div>
+
+                        <div class="fileSize">
+                            ${(file.size/1024).toFixed(1)} KB
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="time">${time}</div>
+
+            </div>
+        `;
+
+        chat.scrollTop = chat.scrollHeight;
+
+        filePicker.value = "";
+
+    });
+
+}
+
 // ================================
 // Enter Key
 // ================================
