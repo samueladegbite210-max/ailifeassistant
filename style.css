@@ -1689,6 +1689,51 @@ Modern Chat Input
     background:#2563EB;
 
 }
+/*==============================
+Attachment Menu
+==============================*/
+
+.attachmentMenu{
+
+    display:none;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    background:#1F2937;
+
+    margin:0 20px 20px;
+
+    padding:18px;
+
+    border-radius:18px;
+
+}
+
+.attachmentMenu.show{
+
+    display:flex;
+
+}
+
+.attachmentMenu button{
+
+    width:100%;
+
+    background:#111827;
+
+    border:none;
+
+    color:white;
+
+    padding:15px;
+
+    border-radius:14px;
+
+    font-size:17px;
+
+}
 /*==================================================
 THE END
 ==================================================*/
