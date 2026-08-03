@@ -27,25 +27,28 @@ function addMessage(type, text){
 // ================================
 // AI Reply
 // ================================
-
 async function aiReply(text){
-
+    const typing = document.createElement("div");
+    typing.className = "message ai typing";
+    typing.id = "typingIndicator";
+    typing.innerHTML = "🤖 AI is typing...";
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+    // Disable input while AI is replying
+    input.disabled = true;
+    const sendBtn = document.querySelector("button[onclick='sendMessage()']");
+    if(sendBtn) sendBtn.disabled = true;
     const answer = await smartAIReply(text);
-
+    // Remove typing indicator
+    typing.remove();
     addMessage("ai", answer);
-
-    // Save AI response
     if(typeof saveContext === "function"){
         saveContext("ai", answer);
     }
-
-}
-const streakMessage = updateStreak();
-
-if(streakMessage){
-
-    addMessage("ai", streakMessage);
-
+    // Enable input again
+    input.disabled = false;
+    if(sendBtn) sendBtn.disabled = false;
+    input.focus();
 }
 // ================================
 // Send Message
