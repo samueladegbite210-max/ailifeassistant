@@ -103,17 +103,26 @@ body{
 
 </div>
 
-<input
-type="text"
-id="userInput"
-placeholder="Ask me anything...">
+<div class="chatInputBar">
 
-<button onclick="sendMessage()">
-Send
-</button>
-<button onclick="startVoice()">
-🎤 Speak
-</button>
+    <button class="attachBtn" onclick="openAttachmentMenu()">
+        📎
+    </button>
+
+    <input
+        type="text"
+        id="userInput"
+        placeholder="Ask me anything..."
+        autocomplete="off">
+
+    <button class="voiceBtn" onclick="startVoice()">
+        🎤
+    </button>
+
+    <button class="sendBtn" onclick="sendMessage()">
+        ➤
+    </button>
+
 </div>
 
 <div class="navbar">
