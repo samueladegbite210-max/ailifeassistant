@@ -39,8 +39,7 @@ async function aiReply(text){
     typing.id = "typingIndicator";
     typing.innerHTML = "🤖 AI is typing...";
     chat.appendChild(typing);
-    chatif(text.toLowerCase().includes("what did i upload")){
-
+    chat.scrollTop = chat.scrollHeight;
     // Disable input while AI is replying
     input.disabled = true;
     const sendBtn = document.querySelector("button[onclick='sendMessage()']");
