@@ -72,7 +72,7 @@ if (textarea) {
     });
 
 }
-    ===========================
+// ================================
 // Send Message
 // ================================
 
@@ -90,6 +90,7 @@ function sendMessage(){
     }
 
     input.value = "";
+input.style.height = "auto";
 
     aiReply(text);
 
@@ -175,8 +176,12 @@ if(imagePicker){
         reader.readAsDataURL(file);
         aiUploadReply("image",file);
         rememberUpload(file, "image");
-        aiUploadReply("file",file);
-     rememberUpload(file, "file");
+        chat.scrollTop = chat.scrollHeight;
+
+aiUploadReply("file", file);
+rememberUpload(file, "file");
+
+filePicker.value = "";
 
     });
 
@@ -298,9 +303,11 @@ function rememberUpload(file, type){
 // Enter Key
 // ================================
 
-input.addEventListener("keypress", function(e){
+input.addEventListener("keydown", function(e){
 
-    if(e.key === "Enter"){
+    if(e.key === "Enter" && !e.shiftKey){
+
+        e.preventDefault();
 
         sendMessage();
 
