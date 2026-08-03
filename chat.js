@@ -39,7 +39,26 @@ async function aiReply(text){
     typing.id = "typingIndicator";
     typing.innerHTML = "🤖 AI is typing...";
     chat.appendChild(typing);
-    chat.scrollTop = chat.scrollHeight;
+    chatif(text.toLowerCase().includes("what did i upload")){
+
+    if(uploadedFiles.length === 0){
+
+        return "📂 You haven't uploaded any files yet.";
+
+    }
+
+    let reply = "📂 Uploaded files:\n\n";
+
+    uploadedFiles.forEach(file=>{
+
+        reply += `• ${file.name} (${file.type})\n`;
+
+    });
+
+    return reply;
+
+}.scrollTop = chat.scrollHeight;
+    
     // Disable input while AI is replying
     input.disabled = true;
     const sendBtn = document.querySelector("button[onclick='sendMessage()']");
@@ -158,8 +177,9 @@ if(imagePicker){
 
         reader.readAsDataURL(file);
         aiUploadReply("image",file);
+        rememberUpload(file, "image");
         aiUploadReply("file",file);
-        
+     rememberUpload(file, "file");
 
     });
 
@@ -257,6 +277,24 @@ What would you like me to do?
         addMessage("ai",reply);
 
     },800);
+
+}
+// ======================
+// Upload Memory
+// ======================
+
+let uploadedFiles = [];
+
+function rememberUpload(file, type){
+
+    uploadedFiles.push({
+
+        name: file.name,
+        type: type,
+        size: file.size,
+        date: new Date().toLocaleString()
+
+    });
 
 }
 // ================================
