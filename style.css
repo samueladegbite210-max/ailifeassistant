@@ -1602,6 +1602,93 @@ Chat Messages
     opacity:.65;
     text-align:right;
 }
+/*==============================
+Modern Chat Input
+==============================*/
+
+.chatInputBar{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    background:#111827;
+
+    padding:12px;
+
+    border-radius:22px;
+
+    margin:20px;
+
+}
+
+.chatInputBar input{
+
+    flex:1;
+
+    border:none;
+
+    background:transparent;
+
+    color:white;
+
+    font-size:17px;
+
+    outline:none;
+
+    padding:10px;
+
+}
+
+.chatInputBar input::placeholder{
+
+    color:#9CA3AF;
+
+}
+
+.attachBtn,
+.voiceBtn,
+.sendBtn{
+
+    width:46px;
+
+    height:46px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    font-size:20px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+.attachBtn{
+
+    background:#1F2937;
+
+}
+
+.voiceBtn{
+
+    background:#1F2937;
+
+}
+
+.sendBtn{
+
+    background:#2563EB;
+
+}
 /*==================================================
 THE END
 ==================================================*/
