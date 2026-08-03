@@ -117,7 +117,50 @@ function takePhoto(){
         .click();
 
 }
+// ======================
+// Image Preview
+// ======================
 
+const imagePicker = document.getElementById("imagePicker");
+
+if(imagePicker){
+
+    imagePicker.addEventListener("change", function(){
+
+        const file = this.files[0];
+
+        if(!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+
+            chat.innerHTML += `
+                <div class="message user">
+
+                    <img
+                        src="${e.target.result}"
+                        class="chatImage">
+
+                    <div class="time">
+                        ${new Date().toLocaleTimeString([],{
+                            hour:"2-digit",
+                            minute:"2-digit"
+                        })}
+                    </div>
+
+                </div>
+            `;
+
+            chat.scrollTop = chat.scrollHeight;
+
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+}
 // ================================
 // Enter Key
 // ================================
