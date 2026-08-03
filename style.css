@@ -1734,6 +1734,21 @@ Attachment Menu
     font-size:17px;
 
 }
+.chatImage{
+
+    max-width:220px;
+
+    border-radius:16px;
+
+    display:block;
+
+}
+
+.message img{
+
+    margin-bottom:10px;
+
+}
 /*==================================================
 THE END
 ==================================================*/
