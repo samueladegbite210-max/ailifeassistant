@@ -211,7 +211,51 @@ if(filePicker){
     });
 
 }
+// ======================
+// AI Upload Reply
+// ======================
 
+function aiUploadReply(type, file){
+
+    let reply = "";
+
+    if(type === "image"){
+
+        reply = `
+📷 Image received successfully.
+
+What would you like me to do?
+
+• 📝 Read text from the image
+• 👀 Describe the image
+• 🔍 Analyze it
+• ❓Answer questions about it
+`;
+
+    }
+
+    else{
+
+        reply = `
+📄 ${file.name} uploaded successfully.
+
+What would you like me to do?
+
+• 📑 Summarize it
+• 🧠 Explain it
+• 🔍 Find important information
+• ❓Answer questions about it
+`;
+
+    }
+
+    setTimeout(()=>{
+
+        addMessage("ai",reply);
+
+    },800);
+
+}
 // ================================
 // Enter Key
 // ================================
