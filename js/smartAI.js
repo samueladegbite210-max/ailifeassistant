@@ -87,6 +87,25 @@ if(answer) return answer;
     answer = await internetReply(msg);
     if(answer) return answer;
 
+    if(text.toLowerCase().includes("what did i upload")){
+
+    if(uploadedFiles.length === 0){
+
+        return "📂 You haven't uploaded any files yet.";
+
+    }
+
+    let reply = "📂 Uploaded files:\n\n";
+
+    uploadedFiles.forEach(file=>{
+
+        reply += `• ${file.name} (${file.type})\n`;
+
+    });
+
+    return reply;
+
+}
     return "🤖 I couldn't find an answer yet. Try asking another question.";
 
 }
