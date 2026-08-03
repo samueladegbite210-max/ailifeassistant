@@ -107,27 +107,27 @@ body{
 
     <div class="chatComposer">
 
-        <button id="attachBtn" class="composerIcon">➕</button>
+    <button id="attachBtn" class="composerIcon">
+        +
+    </button>
 
-        <input
-            id="userInput"
-            type="text"
-            placeholder="Ask AI Life Assistant...">
+    <textarea
+        id="userInput"
+        rows="1"
+        placeholder="Ask AI Life Assistant..."></textarea>
 
-        <button id="voiceBtn" class="composerIcon">🎤</button>
+    <button id="voiceBtn" class="composerIcon">
+        🎤
+    </button>
 
-        <button
-            id="sendBtn"
-            class="sendButton"
-            onclick="sendMessage()">
-            ➤
-        </button>
-
-    </div>
-
+    <button
+        id="sendBtn"
+        class="sendButton"
+        onclick="sendMessage()">
+        ➤
+    </button>
 
 </div>
-    
 <div id="attachmentMenu" class="attachmentMenu">
 
     <button onclick="pickImage()">
