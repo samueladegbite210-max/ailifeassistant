@@ -1569,6 +1569,39 @@ AI Typing Indicator
     }
 
 }
+/*==============================
+Chat Messages
+==============================*/
+.message{
+    max-width:80%;
+    padding:15px 18px;
+    border-radius:20px;
+    margin-bottom:18px;
+    animation:fadeIn .25s ease;
+    word-break:break-word;
+}
+.ai{
+    background:#1F2937;
+    color:white;
+    margin-right:auto;
+    border-bottom-left-radius:6px;
+}
+.user{
+    background:#2563EB;
+    color:white;
+    margin-left:auto;
+    border-bottom-right-radius:6px;
+}
+.messageText{
+    line-height:1.7;
+    font-size:16px;
+}
+.messageTime{
+    margin-top:8px;
+    font-size:12px;
+    opacity:.65;
+    text-align:right;
+}
 /*==================================================
 THE END
 ==================================================*/
