@@ -1800,6 +1800,89 @@ Chat Files
     margin-top:4px;
 
 }
+.chatComposer{
+
+    position:sticky;
+
+    bottom:15px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    background:#161B22;
+
+    border:1px solid #2C3445;
+
+    border-radius:40px;
+
+    padding:10px 14px;
+
+}
+
+.chatComposer input{
+
+    flex:1;
+
+    background:transparent;
+
+    border:none;
+
+    color:white;
+
+    font-size:18px;
+
+    outline:none;
+
+}
+
+.chatComposer input::placeholder{
+
+    color:#7E8A9A;
+
+}
+
+.composerIcon{
+
+    width:48px;
+
+    height:48px;
+
+    border-radius:50%;
+
+    border:none;
+
+    background:#232B36;
+
+    color:white;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+}
+
+.sendButton{
+
+    width:54px;
+
+    height:54px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#2563EB;
+
+    color:white;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+}
 /*==================================================
 THE END
 ==================================================*/
