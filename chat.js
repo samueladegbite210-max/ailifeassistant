@@ -157,6 +157,9 @@ if(imagePicker){
         };
 
         reader.readAsDataURL(file);
+        aiUploadReply("image",file);
+        aiUploadReply("file",file);
+        
 
     });
 
