@@ -124,7 +124,33 @@ body{
     </button>
 
 </div>
+    
+<div id="attachmentMenu" class="attachmentMenu">
 
+    <button onclick="pickImage()">
+        🖼️ Photo
+    </button>
+
+    <button onclick="takePhoto()">
+        📷 Camera
+    </button>
+
+    <button onclick="pickFile()">
+        📄 File
+    </button>
+
+</div>
+
+<input
+type="file"
+id="imagePicker"
+accept="image/*"
+style="display:none;">
+
+<input
+type="file"
+id="filePicker"
+style="display:none;">
 <div class="navbar">
 <a href="dashboard.html">🏠<br>Home</a>
 <a href="chat.html">🤖<br>AI</a>
