@@ -56,17 +56,23 @@ async function aiReply(text){
     if(sendBtn) sendBtn.disabled = false;
     input.focus();
 }
-// Auto expand textarea
+// ================================
+// Auto Expand Textarea
+// ================================
 
 const textarea = document.getElementById("userInput");
 
-textarea.addEventListener("input", () => {
+if (textarea) {
 
-    textarea.style.height = "auto";
-    textarea.style.height = textarea.scrollHeight + "px";
+    textarea.addEventListener("input", function () {
 
-});
-// ================================
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
+
+    });
+
+}
+    ===========================
 // Send Message
 // ================================
 
