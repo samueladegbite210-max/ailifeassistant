@@ -6,24 +6,30 @@
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
 
+
+
 // ================================
 // Add Message
 // ================================
-
 function addMessage(type, text){
-
-    text = text.replace(/\n/g, "<br>");
-
-    chat.innerHTML += `
-        <div class="message ${type}">
+    text = text.replace(/\n/g,"<br>");
+    const time = new Date().toLocaleTimeString([],{
+        hour:"2-digit",
+        minute:"2-digit"
+    });
+    const message = document.createElement("div");
+    message.className = `message ${type}`;
+    message.innerHTML = `
+        <div class="messageText">
             ${text}
         </div>
+        <div class="messageTime">
+            ${time}
+        </div>
     `;
-
+    chat.appendChild(message);
     chat.scrollTop = chat.scrollHeight;
-
 }
-
 // ================================
 // AI Reply
 // ================================
