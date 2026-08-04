@@ -27,7 +27,13 @@ function addMessage(type, text){
             ${time}
         </div>
     `;
-    chat.appendChild(message);
+    const message = document.createElement("div");
+
+message.className = "message user";
+
+message.innerHTML = `...`;
+
+chat.appendChild(message);
     chat.scrollTop = chat.scrollHeight;
 }
 // ================================
