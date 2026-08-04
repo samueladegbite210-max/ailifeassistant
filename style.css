@@ -1889,6 +1889,29 @@ Chat Files
     resize:none;
     overflow-y:auto;
 }
+.message{
+
+    animation:messagePop .25s ease;
+
+}
+
+@keyframes messagePop{
+
+    from{
+
+        opacity:0;
+        transform:translateY(10px);
+
+    }
+
+    to{
+
+        opacity:1;
+        transform:translateY(0);
+
+    }
+
+}
 /*==================================================
 THE END
 ==================================================*/
