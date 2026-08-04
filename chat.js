@@ -109,22 +109,40 @@ async function aiReply(text){
 
 }
 
+// ================================
+// Composer Behaviour
+// ================================
 
-// ------------------------------------------
-// Auto Expand Input
-// ------------------------------------------
+const sendBtn = document.getElementById("sendBtn");
+const voiceBtn = document.getElementById("voiceBtn");
 
-if(input){
+function updateComposer(){
 
-    input.addEventListener("input",function(){
+    const hasText = input.value.trim().length > 0;
 
-        this.style.height = "auto";
+    if(hasText){
 
-        this.style.height = this.scrollHeight + "px";
+        sendBtn.classList.add("active");
 
-    });
+        if(voiceBtn){
+            voiceBtn.style.display = "none";
+        }
+
+    }else{
+
+        sendBtn.classList.remove("active");
+
+        if(voiceBtn){
+            voiceBtn.style.display = "flex";
+        }
+
+    }
 
 }
+
+input.addEventListener("input", updateComposer);
+
+updateComposer();
 
 
 // ------------------------------------------
@@ -146,6 +164,7 @@ function sendMessage(){
     }
 
     input.value="";
+    updateComposer();
 
     input.style.height="auto";
 
@@ -154,13 +173,13 @@ function sendMessage(){
 }
 
 
-// ------------------------------------------
-// ENTER KEY
-// ------------------------------------------
+// ================================
+// Enter Key
+// ================================
 
-input.addEventListener("keydown",function(e){
+input.addEventListener("keydown", function(e){
 
-    if(e.key==="Enter" && !e.shiftKey){
+    if(e.key === "Enter"){
 
         e.preventDefault();
 
