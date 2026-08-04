@@ -27,14 +27,9 @@ function addMessage(type, text){
             ${time}
         </div>
     `;
-    const message = document.createElement("div");
-
-message.className = "message user";
-
-message.innerHTML = `...`;
-
+    
 chat.appendChild(message);
-    chat.scrollTop = chat.scrollHeight;
+    
 }
 // ================================
 // AI Reply
@@ -67,7 +62,7 @@ document.getElementById("sendBtn");
 // Auto Expand Textarea
 // ================================
 
-const textarea = document.getElementById("userInput");
+
 
 if (textarea) {
 
@@ -85,8 +80,12 @@ if (textarea) {
 
 function sendMessage(){
 
-    const text = textarea.value = "";
-textarea.style.height = "auto";.trim();
+    const text = textarea.value.trim();
+
+if(text === "") return;
+
+textarea.value = "";
+textarea.style.height = "auto";trim();
 
     if(text === "") return;
 
@@ -188,10 +187,6 @@ if(imagePicker){
         rememberUpload(file, "image");
         chat.scrollTop = chat.scrollHeight;
 
-aiUploadReply("file", file);
-rememberUpload(file, "file");
-
-filePicker.value = "";
 
     });
 
@@ -240,7 +235,8 @@ if(filePicker){
         `;
 
         chat.scrollTop = chat.scrollHeight;
-
+aiUploadReply("file", file);
+rememberUpload(file, "file");
         filePicker.value = "";
 
     });
