@@ -42,7 +42,8 @@ async function aiReply(text){
     chat.scrollTop = chat.scrollHeight;
     // Disable input while AI is replying
     input.disabled = true;
-    const sendBtn = document.querySelector("button[onclick='sendMessage()']");
+    const sendBtn =
+document.getElementById("sendBtn");
     if(sendBtn) sendBtn.disabled = true;
     const answer = await smartAIReply(text);
     // Remove typing indicator
@@ -121,7 +122,9 @@ function pickFile(){
         .getElementById("filePicker")
         .click();
 
+    
 }
+
 
 function takePhoto(){
 
