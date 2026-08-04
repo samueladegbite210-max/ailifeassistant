@@ -1883,6 +1883,12 @@ Chat Files
     cursor:pointer;
 
 }
+#userInput{
+    min-height:48px;
+    max-height:140px;
+    resize:none;
+    overflow-y:auto;
+}
 /*==================================================
 THE END
 ==================================================*/
