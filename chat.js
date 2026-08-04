@@ -85,7 +85,8 @@ if (textarea) {
 
 function sendMessage(){
 
-    const text = input.value.trim();
+    const text = textarea.value = "";
+textarea.style.height = "auto";.trim();
 
     if(text === "") return;
 
