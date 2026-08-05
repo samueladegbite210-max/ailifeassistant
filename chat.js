@@ -435,46 +435,55 @@ function pickFile(){
 
     filePicker.click();
 
-}
-// ------------------------------------------
-// Image Upload
-// ------------------------------------------
+}// ==========================================
+// IMAGE UPLOAD
+// ==========================================
 
 if(imagePicker){
 
-imagePicker.addEventListener("change",function(){
+    imagePicker.addEventListener("change", function(){
 
-    const file = this.files[0];
+        const file = this.files[0];
 
-    if(!file) return;
+        if(!file) return;
+
+        handleImageUpload(file);
+
+        imagePicker.value = "";
+
+        imagePicker.removeAttribute("capture");
+
+        closeAttachmentMenu();
+
+    });
+
+}
+
+
+
+// ==========================================
+// HANDLE IMAGE
+// ==========================================
+
+function handleImageUpload(file){
 
     const reader = new FileReader();
 
     reader.onload = function(e){
 
-        addMessage("user",`
-
+        addMessage("user", `
             <img
-            src="${e.target.result}"
-            class="chatImage">
-
+                src="${e.target.result}"
+                class="chatImage">
         `);
+
+        rememberUpload(file,"image");
+
+        aiUploadReply("image",file);
 
     };
 
     reader.readAsDataURL(file);
-
-    rememberUpload(file,"image");
-
-    aiUploadReply("image",file);
-
-    imagePicker.value="";
-
-    imagePicker.removeAttribute("capture");
-
-    closeAttachmentMenu();
-
-});
 
 }
 
