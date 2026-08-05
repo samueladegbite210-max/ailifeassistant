@@ -15,7 +15,15 @@ const chat = document.getElementById("chatBox");
 const imagePicker = document.getElementById("imagePicker");
 const filePicker = document.getElementById("filePicker");
 
+// Auto Expand Textarea
 
+input.addEventListener("input", function(){
+
+    this.style.height = "auto";
+
+    this.style.height = this.scrollHeight + "px";
+
+});
 // ------------------------------------------
 // Helpers
 // ------------------------------------------
@@ -179,13 +187,13 @@ function sendMessage(){
 
 input.addEventListener("keydown", function(e){
 
-    if(e.key === "Enter"){
+    if(e.key === "Enter" && !e.shiftKey){
 
-        e.preventDefault();
+    e.preventDefault();
 
-        sendMessage();
+    sendMessage();
 
-    }
+}
 
 });
 
@@ -387,7 +395,11 @@ if (attachBtn) {
 
 document.addEventListener("click", function(e){
 
+    document.addEventListener("click", function(e){
+
     const menu = document.getElementById("attachmentMenu");
+
+    if(!menu) return;
 
     if(
         !menu.contains(e.target) &&
