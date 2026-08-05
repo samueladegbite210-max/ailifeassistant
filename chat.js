@@ -317,44 +317,93 @@ function sendMessage(){
 }
 
 
-// ================================
-// Enter Key
-// ================================
+// ==========================================
+// KEYBOARD EVENTS
+// ==========================================
 
-input.addEventListener("keydown", function(e){
+if(input){
 
-    if(e.key === "Enter" && !e.shiftKey){
+    input.addEventListener("keydown", function(e){
 
-    e.preventDefault();
+        // ENTER = Send
+        if(e.key === "Enter" && !e.shiftKey){
 
-    sendMessage();
+            e.preventDefault();
+
+            sendMessage();
+
+        }
+
+        // SHIFT + ENTER = New Line
+        if(e.key === "Enter" && e.shiftKey){
+
+            return;
+
+        }
+
+    });
+
+}
+// ==========================================
+// PASTE IMAGE SUPPORT
+// ==========================================
+
+if(input){
+
+    input.addEventListener("paste", function(e){
+
+        const items = e.clipboardData.items;
+
+        for(const item of items){
+
+            if(item.type.indexOf("image") !== -1){
+
+                const file = item.getAsFile();
+
+                handleImageUpload(file);
+
+                e.preventDefault();
+
+                break;
+
+            }
+
+        }
+
+    });
 
 }
 
-});
 
-
-// ------------------------------------------
-// Attachment Menu
-// ------------------------------------------
+// ==========================================
+// ATTACHMENT MENU
+// ==========================================
 
 function openAttachmentMenu(){
 
-    document
-    .getElementById("attachmentMenu")
-    .classList.toggle("show");
+    if(!attachmentMenu) return;
+
+    attachmentMenu.classList.toggle("show");
 
 }
+
+
 
 function closeAttachmentMenu(){
 
-    document
-    .getElementById("attachmentMenu")
-    .classList.remove("show");
+    if(!attachmentMenu) return;
+
+    attachmentMenu.classList.remove("show");
 
 }
 
+
+
+// Open Gallery
+
 function pickImage(){
+
+    if(!imagePicker) return;
 
     imagePicker.removeAttribute("capture");
 
@@ -362,7 +411,13 @@ function pickImage(){
 
 }
 
+
+
+// Open Camera
+
 function takePhoto(){
+
+    if(!imagePicker) return;
 
     imagePicker.setAttribute("capture","environment");
 
@@ -370,13 +425,17 @@ function takePhoto(){
 
 }
 
+
+
+// Open File Picker
+
 function pickFile(){
+
+    if(!filePicker) return;
 
     filePicker.click();
 
 }
-
-
 // ------------------------------------------
 // Image Upload
 // ------------------------------------------
@@ -514,15 +573,19 @@ What would you like me to do?
     },700);
 
 }
-// ======================
-// Attachment Button
-// ======================
+// ==========================================
+// ATTACH BUTTON
+// ==========================================
 
-const attachBtn = document.getElementById("attachBtn");
+if(attachBtn){
 
-if (attachBtn) {
+    attachBtn.addEventListener("click", function(e){
 
-    attachBtn.addEventListener("click", openAttachmentMenu);
+        e.stopPropagation();
+
+        openAttachmentMenu();
+
+    });
 
 }
 // ======================
