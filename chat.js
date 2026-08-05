@@ -255,7 +255,7 @@ imagePicker.addEventListener("change",function(){
 
     const reader = new FileReader();
 
-    reader.onload=function(e){
+    reader.onload = function(e){
 
         addMessage("user",`
 
