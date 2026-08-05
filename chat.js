@@ -1,43 +1,36 @@
 // ==========================================
-// AI Life Assistant Chat UI
+// AI Life Assistant Chat
 // Version 3.0
-// Clean Architecture
 // ==========================================
 
+// -------------------------
+// Elements
+// -------------------------
 
+const chatBox = document.getElementById("chatBox");
 
-// ==========================================
-// ELEMENTS
-// ==========================================
-
-const input = document.getElementById("userInput");
-const chat = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
 
 const sendBtn = document.getElementById("sendBtn");
-const voiceBtn = document.getElementById("voiceBtn");
+
 const attachBtn = document.getElementById("attachBtn");
+
+const voiceBtn = document.getElementById("voiceBtn");
 
 const attachmentMenu = document.getElementById("attachmentMenu");
 
 const imagePicker = document.getElementById("imagePicker");
+
 const filePicker = document.getElementById("filePicker");
 
+// -------------------------
+// Upload Memory
+// -------------------------
 
-
-// ==========================================
-// GLOBAL VARIABLES
-// ==========================================
-
-let uploadedFiles =
-JSON.parse(localStorage.getItem("uploadedFiles")) || [];
-
-let isTyping = false;
-
-
-
-// ==========================================
-// HELPERS
-// ==========================================
+let uploadedFiles = [];
+// -------------------------
+// Helpers
+// -------------------------
 
 function getCurrentTime(){
 
@@ -51,607 +44,54 @@ function getCurrentTime(){
 
 }
 
-
-
 function scrollBottom(){
 
-    if(!chat) return;
-
-    chat.scrollTop = chat.scrollHeight;
+    chatBox.scrollTop = chatBox.scrollHeight;
 
 }
+// -------------------------
+// Auto Expand
+// -------------------------
 
+userInput.addEventListener("input",function(){
 
+    this.style.height = "auto";
 
-function saveUploads(){
+    this.style.height = this.scrollHeight + "px";
 
-    localStorage.setItem(
+});
 
-        "uploadedFiles",
-
-        JSON.stringify(uploadedFiles)
-
-    );
-
-}
-
-// ==========================================
-// MESSAGE SYSTEM
-// ==========================================
-
-function createMessage(type, content){
-
-    const bubble = document.createElement("div");
-
-    bubble.className = `message ${type}`;
-
-    const text = document.createElement("div");
-
-    text.className = "messageText";
-
-    text.innerHTML = content;
-
-    const time = document.createElement("div");
-
-    time.className = "messageTime";
-
-    time.textContent = getCurrentTime();
-
-    bubble.appendChild(text);
-
-    bubble.appendChild(time);
-
-    chat.appendChild(bubble);
-
-    scrollBottom();
-
-    return bubble;
-
-}
-
-
-
-// Simple Text Message
-
-function addMessage(type, text){
-
-    if(!chat) return;
-
-    text = text.replace(/\n/g,"<br>");
-
-    createMessage(type, text);
-
-}
-
-// ==========================================
-// TYPING INDICATOR
-// ==========================================
-
-function showTyping(){
-
-    if(isTyping) return;
-
-    isTyping = true;
-
-    const typing = document.createElement("div");
-
-    typing.className = "message ai typing";
-
-    typing.id = "typingIndicator";
-
-    typing.innerHTML = `
-        <div class="messageText">
-            🤖 AI is typing<span class="dots">...</span>
-        </div>
-    `;
-
-    chat.appendChild(typing);
-
-    scrollBottom();
-
-}
-
-
-
-function hideTyping(){
-
-    const typing = document.getElementById("typingIndicator");
-
-    if(typing){
-
-        typing.remove();
-
-    }
-
-    isTyping = false;
-
-}
-// ==========================================
-// AI REPLY
-// ==========================================
-
-async function aiReply(text){
-
-    showTyping();
-
-    input.disabled = true;
-
-    if(sendBtn){
-
-        sendBtn.disabled = true;
-
-    }
-
-    try{
-
-        const answer = await smartAIReply(text);
-
-        hideTyping();
-
-        addMessage("ai", answer);
-
-        if(typeof saveContext === "function"){
-
-            saveContext("ai", answer);
-
-        }
-
-    }
-
-    catch(error){
-
-        hideTyping();
-
-        addMessage("ai","⚠️ Something went wrong. Please try again.");
-
-        console.error(error);
-
-    }
-
-    finally{
-
-        input.disabled = false;
-
-        if(sendBtn){
-
-            sendBtn.disabled = false;
-
-        }
-
-        input.focus();
-
-    }
-
-}
-// ==========================================
-// CHAT COMPOSER
-// ==========================================
+// -------------------------
+// Composer State
+// -------------------------
 
 function updateComposer(){
 
-    if(!input) return;
+    if(userInput.value.trim().length > 0){
 
-    const hasText = input.value.trim().length > 0;
+        sendBtn.classList.add("active");
 
-    // Send Button
-    if(sendBtn){
+        if(voiceBtn){
 
-        sendBtn.classList.toggle("active", hasText);
+            voiceBtn.style.display = "none";
 
-        sendBtn.disabled = !hasText && !isTyping;
+        }
+
+    }else{
+
+        sendBtn.classList.remove("active");
+
+        if(voiceBtn){
+
+            voiceBtn.style.display = "flex";
+
+        }
 
     }
 
-    // Voice Button
-    if(voiceBtn){
-
-        voiceBtn.style.display = hasText ? "none" : "flex";
-
-    }
-
 }
 
-
-
-// Auto Expand Textarea
-
-function autoResize(){
-
-    input.style.height = "auto";
-
-    input.style.height = input.scrollHeight + "px";
-
-}
-
-
-
-// Listen for typing
-
-if(input){
-
-    input.addEventListener("input", function(){
-
-        autoResize();
-
-        updateComposer();
-
-    });
-
-}
-
-
-
-// Initialize
+userInput.addEventListener("input",updateComposer);
 
 updateComposer();
 
-
-// ==========================================
-// SEND MESSAGE
-// ==========================================
-
-function sendMessage(){
-
-    if(isTyping) return;
-
-    const text = input.value.trim();
-
-    if(text === "") return;
-
-    addMessage("user", text);
-
-    if(typeof saveContext === "function"){
-
-        saveContext("user", text);
-
-    }
-
-    input.value = "";
-
-    input.style.height = "auto";
-
-    updateComposer();
-
-    aiReply(text);
-
-}
-
-
-// ==========================================
-// KEYBOARD EVENTS
-// ==========================================
-
-if(input){
-
-    input.addEventListener("keydown", function(e){
-
-        // ENTER = Send
-        if(e.key === "Enter" && !e.shiftKey){
-
-            e.preventDefault();
-
-            sendMessage();
-
-        }
-
-        // SHIFT + ENTER = New Line
-        if(e.key === "Enter" && e.shiftKey){
-
-            return;
-
-        }
-
-    });
-
-}
-// ==========================================
-// PASTE IMAGE SUPPORT
-// ==========================================
-
-if(input){
-
-    input.addEventListener("paste", function(e){
-
-        const items = e.clipboardData.items;
-
-        for(const item of items){
-
-            if(item.type.indexOf("image") !== -1){
-
-                const file = item.getAsFile();
-
-                handleImageUpload(file);
-
-                e.preventDefault();
-
-                break;
-
-            }
-
-        }
-
-    });
-
-}
-
-
-// ==========================================
-// ATTACHMENT MENU
-// ==========================================
-
-function openAttachmentMenu(){
-
-    if(!attachmentMenu) return;
-
-    attachmentMenu.classList.toggle("show");
-
-}
-
-
-
-function closeAttachmentMenu(){
-
-    if(!attachmentMenu) return;
-
-    attachmentMenu.classList.remove("show");
-
-}
-
-
-
-// Open Gallery
-
-function pickImage(){
-
-    if(!imagePicker) return;
-
-    imagePicker.removeAttribute("capture");
-
-    imagePicker.click();
-
-}
-
-
-
-// Open Camera
-
-function takePhoto(){
-
-    if(!imagePicker) return;
-
-    imagePicker.setAttribute("capture","environment");
-
-    imagePicker.click();
-
-}
-
-
-
-// Open File Picker
-
-function pickFile(){
-
-    if(!filePicker) return;
-
-    filePicker.click();
-
-}// ==========================================
-// IMAGE UPLOAD
-// ==========================================
-
-if(imagePicker){
-
-    imagePicker.addEventListener("change", function(){
-
-        const file = this.files[0];
-
-        if(!file) return;
-
-        handleImageUpload(file);
-
-        imagePicker.value = "";
-
-        imagePicker.removeAttribute("capture");
-
-        closeAttachmentMenu();
-
-    });
-
-}
-
-
-
-// ==========================================
-// HANDLE IMAGE
-// ==========================================
-
-function handleImageUpload(file){
-
-    const reader = new FileReader();
-
-    reader.onload = function(e){
-
-        addMessage("user", `
-            <img
-                src="${e.target.result}"
-                class="chatImage">
-        `);
-
-        rememberUpload(file,"image");
-
-        aiUploadReply("image",file);
-
-    };
-
-    reader.readAsDataURL(file);
-
-}
-
-
-// ==========================================
-// FILE UPLOAD
-// ==========================================
-
-if(filePicker){
-
-    filePicker.addEventListener("change", function(){
-
-        const file = this.files[0];
-
-        if(!file) return;
-
-        handleFileUpload(file);
-
-        filePicker.value = "";
-
-        closeAttachmentMenu();
-
-    });
-
-}
-
-
-
-// ==========================================
-// HANDLE FILE
-// ==========================================
-
-function handleFileUpload(file){
-
-    addMessage("user", `
-
-        <div class="chatFile">
-
-            <div class="fileIcon">
-                📄
-            </div>
-
-            <div class="fileInfo">
-
-                <div class="fileName">
-                    ${file.name}
-                </div>
-
-                <div class="fileSize">
-                    ${(file.size / 1024).toFixed(1)} KB
-                </div>
-
-            </div>
-
-        </div>
-
-    `);
-
-    rememberUpload(file,"file");
-
-    aiUploadReply("file",file);
-
-}
-
-
-// ------------------------------------------
-// AI Upload Reply
-// ------------------------------------------
-
-function aiUploadReply(type,file){
-
-    let reply="";
-
-    if(type==="image"){
-
-        reply=`
-📷 Image received successfully.
-
-What would you like me to do?
-
-• 📝 Read text
-• 👀 Describe image
-• 🔍 Analyze image
-• ❓Answer questions
-`;
-
-    }
-
-    else{
-
-        reply=`
-📄 ${file.name} uploaded.
-
-What would you like me to do?
-
-• 📑 Summarize
-• 🧠 Explain
-• 🔍 Extract information
-• ❓Answer questions
-`;
-
-    }
-
-    setTimeout(()=>{
-
-        addMessage("ai",reply);
-
-    },700);
-
-}
-// ==========================================
-// ATTACH BUTTON
-// ==========================================
-
-if(attachBtn){
-
-    attachBtn.addEventListener("click", function(e){
-
-        e.stopPropagation();
-
-        openAttachmentMenu();
-
-    });
-
-}
-// ==========================================
-// AUTO CLOSE MENU
-// ==========================================
-
-document.addEventListener("click", function(e){
-
-    if(!attachmentMenu) return;
-
-    if(
-
-        !attachmentMenu.contains(e.target) &&
-
-        e.target !== attachBtn
-
-    ){
-
-        closeAttachmentMenu();
-
-    }
-
-});
-// ==========================================
-// UPLOAD MEMORY
-// ==========================================
-
-let uploadedFiles = [];
-
-function rememberUpload(file,type){
-
-    uploadedFiles.push({
-
-        id: Date.now(),
-
-        name: file.name,
-
-        type: type,
-
-        size: file.size,
-
-        mime: file.type,
-
-        date: new Date().toLocaleString()
-
-    });
-
-}
