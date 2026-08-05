@@ -65,47 +65,27 @@ function scrollBottom(){
     chatBox.scrollTop = chatBox.scrollHeight;
 
 }
-// ==========================================
+// -------------------------
 // Add Message
-// ==========================================
+// -------------------------
 
-function addMessage(type, text){
-
-    text = text.replace(/\n/g,"<br>");
+function addMessage(type, content){
 
     const message = document.createElement("div");
 
     message.className = `message ${type}`;
 
     message.innerHTML = `
-
         <div class="messageText">
-            ${text}
+            ${content}
         </div>
 
         <div class="messageTime">
             ${getCurrentTime()}
         </div>
-
     `;
 
-    // Start invisible
-    message.style.opacity = "0";
-    message.style.transform = "translateY(15px)";
-
-    chat.appendChild(message);
-
-    requestAnimationFrame(()=>{
-
-        message.style.transition =
-            "all .28s ease";
-
-        message.style.opacity = "1";
-
-        message.style.transform =
-            "translateY(0)";
-
-    });
+    chatBox.appendChild(message);
 
     scrollBottom();
 
