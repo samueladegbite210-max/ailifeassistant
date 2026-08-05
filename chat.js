@@ -370,8 +370,35 @@ What would you like me to do?
     },700);
 
 }
+// ======================
+// Attachment Button
+// ======================
 
+const attachBtn = document.getElementById("attachBtn");
 
+if (attachBtn) {
+
+    attachBtn.addEventListener("click", openAttachmentMenu);
+
+}
+// ======================
+// Close Attachment Menu
+// ======================
+
+document.addEventListener("click", function(e){
+
+    const menu = document.getElementById("attachmentMenu");
+
+    if(
+        !menu.contains(e.target) &&
+        e.target.id !== "attachBtn"
+    ){
+
+        menu.classList.remove("show");
+
+    }
+
+});
 // ------------------------------------------
 // Upload Memory
 // ------------------------------------------
