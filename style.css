@@ -1605,10 +1605,7 @@ Chat Messages
     opacity:.65;
     text-align:right;
 }
-chatBox{
-         class="card"
-    style="height:65vh;"overflow-y:auto;text-align:left;">
-}
+
 /*==============================
 Modern Chat Input
 ==============================*/
