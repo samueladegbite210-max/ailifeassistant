@@ -99,7 +99,7 @@ body{
 
     <div id="chatBox"
          class="card"
-         style="height:420px;overflow-y:auto;text-align:left;">
+         style="height:65vh;"overflow-y:auto;text-align:left;">
 
         <p><strong>🤖 AI:</strong> Hello Samuel! How can I help you today?</p>
 
@@ -107,9 +107,12 @@ body{
 
     <div class="chatComposer">
 
-    <button id="attachBtn" class="composerIcon">
-        +
-    </button>
+    <button
+    id="attachBtn"
+    class="composerIcon"
+    onclick="openAttachmentMenu()">
+    +
+</button>
 
     <textarea
         id="userInput"
@@ -154,6 +157,7 @@ style="display:none;">
 type="file"
 id="filePicker"
 style="display:none;">
+    </div> 
 <div class="navbar">
 <a href="dashboard.html">🏠<br>Home</a>
 <a href="chat.html">🤖<br>AI</a>
