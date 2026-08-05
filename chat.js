@@ -1,74 +1,125 @@
 // ==========================================
 // AI Life Assistant Chat UI
-// Version 2.0
-// Clean Foundation
+// Version 3.0
+// Clean Architecture
 // ==========================================
 
 
-// ------------------------------------------
-// Elements
-// ------------------------------------------
+
+// ==========================================
+// ELEMENTS
+// ==========================================
 
 const input = document.getElementById("userInput");
 const chat = document.getElementById("chatBox");
 
+const sendBtn = document.getElementById("sendBtn");
+const voiceBtn = document.getElementById("voiceBtn");
+const attachBtn = document.getElementById("attachBtn");
+
+const attachmentMenu = document.getElementById("attachmentMenu");
+
 const imagePicker = document.getElementById("imagePicker");
 const filePicker = document.getElementById("filePicker");
 
-// Auto Expand Textarea
 
-input.addEventListener("input", function(){
 
-    this.style.height = "auto";
+// ==========================================
+// GLOBAL VARIABLES
+// ==========================================
 
-    this.style.height = this.scrollHeight + "px";
+let uploadedFiles =
+JSON.parse(localStorage.getItem("uploadedFiles")) || [];
 
-});
-// ------------------------------------------
-// Helpers
-// ------------------------------------------
+let isTyping = false;
 
-function getCurrentTime() {
+
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+function getCurrentTime(){
 
     return new Date().toLocaleTimeString([],{
+
         hour:"2-digit",
+
         minute:"2-digit"
+
     });
 
 }
 
+
+
 function scrollBottom(){
+
+    if(!chat) return;
 
     chat.scrollTop = chat.scrollHeight;
 
 }
 
 
-// ------------------------------------------
-// Add Chat Message
-// ------------------------------------------
 
-function addMessage(type,text){
+function saveUploads(){
+
+    localStorage.setItem(
+
+        "uploadedFiles",
+
+        JSON.stringify(uploadedFiles)
+
+    );
+
+}
+
+// ==========================================
+// MESSAGE SYSTEM
+// ==========================================
+
+function createMessage(type, content){
+
+    const bubble = document.createElement("div");
+
+    bubble.className = `message ${type}`;
+
+    const text = document.createElement("div");
+
+    text.className = "messageText";
+
+    text.innerHTML = content;
+
+    const time = document.createElement("div");
+
+    time.className = "messageTime";
+
+    time.textContent = getCurrentTime();
+
+    bubble.appendChild(text);
+
+    bubble.appendChild(time);
+
+    chat.appendChild(bubble);
+
+    scrollBottom();
+
+    return bubble;
+
+}
+
+
+
+// Simple Text Message
+
+function addMessage(type, text){
+
+    if(!chat) return;
 
     text = text.replace(/\n/g,"<br>");
 
-    const message = document.createElement("div");
-
-    message.className = `message ${type}`;
-
-    message.innerHTML = `
-        <div class="messageText">
-            ${text}
-        </div>
-
-        <div class="messageTime">
-            ${getCurrentTime()}
-        </div>
-    `;
-
-    chat.appendChild(message);
-
-    scrollBottom();
+    createMessage(type, text);
 
 }
 
