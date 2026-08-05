@@ -23,11 +23,27 @@ const imagePicker = document.getElementById("imagePicker");
 
 const filePicker = document.getElementById("filePicker");
 
-// -------------------------
+// ==========================================
 // Upload Memory
-// -------------------------
+// ==========================================
 
 let uploadedFiles = [];
+
+function rememberUpload(file,type){
+
+    uploadedFiles.unshift({
+
+        name:file.name,
+
+        type:type,
+
+        size:file.size,
+
+        date:new Date()
+
+    });
+
+}
 // -------------------------
 // Helpers
 // -------------------------
@@ -260,7 +276,67 @@ async function aiReply(text){
 
     
 }
+// ==========================================
+// AI Upload Reply
+// ==========================================
 
+function aiUploadReply(type, file){
+
+    let reply = "";
+
+    if(type === "image"){
+
+        reply = `
+📷 Nice! I received your image.
+
+I can help you:
+
+📝 Read text from the image
+
+👀 Describe what I see
+
+🔍 Analyze objects
+
+😊 Explain charts
+
+❓Answer questions about the image
+
+(Coming soon: Full AI Vision)
+`;
+
+    }
+
+    if(type === "file"){
+
+        reply = `
+📄 I received:
+
+<b>${file.name}</b>
+
+I can help you:
+
+📑 Summarize it
+
+🧠 Explain it
+
+🔍 Find important information
+
+📚 Study with you
+
+❓Answer questions
+
+(Coming soon: Smart document reading)
+`;
+
+    }
+
+    setTimeout(()=>{
+
+        addMessage("ai", reply);
+
+    },700);
+
+}
 // ==========================================
 // Attachment Menu
 // ==========================================
