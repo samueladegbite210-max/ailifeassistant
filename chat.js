@@ -123,12 +123,15 @@ function addMessage(type, text){
 
 }
 
+// ==========================================
+// TYPING INDICATOR
+// ==========================================
 
-// ------------------------------------------
-// AI Reply
-// ------------------------------------------
+function showTyping(){
 
-async function aiReply(text){
+    if(isTyping) return;
+
+    isTyping = true;
 
     const typing = document.createElement("div");
 
@@ -136,35 +139,88 @@ async function aiReply(text){
 
     typing.id = "typingIndicator";
 
-    typing.innerHTML = "🤖 AI is typing...";
+    typing.innerHTML = `
+        <div class="messageText">
+            🤖 AI is typing<span class="dots">...</span>
+        </div>
+    `;
 
     chat.appendChild(typing);
 
     scrollBottom();
 
-    input.disabled = true;
+}
 
-    const sendBtn = document.getElementById("sendBtn");
 
-    if(sendBtn) sendBtn.disabled = true;
 
-    const answer = await smartAIReply(text);
+function hideTyping(){
 
-    typing.remove();
+    const typing = document.getElementById("typingIndicator");
 
-    addMessage("ai",answer);
+    if(typing){
 
-    if(typeof saveContext==="function"){
-
-        saveContext("ai",answer);
+        typing.remove();
 
     }
 
-    input.disabled = false;
+    isTyping = false;
 
-    if(sendBtn) sendBtn.disabled = false;
+}
+// ==========================================
+// AI REPLY
+// ==========================================
 
-    input.focus();
+async function aiReply(text){
+
+    showTyping();
+
+    input.disabled = true;
+
+    if(sendBtn){
+
+        sendBtn.disabled = true;
+
+    }
+
+    try{
+
+        const answer = await smartAIReply(text);
+
+        hideTyping();
+
+        addMessage("ai", answer);
+
+        if(typeof saveContext === "function"){
+
+            saveContext("ai", answer);
+
+        }
+
+    }
+
+    catch(error){
+
+        hideTyping();
+
+        addMessage("ai","⚠️ Something went wrong. Please try again.");
+
+        console.error(error);
+
+    }
+
+    finally{
+
+        input.disabled = false;
+
+        if(sendBtn){
+
+            sendBtn.disabled = false;
+
+        }
+
+        input.focus();
+
+    }
 
 }
 
