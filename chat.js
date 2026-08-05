@@ -258,4 +258,136 @@ async function aiReply(text){
 
     userInput.focus();
 
+    
 }
+
+// ==========================================
+// Attachment Menu
+// ==========================================
+
+function openAttachmentMenu(){
+
+    attachmentMenu.classList.toggle("show");
+
+}
+
+function closeAttachmentMenu(){
+
+    attachmentMenu.classList.remove("show");
+
+}
+
+attachBtn.addEventListener("click", openAttachmentMenu);
+
+document.addEventListener("click",(e)=>{
+
+    if(
+        !attachmentMenu.contains(e.target) &&
+        e.target !== attachBtn
+    ){
+
+        closeAttachmentMenu();
+
+    }
+
+});
+// ==========================================
+// Image Upload
+// ==========================================
+
+function pickImage(){
+
+    imagePicker.removeAttribute("capture");
+
+    imagePicker.click();
+
+}
+
+function takePhoto(){
+
+    imagePicker.setAttribute(
+        "capture",
+        "environment"
+    );
+
+    imagePicker.click();
+
+}
+
+imagePicker.addEventListener("change",()=>{
+
+    const file = imagePicker.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload=(e)=>{
+
+        addMessage(
+            "user",
+            `<img src="${e.target.result}" class="chatImage">`
+        );
+
+    };
+
+    reader.readAsDataURL(file);
+
+    rememberUpload(file,"image");
+
+    aiUploadReply("image",file);
+
+    imagePicker.value="";
+
+    closeAttachmentMenu();
+
+});
+
+// ==========================================
+// File Upload
+// ==========================================
+
+function pickFile(){
+
+    filePicker.click();
+
+}
+
+filePicker.addEventListener("change",()=>{
+
+    const file = filePicker.files[0];
+
+    if(!file) return;
+
+    addMessage(
+        "user",
+        `
+        <div class="chatFile">
+
+            <div class="fileIcon">📄</div>
+
+            <div class="fileInfo">
+
+                <div class="fileName">
+                    ${file.name}
+                </div>
+
+                <div class="fileSize">
+                    ${(file.size/1024).toFixed(1)} KB
+                </div>
+
+            </div>
+
+        </div>
+        `
+    );
+
+    rememberUpload(file,"file");
+
+    aiUploadReply("file",file);
+
+    filePicker.value="";
+
+    closeAttachmentMenu();
+
+});
