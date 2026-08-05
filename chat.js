@@ -223,65 +223,94 @@ async function aiReply(text){
     }
 
 }
-
-// ================================
-// Composer Behaviour
-// ================================
-
-const sendBtn = document.getElementById("sendBtn");
-const voiceBtn = document.getElementById("voiceBtn");
+// ==========================================
+// CHAT COMPOSER
+// ==========================================
 
 function updateComposer(){
 
+    if(!input) return;
+
     const hasText = input.value.trim().length > 0;
 
-    if(hasText){
+    // Send Button
+    if(sendBtn){
 
-        sendBtn.classList.add("active");
+        sendBtn.classList.toggle("active", hasText);
 
-        if(voiceBtn){
-            voiceBtn.style.display = "none";
-        }
+        sendBtn.disabled = !hasText && !isTyping;
 
-    }else{
+    }
 
-        sendBtn.classList.remove("active");
+    // Voice Button
+    if(voiceBtn){
 
-        if(voiceBtn){
-            voiceBtn.style.display = "flex";
-        }
+        voiceBtn.style.display = hasText ? "none" : "flex";
 
     }
 
 }
 
-input.addEventListener("input", updateComposer);
+
+
+// Auto Expand Textarea
+
+function autoResize(){
+
+    input.style.height = "auto";
+
+    input.style.height = input.scrollHeight + "px";
+
+}
+
+
+
+// Listen for typing
+
+if(input){
+
+    input.addEventListener("input", function(){
+
+        autoResize();
+
+        updateComposer();
+
+    });
+
+}
+
+
+
+// Initialize
 
 updateComposer();
 
 
-// ------------------------------------------
-// Send Message
-// ------------------------------------------
+// ==========================================
+// SEND MESSAGE
+// ==========================================
 
 function sendMessage(){
 
+    if(isTyping) return;
+
     const text = input.value.trim();
 
-    if(text==="") return;
+    if(text === "") return;
 
-    addMessage("user",text);
+    addMessage("user", text);
 
-    if(typeof saveContext==="function"){
+    if(typeof saveContext === "function"){
 
-        saveContext("user",text);
+        saveContext("user", text);
 
     }
 
-    input.value="";
-    updateComposer();
+    input.value = "";
 
-    input.style.height="auto";
+    input.style.height = "auto";
+
+    updateComposer();
 
     aiReply(text);
 
