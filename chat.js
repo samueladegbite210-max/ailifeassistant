@@ -90,9 +90,9 @@ function addMessage(type, content){
     scrollBottom();
 
 }
-// -------------------------
+// ==========================================
 // Typing Indicator
-// -------------------------
+// ==========================================
 
 function showTyping(){
 
@@ -103,8 +103,12 @@ function showTyping(){
     typing.id = "typingIndicator";
 
     typing.innerHTML = `
-        <div class="messageText">
-            🤖 AI is typing...
+        <div class="typingBubble">
+
+            <span></span>
+            <span></span>
+            <span></span>
+
         </div>
     `;
 
