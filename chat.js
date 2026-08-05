@@ -488,19 +488,37 @@ function handleImageUpload(file){
 }
 
 
-// ------------------------------------------
-// File Upload
-// ------------------------------------------
+// ==========================================
+// FILE UPLOAD
+// ==========================================
 
 if(filePicker){
 
-filePicker.addEventListener("change",function(){
+    filePicker.addEventListener("change", function(){
 
-    const file = this.files[0];
+        const file = this.files[0];
 
-    if(!file) return;
+        if(!file) return;
 
-    addMessage("user",`
+        handleFileUpload(file);
+
+        filePicker.value = "";
+
+        closeAttachmentMenu();
+
+    });
+
+}
+
+
+
+// ==========================================
+// HANDLE FILE
+// ==========================================
+
+function handleFileUpload(file){
+
+    addMessage("user", `
 
         <div class="chatFile">
 
@@ -515,7 +533,7 @@ filePicker.addEventListener("change",function(){
                 </div>
 
                 <div class="fileSize">
-                    ${(file.size/1024).toFixed(1)} KB
+                    ${(file.size / 1024).toFixed(1)} KB
                 </div>
 
             </div>
@@ -527,12 +545,6 @@ filePicker.addEventListener("change",function(){
     rememberUpload(file,"file");
 
     aiUploadReply("file",file);
-
-    filePicker.value="";
-
-    closeAttachmentMenu();
-
-});
 
 }
 
@@ -618,23 +630,27 @@ document.addEventListener("click", function(e){
     }
 
 });
-// ------------------------------------------
-// Upload Memory
-// ------------------------------------------
+// ==========================================
+// UPLOAD MEMORY
+// ==========================================
 
-let uploadedFiles=[];
+let uploadedFiles = [];
 
 function rememberUpload(file,type){
 
     uploadedFiles.push({
 
-        name:file.name,
+        id: Date.now(),
 
-        type:type,
+        name: file.name,
 
-        size:file.size,
+        type: type,
 
-        date:new Date().toLocaleString()
+        size: file.size,
+
+        mime: file.type,
+
+        date: new Date().toLocaleString()
 
     });
 
