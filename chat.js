@@ -393,21 +393,17 @@ if (attachBtn) {
 // Close Attachment Menu
 // ======================
 
-document.addEventListener("click", function(e){
-
-    document.addEventListener("click", function(e){
+document.addEventListener("click", function (e) {
 
     const menu = document.getElementById("attachmentMenu");
 
-    if(!menu) return;
+    if (!menu) return;
 
-    if(
+    if (
         !menu.contains(e.target) &&
         e.target.id !== "attachBtn"
-    ){
-
+    ) {
         menu.classList.remove("show");
-
     }
 
 });
