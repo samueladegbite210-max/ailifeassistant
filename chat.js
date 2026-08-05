@@ -588,21 +588,24 @@ if(attachBtn){
     });
 
 }
-// ======================
-// Close Attachment Menu
-// ======================
+// ==========================================
+// AUTO CLOSE MENU
+// ==========================================
 
-document.addEventListener("click", function (e) {
+document.addEventListener("click", function(e){
 
-    const menu = document.getElementById("attachmentMenu");
+    if(!attachmentMenu) return;
 
-    if (!menu) return;
+    if(
 
-    if (
-        !menu.contains(e.target) &&
-        e.target.id !== "attachBtn"
-    ) {
-        menu.classList.remove("show");
+        !attachmentMenu.contains(e.target) &&
+
+        e.target !== attachBtn
+
+    ){
+
+        closeAttachmentMenu();
+
     }
 
 });
