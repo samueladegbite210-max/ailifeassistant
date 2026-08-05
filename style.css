@@ -1916,6 +1916,67 @@ Chat Files
     }
 
 }
+/*=========================================
+ChatGPT Typing Animation
+=========================================*/
+
+.typingBubble{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:6px 4px;
+
+}
+
+.typingBubble span{
+
+    width:8px;
+
+    height:8px;
+
+    background:#9CA3AF;
+
+    border-radius:50%;
+
+    animation:typingBounce 1s infinite;
+
+}
+
+.typingBubble span:nth-child(2){
+
+    animation-delay:.2s;
+
+}
+
+.typingBubble span:nth-child(3){
+
+    animation-delay:.4s;
+
+}
+
+@keyframes typingBounce{
+
+    0%,80%,100%{
+
+        transform:translateY(0);
+
+        opacity:.4;
+
+    }
+
+    40%{
+
+        transform:translateY(-6px);
+
+        opacity:1;
+
+    }
+
+}
 /*==================================================
 THE END
 ==================================================*/
