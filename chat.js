@@ -154,7 +154,65 @@ function updateComposer(){
 userInput.addEventListener("input",updateComposer);
 
 updateComposer();
+// -------------------------
 
+// Send Message
+
+// -------------------------
+
+function sendMessage(){
+
+    const text = userInput.value.trim();
+
+    if(!text) return;
+
+    // Show user message
+
+    addMessage("user", text);
+
+    // Save conversation
+
+    if(typeof saveContext === "function"){
+
+        saveContext("user", text);
+
+    }
+
+
+    // Clear input
+
+    userInput.value = "";
+
+    userInput.style.height = "auto";
+
+    updateComposer();
+
+    // Ask AI
+
+    aiReply(text);
+
+}
+
+// -------------------------
+// Enter to Send
+// -------------------------
+
+userInput.addEventListener("keydown",function(e){
+
+    if(e.key === "Enter" && !e.shiftKey){
+
+        e.preventDefault();
+
+        sendMessage();
+
+    }
+
+});
+// -------------------------
+// Send Button
+// -------------------------
+
+sendBtn.addEventListener("click", sendMessage);
 // -------------------------
 // AI Reply
 // -------------------------
