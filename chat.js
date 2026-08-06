@@ -56,31 +56,24 @@ function scrollBottom(){
 // ADD MESSAGE
 // ==========================================
 
-function addMessage(type,text){
+const message = document.createElement("div");
 
-    const message = document.createElement("div");
+message.className = `message ${type}`;
 
-    message.className = `message ${type}`;
+const messageText = document.createElement("div");
+messageText.className = "messageText";
+messageText.innerHTML = text.replace(/\n/g,"<br>");
 
-    message.innerHTML = `
+const messageTime = document.createElement("div");
+messageTime.className = "messageTime";
+messageTime.textContent = getCurrentTime();
 
-        <div class="messageText">
+message.appendChild(messageText);
+message.appendChild(messageTime);
 
-            ${text.replace(/\n/g,"<br>")}
+chatBox.appendChild(message);
 
-        </div>
-
-        <div class="messageTime">
-
-            ${getCurrentTime()}
-
-        </div>
-
-    `;
-
-    chatBox.appendChild(message);
-
-    scrollBottom();
+scrollBottom();
 
 }
 // ==========================================
