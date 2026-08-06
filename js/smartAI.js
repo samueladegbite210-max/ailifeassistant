@@ -1,31 +1,68 @@
-
 // ==========================================
-// AI Life Assistant Brain
+// AI Life Assistant
+// smartAI.js
 // Version 4.0
-// Clean Foundation
+// AI Controller
 // ==========================================
 
-alert("🧠 smartAI.js loaded");
+console.log("🧠 smartAI.js loaded");
 
-// ------------------------------------------
-// Safe Reply Caller
-// ------------------------------------------
-async function smartAIReply(msg){
+// ==========================================
+// MAIN AI CONTROLLER
+// ==========================================
 
-    msg = msg.toLowerCase().trim();
+async function smartAIReply(message){
 
-    let answer;
+    message = message.trim();
 
-    if(typeof conversationReply === "function"){
-        answer = conversationReply(msg);
-        if(answer) return answer;
+    if(message === ""){
+        return "Please type a message.";
     }
 
-    if(typeof calculatorReply === "function"){
-        answer = calculatorReply(msg);
-        if(answer) return answer;
-    }
+    let answer = null;
+
+    // ======================================
+    // Conversation
+    // ======================================
+
+    answer = runReply(conversationReply, message);
+    if(answer) return answer;
+
+    // ======================================
+    // Calculator
+    // ======================================
+
+    answer = runReply(calculatorReply, message);
+    if(answer) return answer;
+
+    // ======================================
+    // Default
+    // ======================================
 
     return "🤖 I don't understand yet.";
+
+}
+
+// ==========================================
+// SAFE MODULE RUNNER
+// ==========================================
+
+function runReply(fn, message){
+
+    try{
+
+        if(typeof fn !== "function"){
+            return null;
+        }
+
+        return fn(message);
+
+    }catch(error){
+
+        console.error("AI Module Error:", error);
+
+        return null;
+
+    }
 
 }
