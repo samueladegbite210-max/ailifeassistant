@@ -56,24 +56,25 @@ function scrollBottom(){
 // ADD MESSAGE
 // ==========================================
 
-const message = document.createElement("div");
+function addMessage(type, text){
 
-message.className = `message ${type}`;
+    const message = document.createElement("div");
 
-const messageText = document.createElement("div");
-messageText.className = "messageText";
-messageText.innerHTML = text.replace(/\n/g,"<br>");
+    message.className = `message ${type}`;
 
-const messageTime = document.createElement("div");
-messageTime.className = "messageTime";
-messageTime.textContent = getCurrentTime();
+    message.innerHTML = `
+        <div class="messageText">
+            ${text.replace(/\n/g,"<br>")}
+        </div>
 
-message.appendChild(messageText);
-message.appendChild(messageTime);
+        <div class="messageTime">
+            ${getCurrentTime()}
+        </div>
+    `;
 
-chatBox.appendChild(message);
+    chatBox.appendChild(message);
 
-scrollBottom();
+    scrollBottom();
 
 }
 // ==========================================
@@ -315,14 +316,17 @@ function closeAttachmentMenu(){
 // ATTACH BUTTON
 // ==========================================
 
-attachBtn.addEventListener("click", function(e){
+if(attachBtn){
 
-    e.stopPropagation();
+    attachBtn.addEventListener("click", function(e){
 
-    openAttachmentMenu();
+        e.stopPropagation();
 
-});
+        openAttachmentMenu();
 
+    });
+
+}
 
 
 // ==========================================
@@ -357,7 +361,17 @@ function pickImage(){
 
 }
 
+if(attachBtn){
 
+    attachBtn.addEventListener("click", function(e){
+
+        e.stopPropagation();
+
+        openAttachmentMenu();
+
+    });
+
+}
 
 // ==========================================
 // CAMERA
