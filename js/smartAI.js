@@ -12,11 +12,20 @@ alert("🧠 smartAI.js loaded");
 // ------------------------------------------
 async function smartAIReply(msg){
 
-    msg = msg.trim();
+    msg = msg.toLowerCase().trim();
 
-    if(!msg){
-        return "Please type something.";
+    let answer;
+
+    if(typeof conversationReply === "function"){
+        answer = conversationReply(msg);
+        if(answer) return answer;
     }
 
-    return "🤖 AI is working perfectly!";
+    if(typeof calculatorReply === "function"){
+        answer = calculatorReply(msg);
+        if(answer) return answer;
+    }
+
+    return "🤖 I don't understand yet.";
+
 }
