@@ -56,27 +56,31 @@ function scrollBottom(){
 // ADD MESSAGE
 // ==========================================
 
-function addMessage(type, text){
+function addMessage(type, content, isHTML = false) {
 
     const message = document.createElement("div");
-
     message.className = `message ${type}`;
 
-    message.innerHTML = `
-        <div class="messageText">
-            ${text.replace(/\n/g,"<br>")}
-        </div>
+    const messageText = document.createElement("div");
+    messageText.className = "messageText";
 
-        <div class="messageTime">
-            ${getCurrentTime()}
-        </div>
-    `;
+    if (isHTML) {
+        messageText.innerHTML = content;
+    } else {
+        messageText.innerHTML = content.replace(/\n/g, "<br>");
+    }
+
+    const messageTime = document.createElement("div");
+    messageTime.className = "messageTime";
+    messageTime.textContent = getCurrentTime();
+
+    message.appendChild(messageText);
+    message.appendChild(messageTime);
 
     chatBox.appendChild(message);
 
     scrollBottom();
-
-}
+} 
 // ==========================================
 // SEND MESSAGE
 // ==========================================
@@ -423,15 +427,13 @@ imagePicker.addEventListener("change", function(){
 
     reader.onload = function(e){
 
-        addMessage("user",
+    addMessage(
+        "user",
+        `<img src="${e.target.result}" class="chatImage">`,
+        true
+    );
 
-            `<img
-                src="${e.target.result}"
-                class="chatImage">`
-
-        );
-
-    };
+};
 
     reader.readAsDataURL(file);
 
@@ -457,32 +459,27 @@ filePicker.addEventListener("change", function(){
 
     if(!file) return;
 
-    addMessage("user",
+    addMessage(
+    "user",
+    `
+    <div class="chatFile">
 
-        `
-        <div class="chatFile">
+        <div class="fileIcon">📄</div>
 
-            <div class="fileIcon">
-                📄
-            </div>
+        <div class="fileInfo">
 
-            <div class="fileInfo">
+            <div class="fileName">${file.name}</div>
 
-                <div class="fileName">
-                    ${file.name}
-                </div>
-
-                <div class="fileSize">
-                    ${(file.size/1024).toFixed(1)} KB
-                </div>
-
+            <div class="fileSize">
+                ${(file.size/1024).toFixed(1)} KB
             </div>
 
         </div>
-        `
 
-    );
-
+    </div>
+    `,
+    true
+);
     rememberUpload(file,"file");
 
     aiUploadReply("file",file);
