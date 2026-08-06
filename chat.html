@@ -2,202 +2,112 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 <title>AI Life Assistant - Chat</title>
-
 <link rel="stylesheet" href="style.css">
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
-
-body{
-    background:#0B0F1A;
-    color:white;
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
-    padding-bottom:90px;
-}
-
-.header{
-    background:#111827;
-    padding:18px;
-    text-align:center;
-    font-size:24px;
-    font-weight:bold;
-}
-
-.chat{
-    flex:1;
-    overflow-y:auto;
-    padding:20px;
-}
-
-.message{
-    padding:12px;
-    border-radius:12px;
-    margin-bottom:15px;
-    max-width:80%;
-    word-wrap:break-word;
-}
-
-.ai{
-    background:#1F2937;
-    margin-right:auto;
-}
-
-.user{
-    background:#2563EB;
-    margin-left:auto;
-    text-align:right;
-}
-
-.bottom{
-    display:flex;
-    gap:10px;
-    padding:15px;
-    background:#111827;
-}
-
-.bottom input{
-    flex:1;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    outline:none;
-}
-
-.bottom button{
-    background:#2563EB;
-    color:white;
-    border:none;
-    padding:12px 20px;
-    border-radius:10px;
-    cursor:pointer;
-}
-
-.bottom button:hover{
-    background:#1D4ED8;
-}
-</style>
-
 </head>
-
 <body>
-
-<header class="header">
-    🤖 AI Life Assistant
+<!-- ==========================
+HEADER
+========================== -->
+<header class="chatHeader">
+    <h1>🤖 AI Life Assistant</h1>
 </header>
-
-<main class="chatContainer">
-
-    <div id="chatBox" class="chatBox">
-
+<!-- ==========================
+CHAT
+========================== -->
+<main class="chatPage">
+    <div
+        id="chatBox"
+        class="chatBox">
+        <!-- Welcome message -->
         <div class="message ai">
             <div class="messageText">
-                👋 Hello Samuel! How can I help you today?
+                👋 Hello Samuel!
+                <br><br>
+                How can I help you today?
             </div>
-
             <div class="messageTime">
                 Now
             </div>
         </div>
-
     </div>
-
 </main>
-
-<div class="chatComposer">
-
+<!-- ==========================
+COMPOSER
+========================== -->
+<footer class="chatComposer">
     <button
         id="attachBtn"
-        class="composerIcon"
-        type="button">
+        class="composerIcon">
         +
     </button>
-
     <textarea
         id="userInput"
         rows="1"
         placeholder="Ask AI Life Assistant...">
     </textarea>
-
     <button
         id="voiceBtn"
-        class="composerIcon"
-        type="button">
+        class="composerIcon">
         🎤
     </button>
-
     <button
         id="sendBtn"
-        class="sendButton"
-        type="button">
+        class="sendButton">
         ➤
     </button>
-
-</div>
-
+</footer>
+<!-- ==========================
+ATTACHMENT MENU
+========================== -->
 <div
     id="attachmentMenu"
     class="attachmentMenu">
-
-    <button type="button" onclick="pickImage()">
+    <button onclick="pickImage()">
         🖼️ Photo
     </button>
-
-    <button type="button" onclick="takePhoto()">
+    <button onclick="takePhoto()">
         📷 Camera
     </button>
-
-    <button type="button" onclick="pickFile()">
+    <button onclick="pickFile()">
         📄 File
     </button>
-
 </div>
-
+<!-- Hidden Inputs -->
 <input
-    type="file"
-    id="imagePicker"
-    accept="image/*"
-    hidden>
-
+type="file"
+id="imagePicker"
+accept="image/*"
+style="display:none;">
 <input
-    type="file"
-    id="filePicker"
-    hidden>
-
+type="file"
+id="filePicker"
+style="display:none;">
+<!-- ==========================
+BOTTOM NAVIGATION
+========================== -->
 <nav class="navbar">
-
-    <a href="dashboard.html">
-        🏠<br>Home
-    </a>
-
-    <a href="chat.html">
-        🤖<br>AI
-    </a>
-
-    <a href="notes.html">
-        📝<br>Notes
-    </a>
-
-    <a href="calendar.html">
-        📅<br>Calendar
-    </a>
-
-    <a href="profile.html">
-        👤<br>Profile
-    </a>
-
+<a href="dashboard.html">
+🏠<br>Home
+</a>
+<a href="chat.html">
+🤖<br>AI
+</a>
+<a href="notes.html">
+📝<br>Notes
+</a>
+<a href="calendar.html">
+📅<br>Calendar
+</a>
+<a href="profile.html">
+👤<br>Profile
+</a>
 </nav>
-
-<!-- JS -->
+<!-- ==========================
+AI ENGINE
+========================== -->
 <script src="js/helpers.js?v=2"></script>
 <script src="js/conversation.js?v=2"></script>
 <script src="js/knowledge.js?v=2"></script>
@@ -209,27 +119,26 @@ body{
 <script src="js/events.js?v=2"></script>
 <script src="js/natural.js?v=2"></script>
 <script src="js/weather.js?v=2"></script>
-<script src="js/search.js?v=1"></script>
+<script src="js/search.js?v=2"></script>
 <script src="js/memory.js?v=2"></script>
-<script src="js/learnUser.js?v=1"></script>
-<script src="js/brain.js?v=1"></script>
-<script src="js/advice.js?v=1"></script>
-<script src="js/searchOnline.js?v=1"></script>
-<script src="js/food.js?v=1"></script>
-<script src="js/internet.js?v=1"></script>
-<script src="js/context.js?v=1"></script>
-<script src="js/teacher.js?v=1"></script>
-<script src="js/xp.js?v=1"></script>
-<script src="js/achievement.js?v=1"></script>
-<script src="js/quiz.js?v=1"></script>
-<script src="js/quizScore.js?v=1"></script>
-<script src="js/profileStats.js?v=1"></script>
-<script src="js/streak.js?v=1"></script>
-<script src="js/streakReply.js?v=1"></script>
-<script src="js/profileReply.js?v=1"></script>
-<script src="js/smartAI.js?v=1"></script>
-
+<script src="js/learnUser.js?v=2"></script>
+<script src="js/brain.js?v=2"></script>
+<script src="js/advice.js?v=2"></script>
+<script src="js/searchOnline.js?v=2"></script>
+<script src="js/food.js?v=2"></script>
+<script src="js/internet.js?v=2"></script>
+<script src="js/context.js?v=2"></script>
+<script src="js/teacher.js?v=2"></script>
+<script src="js/xp.js?v=2"></script>
+<script src="js/achievement.js?v=2"></script>
+<script src="js/quiz.js?v=2"></script>
+<script src="js/quizScore.js?v=2"></script>
+<script src="js/profileStats.js?v=2"></script>
+<script src="js/streak.js?v=2"></script>
+<script src="js/streakReply.js?v=2"></script>
+<script src="js/profileReply.js?v=2"></script>
+<script src="js/smartAI.js?v=2"></script>
+<!-- Chat Controller -->
 <script src="chat.js?v=3"></script>
-
 </body>
 </html>
