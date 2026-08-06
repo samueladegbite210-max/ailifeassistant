@@ -311,6 +311,26 @@ function closeAttachmentMenu(){
 }
 
 
+// ==========================================
+// ATTACHMENT MENU
+// ==========================================
+
+function openAttachmentMenu(){
+
+    if(!attachmentMenu) return;
+
+    attachmentMenu.classList.toggle("show");
+
+}
+
+function closeAttachmentMenu(){
+
+    if(!attachmentMenu) return;
+
+    attachmentMenu.classList.remove("show");
+
+}
+
 
 // ==========================================
 // ATTACH BUTTON
@@ -348,12 +368,13 @@ document.addEventListener("click", function(e){
 });
 
 
-
 // ==========================================
 // PICK IMAGE
 // ==========================================
 
 function pickImage(){
+
+    if(!imagePicker) return;
 
     imagePicker.removeAttribute("capture");
 
@@ -361,23 +382,14 @@ function pickImage(){
 
 }
 
-if(attachBtn){
-
-    attachBtn.addEventListener("click", function(e){
-
-        e.stopPropagation();
-
-        openAttachmentMenu();
-
-    });
-
-}
 
 // ==========================================
 // CAMERA
 // ==========================================
 
 function takePhoto(){
+
+    if(!imagePicker) return;
 
     imagePicker.setAttribute("capture","environment");
 
@@ -386,19 +398,17 @@ function takePhoto(){
 }
 
 
-
 // ==========================================
 // PICK FILE
 // ==========================================
 
 function pickFile(){
 
+    if(!filePicker) return;
+
     filePicker.click();
 
 }
-
-
-
 // ==========================================
 // IMAGE UPLOAD
 // ==========================================
