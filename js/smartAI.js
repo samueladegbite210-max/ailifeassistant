@@ -5,64 +5,114 @@
 // AI Controller
 // ==========================================
 
-console.log("🧠 smartAI.js loaded");
 
-// ==========================================
-// MAIN AI CONTROLLER
-// ==========================================
+alert("🧠 smartAI.js loaded");
 
-async function smartAIReply(message){
+async function smartAIReply(msg){
 
-    message = message.trim();
+    // Clean message
+    msg = msg.toLowerCase().trim();
 
-    if(message === ""){
-        return "Please type a message.";
+    if(msg === ""){
+        return null;
     }
 
     let answer = null;
 
-    // ======================================
     // Conversation
-    // ======================================
-
-    answer = runReply(conversationReply, message);
+    answer = conversationReply(msg);
     if(answer) return answer;
 
-    // ======================================
+    // Memory (move this near the top)
+    answer = memoryReply(msg, msg);
+if(answer) return answer;
+
+    answer = profileReply(msg);
+if(answer) return answer;
+    
+    answer = streakReply(msg);
+if(answer) return answer;
+    
+answer = learnUserReply(msg, msg);
+if(answer) return answer;
+
+    // Knowledge
+    answer = knowledgeReply(msg);
+    if(answer) return answer;
+
+    answer = teacherReply(msg);
+if(answer) return answer;
+
+    answer = quizReply(msg);
+if(answer) return answer;
+    
     // Calculator
-    // ======================================
-
-    answer = runReply(calculatorReply, message);
+    answer = calculatorReply(msg);
     if(answer) return answer;
 
-    // ======================================
-    // Default
-    // ======================================
+    // Date & Time
+    answer = dateTimeReply(msg);
+    if(answer) return answer;
 
-    return "🤖 I don't understand yet.";
+    // Tasks
+    answer = taskReply(msg, msg);
+    if(answer) return answer;
 
-}
+    // Goals
+    answer = goalReply(msg, msg);
+    if(answer) return answer;
 
-// ==========================================
-// SAFE MODULE RUNNER
-// ==========================================
+    // Notes
+    answer = noteReply(msg, msg);
+    if(answer) return answer;
 
-function runReply(fn, message){
+    // Events
+    answer = eventReply(msg, msg);
+    if(answer) return answer;
 
-    try{
+    // Natural Conversation
+    answer = naturalReply(msg);
+    if(answer) return answer;
 
-        if(typeof fn !== "function"){
-            return null;
-        }
+    // Food
+    answer = foodReply(msg);
+    if(answer) return answer;
 
-        return fn(message);
+    // Weather
+    answer = weatherReply(msg);
+    if(answer) return answer;
 
-    }catch(error){
+    // Brain
+    answer = aiBrainReply(msg);
+    if(answer) return answer;
 
-        console.error("AI Module Error:", error);
+    // Advice
+    answer = adviceReply(msg);
+    if(answer) return answer;
 
-        return null;
+    // Internet
+    answer = await internetReply(msg);
+    if(answer) return answer;
+
+    if(text.toLowerCase().includes("what did i upload")){
+
+    if(uploadedFiles.length === 0){
+
+        return "📂 You haven't uploaded any files yet.";
 
     }
+
+    let reply = "📂 Uploaded files:\n\n";
+
+    uploadedFiles.forEach(file=>{
+
+        reply += `• ${file.name} (${file.type})\n`;
+
+    });
+
+    return reply;
+
+}
+    return "🤖 I couldn't find an answer yet. Try asking another question.";
 
 }
