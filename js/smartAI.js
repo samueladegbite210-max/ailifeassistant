@@ -77,9 +77,7 @@ async function smartAIReply(message){
         return reply;
 
     }
-answer = runReply(uploadReply, message);
 
-if(answer) return answer;
     // --------------------------------------
     // Conversation
     // --------------------------------------
