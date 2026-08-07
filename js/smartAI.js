@@ -94,7 +94,7 @@ if(answer) return answer;
     answer = await internetReply(msg);
     if(answer) return answer;
 
-    if(text.toLowerCase().includes("what did i upload")){
+    if(msg.toLowerCase().includes("what did i upload")){
 
     if(uploadedFiles.length === 0){
 
