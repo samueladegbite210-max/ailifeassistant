@@ -423,30 +423,91 @@ imagePicker.addEventListener("change", function(){
 
     if(!file) return;
 
+
     const reader = new FileReader();
+
 
     reader.onload = function(e){
 
-    addMessage(
-        "user",
-        `<img src="${e.target.result}" class="chatImage">`,
-        true
-    );
+        // ==================================
+        // SAVE CURRENT IMAGE
+        // ==================================
 
-};
+        currentAttachment = {
+
+            type: "image",
+
+            name: file.name,
+
+            mimeType: file.type,
+
+            size: file.size,
+
+            data: e.target.result,
+
+            file: file,
+
+            date: new Date().toISOString()
+
+        };
+
+
+        // ==================================
+        // SHOW IMAGE IN CHAT
+        // ==================================
+
+        addMessage(
+            "user",
+
+            `<img
+                src="${e.target.result}"
+                class="chatImage"
+                alt="Uploaded image"
+            >`
+        );
+
+
+        // ==================================
+        // SAVE UPLOAD MEMORY
+        // ==================================
+
+        rememberUpload(file,"image");
+
+
+        // ==================================
+        // AI CONFIRMATION
+        // ==================================
+
+        setTimeout(function(){
+
+            addMessage(
+                "ai",
+                `📷 Image received successfully.
+
+What would you like me to do?
+
+📝 Read text from image
+
+👀 Describe the image
+
+🔍 Analyze the image
+
+❓ Answer questions about it`
+            );
+
+        },700);
+
+
+        imagePicker.value = "";
+
+        closeAttachmentMenu();
+
+    };
+
 
     reader.readAsDataURL(file);
 
-    rememberUpload(file,"image");
-
-    aiUploadReply("image",file);
-
-    imagePicker.value = "";
-
-    closeAttachmentMenu();
-
 });
-
 
 
 // ==========================================
@@ -459,32 +520,92 @@ filePicker.addEventListener("change", function(){
 
     if(!file) return;
 
+
+    // ==================================
+    // SAVE CURRENT FILE
+    // ==================================
+
+    currentAttachment = {
+
+        type: "file",
+
+        name: file.name,
+
+        mimeType: file.type,
+
+        size: file.size,
+
+        file: file,
+
+        date: new Date().toISOString()
+
+    };
+
+
+    // ==================================
+    // SHOW FILE IN CHAT
+    // ==================================
+
     addMessage(
-    "user",
-    `
-    <div class="chatFile">
+        "user",
 
-        <div class="fileIcon">📄</div>
+        `
+        <div class="chatFile">
 
-        <div class="fileInfo">
+            <div class="fileIcon">
+                📄
+            </div>
 
-            <div class="fileName">${file.name}</div>
+            <div class="fileInfo">
 
-            <div class="fileSize">
-                ${(file.size/1024).toFixed(1)} KB
+                <div class="fileName">
+                    ${escapeHTML(file.name)}
+                </div>
+
+                <div class="fileSize">
+                    ${(file.size / 1024).toFixed(1)} KB
+                </div>
+
             </div>
 
         </div>
+        `
+    );
 
-    </div>
-    `,
-    true
-);
+
+    // ==================================
+    // SAVE MEMORY
+    // ==================================
+
     rememberUpload(file,"file");
 
-    aiUploadReply("file",file);
 
-    filePicker.value="";
+    // ==================================
+    // AI CONFIRMATION
+    // ==================================
+
+    setTimeout(function(){
+
+        addMessage(
+            "ai",
+
+            `📄 ${file.name} uploaded successfully.
+
+What would you like me to do?
+
+📑 Summarize the file
+
+🧠 Explain the contents
+
+🔍 Find important information
+
+❓ Answer questions about it`
+        );
+
+    },700);
+
+
+    filePicker.value = "";
 
     closeAttachmentMenu();
 
