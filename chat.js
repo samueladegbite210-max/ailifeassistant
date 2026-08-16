@@ -117,16 +117,18 @@ function addMessage(type, content, isHTML = false) {
 // SEND MESSAGE
 // ==========================================
 
-function sendMessage() {
+function sendMessage(e) {
+
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
     if (!userInput) return;
 
-
     const text = userInput.value.trim();
 
-
     if (text === "") return;
-
 
     // Show user message
 
@@ -246,7 +248,14 @@ function updateComposer() {
 
 if (sendBtn) {
 
-    sendBtn.addEventListener("click", sendMessage);
+    sendBtn.addEventListener("click", function (e) {
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        sendMessage();
+
+    });
 
 }
 
