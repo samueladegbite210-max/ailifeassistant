@@ -1,9 +1,8 @@
 // ==========================================
 // AI Life Assistant Chat
-// Version 3.0
-// Foundation
+// Version 3.1
+// Clean Chat + Attachment System
 // ==========================================
-
 
 
 // ==========================================
@@ -11,45 +10,58 @@
 // ==========================================
 
 const chatBox = document.getElementById("chatBox");
-
 const userInput = document.getElementById("userInput");
-
 const sendBtn = document.getElementById("sendBtn");
-
 const voiceBtn = document.getElementById("voiceBtn");
 
 const attachBtn = document.getElementById("attachBtn");
-
 const attachmentMenu = document.getElementById("attachmentMenu");
 
 const imagePicker = document.getElementById("imagePicker");
-
 const filePicker = document.getElementById("filePicker");
 
+
+// ==========================================
+// ATTACHMENT STATE
+// ==========================================
+
+let currentAttachment = null;
+let uploadedFiles = [];
 
 
 // ==========================================
 // HELPERS
 // ==========================================
 
-function getCurrentTime(){
+function getCurrentTime() {
 
-    return new Date().toLocaleTimeString([],{
-
-        hour:"2-digit",
-
-        minute:"2-digit"
-
+    return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
     });
 
 }
 
-function scrollBottom(){
+
+function scrollBottom() {
+
+    if (!chatBox) return;
 
     chatBox.scrollTop = chatBox.scrollHeight;
 
 }
 
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
 
 
 // ==========================================
@@ -58,122 +70,166 @@ function scrollBottom(){
 
 function addMessage(type, content, isHTML = false) {
 
+    if (!chatBox) return;
+
     const message = document.createElement("div");
+
     message.className = `message ${type}`;
 
+
     const messageText = document.createElement("div");
+
     messageText.className = "messageText";
 
+
     if (isHTML) {
+
         messageText.innerHTML = content;
+
     } else {
-        messageText.innerHTML = content.replace(/\n/g, "<br>");
+
+        messageText.innerHTML = escapeHTML(content)
+            .replace(/\n/g, "<br>");
+
     }
 
+
     const messageTime = document.createElement("div");
+
     messageTime.className = "messageTime";
+
     messageTime.textContent = getCurrentTime();
 
+
     message.appendChild(messageText);
+
     message.appendChild(messageTime);
 
     chatBox.appendChild(message);
 
+
     scrollBottom();
-} 
+
+}
+
+
 // ==========================================
 // SEND MESSAGE
 // ==========================================
 
-function sendMessage(){
+function sendMessage() {
+
+    if (!userInput) return;
+
 
     const text = userInput.value.trim();
 
-    if(text === "") return;
+
+    if (text === "") return;
+
 
     // Show user message
+
     addMessage("user", text);
 
+
     // Save conversation
-    if(typeof saveContext === "function"){
+
+    if (typeof saveContext === "function") {
 
         saveContext("user", text);
 
     }
 
+
     // Clear input
+
     userInput.value = "";
 
+
     // Reset textarea height
+
     userInput.style.height = "48px";
 
+
     // Update composer
+
     updateComposer();
 
+
     // Ask AI
+
     aiReply(text);
 
 }
-
 
 
 // ==========================================
 // AUTO EXPAND TEXTAREA
 // ==========================================
 
-userInput.addEventListener("input", function(){
+if (userInput) {
 
-    this.style.height = "48px";
+    userInput.addEventListener("input", function () {
 
-    this.style.height = this.scrollHeight + "px";
+        this.style.height = "48px";
 
-    updateComposer();
+        this.style.height = this.scrollHeight + "px";
 
-});
+        updateComposer();
+
+    });
 
 
+    // ======================================
+    // ENTER TO SEND
+    // ======================================
 
-// ==========================================
-// ENTER TO SEND
-// ==========================================
+    userInput.addEventListener("keydown", function (e) {
 
-userInput.addEventListener("keydown", function(e){
+        if (e.key === "Enter" && !e.shiftKey) {
 
-    if(e.key === "Enter" && !e.shiftKey){
+            e.preventDefault();
 
-        e.preventDefault();
+            sendMessage();
 
-        sendMessage();
+        }
 
-    }
+    });
 
-});
-
+}
 
 
 // ==========================================
 // COMPOSER
 // ==========================================
 
-function updateComposer(){
+function updateComposer() {
 
-    const hasText = userInput.value.trim().length > 0;
+    if (!userInput || !sendBtn) return;
 
-    if(hasText){
+
+    const hasText =
+        userInput.value.trim().length > 0;
+
+
+    if (hasText) {
 
         sendBtn.classList.add("active");
 
-        if(voiceBtn){
+
+        if (voiceBtn) {
 
             voiceBtn.style.display = "none";
 
         }
 
-    }else{
+    } else {
 
         sendBtn.classList.remove("active");
 
-        if(voiceBtn){
+
+        if (voiceBtn) {
 
             voiceBtn.style.display = "flex";
 
@@ -184,25 +240,25 @@ function updateComposer(){
 }
 
 
-
 // ==========================================
 // SEND BUTTON
 // ==========================================
 
-sendBtn.addEventListener("click", sendMessage);
+if (sendBtn) {
+
+    sendBtn.addEventListener("click", sendMessage);
+
+}
 
 
-
-// ==========================================
-// INITIALIZE
-// ==========================================
-
-updateComposer();
 // ==========================================
 // AI REPLY
 // ==========================================
 
-async function aiReply(userMessage){
+async function aiReply(userMessage) {
+
+    if (!chatBox) return;
+
 
     // Create typing indicator
 
@@ -211,6 +267,7 @@ async function aiReply(userMessage){
     typing.className = "message ai typing";
 
     typing.id = "typingIndicator";
+
 
     typing.innerHTML = `
 
@@ -222,39 +279,67 @@ async function aiReply(userMessage){
 
     `;
 
+
     chatBox.appendChild(typing);
 
     scrollBottom();
 
+
     // Disable input
 
-    userInput.disabled = true;
+    if (userInput) {
 
-    sendBtn.disabled = true;
+        userInput.disabled = true;
 
-    if(voiceBtn){
+    }
+
+
+    if (sendBtn) {
+
+        sendBtn.disabled = true;
+
+    }
+
+
+    if (voiceBtn) {
 
         voiceBtn.disabled = true;
 
     }
 
-    try{
+
+    try {
 
         // Ask AI Brain
 
-        let reply = await smartAIReply(userMessage);
+        let reply;
+
+
+        if (typeof smartAIReply === "function") {
+
+            reply = await smartAIReply(userMessage);
+
+        } else {
+
+            reply =
+                "⚠️ AI brain is not connected yet.";
+
+        }
+
 
         // Remove typing
 
         typing.remove();
 
+
         // Show AI message
 
         addMessage("ai", reply);
 
+
         // Save memory
 
-        if(typeof saveContext === "function"){
+        if (typeof saveContext === "function") {
 
             saveContext("ai", reply);
 
@@ -262,76 +347,86 @@ async function aiReply(userMessage){
 
     }
 
-    catch(error){
 
-        console.error(error);
+    catch (error) {
+
+        console.error("AI Reply Error:", error);
+
 
         typing.remove();
 
+
         addMessage(
-
             "ai",
-
-            "⚠️ Sorry, something went wrong."
-
+            "⚠️ Sorry, something went wrong while processing your message."
         );
 
     }
 
-    finally{
+
+    finally {
 
         // Enable input again
 
-        userInput.disabled = false;
+        if (userInput) {
 
-        sendBtn.disabled = false;
+            userInput.disabled = false;
 
-        if(voiceBtn){
+        }
+
+
+        if (sendBtn) {
+
+            sendBtn.disabled = false;
+
+        }
+
+
+        if (voiceBtn) {
 
             voiceBtn.disabled = false;
 
         }
 
-        userInput.focus();
+
+        if (userInput) {
+
+            userInput.focus();
+
+        }
 
     }
 
 }
 
+
 // ==========================================
 // ATTACHMENT MENU
 // ==========================================
 
-function openAttachmentMenu(){
+function openAttachmentMenu() {
 
-    attachmentMenu.classList.toggle("show");
+    if (!attachmentMenu) return;
+
+    attachmentMenu.classList.add("show");
 
 }
 
-function closeAttachmentMenu(){
+
+function closeAttachmentMenu() {
+
+    if (!attachmentMenu) return;
 
     attachmentMenu.classList.remove("show");
 
 }
 
 
-// ==========================================
-// ATTACHMENT MENU
-// ==========================================
+function toggleAttachmentMenu() {
 
-function openAttachmentMenu(){
-
-    if(!attachmentMenu) return;
+    if (!attachmentMenu) return;
 
     attachmentMenu.classList.toggle("show");
-
-}
-
-function closeAttachmentMenu(){
-
-    if(!attachmentMenu) return;
-
-    attachmentMenu.classList.remove("show");
 
 }
 
@@ -340,13 +435,13 @@ function closeAttachmentMenu(){
 // ATTACH BUTTON
 // ==========================================
 
-if(attachBtn){
+if (attachBtn) {
 
-    attachBtn.addEventListener("click", function(e){
+    attachBtn.addEventListener("click", function (e) {
 
         e.stopPropagation();
 
-        openAttachmentMenu();
+        toggleAttachmentMenu();
 
     });
 
@@ -357,13 +452,15 @@ if(attachBtn){
 // CLOSE MENU WHEN CLICKING OUTSIDE
 // ==========================================
 
-document.addEventListener("click", function(e){
+document.addEventListener("click", function (e) {
 
-    if(
-        attachmentMenu &&
+    if (!attachmentMenu) return;
+
+
+    if (
         !attachmentMenu.contains(e.target) &&
         e.target !== attachBtn
-    ){
+    ) {
 
         closeAttachmentMenu();
 
@@ -376,11 +473,13 @@ document.addEventListener("click", function(e){
 // PICK IMAGE
 // ==========================================
 
-function pickImage(){
+function pickImage() {
 
-    if(!imagePicker) return;
+    if (!imagePicker) return;
+
 
     imagePicker.removeAttribute("capture");
+
 
     imagePicker.click();
 
@@ -391,11 +490,16 @@ function pickImage(){
 // CAMERA
 // ==========================================
 
-function takePhoto(){
+function takePhoto() {
 
-    if(!imagePicker) return;
+    if (!imagePicker) return;
 
-    imagePicker.setAttribute("capture","environment");
+
+    imagePicker.setAttribute(
+        "capture",
+        "environment"
+    );
+
 
     imagePicker.click();
 
@@ -406,28 +510,61 @@ function takePhoto(){
 // PICK FILE
 // ==========================================
 
-function pickFile(){
+function pickFile() {
 
-    if(!filePicker) return;
+    if (!filePicker) return;
+
 
     filePicker.click();
 
 }
+
+
 // ==========================================
 // IMAGE UPLOAD
 // ==========================================
 
-imagePicker.addEventListener("change", function(){
+if (imagePicker) {
 
-    const file = this.files[0];
+    imagePicker.addEventListener(
+        "change",
+        handleImageUpload
+    );
 
-    if(!file) return;
+}
+
+
+function handleImageUpload() {
+
+    const file = this.files && this.files[0];
+
+
+    if (!file) return;
+
+
+    // Check image
+
+    if (!file.type.startsWith("image/")) {
+
+        addMessage(
+            "ai",
+            "⚠️ Please select a valid image file."
+        );
+
+        this.value = "";
+
+        return;
+
+    }
 
 
     const reader = new FileReader();
 
 
-    reader.onload = function(e){
+    reader.onload = function (e) {
+
+        const imageData = e.target.result;
+
 
         // ==================================
         // SAVE CURRENT IMAGE
@@ -443,7 +580,7 @@ imagePicker.addEventListener("change", function(){
 
             size: file.size,
 
-            data: e.target.result,
+            data: imageData,
 
             file: file,
 
@@ -457,13 +594,17 @@ imagePicker.addEventListener("change", function(){
         // ==================================
 
         addMessage(
+
             "user",
 
             `<img
-                src="${e.target.result}"
+                src="${imageData}"
                 class="chatImage"
                 alt="Uploaded image"
-            >`
+            >`,
+
+            true
+
         );
 
 
@@ -471,17 +612,19 @@ imagePicker.addEventListener("change", function(){
         // SAVE UPLOAD MEMORY
         // ==================================
 
-        rememberUpload(file,"image");
+        rememberUpload(file, "image");
 
 
         // ==================================
         // AI CONFIRMATION
         // ==================================
 
-        setTimeout(function(){
+        setTimeout(function () {
 
             addMessage(
+
                 "ai",
+
                 `📷 Image received successfully.
 
 What would you like me to do?
@@ -493,32 +636,59 @@ What would you like me to do?
 🔍 Analyze the image
 
 ❓ Answer questions about it`
+
             );
 
-        },700);
+        }, 700);
 
+
+        // Reset picker
 
         imagePicker.value = "";
+
 
         closeAttachmentMenu();
 
     };
 
 
+    reader.onerror = function () {
+
+        addMessage(
+            "ai",
+            "⚠️ I couldn't read that image. Please try again."
+        );
+
+        imagePicker.value = "";
+
+    };
+
+
     reader.readAsDataURL(file);
 
-});
+}
 
 
 // ==========================================
 // FILE UPLOAD
 // ==========================================
 
-filePicker.addEventListener("change", function(){
+if (filePicker) {
 
-    const file = this.files[0];
+    filePicker.addEventListener(
+        "change",
+        handleFileUpload
+    );
 
-    if(!file) return;
+}
+
+
+async function handleFileUpload() {
+
+    const file = this.files && this.files[0];
+
+
+    if (!file) return;
 
 
     // ==================================
@@ -547,6 +717,7 @@ filePicker.addEventListener("change", function(){
     // ==================================
 
     addMessage(
+
         "user",
 
         `
@@ -563,13 +734,16 @@ filePicker.addEventListener("change", function(){
                 </div>
 
                 <div class="fileSize">
-                    ${(file.size / 1024).toFixed(1)} KB
+                    ${formatFileSize(file.size)}
                 </div>
 
             </div>
 
         </div>
-        `
+        `,
+
+        true
+
     );
 
 
@@ -577,46 +751,96 @@ filePicker.addEventListener("change", function(){
     // SAVE MEMORY
     // ==================================
 
-    rememberUpload(file,"file");
+    rememberUpload(file, "file");
 
-
-    // ==================================
-    // AI CONFIRMATION
-    // ==================================
-
-    setTimeout(function(){
-
-        addMessage(
-            "ai",
-
-            `📄 ${file.name} uploaded successfully.
-
-What would you like me to do?
-
-📑 Summarize the file
-
-🧠 Explain the contents
-
-🔍 Find important information
-
-❓ Answer questions about it`
-        );
-
-    },700);
-
-
-    filePicker.value = "";
 
     closeAttachmentMenu();
 
-});
+
+    // Reset picker
+
+    filePicker.value = "";
+
+
+    // ==================================
+    // SEND FILE TO FILE HANDLER
+    // ==================================
+
+    if (typeof handleFileCommand === "function") {
+
+        try {
+
+            await handleFileCommand(file);
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "File Handler Error:",
+                error
+            );
+
+            addMessage(
+                "ai",
+                "⚠️ The file was uploaded, but I couldn't analyze it."
+            );
+
+        }
+
+        return;
+
+    }
+
+
+    // ==================================
+    // FALLBACK CONFIRMATION
+    // ==================================
+
+    aiUploadReply("file", file);
+
+}
+
+
+// ==========================================
+// FILE SIZE
+// ==========================================
+
+function formatFileSize(bytes) {
+
+    if (bytes === 0) return "0 Bytes";
+
+
+    const units = [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+
+    const i = Math.floor(
+        Math.log(bytes) / Math.log(1024)
+    );
+
+
+    return (
+        parseFloat(
+            (bytes / Math.pow(1024, i))
+                .toFixed(1)
+        )
+        + " "
+        + units[i]
+    );
+
+}
+
+
 // ==========================================
 // UPLOAD MEMORY
 // ==========================================
 
-let uploadedFiles = [];
-
-function rememberUpload(file, type){
+function rememberUpload(file, type) {
 
     uploadedFiles.push({
 
@@ -633,16 +857,16 @@ function rememberUpload(file, type){
 }
 
 
-
 // ==========================================
 // AI UPLOAD REPLY
 // ==========================================
 
-function aiUploadReply(type, file){
+function aiUploadReply(type, file) {
 
     let reply = "";
 
-    if(type === "image"){
+
+    if (type === "image") {
 
         reply = `
 
@@ -656,17 +880,17 @@ What would you like me to do?
 
 • 🔍 Analyze the image
 
-• ❓Answer questions about it
+• ❓ Answer questions about it
 
 `;
 
     }
 
-    else{
+    else {
 
         reply = `
 
-📄 ${file.name} uploaded successfully.
+📄 ${escapeHTML(file.name)} uploaded successfully.
 
 What would you like me to do?
 
@@ -676,43 +900,42 @@ What would you like me to do?
 
 • 🔍 Find important information
 
-• ❓Answer questions about it
+• ❓ Answer questions about it
 
 `;
 
     }
 
-    setTimeout(function(){
 
-        addMessage("ai", reply);
+    setTimeout(function () {
 
-    },700);
+        addMessage(
+            "ai",
+            reply
+        );
+
+    }, 700);
 
 }
 
 
-
 // ==========================================
-// OPTIONAL HELPER
+// GET UPLOADED FILES
 // ==========================================
 
-function getUploadedFiles(){
+function getUploadedFiles() {
 
     return uploadedFiles;
 
 }
-function escapeHTML(value){
 
-    return String(value)
 
-        .replace(/&/g,"&amp;")
+// ==========================================
+// INITIALIZE
+// ==========================================
 
-        .replace(/</g,"&lt;")
+updateComposer();
 
-        .replace(/>/g,"&gt;")
-
-        .replace(/"/g,"&quot;")
-
-        .replace(/'/g,"&#039;");
-
-}
+console.log(
+    "✅ AI Life Assistant chat.js loaded successfully."
+);
