@@ -1,68 +1,50 @@
 // ==========================================
 // AI Life Assistant Chat
-// Version 3.1
-// Clean Chat + Attachment System
+// Version 3.0
+// Foundation
 // ==========================================
-
 
 // ==========================================
 // ELEMENTS
 // ==========================================
 
 const chatBox = document.getElementById("chatBox");
+
 const userInput = document.getElementById("userInput");
+
 const sendBtn = document.getElementById("sendBtn");
+
 const voiceBtn = document.getElementById("voiceBtn");
 
 const attachBtn = document.getElementById("attachBtn");
+
 const attachmentMenu = document.getElementById("attachmentMenu");
 
 const imagePicker = document.getElementById("imagePicker");
+
 const filePicker = document.getElementById("filePicker");
-
-
-// ==========================================
-// ATTACHMENT STATE
-// ==========================================
-
-let currentAttachment = null;
-let uploadedFiles = [];
-
 
 // ==========================================
 // HELPERS
 // ==========================================
 
-function getCurrentTime() {
+function getCurrentTime(){
 
-    return new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
+    return new Date().toLocaleTimeString([],{
+
+        hour:"2-digit",
+
+        minute:"2-digit"
+
     });
 
 }
 
-
-function scrollBottom() {
-
-    if (!chatBox) return;
+function scrollBottom(){
 
     chatBox.scrollTop = chatBox.scrollHeight;
 
 }
-
-
-function escapeHTML(value) {
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
 
 // ==========================================
 // ADD MESSAGE
@@ -70,166 +52,116 @@ function escapeHTML(value) {
 
 function addMessage(type, content, isHTML = false) {
 
-    if (!chatBox) return;
-
     const message = document.createElement("div");
-
     message.className = `message ${type}`;
 
-
     const messageText = document.createElement("div");
-
     messageText.className = "messageText";
 
-
     if (isHTML) {
-
         messageText.innerHTML = content;
-
     } else {
-
-        messageText.innerHTML = escapeHTML(content)
-            .replace(/\n/g, "<br>");
-
+        messageText.innerHTML = content.replace(/\n/g, "<br>");
     }
 
-
     const messageTime = document.createElement("div");
-
     messageTime.className = "messageTime";
-
     messageTime.textContent = getCurrentTime();
 
-
     message.appendChild(messageText);
-
     message.appendChild(messageTime);
 
     chatBox.appendChild(message);
 
-
     scrollBottom();
-
-}
-
-
+} 
 // ==========================================
 // SEND MESSAGE
 // ==========================================
 
-function sendMessage() {
-
-    if (!userInput) return;
-
+function sendMessage(){
 
     const text = userInput.value.trim();
 
-
-    if (text === "") return;
-
+    if(text === "") return;
 
     // Show user message
-
     addMessage("user", text);
 
-
     // Save conversation
-
-    if (typeof saveContext === "function") {
+    if(typeof saveContext === "function"){
 
         saveContext("user", text);
 
     }
 
-
     // Clear input
-
     userInput.value = "";
 
-
     // Reset textarea height
-
     userInput.style.height = "48px";
 
-
     // Update composer
-
     updateComposer();
 
-
     // Ask AI
-
     aiReply(text);
 
 }
-
 
 // ==========================================
 // AUTO EXPAND TEXTAREA
 // ==========================================
 
-if (userInput) {
+userInput.addEventListener("input", function(){
 
-    userInput.addEventListener("input", function () {
+    this.style.height = "48px";
 
-        this.style.height = "48px";
+    this.style.height = this.scrollHeight + "px";
 
-        this.style.height = this.scrollHeight + "px";
+    updateComposer();
 
-        updateComposer();
+});
 
-    });
+// ==========================================
+// ENTER TO SEND
+// ==========================================
 
+userInput.addEventListener("keydown", function(e){
 
-    // ======================================
-    // ENTER TO SEND
-    // ======================================
+    if(e.key === "Enter" && !e.shiftKey){
 
-    userInput.addEventListener("keydown", function (e) {
+        e.preventDefault();
 
-        if (e.key === "Enter" && !e.shiftKey) {
+        sendMessage();
 
-            e.preventDefault();
+    }
 
-            sendMessage();
-
-        }
-
-    });
-
-}
-
+});
 
 // ==========================================
 // COMPOSER
 // ==========================================
 
-function updateComposer() {
+function updateComposer(){
 
-    if (!userInput || !sendBtn) return;
+    const hasText = userInput.value.trim().length > 0;
 
-
-    const hasText =
-        userInput.value.trim().length > 0;
-
-
-    if (hasText) {
+    if(hasText){
 
         sendBtn.classList.add("active");
 
-
-        if (voiceBtn) {
+        if(voiceBtn){
 
             voiceBtn.style.display = "none";
 
         }
 
-    } else {
+    }else{
 
         sendBtn.classList.remove("active");
 
-
-        if (voiceBtn) {
+        if(voiceBtn){
 
             voiceBtn.style.display = "flex";
 
@@ -239,26 +171,22 @@ function updateComposer() {
 
 }
 
-
 // ==========================================
 // SEND BUTTON
 // ==========================================
 
-if (sendBtn) {
+sendBtn.addEventListener("click", sendMessage);
 
-    sendBtn.addEventListener("click", sendMessage);
+// ==========================================
+// INITIALIZE
+// ==========================================
 
-}
-
-
+updateComposer();
 // ==========================================
 // AI REPLY
 // ==========================================
 
-async function aiReply(userMessage) {
-
-    if (!chatBox) return;
-
+async function aiReply(userMessage){
 
     // Create typing indicator
 
@@ -267,7 +195,6 @@ async function aiReply(userMessage) {
     typing.className = "message ai typing";
 
     typing.id = "typingIndicator";
-
 
     typing.innerHTML = `
 
@@ -279,67 +206,39 @@ async function aiReply(userMessage) {
 
     `;
 
-
     chatBox.appendChild(typing);
 
     scrollBottom();
 
-
     // Disable input
 
-    if (userInput) {
+    userInput.disabled = true;
 
-        userInput.disabled = true;
+    sendBtn.disabled = true;
 
-    }
-
-
-    if (sendBtn) {
-
-        sendBtn.disabled = true;
-
-    }
-
-
-    if (voiceBtn) {
+    if(voiceBtn){
 
         voiceBtn.disabled = true;
 
     }
 
-
-    try {
+    try{
 
         // Ask AI Brain
 
-        let reply;
-
-
-        if (typeof smartAIReply === "function") {
-
-            reply = await smartAIReply(userMessage);
-
-        } else {
-
-            reply =
-                "⚠️ AI brain is not connected yet.";
-
-        }
-
+        let reply = await smartAIReply(userMessage);
 
         // Remove typing
 
         typing.remove();
 
-
         // Show AI message
 
         addMessage("ai", reply);
 
-
         // Save memory
 
-        if (typeof saveContext === "function") {
+        if(typeof saveContext === "function"){
 
             saveContext("ai", reply);
 
@@ -347,120 +246,105 @@ async function aiReply(userMessage) {
 
     }
 
+    catch(error){
 
-    catch (error) {
-
-        console.error("AI Reply Error:", error);
-
+        console.error(error);
 
         typing.remove();
 
-
         addMessage(
+
             "ai",
-            "⚠️ Sorry, something went wrong while processing your message."
+
+            "⚠️ Sorry, something went wrong."
+
         );
 
     }
 
-
-    finally {
+    finally{
 
         // Enable input again
 
-        if (userInput) {
+        userInput.disabled = false;
 
-            userInput.disabled = false;
+        sendBtn.disabled = false;
 
-        }
-
-
-        if (sendBtn) {
-
-            sendBtn.disabled = false;
-
-        }
-
-
-        if (voiceBtn) {
+        if(voiceBtn){
 
             voiceBtn.disabled = false;
 
         }
 
-
-        if (userInput) {
-
-            userInput.focus();
-
-        }
+        userInput.focus();
 
     }
 
 }
 
-
 // ==========================================
 // ATTACHMENT MENU
 // ==========================================
 
-function openAttachmentMenu() {
-
-    if (!attachmentMenu) return;
-
-    attachmentMenu.classList.add("show");
-
-}
-
-
-function closeAttachmentMenu() {
-
-    if (!attachmentMenu) return;
-
-    attachmentMenu.classList.remove("show");
-
-}
-
-
-function toggleAttachmentMenu() {
-
-    if (!attachmentMenu) return;
+function openAttachmentMenu(){
 
     attachmentMenu.classList.toggle("show");
 
 }
 
+function closeAttachmentMenu(){
+
+    attachmentMenu.classList.remove("show");
+
+}
+
+// ==========================================
+// ATTACHMENT MENU
+// ==========================================
+
+function openAttachmentMenu(){
+
+    if(!attachmentMenu) return;
+
+    attachmentMenu.classList.toggle("show");
+
+}
+
+function closeAttachmentMenu(){
+
+    if(!attachmentMenu) return;
+
+    attachmentMenu.classList.remove("show");
+
+}
 
 // ==========================================
 // ATTACH BUTTON
 // ==========================================
 
-if (attachBtn) {
+if(attachBtn){
 
-    attachBtn.addEventListener("click", function (e) {
+    attachBtn.addEventListener("click", function(e){
 
         e.stopPropagation();
 
-        toggleAttachmentMenu();
+        openAttachmentMenu();
 
     });
 
 }
 
-
 // ==========================================
 // CLOSE MENU WHEN CLICKING OUTSIDE
 // ==========================================
 
-document.addEventListener("click", function (e) {
+document.addEventListener("click", function(e){
 
-    if (!attachmentMenu) return;
-
-
-    if (
+    if(
+        attachmentMenu &&
         !attachmentMenu.contains(e.target) &&
         e.target !== attachBtn
-    ) {
+    ){
 
         closeAttachmentMenu();
 
@@ -468,103 +352,58 @@ document.addEventListener("click", function (e) {
 
 });
 
-
 // ==========================================
 // PICK IMAGE
 // ==========================================
 
-function pickImage() {
+function pickImage(){
 
-    if (!imagePicker) return;
-
+    if(!imagePicker) return;
 
     imagePicker.removeAttribute("capture");
-
 
     imagePicker.click();
 
 }
-
 
 // ==========================================
 // CAMERA
 // ==========================================
 
-function takePhoto() {
+function takePhoto(){
 
-    if (!imagePicker) return;
+    if(!imagePicker) return;
 
-
-    imagePicker.setAttribute(
-        "capture",
-        "environment"
-    );
-
+    imagePicker.setAttribute("capture","environment");
 
     imagePicker.click();
 
 }
 
-
 // ==========================================
 // PICK FILE
 // ==========================================
 
-function pickFile() {
+function pickFile(){
 
-    if (!filePicker) return;
-
+    if(!filePicker) return;
 
     filePicker.click();
 
 }
-
-
 // ==========================================
 // IMAGE UPLOAD
 // ==========================================
 
-if (imagePicker) {
+imagePicker.addEventListener("change", function(){
 
-    imagePicker.addEventListener(
-        "change",
-        handleImageUpload
-    );
+    const file = this.files[0];
 
-}
-
-
-function handleImageUpload() {
-
-    const file = this.files && this.files[0];
-
-
-    if (!file) return;
-
-
-    // Check image
-
-    if (!file.type.startsWith("image/")) {
-
-        addMessage(
-            "ai",
-            "⚠️ Please select a valid image file."
-        );
-
-        this.value = "";
-
-        return;
-
-    }
-
+    if(!file) return;
 
     const reader = new FileReader();
 
-
-    reader.onload = function (e) {
-
-        const imageData = e.target.result;
-
+    reader.onload = function(e){
 
         // ==================================
         // SAVE CURRENT IMAGE
@@ -580,7 +419,7 @@ function handleImageUpload() {
 
             size: file.size,
 
-            data: imageData,
+            data: e.target.result,
 
             file: file,
 
@@ -588,43 +427,34 @@ function handleImageUpload() {
 
         };
 
-
         // ==================================
         // SHOW IMAGE IN CHAT
         // ==================================
 
         addMessage(
-
             "user",
 
             `<img
-                src="${imageData}"
+                src="${e.target.result}"
                 class="chatImage"
                 alt="Uploaded image"
-            >`,
-
-            true
-
+            >`
         );
-
 
         // ==================================
         // SAVE UPLOAD MEMORY
         // ==================================
 
-        rememberUpload(file, "image");
-
+        rememberUpload(file,"image");
 
         // ==================================
         // AI CONFIRMATION
         // ==================================
 
-        setTimeout(function () {
+        setTimeout(function(){
 
             addMessage(
-
                 "ai",
-
                 `📷 Image received successfully.
 
 What would you like me to do?
@@ -636,60 +466,29 @@ What would you like me to do?
 🔍 Analyze the image
 
 ❓ Answer questions about it`
-
             );
 
-        }, 700);
-
-
-        // Reset picker
+        },700);
 
         imagePicker.value = "";
-
 
         closeAttachmentMenu();
 
     };
 
-
-    reader.onerror = function () {
-
-        addMessage(
-            "ai",
-            "⚠️ I couldn't read that image. Please try again."
-        );
-
-        imagePicker.value = "";
-
-    };
-
-
     reader.readAsDataURL(file);
 
-}
-
+});
 
 // ==========================================
 // FILE UPLOAD
 // ==========================================
 
-if (filePicker) {
+filePicker.addEventListener("change", function(){
 
-    filePicker.addEventListener(
-        "change",
-        handleFileUpload
-    );
+    const file = this.files[0];
 
-}
-
-
-async function handleFileUpload() {
-
-    const file = this.files && this.files[0];
-
-
-    if (!file) return;
-
+    if(!file) return;
 
     // ==================================
     // SAVE CURRENT FILE
@@ -711,13 +510,11 @@ async function handleFileUpload() {
 
     };
 
-
     // ==================================
     // SHOW FILE IN CHAT
     // ==================================
 
     addMessage(
-
         "user",
 
         `
@@ -734,113 +531,57 @@ async function handleFileUpload() {
                 </div>
 
                 <div class="fileSize">
-                    ${formatFileSize(file.size)}
+                    ${(file.size / 1024).toFixed(1)} KB
                 </div>
 
             </div>
 
         </div>
-        `,
-
-        true
-
+        `
     );
-
 
     // ==================================
     // SAVE MEMORY
     // ==================================
 
-    rememberUpload(file, "file");
+    rememberUpload(file,"file");
 
+    // ==================================
+    // AI CONFIRMATION
+    // ==================================
 
-    closeAttachmentMenu();
+    setTimeout(function(){
 
+        addMessage(
+            "ai",
 
-    // Reset picker
+            `📄 ${file.name} uploaded successfully.
+
+What would you like me to do?
+
+📑 Summarize the file
+
+🧠 Explain the contents
+
+🔍 Find important information
+
+❓ Answer questions about it`
+        );
+
+    },700);
 
     filePicker.value = "";
 
+    closeAttachmentMenu();
 
-    // ==================================
-    // SEND FILE TO FILE HANDLER
-    // ==================================
-
-    if (typeof handleFileCommand === "function") {
-
-        try {
-
-            await handleFileCommand(file);
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "File Handler Error:",
-                error
-            );
-
-            addMessage(
-                "ai",
-                "⚠️ The file was uploaded, but I couldn't analyze it."
-            );
-
-        }
-
-        return;
-
-    }
-
-
-    // ==================================
-    // FALLBACK CONFIRMATION
-    // ==================================
-
-    aiUploadReply("file", file);
-
-}
-
-
-// ==========================================
-// FILE SIZE
-// ==========================================
-
-function formatFileSize(bytes) {
-
-    if (bytes === 0) return "0 Bytes";
-
-
-    const units = [
-        "Bytes",
-        "KB",
-        "MB",
-        "GB"
-    ];
-
-
-    const i = Math.floor(
-        Math.log(bytes) / Math.log(1024)
-    );
-
-
-    return (
-        parseFloat(
-            (bytes / Math.pow(1024, i))
-                .toFixed(1)
-        )
-        + " "
-        + units[i]
-    );
-
-}
-
-
+});
 // ==========================================
 // UPLOAD MEMORY
 // ==========================================
 
-function rememberUpload(file, type) {
+let uploadedFiles = [];
+
+function rememberUpload(file, type){
 
     uploadedFiles.push({
 
@@ -856,17 +597,15 @@ function rememberUpload(file, type) {
 
 }
 
-
 // ==========================================
 // AI UPLOAD REPLY
 // ==========================================
 
-function aiUploadReply(type, file) {
+function aiUploadReply(type, file){
 
     let reply = "";
 
-
-    if (type === "image") {
+    if(type === "image"){
 
         reply = `
 
@@ -880,17 +619,17 @@ What would you like me to do?
 
 • 🔍 Analyze the image
 
-• ❓ Answer questions about it
+• ❓Answer questions about it
 
 `;
 
     }
 
-    else {
+    else{
 
         reply = `
 
-📄 ${escapeHTML(file.name)} uploaded successfully.
+📄 ${file.name} uploaded successfully.
 
 What would you like me to do?
 
@@ -900,42 +639,41 @@ What would you like me to do?
 
 • 🔍 Find important information
 
-• ❓ Answer questions about it
+• ❓Answer questions about it
 
 `;
 
     }
 
+    setTimeout(function(){
 
-    setTimeout(function () {
+        addMessage("ai", reply);
 
-        addMessage(
-            "ai",
-            reply
-        );
-
-    }, 700);
+    },700);
 
 }
 
-
 // ==========================================
-// GET UPLOADED FILES
+// OPTIONAL HELPER
 // ==========================================
 
-function getUploadedFiles() {
+function getUploadedFiles(){
 
     return uploadedFiles;
 
 }
+function escapeHTML(value){
 
+    return String(value)
 
-// ==========================================
-// INITIALIZE
-// ==========================================
+        .replace(/&/g,"&amp;")
 
-updateComposer();
+        .replace(/</g,"&lt;")
 
-console.log(
-    "✅ AI Life Assistant chat.js loaded successfully."
-);
+        .replace(/>/g,"&gt;")
+
+        .replace(/"/g,"&quot;")
+
+        .replace(/'/g,"&#039;");
+
+}
