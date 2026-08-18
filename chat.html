@@ -1,162 +1,472 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-<title>AI Life Assistant - Chat</title>
-<link rel="stylesheet" href="style.css">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AI Life Assistant - Chat</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
+
 <body>
-<!-- ==========================
-HEADER
-========================== -->
+
+
+<!-- ==========================================
+     HEADER
+========================================== -->
+
 <header class="chatHeader">
+
     <h1>🤖 AI Life Assistant</h1>
+
 </header>
-<!-- ==========================
-CHAT
-========================== -->
+
+
+
+<!-- ==========================================
+     CHAT AREA
+========================================== -->
+
 <main class="chatPage">
+
     <div
         id="chatBox"
-        class="chatBox">
+        class="chatBox"
+    >
+
         <!-- Welcome message -->
+
         <div class="message ai">
+
             <div class="messageText">
+
                 👋 Hello Samuel!
+
                 <br><br>
+
                 How can I help you today?
+
             </div>
+
             <div class="messageTime">
                 Now
             </div>
+
         </div>
+
     </div>
+
 </main>
-<!-- ==========================
-COMPOSER
-========================== -->
+
+
+
+<!-- ==========================================
+     CHAT COMPOSER
+========================================== -->
+
 <footer class="chatComposer">
+
+
+    <!-- Attachment -->
+
     <button
+        type="button"
         id="attachBtn"
-        class="composerIcon">
+        class="composerIcon"
+        aria-label="Attach"
+    >
         +
     </button>
+
+
+    <!-- Message input -->
+
     <textarea
         id="userInput"
         rows="1"
-        placeholder="Ask AI Life Assistant...">
-    </textarea>
+        placeholder="Ask AI Life Assistant..."
+        autocomplete="off"
+    ></textarea>
+
+
+    <!-- Voice -->
+
     <button
+        type="button"
         id="voiceBtn"
-        class="composerIcon">
+        class="composerIcon"
+        aria-label="Voice"
+    >
         🎤
     </button>
+
+
+    <!-- Send -->
+
     <button
+        type="button"
         id="sendBtn"
-        class="sendButton">
+        class="sendButton"
+        aria-label="Send message"
+    >
         ➤
     </button>
+
+
 </footer>
-<!-- ==========================
-ATTACHMENT MENU
-========================== -->
+
+
+
+<!-- ==========================================
+     ATTACHMENT MENU
+========================================== -->
+
 <div
     id="attachmentMenu"
-    class="attachmentMenu">
-    <button onclick="pickImage()">
+    class="attachmentMenu"
+>
+
+
+    <button
+        type="button"
+        onclick="pickImage()"
+    >
         🖼️ Photo
     </button>
-    <button onclick="takePhoto()">
+
+
+    <button
+        type="button"
+        onclick="takePhoto()"
+    >
         📷 Camera
     </button>
-    <button onclick="pickFile()">
+
+
+    <button
+        type="button"
+        onclick="pickFile()"
+    >
         📄 File
     </button>
+
+
 </div>
-<!-- Hidden Inputs -->
+
+
+
+<!-- ==========================================
+     HIDDEN FILE INPUTS
+========================================== -->
+
 <input
-type="file"
-id="imagePicker"
-accept="image/*"
-style="display:none;">
+    type="file"
+    id="imagePicker"
+    accept="image/*"
+    hidden
+>
+
+
 <input
-type="file"
-id="filePicker"
-style="display:none;">
-<!-- ==========================
-BOTTOM NAVIGATION
-========================== -->
+    type="file"
+    id="filePicker"
+    accept=".txt,.pdf,.doc,.docx,.csv,.json,.js,.css,.html,.md"
+    hidden
+>
+
+
+
+<!-- ==========================================
+     BOTTOM NAVIGATION
+========================================== -->
+
 <nav class="navbar">
-<a href="dashboard.html">
-🏠<br>Home
-</a>
-<a href="chat.html">
-🤖<br>AI
-</a>
-<a href="notes.html">
-📝<br>Notes
-</a>
-<a href="calendar.html">
-📅<br>Calendar
-</a>
-<a href="profile.html">
-👤<br>Profile
-</a>
+
+
+    <a href="dashboard.html">
+        🏠
+        <br>
+        Home
+    </a>
+
+
+    <a
+        href="chat.html"
+        class="active"
+    >
+        🤖
+        <br>
+        AI
+    </a>
+
+
+    <a href="notes.html">
+        📝
+        <br>
+        Notes
+    </a>
+
+
+    <a href="calendar.html">
+        📅
+        <br>
+        Calendar
+    </a>
+
+
+    <a href="profile.html">
+        👤
+        <br>
+        Profile
+    </a>
+
+
 </nav>
-<!-- ==========================
-AI ENGINE
-========================== -->
-<!-- Core -->
-<script src="js/helpers.js?v=2"></script>
-<script src="js/conversation.js?v=2"></script>
-<script src="js/context.js?v=2"></script>
-<script src="js/memory.js?v=2"></script>
 
-<!-- AI Features -->
-<script src="js/knowledge.js?v=2"></script>
-<script src="js/natural.js?v=2"></script>
-<script src="js/brain.js?v=2"></script>
-<script src="js/smartAI.js?v=2"></script>
-<script src="js/advice.js?v=2"></script>
 
-<!-- Utilities -->
-<script src="js/calculator.js?v=2"></script>
-<script src="js/datetime.js?v=2"></script>
-<script src="js/weather.js?v=2"></script>
-<script src="js/search.js?v=2"></script>
-<script src="js/searchOnline.js?v=2"></script>
-<script src="js/food.js?v=2"></script>
-<script src="js/internet.js?v=2"></script>
 
-<!-- Personal Features -->
-<script src="js/tasks.js?v=2"></script>
-<script src="js/goals.js?v=2"></script>
-<script src="js/notes.js?v=2"></script>
-<script src="js/events.js?v=2"></script>
-<script src="js/learnUser.js?v=2"></script>
+<!-- ==========================================
+     AI LIFE ASSISTANT ENGINE
+     LOAD ORDER IS IMPORTANT
+========================================== -->
 
-<!-- Gamification -->
-<script src="js/xp.js?v=2"></script>
-<script src="js/achievement.js?v=2"></script>
-<script src="js/quiz.js?v=2"></script>
-<script src="js/quizScore.js?v=2"></script>
-<script src="js/streak.js?v=2"></script>
-<script src="js/streakReply.js?v=2"></script>
 
-<!-- Profile -->
-<script src="js/profileStats.js?v=2"></script>
-<script src="js/profileReply.js?v=2"></script>
+<!-- Helpers -->
 
-<!-- Attachments -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-<script src="attachmentAI.js"></script>
-<script src="js/fileReader.js"></script>
+<script src="js/helpers.js?v=5"></script>
 
-<!-- Main Chat Controller -->
-<script src="js/chat.js"></script>
+
+<!-- Basic conversation -->
+
+<script src="js/conversation.js?v=5"></script>
+
+
+<!-- Knowledge -->
+
+<script src="js/knowledge.js?v=5"></script>
+
+
+<!-- Calculator -->
+
+<script src="js/calculator.js?v=5"></script>
+
+
+<!-- Date / Time -->
+
+<script src="js/datetime.js?v=5"></script>
+
+
+<!-- Tasks -->
+
+<script src="js/tasks.js?v=5"></script>
+
+
+<!-- Goals -->
+
+<script src="js/goals.js?v=5"></script>
+
+
+<!-- Notes -->
+
+<script src="js/notes.js?v=5"></script>
+
+
+<!-- Events -->
+
+<script src="js/events.js?v=5"></script>
+
+
+<!-- Natural conversation -->
+
+<script src="js/natural.js?v=5"></script>
+
+
+<!-- Weather -->
+
+<script src="js/weather.js?v=5"></script>
+
+
+<!-- Search -->
+
+<script src="js/search.js?v=5"></script>
+
+
+<!-- Memory -->
+
+<script src="js/memory.js?v=5"></script>
+
+
+<!-- Learn user -->
+
+<script src="js/learnUser.js?v=5"></script>
+
+
+<!-- AI Brain -->
+
+<script src="js/brain.js?v=5"></script>
+
+
+<!-- Advice -->
+
+<script src="js/advice.js?v=5"></script>
+
+
+<!-- Online search -->
+
+<script src="js/searchOnline.js?v=5"></script>
+
+
+<!-- Food -->
+
+<script src="js/food.js?v=5"></script>
+
+
+<!-- Internet -->
+
+<script src="js/internet.js?v=5"></script>
+
+
+<!-- Context -->
+
+<script src="js/context.js?v=5"></script>
+
+
+<!-- Teacher -->
+
+<script src="js/teacher.js?v=5"></script>
+
+
+<!-- XP -->
+
+<script src="js/xp.js?v=5"></script>
+
+
+<!-- Achievements -->
+
+<script src="js/achievement.js?v=5"></script>
+
+
+<!-- Quiz -->
+
+<script src="js/quiz.js?v=5"></script>
+
+
+<!-- Quiz score -->
+
+<script src="js/quizScore.js?v=5"></script>
+
+
+<!-- Profile statistics -->
+
+<script src="js/profileStats.js?v=5"></script>
+
+
+<!-- Streak -->
+
+<script src="js/streak.js?v=5"></script>
+
+
+<!-- Streak replies -->
+
+<script src="js/streakReply.js?v=5"></script>
+
+
+<!-- Profile replies -->
+
+<script src="js/profileReply.js?v=5"></script>
+
+
+
+<!-- ==========================================
+     IMAGE / FILE AI ENGINES
+========================================== -->
+
+
+<!-- Tesseract OCR -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"
+></script>
+
+
+
+<!-- PDF.js -->
+
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
+    type="module"
+></script>
+
+
+
+<!-- DOCX reader -->
+
+<script
+    src="https://unpkg.com/mammoth/mammoth.browser.min.js"
+></script>
+
+
+
+<!-- Attachment AI -->
+
+<script src="js/attachmentAI.js?v=5"></script>
+
+
+<!-- File reader -->
+
+<script src="js/fileReader.js?v=5"></script>
+
+
+
+<!-- ==========================================
+     CHAT CONTROLLER
+========================================== -->
+
+<script src="js/chat.js?v=5"></script>
+
+
+
+<!-- ==========================================
+     MAIN AI CONTROLLER
+     LOAD ONLY ONCE
+========================================== -->
+
+<script src="js/smartAI.js?v=5"></script>
+
+
+
+<!-- ==========================================
+     STARTUP
+========================================== -->
+
+<script>
+
+    console.log(
+        "✅ AI Life Assistant Chat page loaded."
+    );
+
+    console.log(
+        "📎 Attachment system:",
+        window.aiAttachment
+            ? "Ready"
+            : "Waiting for attachment"
+    );
+
+</script>
+
 
 </body>
+
 </html>
