@@ -1,11 +1,13 @@
 // ==========================================
 // AI LIFE ASSISTANT
 // chat.js
-// Version 4.0
-// Clean Chat Foundation
+// Version 5.0
+// Chat + Attachment System
 // ==========================================
 
 "use strict";
+
+console.log("💬 AI Life Assistant chat.js loaded");
 
 
 // ==========================================
@@ -25,12 +27,12 @@ const filePicker = document.getElementById("filePicker");
 
 
 // ==========================================
-// ATTACHMENT STATE
+// GLOBAL ATTACHMENT STATE
 // ==========================================
 
 // IMPORTANT:
-// Do NOT declare currentAttachment again
-// inside smartAI.js.
+// smartAI.js reads this same object.
+// Do NOT create another currentAttachment variable.
 
 window.aiAttachment = null;
 
@@ -43,7 +45,7 @@ window.uploadedFiles = window.uploadedFiles || [];
 
 
 // ==========================================
-// HELPER — CURRENT TIME
+// TIME
 // ==========================================
 
 function getCurrentTime() {
@@ -57,7 +59,7 @@ function getCurrentTime() {
 
 
 // ==========================================
-// HELPER — SCROLL CHAT
+// SCROLL
 // ==========================================
 
 function scrollBottom() {
@@ -70,7 +72,7 @@ function scrollBottom() {
 
 
 // ==========================================
-// HELPER — ESCAPE TEXT
+// ESCAPE HTML
 // ==========================================
 
 function escapeHTML(value) {
@@ -89,7 +91,7 @@ function escapeHTML(value) {
 // ADD MESSAGE
 // ==========================================
 
-function addMessage(type, text, html = false) {
+function addMessage(type, content, isHTML = false) {
 
     if (!chatBox) return;
 
@@ -103,14 +105,15 @@ function addMessage(type, text, html = false) {
     messageText.className = "messageText";
 
 
-    if (html) {
+    if (isHTML) {
 
-        messageText.innerHTML = text;
+        messageText.innerHTML = content;
 
     } else {
 
         messageText.innerHTML =
-            escapeHTML(text).replace(/\n/g, "<br>");
+            escapeHTML(content)
+                .replace(/\n/g, "<br>");
 
     }
 
@@ -123,11 +126,9 @@ function addMessage(type, text, html = false) {
 
 
     message.appendChild(messageText);
-
     message.appendChild(messageTime);
 
     chatBox.appendChild(message);
-
 
     scrollBottom();
 
@@ -162,7 +163,7 @@ async function sendMessage(event) {
     addMessage("user", text);
 
 
-    // Save conversation
+    // Save user message
 
     if (typeof saveContext === "function") {
 
@@ -188,7 +189,6 @@ async function sendMessage(event) {
 
     userInput.style.height = "48px";
 
-
     updateComposer();
 
 
@@ -212,6 +212,8 @@ async function aiReply(text) {
 
     typing.className =
         "message ai typing";
+
+    typing.id = "typingIndicator";
 
 
     typing.innerHTML = `
@@ -242,6 +244,13 @@ async function aiReply(text) {
     }
 
 
+    if (voiceBtn) {
+
+        voiceBtn.disabled = true;
+
+    }
+
+
     try {
 
         let reply;
@@ -265,7 +274,11 @@ async function aiReply(text) {
         typing.remove();
 
 
-        if (reply !== null && reply !== undefined) {
+        if (
+            reply !== null &&
+            reply !== undefined &&
+            String(reply).trim() !== ""
+        ) {
 
             addMessage(
                 "ai",
@@ -305,7 +318,7 @@ async function aiReply(text) {
     catch (error) {
 
         console.error(
-            "AI Reply Error:",
+            "❌ AI Reply Error:",
             error
         );
 
@@ -334,6 +347,13 @@ async function aiReply(text) {
         if (sendBtn) {
 
             sendBtn.disabled = false;
+
+        }
+
+
+        if (voiceBtn) {
+
+            voiceBtn.disabled = false;
 
         }
 
@@ -369,9 +389,7 @@ function updateComposer() {
 
         }
 
-    }
-
-    else {
+    } else {
 
         sendBtn.classList.remove("active");
 
@@ -388,7 +406,7 @@ function updateComposer() {
 
 
 // ==========================================
-// TEXTAREA AUTO EXPAND
+// TEXTAREA
 // ==========================================
 
 if (userInput) {
@@ -496,7 +514,7 @@ if (attachBtn) {
 
 
 // ==========================================
-// CLOSE ATTACHMENT MENU
+// CLOSE MENU OUTSIDE
 // ==========================================
 
 document.addEventListener(
@@ -520,21 +538,23 @@ document.addEventListener(
 
 
 // ==========================================
-// IMAGE PICKER
+// PICK IMAGE
 // ==========================================
 
 function pickImage() {
 
     if (!imagePicker) return;
 
-    imagePicker.removeAttribute(
-        "capture"
-    );
+    imagePicker.removeAttribute("capture");
 
     imagePicker.click();
 
 }
 
+
+// ==========================================
+// CAMERA
+// ==========================================
 
 function takePhoto() {
 
@@ -551,7 +571,7 @@ function takePhoto() {
 
 
 // ==========================================
-// FILE PICKER
+// PICK FILE
 // ==========================================
 
 function pickFile() {
@@ -611,7 +631,9 @@ function handleImageUpload() {
             event.target.result;
 
 
-        // Store attachment globally
+        // ==================================
+        // STORE IMAGE
+        // ==================================
 
         window.aiAttachment = {
 
@@ -627,12 +649,15 @@ function handleImageUpload() {
 
             file: file,
 
-            date: new Date().toISOString()
+            date:
+                new Date().toISOString()
 
         };
 
 
-        // Display image
+        // ==================================
+        // SHOW IMAGE
+        // ==================================
 
         addMessage(
             "user",
@@ -647,7 +672,9 @@ function handleImageUpload() {
         );
 
 
-        // Save upload
+        // ==================================
+        // SAVE UPLOAD
+        // ==================================
 
         rememberUpload(
             file,
@@ -655,11 +682,17 @@ function handleImageUpload() {
         );
 
 
+        // ==================================
+        // CONFIRM
+        // ==================================
+
         addMessage(
             "ai",
-            "📷 Image received. You can now ask me to read the text, describe it, or analyze it."
+            "📷 Image received successfully.\n\nYou can ask me:\n\n📝 Read the text\n👀 Describe the image\n🔍 Analyze the image"
         );
 
+
+        // Reset
 
         imagePicker.value = "";
 
@@ -713,7 +746,9 @@ function handleFileUpload() {
     if (!file) return;
 
 
-    // Store attachment globally
+    // ==================================
+    // STORE FILE
+    // ==================================
 
     window.aiAttachment = {
 
@@ -729,12 +764,15 @@ function handleFileUpload() {
 
         file: file,
 
-        date: new Date().toISOString()
+        date:
+            new Date().toISOString()
 
     };
 
 
-    // Display file
+    // ==================================
+    // SHOW FILE
+    // ==================================
 
     addMessage(
         "user",
@@ -763,7 +801,9 @@ function handleFileUpload() {
     );
 
 
-    // Save upload
+    // ==================================
+    // SAVE UPLOAD
+    // ==================================
 
     rememberUpload(
         file,
@@ -771,9 +811,13 @@ function handleFileUpload() {
     );
 
 
+    // ==================================
+    // CONFIRM
+    // ==================================
+
     addMessage(
         "ai",
-        `📄 ${file.name} received. You can now ask me to read or summarize it.`
+        `📄 ${file.name} received successfully.\n\nYou can ask me to read, summarize, explain, or find important information in it.`
     );
 
 
@@ -790,7 +834,11 @@ function handleFileUpload() {
 
 function formatFileSize(bytes) {
 
-    if (!bytes) return "0 Bytes";
+    if (!bytes || bytes <= 0) {
+
+        return "0 Bytes";
+
+    }
 
 
     const units = [
@@ -845,11 +893,14 @@ function rememberUpload(file, type) {
 
         type: type,
 
+        mimeType:
+            file.type ||
+            "unknown",
+
         size: file.size,
 
         date:
-            new Date()
-            .toLocaleString()
+            new Date().toLocaleString()
 
     });
 
@@ -857,7 +908,7 @@ function rememberUpload(file, type) {
 
 
 // ==========================================
-// GET UPLOADED FILES
+// GET UPLOADS
 // ==========================================
 
 function getUploadedFiles() {
@@ -875,5 +926,5 @@ updateComposer();
 
 
 console.log(
-    "✅ AI Life Assistant chat.js loaded successfully"
+    "✅ chat.js initialized successfully"
 );
