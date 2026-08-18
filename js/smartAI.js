@@ -14,7 +14,7 @@ console.log("🧠 smartAI.js loaded");
 
 function getCurrentAttachment(){
 
-    return window.aiCurrentAttachment || null;
+    return window.aiAttachment || null;
 
 }
 
