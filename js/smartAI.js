@@ -12,7 +12,11 @@ console.log("🧠 smartAI.js loaded");
 // CURRENT ATTACHMENT
 // ==========================================
 
-let currentAttachment = null;
+function getCurrentAttachment(){
+
+    return window.aiCurrentAttachment || null;
+
+}
 
 
 // ==========================================
