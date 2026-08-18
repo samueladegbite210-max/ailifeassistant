@@ -468,7 +468,7 @@ if(!attachment){
         if(typeof readImageText === "function"){
 
             return await readImageText(
-                currentAttachment.data
+                attachment.data
             );
 
         }
