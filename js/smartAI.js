@@ -432,7 +432,9 @@ function isFileCommand(msg){
 
 async function handleImageCommand(msg){
 
-    if(!currentAttachment){
+    const attachment = getCurrentAttachment();
+
+if(!attachment){
 
         return (
             "📷 I don't currently have an image attached.\n\n" +
@@ -442,7 +444,7 @@ async function handleImageCommand(msg){
     }
 
 
-    if(currentAttachment.type !== "image"){
+    if(attachment.type !== "image"){
 
         return (
             "📎 The current attachment isn't an image.\n\n" +
