@@ -1,18 +1,20 @@
 // ==========================================
-// AI Life Assistant
+// AI LIFE ASSISTANT
 // smartAI.js
-// Version 5.0
-// AI Controller
+// Version 6.0
+// AI Controller + Attachments
 // ==========================================
+
+"use strict";
 
 console.log("🧠 smartAI.js loaded");
 
 
 // ==========================================
-// CURRENT ATTACHMENT
+// ATTACHMENT ACCESS
 // ==========================================
 
-function getCurrentAttachment(){
+function getCurrentAttachment() {
 
     return window.aiAttachment || null;
 
@@ -23,33 +25,39 @@ function getCurrentAttachment(){
 // MAIN AI CONTROLLER
 // ==========================================
 
-async function smartAIReply(msg){
+async function smartAIReply(msg) {
 
-    try{
+    try {
 
-        // ----------------------------------
-        // Clean message
-        // ----------------------------------
+        msg =
+            String(msg || "")
+                .trim()
+                .toLowerCase();
 
-        msg = String(msg || "").trim().toLowerCase();
 
-        if(msg === ""){
+        if (!msg) {
+
             return null;
+
         }
 
 
         // ==================================
-        // ATTACHMENT COMMANDS
+        // IMAGE COMMANDS
         // ==================================
 
-        if(isImageCommand(msg)){
+        if (isImageCommand(msg)) {
 
             return await handleImageCommand(msg);
 
         }
 
 
-        if(isFileCommand(msg)){
+        // ==================================
+        // FILE COMMANDS
+        // ==================================
+
+        if (isFileCommand(msg)) {
 
             return await handleFileCommand(msg);
 
@@ -57,15 +65,15 @@ async function smartAIReply(msg){
 
 
         // ==================================
-        // UPLOAD MEMORY
+        // UPLOAD LIST
         // ==================================
 
-        if(
+        if (
             msg.includes("what did i upload") ||
             msg.includes("what have i uploaded") ||
             msg.includes("show my uploads") ||
             msg.includes("my uploaded files")
-        ){
+        ) {
 
             return getUploadList();
 
@@ -73,283 +81,269 @@ async function smartAIReply(msg){
 
 
         // ==================================
-        // CONVERSATION
+        // NORMAL AI SYSTEM
         // ==================================
 
         let answer;
 
 
-        if(typeof conversationReply === "function"){
+        if (
+            typeof conversationReply === "function"
+        ) {
 
-            answer = conversationReply(msg);
+            answer =
+                conversationReply(msg);
 
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // MEMORY
-        // ==================================
-
-        if(typeof memoryReply === "function"){
-
-            answer = memoryReply(msg, msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // PROFILE
-        // ==================================
+        if (
+            typeof memoryReply === "function"
+        ) {
 
-        if(typeof profileReply === "function"){
+            answer =
+                memoryReply(msg, msg);
 
-            answer = profileReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // STREAK
-        // ==================================
-
-        if(typeof streakReply === "function"){
-
-            answer = streakReply(msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // LEARN USER
-        // ==================================
+        if (
+            typeof profileReply === "function"
+        ) {
 
-        if(typeof learnUserReply === "function"){
+            answer =
+                profileReply(msg);
 
-            answer = learnUserReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // KNOWLEDGE
-        // ==================================
-
-        if(typeof knowledgeReply === "function"){
-
-            answer = knowledgeReply(msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // TEACHER
-        // ==================================
+        if (
+            typeof streakReply === "function"
+        ) {
 
-        if(typeof teacherReply === "function"){
+            answer =
+                streakReply(msg);
 
-            answer = teacherReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // QUIZ
-        // ==================================
-
-        if(typeof quizReply === "function"){
-
-            answer = quizReply(msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // CALCULATOR
-        // ==================================
+        if (
+            typeof learnUserReply === "function"
+        ) {
 
-        if(typeof calculatorReply === "function"){
+            answer =
+                learnUserReply(msg, msg);
 
-            answer = calculatorReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // DATE / TIME
-        // ==================================
-
-        if(typeof dateTimeReply === "function"){
-
-            answer = dateTimeReply(msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // TASKS
-        // ==================================
+        if (
+            typeof knowledgeReply === "function"
+        ) {
 
-        if(typeof taskReply === "function"){
+            answer =
+                knowledgeReply(msg);
 
-            answer = taskReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // GOALS
-        // ==================================
-
-        if(typeof goalReply === "function"){
-
-            answer = goalReply(msg, msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // NOTES
-        // ==================================
+        if (
+            typeof teacherReply === "function"
+        ) {
 
-        if(typeof noteReply === "function"){
+            answer =
+                teacherReply(msg);
 
-            answer = noteReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // EVENTS
-        // ==================================
-
-        if(typeof eventReply === "function"){
-
-            answer = eventReply(msg, msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // NATURAL CONVERSATION
-        // ==================================
+        if (
+            typeof quizReply === "function"
+        ) {
 
-        if(typeof naturalReply === "function"){
+            answer =
+                quizReply(msg);
 
-            answer = naturalReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // FOOD
-        // ==================================
-
-        if(typeof foodReply === "function"){
-
-            answer = foodReply(msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // WEATHER
-        // ==================================
+        if (
+            typeof calculatorReply === "function"
+        ) {
 
-        if(typeof weatherReply === "function"){
+            answer =
+                calculatorReply(msg);
 
-            answer = weatherReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // AI BRAIN
-        // ==================================
-
-        if(typeof aiBrainReply === "function"){
-
-            answer = await aiBrainReply(msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // ADVICE
-        // ==================================
+        if (
+            typeof dateTimeReply === "function"
+        ) {
 
-        if(typeof adviceReply === "function"){
+            answer =
+                dateTimeReply(msg);
 
-            answer = adviceReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // INTERNET
-        // ==================================
-
-        if(typeof internetReply === "function"){
-
-            answer = await internetReply(msg);
-
-            if(answer) return answer;
+            if (answer) return answer;
 
         }
 
 
-        // ==================================
-        // DEFAULT
-        // ==================================
+        if (
+            typeof taskReply === "function"
+        ) {
 
-        return "🤖 I couldn't find an answer yet. Try asking another question.";
+            answer =
+                taskReply(msg, msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof goalReply === "function"
+        ) {
+
+            answer =
+                goalReply(msg, msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof noteReply === "function"
+        ) {
+
+            answer =
+                noteReply(msg, msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof eventReply === "function"
+        ) {
+
+            answer =
+                eventReply(msg, msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof naturalReply === "function"
+        ) {
+
+            answer =
+                naturalReply(msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof foodReply === "function"
+        ) {
+
+            answer =
+                foodReply(msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof weatherReply === "function"
+        ) {
+
+            answer =
+                weatherReply(msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof aiBrainReply === "function"
+        ) {
+
+            answer =
+                await aiBrainReply(msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof adviceReply === "function"
+        ) {
+
+            answer =
+                adviceReply(msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        if (
+            typeof internetReply === "function"
+        ) {
+
+            answer =
+                await internetReply(msg);
+
+            if (answer) return answer;
+
+        }
+
+
+        return (
+            "🤖 I couldn't find an answer yet. " +
+            "Try asking another question."
+        );
 
     }
 
-    catch(error){
+    catch (error) {
 
-        console.error("❌ smartAIReply error:", error);
+        console.error(
+            "❌ smartAIReply error:",
+            error
+        );
+
 
         return (
-            "⚠️ I ran into a problem while processing that.\n\n" +
-            error.message
+            "⚠️ I ran into a problem while processing that."
         );
 
     }
@@ -357,12 +351,11 @@ async function smartAIReply(msg){
 }
 
 
-
 // ==========================================
 // IMAGE COMMAND DETECTION
 // ==========================================
 
-function isImageCommand(msg){
+function isImageCommand(msg) {
 
     return (
 
@@ -382,7 +375,11 @@ function isImageCommand(msg){
 
         msg.includes("read the text from image") ||
 
+        msg.includes("read the text") ||
+
         msg.includes("extract text from image") ||
+
+        msg.includes("extract text") ||
 
         msg.includes("text in the image") ||
 
@@ -393,18 +390,19 @@ function isImageCommand(msg){
 }
 
 
-
 // ==========================================
 // FILE COMMAND DETECTION
 // ==========================================
 
-function isFileCommand(msg){
+function isFileCommand(msg) {
 
     return (
 
         msg.includes("summarize the file") ||
 
         msg.includes("summarize file") ||
+
+        msg.includes("summarize this") ||
 
         msg.includes("explain the file") ||
 
@@ -413,6 +411,8 @@ function isFileCommand(msg){
         msg.includes("read the file") ||
 
         msg.includes("read this file") ||
+
+        msg.includes("read this") ||
 
         msg.includes("find important information") ||
 
@@ -425,16 +425,17 @@ function isFileCommand(msg){
 }
 
 
-
 // ==========================================
-// IMAGE COMMAND HANDLER
+// IMAGE HANDLER
 // ==========================================
 
-async function handleImageCommand(msg){
+async function handleImageCommand(msg) {
 
-    const attachment = getCurrentAttachment();
+    const attachment =
+        getCurrentAttachment();
 
-if(!attachment){
+
+    if (!attachment) {
 
         return (
             "📷 I don't currently have an image attached.\n\n" +
@@ -444,7 +445,9 @@ if(!attachment){
     }
 
 
-    if(attachment.type !== "image"){
+    if (
+        attachment.type !== "image"
+    ) {
 
         return (
             "📎 The current attachment isn't an image.\n\n" +
@@ -454,18 +457,20 @@ if(!attachment){
     }
 
 
-    // ----------------------------------
-    // OCR request
-    // ----------------------------------
+    // ==================================
+    // OCR
+    // ==================================
 
-    if(
+    if (
         msg.includes("read text") ||
         msg.includes("extract text") ||
         msg.includes("what does the image say") ||
         msg.includes("text in the image")
-    ){
+    ) {
 
-        if(typeof readImageText === "function"){
+        if (
+            typeof readImageText === "function"
+        ) {
 
             return await readImageText(
                 attachment.data
@@ -473,33 +478,38 @@ if(!attachment){
 
         }
 
+
         return (
-            "📝 I have the image, but the OCR engine isn't connected yet."
+            "📝 The image is attached, but the OCR engine isn't available."
         );
 
     }
 
 
-    // ----------------------------------
-    // Description / analysis
-    // ----------------------------------
+    // ==================================
+    // DESCRIPTION
+    // ==================================
 
-    if(
+    if (
         msg.includes("describe") ||
         msg.includes("what is in") ||
         msg.includes("analyze")
-    ){
+    ) {
 
-        if(typeof analyzeImage === "function"){
+        if (
+            typeof analyzeImage === "function"
+        ) {
 
             return await analyzeImage(
-                currentAttachment.data
+                attachment.data
             );
 
         }
 
+
         return (
-            "👀 I have the image, but the AI vision engine isn't connected yet."
+            "👀 I have the image, but the vision engine isn't connected yet.\n\n" +
+            "I can still try to read text from it."
         );
 
     }
@@ -507,24 +517,26 @@ if(!attachment){
 
     return (
         "📷 I have your image ready.\n\n" +
-        "You can ask me to:\n\n" +
+        "Ask me:\n\n" +
         "📝 Read the text\n" +
         "👀 Describe the image\n" +
-        "🔍 Analyze the image\n" +
-        "❓ Answer questions about it"
+        "🔍 Analyze the image"
     );
 
 }
 
 
-
 // ==========================================
-// FILE COMMAND HANDLER
+// FILE HANDLER
 // ==========================================
 
-async function handleFileCommand(msg){
+async function handleFileCommand(msg) {
 
-    if(!currentAttachment){
+    const attachment =
+        getCurrentAttachment();
+
+
+    if (!attachment) {
 
         return (
             "📂 I don't currently have a file attached.\n\n" +
@@ -534,7 +546,9 @@ async function handleFileCommand(msg){
     }
 
 
-    if(currentAttachment.type !== "file"){
+    if (
+        attachment.type !== "file"
+    ) {
 
         return (
             "📎 The current attachment isn't a document.\n\n" +
@@ -544,10 +558,12 @@ async function handleFileCommand(msg){
     }
 
 
-    if(typeof analyzeFile === "function"){
+    if (
+        typeof analyzeFile === "function"
+    ) {
 
         return await analyzeFile(
-            currentAttachment.file
+            attachment.file
         );
 
     }
@@ -560,34 +576,38 @@ async function handleFileCommand(msg){
 }
 
 
-
 // ==========================================
 // UPLOAD LIST
 // ==========================================
 
-function getUploadList(){
+function getUploadList() {
 
-    if(
-        typeof uploadedFiles === "undefined" ||
-        uploadedFiles.length === 0
-    ){
+    const files =
+        window.uploadedFiles || [];
 
-        return "📂 You haven't uploaded any files yet.";
+
+    if (!files.length) {
+
+        return (
+            "📂 You haven't uploaded any files yet."
+        );
 
     }
 
 
-    let reply = "📂 Uploaded files:\n\n";
+    let reply =
+        "📂 Uploaded files:\n\n";
 
 
-    uploadedFiles.forEach((file,index)=>{
+    files.forEach(
+        function (file, index) {
 
-        reply += (
-            `${index + 1}. ${file.name} ` +
-            `(${file.type})\n`
-        );
+            reply +=
+                `${index + 1}. ${file.name} ` +
+                `(${file.type})\n`;
 
-    });
+        }
+    );
 
 
     return reply;
