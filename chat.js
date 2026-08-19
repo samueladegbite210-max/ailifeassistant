@@ -1,400 +1,167 @@
 // ==========================================
-// AI LIFE ASSISTANT
-// chat.js
-// Version 5.0
-// Chat + Attachment System
+// AI Life Assistant Chat
+// Version 3.0
 // ==========================================
 
-"use strict";
-
-console.log("💬 AI Life Assistant chat.js loaded");
-
-
-// ==========================================
-// ELEMENTS
-// ==========================================
+// -------------------------
+// Elements
+// -------------------------
 
 const chatBox = document.getElementById("chatBox");
+
 const userInput = document.getElementById("userInput");
+
 const sendBtn = document.getElementById("sendBtn");
-const voiceBtn = document.getElementById("voiceBtn");
 
 const attachBtn = document.getElementById("attachBtn");
+
+const voiceBtn = document.getElementById("voiceBtn");
+
 const attachmentMenu = document.getElementById("attachmentMenu");
 
 const imagePicker = document.getElementById("imagePicker");
+
 const filePicker = document.getElementById("filePicker");
 
-
 // ==========================================
-// GLOBAL ATTACHMENT STATE
-// ==========================================
-
-// IMPORTANT:
-// smartAI.js reads this same object.
-// Do NOT create another currentAttachment variable.
-
-window.aiAttachment = null;
-
-
-// ==========================================
-// UPLOAD MEMORY
+// Upload Memory
 // ==========================================
 
-window.uploadedFiles = window.uploadedFiles || [];
+let uploadedFiles = [];
 
+function rememberUpload(file,type){
 
-// ==========================================
-// TIME
-// ==========================================
+    uploadedFiles.unshift({
 
-function getCurrentTime() {
+        name:file.name,
 
-    return new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit"
+        type:type,
+
+        size:file.size,
+
+        date:new Date()
+
+    });
+
+}
+// -------------------------
+// Helpers
+// -------------------------
+
+function getCurrentTime(){
+
+    return new Date().toLocaleTimeString([],{
+
+        hour:"2-digit",
+
+        minute:"2-digit"
+
     });
 
 }
 
-
-// ==========================================
-// SCROLL
-// ==========================================
-
-function scrollBottom() {
-
-    if (!chatBox) return;
+function scrollBottom(){
 
     chatBox.scrollTop = chatBox.scrollHeight;
 
 }
+// -------------------------
+// Add Message
+// -------------------------
 
-
-// ==========================================
-// ESCAPE HTML
-// ==========================================
-
-function escapeHTML(value) {
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-// ==========================================
-// ADD MESSAGE
-// ==========================================
-
-function addMessage(type, content, isHTML = false) {
-
-    if (!chatBox) return;
+function addMessage(type, content){
 
     const message = document.createElement("div");
 
-    message.className = "message " + type;
+    message.className = `message ${type}`;
 
+    message.innerHTML = `
+        <div class="messageText">
+            ${content}
+        </div>
 
-    const messageText = document.createElement("div");
-
-    messageText.className = "messageText";
-
-
-    if (isHTML) {
-
-        messageText.innerHTML = content;
-
-    } else {
-
-        messageText.innerHTML =
-            escapeHTML(content)
-                .replace(/\n/g, "<br>");
-
-    }
-
-
-    const messageTime = document.createElement("div");
-
-    messageTime.className = "messageTime";
-
-    messageTime.textContent = getCurrentTime();
-
-
-    message.appendChild(messageText);
-    message.appendChild(messageTime);
+        <div class="messageTime">
+            ${getCurrentTime()}
+        </div>
+    `;
 
     chatBox.appendChild(message);
 
     scrollBottom();
 
 }
-
-
 // ==========================================
-// SEND MESSAGE
+// Typing Indicator
 // ==========================================
 
-async function sendMessage(event) {
-
-    if (event) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-    }
-
-
-    if (!userInput) return;
-
-
-    const text = userInput.value.trim();
-
-
-    if (!text) return;
-
-
-    // Show user message
-
-    addMessage("user", text);
-
-
-    // Save user message
-
-    if (typeof saveContext === "function") {
-
-        try {
-
-            saveContext("user", text);
-
-        } catch (error) {
-
-            console.error(
-                "saveContext error:",
-                error
-            );
-
-        }
-
-    }
-
-
-    // Clear input
-
-    userInput.value = "";
-
-    userInput.style.height = "48px";
-
-    updateComposer();
-
-
-    // Ask AI
-
-    await aiReply(text);
-
-}
-
-
-// ==========================================
-// AI REPLY
-// ==========================================
-
-async function aiReply(text) {
-
-    if (!chatBox) return;
-
+function showTyping(){
 
     const typing = document.createElement("div");
 
-    typing.className =
-        "message ai typing";
+    typing.className = "message ai typing";
 
     typing.id = "typingIndicator";
 
-
     typing.innerHTML = `
-        <div class="messageText">
-            🤖 AI is typing...
+        <div class="typingBubble">
+
+            <span></span>
+            <span></span>
+            <span></span>
+
         </div>
     `;
-
 
     chatBox.appendChild(typing);
 
     scrollBottom();
 
+}
 
-    // Disable composer
+function hideTyping(){
 
-    if (userInput) {
+    const typing = document.getElementById("typingIndicator");
 
-        userInput.disabled = true;
-
-    }
-
-
-    if (sendBtn) {
-
-        sendBtn.disabled = true;
-
-    }
-
-
-    if (voiceBtn) {
-
-        voiceBtn.disabled = true;
-
-    }
-
-
-    try {
-
-        let reply;
-
-
-        if (
-            typeof smartAIReply === "function"
-        ) {
-
-            reply =
-                await smartAIReply(text);
-
-        } else {
-
-            reply =
-                "⚠️ AI controller is not connected.";
-
-        }
-
+    if(typing){
 
         typing.remove();
-
-
-        if (
-            reply !== null &&
-            reply !== undefined &&
-            String(reply).trim() !== ""
-        ) {
-
-            addMessage(
-                "ai",
-                String(reply)
-            );
-
-        }
-
-
-        // Save AI response
-
-        if (
-            reply &&
-            typeof saveContext === "function"
-        ) {
-
-            try {
-
-                saveContext(
-                    "ai",
-                    String(reply)
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "AI saveContext error:",
-                    error
-                );
-
-            }
-
-        }
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "❌ AI Reply Error:",
-            error
-        );
-
-
-        typing.remove();
-
-
-        addMessage(
-            "ai",
-            "⚠️ Sorry, something went wrong while processing your message."
-        );
-
-    }
-
-    finally {
-
-        if (userInput) {
-
-            userInput.disabled = false;
-
-            userInput.focus();
-
-        }
-
-
-        if (sendBtn) {
-
-            sendBtn.disabled = false;
-
-        }
-
-
-        if (voiceBtn) {
-
-            voiceBtn.disabled = false;
-
-        }
-
-
-        updateComposer();
 
     }
 
 }
+// -------------------------
+// Auto Expand
+// -------------------------
 
+userInput.addEventListener("input",function(){
 
-// ==========================================
-// COMPOSER
-// ==========================================
+    this.style.height = "auto";
 
-function updateComposer() {
+    this.style.height = this.scrollHeight + "px";
 
-    if (!userInput || !sendBtn) return;
+});
 
+// -------------------------
+// Composer State
+// -------------------------
 
-    const hasText =
-        userInput.value.trim().length > 0;
+function updateComposer(){
 
-
-    if (hasText) {
+    if(userInput.value.trim().length > 0){
 
         sendBtn.classList.add("active");
 
-
-        if (voiceBtn) {
+        if(voiceBtn){
 
             voiceBtn.style.display = "none";
 
         }
 
-    } else {
+    }else{
 
         sendBtn.classList.remove("active");
 
-
-        if (voiceBtn) {
+        if(voiceBtn){
 
             voiceBtn.style.display = "flex";
 
@@ -404,146 +171,211 @@ function updateComposer() {
 
 }
 
+userInput.addEventListener("input",updateComposer);
 
-// ==========================================
-// TEXTAREA
-// ==========================================
+updateComposer();
+// -------------------------
 
-if (userInput) {
+// Send Message
 
-    userInput.addEventListener(
-        "input",
-        function () {
+// -------------------------
 
-            this.style.height = "48px";
+function sendMessage(){
 
-            this.style.height =
-                this.scrollHeight + "px";
+    const text = userInput.value.trim();
 
-            updateComposer();
+    if(!text) return;
+
+    // Show user message
+
+    addMessage("user", text);
+
+    // Save conversation
+
+    if(typeof saveContext === "function"){
+
+        saveContext("user", text);
+
+    }
+
+
+    // Clear input
+
+    userInput.value = "";
+
+    userInput.style.height = "auto";
+
+    updateComposer();
+
+    // Ask AI
+
+    aiReply(text);
+
+}
+
+// -------------------------
+// Enter to Send
+// -------------------------
+
+userInput.addEventListener("keydown",function(e){
+
+    if(e.key === "Enter" && !e.shiftKey){
+
+        e.preventDefault();
+
+        sendMessage();
+
+    }
+
+});
+// -------------------------
+// Send Button
+// -------------------------
+
+sendBtn.addEventListener("click", sendMessage);
+// -------------------------
+// AI Reply
+// -------------------------
+
+async function aiReply(text){
+
+    showTyping();
+
+    userInput.disabled = true;
+
+    sendBtn.disabled = true;
+
+    try{
+
+        const answer = await smartAIReply(text);
+
+        hideTyping();
+
+        addMessage("ai", answer);
+
+        if(typeof saveContext === "function"){
+
+            saveContext("ai", answer);
 
         }
-    );
 
+    }catch(error){
 
-    userInput.addEventListener(
-        "keydown",
-        function (event) {
+        hideTyping();
 
-            if (
-                event.key === "Enter" &&
-                !event.shiftKey
-            ) {
+        addMessage(
+            "ai",
+            "⚠️ Sorry, something went wrong."
+        );
 
-                event.preventDefault();
+        console.error(error);
 
-                sendMessage();
+    }
 
-            }
+    userInput.disabled = false;
 
-        }
-    );
+    sendBtn.disabled = false;
 
+    userInput.focus();
+
+    
 }
-
-
 // ==========================================
-// SEND BUTTON
+// AI Upload Reply
 // ==========================================
 
-if (sendBtn) {
+function aiUploadReply(type, file){
 
-    sendBtn.addEventListener(
-        "click",
-        sendMessage
-    );
+    let reply = "";
+
+    if(type === "image"){
+
+        reply = `
+📷 Nice! I received your image.
+
+I can help you:
+
+📝 Read text from the image
+
+👀 Describe what I see
+
+🔍 Analyze objects
+
+😊 Explain charts
+
+❓Answer questions about the image
+
+(Coming soon: Full AI Vision)
+`;
+
+    }
+
+    if(type === "file"){
+
+        reply = `
+📄 I received:
+
+<b>${file.name}</b>
+
+I can help you:
+
+📑 Summarize it
+
+🧠 Explain it
+
+🔍 Find important information
+
+📚 Study with you
+
+❓Answer questions
+
+(Coming soon: Smart document reading)
+`;
+
+    }
+
+    setTimeout(()=>{
+
+        addMessage("ai", reply);
+
+    },700);
 
 }
-
-
 // ==========================================
-// ATTACHMENT MENU
+// Attachment Menu
 // ==========================================
 
-function openAttachmentMenu() {
-
-    if (!attachmentMenu) return;
-
-    attachmentMenu.classList.add("show");
-
-}
-
-
-function closeAttachmentMenu() {
-
-    if (!attachmentMenu) return;
-
-    attachmentMenu.classList.remove("show");
-
-}
-
-
-function toggleAttachmentMenu() {
-
-    if (!attachmentMenu) return;
+function openAttachmentMenu(){
 
     attachmentMenu.classList.toggle("show");
 
 }
 
+function closeAttachmentMenu(){
 
-// ==========================================
-// ATTACH BUTTON
-// ==========================================
-
-if (attachBtn) {
-
-    attachBtn.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            toggleAttachmentMenu();
-
-        }
-    );
+    attachmentMenu.classList.remove("show");
 
 }
 
+attachBtn.addEventListener("click", openAttachmentMenu);
 
-// ==========================================
-// CLOSE MENU OUTSIDE
-// ==========================================
+document.addEventListener("click",(e)=>{
 
-document.addEventListener(
-    "click",
-    function (event) {
+    if(
+        !attachmentMenu.contains(e.target) &&
+        e.target !== attachBtn
+    ){
 
-        if (!attachmentMenu) return;
-
-
-        if (
-            !attachmentMenu.contains(event.target) &&
-            event.target !== attachBtn
-        ) {
-
-            closeAttachmentMenu();
-
-        }
+        closeAttachmentMenu();
 
     }
-);
 
-
+});
 // ==========================================
-// PICK IMAGE
+// Image Upload
 // ==========================================
 
-function pickImage() {
-
-    if (!imagePicker) return;
+function pickImage(){
 
     imagePicker.removeAttribute("capture");
 
@@ -551,14 +383,7 @@ function pickImage() {
 
 }
 
-
-// ==========================================
-// CAMERA
-// ==========================================
-
-function takePhoto() {
-
-    if (!imagePicker) return;
+function takePhoto(){
 
     imagePicker.setAttribute(
         "capture",
@@ -569,362 +394,80 @@ function takePhoto() {
 
 }
 
+imagePicker.addEventListener("change",()=>{
+
+    const file = imagePicker.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload=(e)=>{
+
+        addMessage(
+            "user",
+            `<img src="${e.target.result}" class="chatImage">`
+        );
+
+    };
+
+    reader.readAsDataURL(file);
+
+    rememberUpload(file,"image");
+
+    aiUploadReply("image",file);
+
+    imagePicker.value="";
+
+    closeAttachmentMenu();
+
+});
 
 // ==========================================
-// PICK FILE
+// File Upload
 // ==========================================
 
-function pickFile() {
-
-    if (!filePicker) return;
+function pickFile(){
 
     filePicker.click();
 
 }
 
+filePicker.addEventListener("change",()=>{
 
-// ==========================================
-// IMAGE UPLOAD
-// ==========================================
+    const file = filePicker.files[0];
 
-if (imagePicker) {
-
-    imagePicker.addEventListener(
-        "change",
-        handleImageUpload
-    );
-
-}
-
-
-function handleImageUpload() {
-
-    const file =
-        imagePicker.files &&
-        imagePicker.files[0];
-
-
-    if (!file) return;
-
-
-    if (!file.type.startsWith("image/")) {
-
-        addMessage(
-            "ai",
-            "⚠️ Please select a valid image."
-        );
-
-        imagePicker.value = "";
-
-        return;
-
-    }
-
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload = function (event) {
-
-        const imageData =
-            event.target.result;
-
-
-        // ==================================
-        // STORE IMAGE
-        // ==================================
-
-        window.aiAttachment = {
-
-            type: "image",
-
-            name: file.name,
-
-            mimeType: file.type,
-
-            size: file.size,
-
-            data: imageData,
-
-            file: file,
-
-            date:
-                new Date().toISOString()
-
-        };
-
-
-        // ==================================
-        // SHOW IMAGE
-        // ==================================
-
-        addMessage(
-            "user",
-            `
-            <img
-                src="${imageData}"
-                class="chatImage"
-                alt="Uploaded image"
-            >
-            `,
-            true
-        );
-
-
-        // ==================================
-        // SAVE UPLOAD
-        // ==================================
-
-        rememberUpload(
-            file,
-            "image"
-        );
-
-
-        // ==================================
-        // CONFIRM
-        // ==================================
-
-        addMessage(
-            "ai",
-            "📷 Image received successfully.\n\nYou can ask me:\n\n📝 Read the text\n👀 Describe the image\n🔍 Analyze the image"
-        );
-
-
-        // Reset
-
-        imagePicker.value = "";
-
-        imagePicker.removeAttribute(
-            "capture"
-        );
-
-        closeAttachmentMenu();
-
-    };
-
-
-    reader.onerror = function () {
-
-        addMessage(
-            "ai",
-            "⚠️ I couldn't read that image."
-        );
-
-        imagePicker.value = "";
-
-    };
-
-
-    reader.readAsDataURL(file);
-
-}
-
-
-// ==========================================
-// FILE UPLOAD
-// ==========================================
-
-if (filePicker) {
-
-    filePicker.addEventListener(
-        "change",
-        handleFileUpload
-    );
-
-}
-
-
-function handleFileUpload() {
-
-    const file =
-        filePicker.files &&
-        filePicker.files[0];
-
-
-    if (!file) return;
-
-
-    // ==================================
-    // STORE FILE
-    // ==================================
-
-    window.aiAttachment = {
-
-        type: "file",
-
-        name: file.name,
-
-        mimeType:
-            file.type ||
-            "application/octet-stream",
-
-        size: file.size,
-
-        file: file,
-
-        date:
-            new Date().toISOString()
-
-    };
-
-
-    // ==================================
-    // SHOW FILE
-    // ==================================
+    if(!file) return;
 
     addMessage(
         "user",
         `
         <div class="chatFile">
 
-            <div class="fileIcon">
-                📄
-            </div>
+            <div class="fileIcon">📄</div>
 
             <div class="fileInfo">
 
                 <div class="fileName">
-                    ${escapeHTML(file.name)}
+                    ${file.name}
                 </div>
 
                 <div class="fileSize">
-                    ${formatFileSize(file.size)}
+                    ${(file.size/1024).toFixed(1)} KB
                 </div>
 
             </div>
 
         </div>
-        `,
-        true
+        `
     );
 
+    rememberUpload(file,"file");
 
-    // ==================================
-    // SAVE UPLOAD
-    // ==================================
+    aiUploadReply("file",file);
 
-    rememberUpload(
-        file,
-        "file"
-    );
-
-
-    // ==================================
-    // CONFIRM
-    // ==================================
-
-    addMessage(
-        "ai",
-        `📄 ${file.name} received successfully.\n\nYou can ask me to read, summarize, explain, or find important information in it.`
-    );
-
-
-    filePicker.value = "";
+    filePicker.value="";
 
     closeAttachmentMenu();
 
-}
-
-
-// ==========================================
-// FILE SIZE
-// ==========================================
-
-function formatFileSize(bytes) {
-
-    if (!bytes || bytes <= 0) {
-
-        return "0 Bytes";
-
-    }
-
-
-    const units = [
-        "Bytes",
-        "KB",
-        "MB",
-        "GB"
-    ];
-
-
-    const index =
-        Math.floor(
-            Math.log(bytes) /
-            Math.log(1024)
-        );
-
-
-    return (
-        parseFloat(
-            (
-                bytes /
-                Math.pow(
-                    1024,
-                    index
-                )
-            ).toFixed(1)
-        )
-        +
-        " " +
-        units[index]
-    );
-
-}
-
-
-// ==========================================
-// UPLOAD MEMORY
-// ==========================================
-
-function rememberUpload(file, type) {
-
-    if (!window.uploadedFiles) {
-
-        window.uploadedFiles = [];
-
-    }
-
-
-    window.uploadedFiles.push({
-
-        name: file.name,
-
-        type: type,
-
-        mimeType:
-            file.type ||
-            "unknown",
-
-        size: file.size,
-
-        date:
-            new Date().toLocaleString()
-
-    });
-
-}
-
-
-// ==========================================
-// GET UPLOADS
-// ==========================================
-
-function getUploadedFiles() {
-
-    return window.uploadedFiles || [];
-
-}
-
-
-// ==========================================
-// INITIALIZE
-// ==========================================
-
-updateComposer();
-
-
-console.log(
-    "✅ chat.js initialized successfully"
-);
+});
