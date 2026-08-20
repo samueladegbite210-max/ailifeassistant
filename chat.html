@@ -202,103 +202,200 @@
 
 
 <!-- ==========================================
-     EXTERNAL AI / DOCUMENT LIBRARIES
+     EXTERNAL DOCUMENT / OCR LIBRARIES
 ========================================== -->
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<!-- Tesseract.js - Image OCR -->
+<script
+    src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
+</script>
 
-<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
-<!-- PDF.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
-        type="module">
+<!-- Mammoth.js - DOCX Reader -->
+<script
+    src="https://unpkg.com/mammoth/mammoth.browser.min.js">
+</script>
+
+
+<!-- PDF.js - PDF Reader -->
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js">
 </script>
 
 
 <!-- ==========================================
-     ATTACHMENT + CHAT CONTROLLERS
+     PDF.JS WORKER CONFIGURATION
 ========================================== -->
 
-<script src="attachmentAI.js?v=3"></script>
+<script>
 
-<script src="js/smartAI.js?v=7"></script>
-<script src="js/chat.js?v=7"></script>
+    if (typeof pdfjsLib !== "undefined") {
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+
+        console.log("✅ PDF.js loaded");
+
+    } else {
+
+        console.error(
+            "❌ PDF.js failed to load"
+        );
+
+    }
+
+</script>
+
+
+<!-- ==========================================
+     ATTACHMENT AI
+========================================== -->
+
+<script src="attachmentAI.js?v=4"></script>
+
+
+<!-- ==========================================
+     AI ENGINE
+========================================== -->
+
+<script src="js/smartAI.js?v=8"></script>
+
+
+<!-- ==========================================
+     CHAT CONTROLLER
+========================================== -->
+
+<script src="js/chat.js?v=8"></script>
+
 
 <!-- ==========================================
      WELCOME NAME
 ========================================== -->
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
 
-    const button = document.getElementById("sendBtn");
-    const input = document.getElementById("userInput");
+document.addEventListener("DOMContentLoaded", function () {
 
-    console.log("===== CHAT DEBUG =====");
-    console.log("sendBtn:", button);
-    console.log("userInput:", input);
-    console.log("sendMessage:", typeof sendMessage);
-    console.log("aiReply:", typeof aiReply);
-    console.log("smartAIReply:", typeof smartAIReply);
-    console.log("conversationReply:", typeof conversationReply);
-    console.log("memoryReply:", typeof memoryReply);
+    console.log("================================");
+    console.log("🤖 AI LIFE ASSISTANT INITIALIZED");
+    console.log("================================");
 
-    if (button) {
 
-        button.addEventListener("click", async function () {
+    // ------------------------------------------
+    // Welcome name
+    // ------------------------------------------
 
-            console.log("1️⃣ SEND BUTTON CLICKED");
+    const name =
+        localStorage.getItem("profileName") ||
+        "Samuel";
 
-            console.log(
-                "2️⃣ Input value:",
-                input ? input.value : "NO INPUT"
-            );
 
-            console.log(
-                "3️⃣ sendMessage type:",
-                typeof sendMessage
-            );
+    const nameElement =
+        document.getElementById("welcomeName");
 
-            try {
 
-                if (typeof sendMessage === "function") {
+    if (nameElement) {
 
-                    console.log("4️⃣ Calling sendMessage()");
-
-                    sendMessage();
-
-                    console.log("5️⃣ sendMessage() finished");
-
-                } else {
-
-                    console.error(
-                        "❌ sendMessage() DOES NOT EXIST"
-                    );
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "❌ SEND ERROR:",
-                    error
-                );
-
-                alert(
-                    "SEND ERROR:\n\n" +
-                    error.message
-                );
-
-            }
-
-        });
+        nameElement.textContent =
+            name;
 
     }
+
+
+    // ------------------------------------------
+    // DEBUG STATUS
+    // ------------------------------------------
+
+    const sendButton =
+        document.getElementById("sendBtn");
+
+
+    const input =
+        document.getElementById("userInput");
+
+
+    console.log(
+        "📌 sendBtn:",
+        sendButton
+    );
+
+
+    console.log(
+        "📌 userInput:",
+        input
+    );
+
+
+    console.log(
+        "📌 chatBox:",
+        document.getElementById("chatBox")
+    );
+
+
+    console.log(
+        "📌 sendMessage:",
+        typeof window.sendMessage
+    );
+
+
+    console.log(
+        "📌 aiReply:",
+        typeof window.aiReply
+    );
+
+
+    console.log(
+        "📌 smartAIReply:",
+        typeof window.smartAIReply
+    );
+
+
+    console.log(
+        "📌 conversationReply:",
+        typeof window.conversationReply
+    );
+
+
+    console.log(
+        "📌 memoryReply:",
+        typeof window.memoryReply
+    );
+
+
+    console.log(
+        "📌 Tesseract:",
+        typeof window.Tesseract
+    );
+
+
+    console.log(
+        "📌 Mammoth:",
+        typeof window.mammoth
+    );
+
+
+    console.log(
+        "📌 PDF.js:",
+        typeof window.pdfjsLib
+    );
+
+
+    console.log(
+        "================================"
+    );
+
+
+    console.log(
+        "✅ Chat initialization complete"
+    );
 
 });
 
 </script>
-
-    
 </body>
 </html>
+
+<!-- ==========================================
+     END CHAT SCRIPTS
+========================================== -->
+
