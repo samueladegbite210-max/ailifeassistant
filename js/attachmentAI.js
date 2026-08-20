@@ -1,7 +1,7 @@
 // ==========================================
 // AI LIFE ASSISTANT
 // attachmentAI.js
-// Version 2.0
+// Version 3.0
 // Image OCR + File Processing
 // ==========================================
 
@@ -32,13 +32,15 @@ async function readImageText(imageData) {
         }
 
 
-        // Check Tesseract
-
-        if (typeof Tesseract === "undefined") {
+        if (
+            typeof Tesseract ===
+            "undefined"
+        ) {
 
             console.error(
                 "❌ Tesseract.js is not available."
             );
+
 
             return (
                 "⚠️ OCR is not loaded.\n\n" +
@@ -48,14 +50,17 @@ async function readImageText(imageData) {
         }
 
 
-        // Create worker once
-
         if (!ocrWorker) {
 
-            console.log("🧠 Creating OCR worker...");
+            console.log(
+                "🧠 Creating OCR worker..."
+            );
+
 
             ocrWorker =
-                await Tesseract.createWorker("eng");
+                await Tesseract.createWorker(
+                    "eng"
+                );
 
         }
 
@@ -65,10 +70,10 @@ async function readImageText(imageData) {
         );
 
 
-        // Recognize image
-
         const result =
-            await ocrWorker.recognize(imageData);
+            await ocrWorker.recognize(
+                imageData
+            );
 
 
         const text =
@@ -79,36 +84,23 @@ async function readImageText(imageData) {
                 : "";
 
 
-        console.log(
-            "📝 OCR result:",
-            text
-        );
-
-
-        // No text found
-
         if (!text) {
 
             return (
-                "📝 I couldn't find readable text " +
-                "in this image.\n\n" +
-                "Try uploading a clearer image with " +
-                "better lighting."
+                "📝 I couldn't find readable text in this image.\n\n" +
+                "Try uploading a clearer image."
             );
 
         }
 
-
-        // Return extracted text
 
         return (
             "📝 Text found in the image:\n\n" +
             text
         );
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "❌ OCR Error:",
@@ -130,28 +122,23 @@ async function readImageText(imageData) {
 // IMAGE ANALYSIS
 // ==========================================
 
-async function analyzeImage(imageData) {
+async function analyzeImage(
+    imageData
+) {
 
     if (!imageData) {
 
-        return "⚠️ No image data was provided.";
+        return (
+            "⚠️ No image data was provided."
+        );
 
     }
 
 
-    /*
-     * This function currently confirms that
-     * the image exists.
-     *
-     * Real AI vision analysis can be connected
-     * here later.
-     */
-
     return (
         "👀 I have your image.\n\n" +
         "Image analysis is not connected yet.\n\n" +
-        "However, I can already read text from " +
-        "the image using OCR."
+        "However, I can already read text from the image using OCR."
     );
 
 }
@@ -178,13 +165,33 @@ async function analyzeFile(file) {
         );
 
 
+        const name =
+            file.name.toLowerCase();
+
+
         // ==================================
-        // TEXT FILE
+        // TXT
         // ==================================
 
         if (
-            file.type === "text/plain" ||
-            file.name.toLowerCase().endsWith(".txt")
+
+            file.type ===
+                "text/plain" ||
+
+            name.endsWith(".txt") ||
+
+            name.endsWith(".csv") ||
+
+            name.endsWith(".json") ||
+
+            name.endsWith(".js") ||
+
+            name.endsWith(".css") ||
+
+            name.endsWith(".html") ||
+
+            name.endsWith(".md")
+
         ) {
 
             const text =
@@ -194,7 +201,7 @@ async function analyzeFile(file) {
             if (!text.trim()) {
 
                 return (
-                    "📄 The text file appears to be empty."
+                    "📄 The file appears to be empty."
                 );
 
             }
@@ -213,11 +220,17 @@ async function analyzeFile(file) {
         // ==================================
 
         if (
-            file.type === "application/pdf" ||
-            file.name.toLowerCase().endsWith(".pdf")
+
+            file.type ===
+                "application/pdf" ||
+
+            name.endsWith(".pdf")
+
         ) {
 
-            return await readPDFFile(file);
+            return await readPDFFile(
+                file
+            );
 
         }
 
@@ -227,12 +240,17 @@ async function analyzeFile(file) {
         // ==================================
 
         if (
+
             file.type ===
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-            file.name.toLowerCase().endsWith(".docx")
+
+            name.endsWith(".docx")
+
         ) {
 
-            return await readDOCXFile(file);
+            return await readDOCXFile(
+                file
+            );
 
         }
 
@@ -241,10 +259,15 @@ async function analyzeFile(file) {
         // IMAGE
         // ==================================
 
-        if (file.type.startsWith("image/")) {
+        if (
+            file.type &&
+            file.type.startsWith("image/")
+        ) {
 
             const imageData =
-                await fileToDataURL(file);
+                await fileToDataURL(
+                    file
+                );
 
 
             return await readImageText(
@@ -254,21 +277,13 @@ async function analyzeFile(file) {
         }
 
 
-        // ==================================
-        // UNSUPPORTED FILE
-        // ==================================
-
         return (
-            "📄 I received **" +
-            file.name +
-            "** successfully.\n\n" +
-            "I don't currently support reading this " +
-            "file type."
+            `📄 I received "${file.name}" successfully.\n\n` +
+            "I don't currently support reading this file type."
         );
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "❌ File analysis error:",
@@ -287,20 +302,20 @@ async function analyzeFile(file) {
 
 
 // ==========================================
-// READ TEXT FILE
+// READ TEXT
 // ==========================================
 
-async function readTextFile(file) {
+function readTextFile(file) {
 
     return new Promise(
-        function(resolve, reject) {
+        (resolve, reject) => {
 
             const reader =
                 new FileReader();
 
 
             reader.onload =
-                function(event) {
+                event => {
 
                     resolve(
                         event.target.result || ""
@@ -310,7 +325,7 @@ async function readTextFile(file) {
 
 
             reader.onerror =
-                function(error) {
+                error => {
 
                     reject(error);
 
@@ -326,20 +341,20 @@ async function readTextFile(file) {
 
 
 // ==========================================
-// FILE → DATA URL
+// FILE TO DATA URL
 // ==========================================
 
-async function fileToDataURL(file) {
+function fileToDataURL(file) {
 
     return new Promise(
-        function(resolve, reject) {
+        (resolve, reject) => {
 
             const reader =
                 new FileReader();
 
 
             reader.onload =
-                function(event) {
+                event => {
 
                     resolve(
                         event.target.result
@@ -349,7 +364,7 @@ async function fileToDataURL(file) {
 
 
             reader.onerror =
-                function(error) {
+                error => {
 
                     reject(error);
 
@@ -365,7 +380,7 @@ async function fileToDataURL(file) {
 
 
 // ==========================================
-// READ PDF
+// PDF
 // ==========================================
 
 async function readPDFFile(file) {
@@ -373,12 +388,12 @@ async function readPDFFile(file) {
     try {
 
         if (
-            typeof pdfjsLib === "undefined"
+            typeof pdfjsLib ===
+            "undefined"
         ) {
 
             return (
-                "⚠️ PDF reader is not loaded.\n\n" +
-                "Please make sure PDF.js is loaded."
+                "⚠️ PDF reader is not loaded yet."
             );
 
         }
@@ -389,18 +404,14 @@ async function readPDFFile(file) {
 
 
         const pdf =
-            await pdfjsLib.getDocument({
-                data: buffer
-            }).promise;
+            await pdfjsLib
+                .getDocument({
+                    data: buffer
+                })
+                .promise;
 
 
         let fullText = "";
-
-
-        console.log(
-            "📄 PDF pages:",
-            pdf.numPages
-        );
 
 
         for (
@@ -410,7 +421,9 @@ async function readPDFFile(file) {
         ) {
 
             const page =
-                await pdf.getPage(pageNumber);
+                await pdf.getPage(
+                    pageNumber
+                );
 
 
             const content =
@@ -420,18 +433,14 @@ async function readPDFFile(file) {
             const pageText =
                 content.items
                     .map(
-                        function(item) {
-                            return item.str;
-                        }
+                        item =>
+                            item.str
                     )
                     .join(" ");
 
 
             fullText +=
-                "\n\n--- Page " +
-                pageNumber +
-                " ---\n\n" +
-                pageText;
+                `\n\n--- Page ${pageNumber} ---\n\n${pageText}`;
 
         }
 
@@ -443,10 +452,8 @@ async function readPDFFile(file) {
         if (!fullText) {
 
             return (
-                "📄 I opened the PDF, but I couldn't " +
-                "find selectable text in it.\n\n" +
-                "If the PDF contains scanned images, " +
-                "OCR will be needed."
+                "📄 I opened the PDF, but couldn't find selectable text.\n\n" +
+                "Scanned PDFs will need OCR."
             );
 
         }
@@ -457,12 +464,11 @@ async function readPDFFile(file) {
             fullText
         );
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "❌ PDF reading error:",
+            "❌ PDF error:",
             error
         );
 
@@ -477,7 +483,7 @@ async function readPDFFile(file) {
 
 
 // ==========================================
-// READ DOCX
+// DOCX
 // ==========================================
 
 async function readDOCXFile(file) {
@@ -485,12 +491,12 @@ async function readDOCXFile(file) {
     try {
 
         if (
-            typeof mammoth === "undefined"
+            typeof mammoth ===
+            "undefined"
         ) {
 
             return (
-                "⚠️ DOCX reader is not loaded.\n\n" +
-                "Please make sure Mammoth.js is loaded."
+                "⚠️ DOCX reader is not loaded."
             );
 
         }
@@ -515,8 +521,7 @@ async function readDOCXFile(file) {
         if (!text) {
 
             return (
-                "📄 The Word document appears " +
-                "to contain no readable text."
+                "📄 The Word document contains no readable text."
             );
 
         }
@@ -527,12 +532,11 @@ async function readDOCXFile(file) {
             text
         );
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "❌ DOCX reading error:",
+            "❌ DOCX error:",
             error
         );
 
@@ -547,10 +551,12 @@ async function readDOCXFile(file) {
 
 
 // ==========================================
-// FORMAT FILE SIZE
+// FILE SIZE
 // ==========================================
 
-function formatAttachmentSize(bytes) {
+function formatAttachmentSize(
+    bytes
+) {
 
     if (
         !bytes ||
@@ -610,19 +616,24 @@ function attachmentAIStatus() {
         loaded: true,
 
         imageOCR:
-            typeof readImageText === "function",
+            typeof readImageText ===
+            "function",
 
         imageAnalysis:
-            typeof analyzeImage === "function",
+            typeof analyzeImage ===
+            "function",
 
         fileAnalysis:
-            typeof analyzeFile === "function",
+            typeof analyzeFile ===
+            "function",
 
         pdfReader:
-            typeof pdfjsLib !== "undefined",
+            typeof pdfjsLib !==
+            "undefined",
 
         docxReader:
-            typeof mammoth !== "undefined"
+            typeof mammoth !==
+            "undefined"
 
     };
 
@@ -634,10 +645,10 @@ function attachmentAIStatus() {
 // ==========================================
 
 console.log(
-    "✅ Attachment AI ready."
+    "📊 Attachment status:",
+    attachmentAIStatus()
 );
 
 console.log(
-    "📊 Attachment status:",
-    attachmentAIStatus()
+    "✅ Attachment AI ready."
 );
