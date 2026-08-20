@@ -123,22 +123,33 @@ userInput.addEventListener("input", updateComposer);
 updateComposer();
 
 // -------------------------
-// Send Message
+// Send Message (Fixed)
 // -------------------------
-function sendMessage() {
-    const text = userInput.value.trim();
-    if (!text) return;
 
+function sendMessage() {
+    console.log("Send button clicked");           // ← temporary debug
+
+    const text = userInput.value.trim();
+
+    if (!text) {
+        console.log("Empty message – ignored");
+        return;
+    }
+
+    // Show user message
     addMessage("user", text);
 
+    // Save conversation
     if (typeof saveContext === "function") {
         saveContext("user", text);
     }
 
+    // Clear input
     userInput.value = "";
     userInput.style.height = "auto";
     updateComposer();
 
+    // Ask AI
     aiReply(text);
 }
 
@@ -150,7 +161,12 @@ userInput.addEventListener("keydown", function (e) {
     }
 });
 
-sendBtn.addEventListener("click", sendMessage);
+// Send Button
+sendBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    sendMessage();
+});
 
 // -------------------------
 // AI Reply
@@ -309,3 +325,7 @@ if (voiceBtn) {
         addMessage("ai", "🎤 Voice input is coming soon!");
     });
 }
+// Temporary debug – remove later
+console.log("chat.js fully loaded");
+console.log("sendBtn exists?", !!sendBtn);
+console.log("userInput exists?", !!userInput);
