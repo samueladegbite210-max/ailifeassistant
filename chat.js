@@ -123,37 +123,28 @@ userInput.addEventListener("input", updateComposer);
 updateComposer();
 
 // -------------------------
-// Send Message (Fixed)
+// TEMPORARY TEST VERSION
 // -------------------------
 
 function sendMessage() {
-    console.log("Send button clicked");           // ← temporary debug
+    alert("Send button is working!");          // ← This must appear
 
     const text = userInput.value.trim();
+    if (!text) return;
 
-    if (!text) {
-        console.log("Empty message – ignored");
-        return;
-    }
-
-    // Show user message
     addMessage("user", text);
 
-    // Save conversation
-    if (typeof saveContext === "function") {
-        saveContext("user", text);
-    }
-
-    // Clear input
     userInput.value = "";
     userInput.style.height = "auto";
     updateComposer();
 
-    // Ask AI
-    aiReply(text);
+    // Temporary fake reply so we can test
+    setTimeout(() => {
+        addMessage("ai", "Test reply: I received → " + text);
+    }, 600);
 }
 
-// Enter to send
+// Enter key
 userInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -161,13 +152,12 @@ userInput.addEventListener("keydown", function (e) {
     }
 });
 
-// Send Button
+// Send button
 sendBtn.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
     sendMessage();
 });
-
 // -------------------------
 // AI Reply
 // -------------------------
