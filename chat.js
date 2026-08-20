@@ -1,473 +1,311 @@
 // ==========================================
 // AI Life Assistant Chat
-// Version 3.0
+// Version 3.1 (Improved)
 // ==========================================
 
-// -------------------------
-// Elements
-// -------------------------
-
-const chatBox = document.getElementById("chatBox");
-
-const userInput = document.getElementById("userInput");
-
-const sendBtn = document.getElementById("sendBtn");
-
-const attachBtn = document.getElementById("attachBtn");
-
-const voiceBtn = document.getElementById("voiceBtn");
-
+const chatBox        = document.getElementById("chatBox");
+const userInput      = document.getElementById("userInput");
+const sendBtn        = document.getElementById("sendBtn");
+const attachBtn      = document.getElementById("attachBtn");
+const voiceBtn       = document.getElementById("voiceBtn");
 const attachmentMenu = document.getElementById("attachmentMenu");
-
-const imagePicker = document.getElementById("imagePicker");
-
-const filePicker = document.getElementById("filePicker");
+const imagePicker    = document.getElementById("imagePicker");
+const filePicker     = document.getElementById("filePicker");
 
 // ==========================================
 // Upload Memory
 // ==========================================
-
 let uploadedFiles = [];
 
-function rememberUpload(file,type){
-
+function rememberUpload(file, type) {
     uploadedFiles.unshift({
-
-        name:file.name,
-
-        type:type,
-
-        size:file.size,
-
-        date:new Date()
-
+        name: file.name,
+        type: type,
+        size: file.size,
+        date: new Date()
     });
-
 }
+
 // -------------------------
 // Helpers
 // -------------------------
-
-function getCurrentTime(){
-
-    return new Date().toLocaleTimeString([],{
-
-        hour:"2-digit",
-
-        minute:"2-digit"
-
+function getCurrentTime() {
+    return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
     });
-
 }
 
-function scrollBottom(){
-
+function scrollBottom() {
     chatBox.scrollTop = chatBox.scrollHeight;
-
 }
-// -------------------------
-// Add Message
-// -------------------------
 
-function addMessage(type, content){
+function escapeHTML(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+// -------------------------
+// Add Message (safer)
+// -------------------------
+function addMessage(type, content, isHTML = false) {
     const message = document.createElement("div");
-
     message.className = `message ${type}`;
 
-    message.innerHTML = `
-        <div class="messageText">
-            ${content}
-        </div>
+    const textDiv = document.createElement("div");
+    textDiv.className = "messageText";
 
-        <div class="messageTime">
-            ${getCurrentTime()}
-        </div>
-    `;
+    if (isHTML) {
+        textDiv.innerHTML = content;          // only for trusted content (images/files)
+    } else {
+        textDiv.textContent = content;        // safe for normal text
+    }
 
+    const timeDiv = document.createElement("div");
+    timeDiv.className = "messageTime";
+    timeDiv.textContent = getCurrentTime();
+
+    message.appendChild(textDiv);
+    message.appendChild(timeDiv);
     chatBox.appendChild(message);
 
     scrollBottom();
-
 }
+
 // ==========================================
 // Typing Indicator
 // ==========================================
-
-function showTyping(){
-
+function showTyping() {
     const typing = document.createElement("div");
-
     typing.className = "message ai typing";
-
     typing.id = "typingIndicator";
-
     typing.innerHTML = `
         <div class="typingBubble">
-
-            <span></span>
-            <span></span>
-            <span></span>
-
+            <span></span><span></span><span></span>
         </div>
     `;
-
     chatBox.appendChild(typing);
-
     scrollBottom();
-
 }
 
-function hideTyping(){
-
+function hideTyping() {
     const typing = document.getElementById("typingIndicator");
-
-    if(typing){
-
-        typing.remove();
-
-    }
-
+    if (typing) typing.remove();
 }
-// -------------------------
-// Auto Expand
-// -------------------------
-
-userInput.addEventListener("input",function(){
-
-    this.style.height = "auto";
-
-    this.style.height = this.scrollHeight + "px";
-
-});
 
 // -------------------------
-// Composer State
+// Auto Expand + Composer State
 // -------------------------
+function updateComposer() {
+    userInput.style.height = "auto";
+    userInput.style.height = userInput.scrollHeight + "px";
 
-function updateComposer(){
-
-    if(userInput.value.trim().length > 0){
-
+    if (userInput.value.trim().length > 0) {
         sendBtn.classList.add("active");
-
-        if(voiceBtn){
-
-            voiceBtn.style.display = "none";
-
-        }
-
-    }else{
-
+        if (voiceBtn) voiceBtn.style.display = "none";
+    } else {
         sendBtn.classList.remove("active");
-
-        if(voiceBtn){
-
-            voiceBtn.style.display = "flex";
-
-        }
-
+        if (voiceBtn) voiceBtn.style.display = "flex";
     }
-
 }
 
-userInput.addEventListener("input",updateComposer);
-
+userInput.addEventListener("input", updateComposer);
 updateComposer();
-// -------------------------
 
+// -------------------------
 // Send Message
-
 // -------------------------
-
-function sendMessage(){
-
+function sendMessage() {
     const text = userInput.value.trim();
-
-    if(!text) return;
-
-    // Show user message
+    if (!text) return;
 
     addMessage("user", text);
 
-    // Save conversation
-
-    if(typeof saveContext === "function"){
-
+    if (typeof saveContext === "function") {
         saveContext("user", text);
-
     }
-
-
-    // Clear input
 
     userInput.value = "";
-
     userInput.style.height = "auto";
-
     updateComposer();
 
-    // Ask AI
-
     aiReply(text);
-
 }
 
-// -------------------------
-// Enter to Send
-// -------------------------
-
-userInput.addEventListener("keydown",function(e){
-
-    if(e.key === "Enter" && !e.shiftKey){
-
+// Enter to send
+userInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-
         sendMessage();
-
     }
-
 });
-// -------------------------
-// Send Button
-// -------------------------
 
 sendBtn.addEventListener("click", sendMessage);
+
 // -------------------------
 // AI Reply
 // -------------------------
-
-async function aiReply(text){
-
+async function aiReply(text) {
     showTyping();
-
     userInput.disabled = true;
-
     sendBtn.disabled = true;
 
-    try{
-
-        const answer = await smartAIReply(text);
-
-        hideTyping();
-
-        addMessage("ai", answer);
-
-        if(typeof saveContext === "function"){
-
-            saveContext("ai", answer);
-
+    try {
+        if (typeof smartAIReply !== "function") {
+            throw new Error("smartAIReply is not available");
         }
 
-    }catch(error){
-
+        const answer = await smartAIReply(text);
         hideTyping();
+        addMessage("ai", answer);
 
-        addMessage(
-            "ai",
-            "⚠️ Sorry, something went wrong."
-        );
-
+        if (typeof saveContext === "function") {
+            saveContext("ai", answer);
+        }
+    } catch (error) {
+        hideTyping();
+        addMessage("ai", "⚠️ Sorry, something went wrong. Please try again.");
         console.error(error);
-
     }
 
     userInput.disabled = false;
-
     sendBtn.disabled = false;
-
     userInput.focus();
-
-    
 }
+
 // ==========================================
 // AI Upload Reply
 // ==========================================
-
-function aiUploadReply(type, file){
-
+function aiUploadReply(type, file) {
     let reply = "";
 
-    if(type === "image"){
-
-        reply = `
-📷 Nice! I received your image.
+    if (type === "image") {
+        reply = `📷 Nice! I received your image.
 
 I can help you:
-
 📝 Read text from the image
-
 👀 Describe what I see
-
 🔍 Analyze objects
-
 😊 Explain charts
+❓ Answer questions about the image
 
-❓Answer questions about the image
-
-(Coming soon: Full AI Vision)
-`;
-
+(Coming soon: Full AI Vision)`;
     }
 
-    if(type === "file"){
-
-        reply = `
-📄 I received:
-
-<b>${file.name}</b>
+    if (type === "file") {
+        reply = `📄 I received: **${file.name}**
 
 I can help you:
-
 📑 Summarize it
-
 🧠 Explain it
-
 🔍 Find important information
-
 📚 Study with you
+❓ Answer questions
 
-❓Answer questions
-
-(Coming soon: Smart document reading)
-`;
-
+(Coming soon: Smart document reading)`;
     }
 
-    setTimeout(()=>{
-
+    setTimeout(() => {
         addMessage("ai", reply);
-
-    },700);
-
+    }, 700);
 }
+
 // ==========================================
 // Attachment Menu
 // ==========================================
-
-function openAttachmentMenu(){
-
+function openAttachmentMenu() {
     attachmentMenu.classList.toggle("show");
-
 }
 
-function closeAttachmentMenu(){
-
+function closeAttachmentMenu() {
     attachmentMenu.classList.remove("show");
-
 }
 
-attachBtn.addEventListener("click", openAttachmentMenu);
-
-document.addEventListener("click",(e)=>{
-
-    if(
-        !attachmentMenu.contains(e.target) &&
-        e.target !== attachBtn
-    ){
-
-        closeAttachmentMenu();
-
-    }
-
+attachBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openAttachmentMenu();
 });
+
+document.addEventListener("click", (e) => {
+    if (!attachmentMenu.contains(e.target) && e.target !== attachBtn) {
+        closeAttachmentMenu();
+    }
+});
+
 // ==========================================
 // Image Upload
 // ==========================================
-
-function pickImage(){
-
+function pickImage() {
     imagePicker.removeAttribute("capture");
-
     imagePicker.click();
-
 }
 
-function takePhoto(){
-
-    imagePicker.setAttribute(
-        "capture",
-        "environment"
-    );
-
+function takePhoto() {
+    imagePicker.setAttribute("capture", "environment");
     imagePicker.click();
-
 }
 
-imagePicker.addEventListener("change",()=>{
-
+imagePicker.addEventListener("change", () => {
     const file = imagePicker.files[0];
-
-    if(!file) return;
+    if (!file) return;
 
     const reader = new FileReader();
-
-    reader.onload=(e)=>{
-
-        addMessage(
-            "user",
-            `<img src="${e.target.result}" class="chatImage">`
-        );
-
+    reader.onload = (e) => {
+        addMessage("user", `<img src="${e.target.result}" class="chatImage" alt="Uploaded image">`, true);
     };
-
     reader.readAsDataURL(file);
 
-    rememberUpload(file,"image");
+    rememberUpload(file, "image");
+    aiUploadReply("image", file);
 
-    aiUploadReply("image",file);
-
-    imagePicker.value="";
-
+    imagePicker.value = "";
     closeAttachmentMenu();
-
 });
 
 // ==========================================
 // File Upload
 // ==========================================
-
-function pickFile(){
-
+function pickFile() {
     filePicker.click();
-
 }
 
-filePicker.addEventListener("change",()=>{
-
+filePicker.addEventListener("change", () => {
     const file = filePicker.files[0];
+    if (!file) return;
 
-    if(!file) return;
-
-    addMessage(
-        "user",
-        `
+    const html = `
         <div class="chatFile">
-
             <div class="fileIcon">📄</div>
-
             <div class="fileInfo">
-
-                <div class="fileName">
-                    ${file.name}
-                </div>
-
-                <div class="fileSize">
-                    ${(file.size/1024).toFixed(1)} KB
-                </div>
-
+                <div class="fileName">${escapeHTML(file.name)}</div>
+                <div class="fileSize">${formatFileSize(file.size)}</div>
             </div>
-
         </div>
-        `
-    );
+    `;
 
-    rememberUpload(file,"file");
+    addMessage("user", html, true);
+    rememberUpload(file, "file");
+    aiUploadReply("file", file);
 
-    aiUploadReply("file",file);
-
-    filePicker.value="";
-
+    filePicker.value = "";
     closeAttachmentMenu();
-
 });
+
+// ==========================================
+// Voice Button (placeholder)
+// ==========================================
+if (voiceBtn) {
+    voiceBtn.addEventListener("click", () => {
+        addMessage("ai", "🎤 Voice input is coming soon!");
+    });
+}
