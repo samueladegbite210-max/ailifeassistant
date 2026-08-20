@@ -3,6 +3,8 @@
 // Version 3.1 (Improved)
 // ==========================================
 
+alert("SUCCESS: chat.js is now loading!");
+console.log("chat.js loaded successfully");
 const chatBox        = document.getElementById("chatBox");
 const userInput      = document.getElementById("userInput");
 const sendBtn        = document.getElementById("sendBtn");
@@ -11,10 +13,7 @@ const voiceBtn       = document.getElementById("voiceBtn");
 const attachmentMenu = document.getElementById("attachmentMenu");
 const imagePicker    = document.getElementById("imagePicker");
 const filePicker     = document.getElementById("filePicker");
-console.log("=== chat.js STARTED ===");
-alert("chat.js is loading");           // ← You must see this alert when the page loads
-console.log("sendBtn is:", sendBtn);
-alert("About to attach send button listener");
+
 // ==========================================
 // Upload Memory
 // ==========================================
