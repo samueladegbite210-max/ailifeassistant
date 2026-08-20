@@ -106,114 +106,6 @@ AI ENGINE
 <script src="js/achievement.js?v=2"></script>
 <script src="js/quiz.js?v=2"></script>
 <script src="js/quizScore.js?v=2"></script>
-<script src="js/profileStats.js?v=2"<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Life Assistant - Chat</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
-<!-- ==========================================
-     HEADER
-========================================== -->
-<header class="chatHeader">
-    <h1>🤖 AI Life Assistant</h1>
-</header>
-
-<!-- ==========================================
-     CHAT AREA
-========================================== -->
-<main class="chatPage">
-    <div id="chatBox" class="chatBox">
-        <!-- Welcome message will be filled by JS -->
-        <div class="message ai" id="welcomeMessage">
-            <div class="messageText">
-                👋 Hello <span id="welcomeName">Samuel</span>!
-                <br><br>
-                How can I help you today?
-            </div>
-            <div class="messageTime">Now</div>
-        </div>
-    </div>
-</main>
-
-<!-- ==========================================
-     CHAT COMPOSER
-========================================== -->
-<footer class="chatComposer">
-    <button type="button" id="attachBtn" class="composerIcon" aria-label="Attach">+</button>
-
-    <textarea
-        id="userInput"
-        rows="1"
-        placeholder="Ask AI Life Assistant..."
-        autocomplete="off"
-    ></textarea>
-
-    <button type="button" id="voiceBtn" class="composerIcon" aria-label="Voice">🎤</button>
-    <button type="button" id="sendBtn" class="sendButton" aria-label="Send message">➤</button>
-</footer>
-
-<!-- ==========================================
-     ATTACHMENT MENU
-========================================== -->
-<div id="attachmentMenu" class="attachmentMenu" hidden>
-    <button type="button" onclick="pickImage()">🖼️ Photo</button>
-    <button type="button" onclick="takePhoto()">📷 Camera</button>
-    <button type="button" onclick="pickFile()">📄 File</button>
-</div>
-
-<!-- ==========================================
-     HIDDEN FILE INPUTS
-========================================== -->
-<input type="file" id="imagePicker" accept="image/*" hidden>
-<input type="file" id="cameraPicker" accept="image/*" capture="environment" hidden>
-<input type="file" id="filePicker" accept=".txt,.pdf,.doc,.docx,.csv,.json,.js,.css,.html,.md" hidden>
-
-<!-- ==========================================
-     BOTTOM NAVIGATION
-========================================== -->
-<nav class="navbar">
-    <a href="dashboard.html">🏠<br>Home</a>
-    <a href="chat.html" class="active">🤖<br>AI</a>
-    <a href="notes.html">📝<br>Notes</a>
-    <a href="calendar.html">📅<br>Calendar</a>
-    <a href="profile.html">👤<br>Profile</a>
-</nav>
-
-<!-- ==========================
-AI ENGINE
-========================== -->
-<script src="js/helpers.js?v=2"></script>
-<script src="js/conversation.js?v=2"></script>
-<script src="js/knowledge.js?v=2"></script>
-<script src="js/calculator.js?v=2"></script>
-<script src="js/datetime.js?v=2"></script>
-<script src="js/tasks.js?v=2"></script>
-<script src="js/goals.js?v=2"></script>
-<script src="js/notes.js?v=2"></script>
-<script src="js/events.js?v=2"></script>
-<script src="js/natural.js?v=2"></script>
-<script src="js/weather.js?v=2"></script>
-<script src="js/search.js?v=2"></script>
-<script src="js/memory.js?v=2"></script>
-<script src="js/learnUser.js?v=2"></script>
-<script src="js/brain.js?v=2"></script>
-<script src="js/advice.js?v=2"></script>
-<script src="js/searchOnline.js?v=2"></script>
-<script src="js/food.js?v=2"></script>
-<script src="js/internet.js?v=2"></script>
-<script src="js/context.js?v=2"></script>
-<script src="js/teacher.js?v=2"></script>
-<script src="js/xp.js?v=2"></script>
-<script src="js/achievement.js?v=2"></script>
-<script src="js/quiz.js?v=2"></script>
-<script src="js/quizScore.js?v=2"></script>
 <script src="js/profileStats.js?v=2"></script>
 <script src="js/streak.js?v=2"></script>
 <script src="js/streakReply.js?v=2"></script>
@@ -227,35 +119,8 @@ AI ENGINE
 <script src="js/fileReader.js?v=2"></script>
 
 <!-- Chat + AI Controllers -->
-<script src="js/chat.js?v=99"></script>
+<script src="js/chat.js?v=6"></script>
 <script src="js/smartAI.js?v=6"></script>
-
-<script>
-// Make welcome name dynamic
-document.addEventListener("DOMContentLoaded", () => {
-    const name = localStorage.getItem("profileName") || "Samuel";
-    const nameEl = document.getElementById("welcomeName");
-    if (nameEl) nameEl.textContent = name;
-});
-</script>
-
-</body>
-</html>></script>
-<script src="js/streak.js?v=2"></script>
-<script src="js/streakReply.js?v=2"></script>
-<script src="js/profileReply.js?v=2"></script>
-
-<!-- OCR + DOCX -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
-
-<script src="attachmentAI.js?v=2"></script>
-<script src="js/fileReader.js?v=2"></script>
-<script src="js/smartAI.js?v=6"></script>
-<!-- Chat + AI Controllers -->
-alert("SUCCESS: chat.js is now loading!");
-console.log("chat.js loaded successfully");
-
 
 <script>
 // Make welcome name dynamic
