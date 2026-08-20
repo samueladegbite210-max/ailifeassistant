@@ -1994,6 +1994,132 @@ ChatGPT Typing Animation
     }
 
 }
+/* ==========================================
+   CHAT COMPOSER FIX
+   ========================================== */
+
+.chatComposer {
+    position: fixed;
+    left: 15px;
+    right: 15px;
+    bottom: 75px;
+
+    z-index: 5000;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: #161B22;
+    border: 1px solid #2C3445;
+    border-radius: 40px;
+
+    padding: 8px 10px;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,.35);
+}
+
+.chatComposer textarea {
+    flex: 1;
+
+    width: auto;
+    margin: 0;
+
+    min-height: 48px;
+    max-height: 140px;
+
+    padding: 12px;
+
+    border: none;
+    outline: none;
+
+    resize: none;
+
+    background: transparent;
+    color: white;
+
+    font-size: 16px;
+}
+
+.chatComposer textarea::placeholder {
+    color: #7E8A9A;
+}
+
+.composerIcon {
+    flex: 0 0 48px;
+
+    width: 48px;
+    height: 48px;
+
+    padding: 0;
+    margin: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #232B36;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    position: relative;
+    z-index: 5001;
+}
+
+.sendButton {
+    flex: 0 0 54px;
+
+    width: 54px;
+    height: 54px;
+
+    padding: 0;
+    margin: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #2563EB;
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    position: relative;
+    z-index: 5002;
+
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+
+.sendButton:hover {
+    background: #1D4ED8;
+}
+
+.sendButton:active {
+    transform: scale(.94);
+}
+
+.sendButton:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+/* Keep chat above the page content */
+.chatPage {
+    padding-bottom: 160px;
+}
+
+/* Bottom navigation stays below composer */
+.navbar {
+    z-index: 4000;
+}
 
 /*==================================================
 THE END
