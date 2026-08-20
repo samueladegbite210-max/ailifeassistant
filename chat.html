@@ -229,33 +229,74 @@
 ========================================== -->
 
 <script>
-// Combined DOMContentLoaded handler: set welcome name and attach send button listener
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Welcome name
-    const name = localStorage.getItem("profileName") || "Samuel";
-    const nameEl = document.getElementById("welcomeName");
-    if (nameEl) {
-        nameEl.textContent = name;
-    }
-
-    // Debugging / send button wiring
-    console.log("TEST: chat.html reached bottom");
-    console.log("TEST: DOM loaded");
-
     const button = document.getElementById("sendBtn");
-    console.log("TEST: sendBtn =", button);
+    const input = document.getElementById("userInput");
+
+    console.log("===== CHAT DEBUG =====");
+    console.log("sendBtn:", button);
+    console.log("userInput:", input);
+    console.log("sendMessage:", typeof sendMessage);
+    console.log("aiReply:", typeof aiReply);
+    console.log("smartAIReply:", typeof smartAIReply);
+    console.log("conversationReply:", typeof conversationReply);
+    console.log("memoryReply:", typeof memoryReply);
 
     if (button) {
-        button.addEventListener("click", function () {
-            console.log("TEST: SEND BUTTON WAS CLICKED");
-            alert("Send button is working!");
+
+        button.addEventListener("click", async function () {
+
+            console.log("1️⃣ SEND BUTTON CLICKED");
+
+            console.log(
+                "2️⃣ Input value:",
+                input ? input.value : "NO INPUT"
+            );
+
+            console.log(
+                "3️⃣ sendMessage type:",
+                typeof sendMessage
+            );
+
+            try {
+
+                if (typeof sendMessage === "function") {
+
+                    console.log("4️⃣ Calling sendMessage()");
+
+                    sendMessage();
+
+                    console.log("5️⃣ sendMessage() finished");
+
+                } else {
+
+                    console.error(
+                        "❌ sendMessage() DOES NOT EXIST"
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "❌ SEND ERROR:",
+                    error
+                );
+
+                alert(
+                    "SEND ERROR:\n\n" +
+                    error.message
+                );
+
+            }
+
         });
-    } else {
-        console.warn("sendBtn not found in DOM");
+
     }
 
 });
+
 </script>
 
     
