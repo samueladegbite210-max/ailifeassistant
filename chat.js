@@ -1,7 +1,7 @@
-
 // ==========================================
-// AI LIFE ASSISTANT CHAT
-// Version 7.0
+// AI LIFE ASSISTANT
+// chat.js
+// Version 8.0
 // Stable Chat Controller
 // ==========================================
 
@@ -9,25 +9,16 @@
 
 console.log("💬 chat.js loading...");
 
-
 // ==========================================
 // DOM ELEMENTS
 // ==========================================
 
-const chatBox =
-    document.getElementById("chatBox");
+const chatBox = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
 
-const userInput =
-    document.getElementById("userInput");
-
-const sendBtn =
-    document.getElementById("sendBtn");
-
-const attachBtn =
-    document.getElementById("attachBtn");
-
-const voiceBtn =
-    document.getElementById("voiceBtn");
+const attachBtn = document.getElementById("attachBtn");
+const voiceBtn = document.getElementById("voiceBtn");
 
 const attachmentMenu =
     document.getElementById("attachmentMenu");
@@ -50,39 +41,42 @@ const takePhotoBtn =
 const pickFileBtn =
     document.getElementById("pickFileBtn");
 
+console.log("💬 Elements:", {
+    chatBox: !!chatBox,
+    userInput: !!userInput,
+    sendBtn: !!sendBtn,
+    attachBtn: !!attachBtn,
+    voiceBtn: !!voiceBtn,
+    attachmentMenu: !!attachmentMenu,
+    imagePicker: !!imagePicker,
+    cameraPicker: !!cameraPicker,
+    filePicker: !!filePicker
+});
 
 // ==========================================
 // UPLOAD MEMORY
 // ==========================================
 
-let uploadedFiles =
+const uploadedFiles =
     window.uploadedFiles || [];
 
-window.uploadedFiles =
-    uploadedFiles;
-
+window.uploadedFiles = uploadedFiles;
 
 function rememberUpload(file, type) {
 
     if (!file) return;
 
     uploadedFiles.unshift({
-
         name: file.name,
-
         type: type,
-
         size: file.size,
-
-        date: new Date()
-
+        date: new Date().toISOString()
     });
 
-    window.uploadedFiles =
-        uploadedFiles;
+    window.uploadedFiles = uploadedFiles;
 
+    console.log("📎 Upload remembered:", file.name);
 }
-
 
 // ==========================================
 // HELPERS
@@ -91,89 +85,69 @@ function rememberUpload(file, type) {
 function getCurrentTime() {
 
     return new Date().toLocaleTimeString([], {
-
         hour: "2-digit",
-
         minute: "2-digit"
-
     });
 
 }
-
 
 function scrollBottom() {
 
     if (!chatBox) return;
 
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
+    requestAnimationFrame(() => {
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+    });
 
 }
 
+function escapeHTML(value) {
 
-function escapeHTML(str) {
-
-    return String(str)
-
+    return String(value || "")
         .replace(/&/g, "&amp;")
-
         .replace(/</g, "&lt;")
-
         .replace(/>/g, "&gt;")
-
         .replace(/"/g, "&quot;")
-
         .replace(/'/g, "&#039;");
 
 }
 
-
 function formatFileSize(bytes) {
 
+    bytes = Number(bytes) || 0;
+
     if (bytes < 1024) {
-
         return bytes + " B";
-
     }
 
     if (bytes < 1024 * 1024) {
-
-        return (
-            (bytes / 1024).toFixed(1) +
-            " KB"
-        );
-
+        return (bytes / 1024).toFixed(1) + " KB";
     }
 
     return (
-
         (bytes / (1024 * 1024)).toFixed(1) +
-
         " MB"
-
     );
 
 }
-
 
 // ==========================================
 // ADD MESSAGE
 // ==========================================
 
-function addMessage(
-    type,
-    content,
-    isHTML = false
-) {
+function addMessage(type, content, isHTML = false) {
 
-    if (!chatBox) return;
+    if (!chatBox) {
+        console.error("❌ chatBox not found");
+        return;
+    }
 
     const message =
         document.createElement("div");
 
     message.className =
-        `message ${type}`;
-
+        "message " + type;
 
     const textDiv =
         document.createElement("div");
@@ -181,19 +155,12 @@ function addMessage(
     textDiv.className =
         "messageText";
 
-
     if (isHTML) {
-
-        textDiv.innerHTML =
-            content;
-
+        textDiv.innerHTML = content;
     } else {
-
         textDiv.textContent =
-            content;
-
+            String(content || "");
     }
-
 
     const timeDiv =
         document.createElement("div");
@@ -204,18 +171,14 @@ function addMessage(
     timeDiv.textContent =
         getCurrentTime();
 
-
     message.appendChild(textDiv);
-
     message.appendChild(timeDiv);
 
     chatBox.appendChild(message);
 
-
     scrollBottom();
 
 }
-
 
 // ==========================================
 // TYPING INDICATOR
@@ -225,39 +188,30 @@ function showTyping() {
 
     if (!chatBox) return;
 
-
     hideTyping();
-
 
     const typing =
         document.createElement("div");
 
-    typing.className =
-        "message ai typing";
-
     typing.id =
         "typingIndicator";
 
+    typing.className =
+        "message ai typing";
 
     typing.innerHTML = `
-
         <div class="typingBubble">
-
             <span></span>
             <span></span>
             <span></span>
-
         </div>
-
     `;
-
 
     chatBox.appendChild(typing);
 
     scrollBottom();
 
 }
-
 
 function hideTyping() {
 
@@ -267,13 +221,10 @@ function hideTyping() {
         );
 
     if (typing) {
-
         typing.remove();
-
     }
 
 }
-
 
 // ==========================================
 // COMPOSER
@@ -281,55 +232,34 @@ function hideTyping() {
 
 function updateComposer() {
 
-    if (!userInput || !sendBtn) {
+    if (!userInput || !sendBtn) return;
 
-        return;
-
-    }
-
+    userInput.style.height = "auto";
 
     userInput.style.height =
-        "auto";
-
-
-    userInput.style.height =
-        userInput.scrollHeight + "px";
-
+        Math.min(
+            userInput.scrollHeight,
+            140
+        ) + "px";
 
     const hasText =
         userInput.value.trim().length > 0;
 
+    sendBtn.classList.toggle(
+        "active",
+        hasText
+    );
 
-    if (hasText) {
+    sendBtn.disabled = false;
 
-        sendBtn.classList.add(
-            "active"
-        );
+    if (voiceBtn) {
 
-        if (voiceBtn) {
-
-            voiceBtn.style.display =
-                "none";
-
-        }
-
-    } else {
-
-        sendBtn.classList.remove(
-            "active"
-        );
-
-        if (voiceBtn) {
-
-            voiceBtn.style.display =
-                "flex";
-
-        }
+        voiceBtn.style.display =
+            hasText ? "none" : "flex";
 
     }
 
 }
-
 
 // ==========================================
 // SEND MESSAGE
@@ -337,46 +267,53 @@ function updateComposer() {
 
 let isSending = false;
 
-
 async function sendMessage() {
 
-    if (!userInput) return;
+    console.log("🚀 sendMessage() called");
 
-
-    if (isSending) {
-
+    if (!userInput) {
+        console.error(
+            "❌ userInput element not found"
+        );
         return;
-
     }
 
+    if (isSending) {
+        console.log(
+            "⏳ Already processing a message"
+        );
+        return;
+    }
 
     const text =
         userInput.value.trim();
 
+    console.log(
+        "📝 Message:",
+        text
+    );
 
     if (!text) {
-
+        console.log(
+            "⚠️ Empty message"
+        );
         return;
-
     }
-
 
     isSending = true;
 
-
-    // --------------------------------------
-    // Show user message
-    // --------------------------------------
+    // ======================================
+    // SHOW USER MESSAGE
+    // ======================================
 
     addMessage(
         "user",
         text
     );
 
-
-    // --------------------------------------
-    // Save context
-    // --------------------------------------
+    // ======================================
+    // SAVE USER CONTEXT
+    // ======================================
 
     try {
 
@@ -395,39 +332,170 @@ async function sendMessage() {
     } catch (error) {
 
         console.warn(
-            "⚠️ saveContext failed:",
+            "⚠️ saveContext error:",
             error
         );
 
     }
 
-
-    // --------------------------------------
-    // Clear input
-    // --------------------------------------
+    // ======================================
+    // CLEAR INPUT
+    // ======================================
 
     userInput.value = "";
 
-    userInput.style.height =
-        "auto";
-
     updateComposer();
 
-
-    // --------------------------------------
-    // AI reply
-    // --------------------------------------
+    // ======================================
+    // GET AI RESPONSE
+    // ======================================
 
     await aiReply(text);
 
 }
 
+// ==========================================
+// AI REPLY
+// ==========================================
+
+async function aiReply(text) {
+
+    console.log(
+        "🤖 aiReply() started:",
+        text
+    );
+
+    showTyping();
+
+    if (userInput) {
+        userInput.disabled = true;
+    }
+
+    if (sendBtn) {
+        sendBtn.disabled = true;
+    }
+
+    try {
+
+        // ==================================
+        // CHECK SMART AI
+        // ==================================
+
+        if (
+            typeof smartAIReply !==
+            "function"
+        ) {
+
+            throw new Error(
+                "smartAIReply() is not available"
+            );
+
+        }
+
+        console.log(
+            "🧠 Calling smartAIReply()..."
+        );
+
+        const answer =
+            await smartAIReply(text);
+
+        console.log(
+            "🧠 AI response:",
+            answer
+        );
+
+        hideTyping();
+
+        addMessage(
+            "ai",
+            answer ||
+            "🤖 I couldn't generate a response."
+        );
+
+        // ==================================
+        // SAVE AI RESPONSE
+        // ==================================
+
+        try {
+
+            if (
+                typeof saveContext ===
+                "function"
+            ) {
+
+                saveContext(
+                    "ai",
+                    String(
+                        answer ||
+                        ""
+                    )
+                );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "⚠️ AI context error:",
+                error
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "❌ AI ERROR:",
+            error
+        );
+
+        hideTyping();
+
+        addMessage(
+            "ai",
+            "⚠️ Something went wrong while processing your message."
+        );
+
+    } finally {
+
+        isSending = false;
+
+        if (userInput) {
+
+            userInput.disabled =
+                false;
+
+            userInput.focus();
+
+        }
+
+        if (sendBtn) {
+
+            sendBtn.disabled =
+                false;
+
+        }
+
+        updateComposer();
+
+        console.log(
+            "✅ AI request finished"
+        );
+
+    }
+
+}
 
 // ==========================================
 // ENTER KEY
 // ==========================================
 
 if (userInput) {
+
+    userInput.addEventListener(
+        "input",
+        updateComposer
+    );
 
     userInput.addEventListener(
         "keydown",
@@ -447,14 +515,7 @@ if (userInput) {
         }
     );
 
-
-    userInput.addEventListener(
-        "input",
-        updateComposer
-    );
-
 }
-
 
 // ==========================================
 // SEND BUTTON
@@ -468,154 +529,22 @@ if (sendBtn) {
 
             event.preventDefault();
 
+            console.log(
+                "🖱️ SEND BUTTON CLICKED"
+            );
+
             sendMessage();
 
         }
     );
 
-}
+} else {
 
-
-// ==========================================
-// AI REPLY
-// ==========================================
-
-async function aiReply(text) {
-
-    showTyping();
-
-
-    if (userInput) {
-
-        userInput.disabled =
-            true;
-
-    }
-
-
-    if (sendBtn) {
-
-        sendBtn.disabled =
-            true;
-
-    }
-
-
-    let answer =
-        null;
-
-
-    try {
-
-        if (
-            typeof smartAIReply !==
-            "function"
-        ) {
-
-            throw new Error(
-                "smartAIReply() is not available"
-            );
-
-        }
-
-
-        answer =
-            await smartAIReply(text);
-
-
-        hideTyping();
-
-
-        if (!answer) {
-
-            answer =
-                "🤖 I didn't receive a response.";
-
-        }
-
-
-        addMessage(
-            "ai",
-            String(answer)
-        );
-
-
-        // Save AI response
-
-        try {
-
-            if (
-                typeof saveContext ===
-                "function"
-            ) {
-
-                saveContext(
-                    "ai",
-                    String(answer)
-                );
-
-            }
-
-        } catch (saveError) {
-
-            console.warn(
-                "⚠️ AI context save failed:",
-                saveError
-            );
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "❌ AI reply error:",
-            error
-        );
-
-
-        hideTyping();
-
-
-        addMessage(
-            "ai",
-            "⚠️ Sorry, I couldn't process that message. Please try again."
-        );
-
-    } finally {
-
-        // ==================================
-        // ALWAYS UNLOCK CHAT
-        // ==================================
-
-        isSending =
-            false;
-
-
-        if (userInput) {
-
-            userInput.disabled =
-                false;
-
-            userInput.focus();
-
-        }
-
-
-        if (sendBtn) {
-
-            sendBtn.disabled =
-                false;
-
-        }
-
-
-        updateComposer();
-
-    }
+    console.error(
+        "❌ sendBtn was NOT found"
+    );
 
 }
-
 
 // ==========================================
 // ATTACHMENT MENU
@@ -625,15 +554,13 @@ function openAttachmentMenu() {
 
     if (!attachmentMenu) return;
 
-    attachmentMenu.hidden =
-        false;
+    attachmentMenu.hidden = false;
 
     attachmentMenu.classList.add(
         "show"
     );
 
 }
-
 
 function closeAttachmentMenu() {
 
@@ -643,11 +570,9 @@ function closeAttachmentMenu() {
         "show"
     );
 
-    attachmentMenu.hidden =
-        true;
+    attachmentMenu.hidden = true;
 
 }
-
 
 if (attachBtn) {
 
@@ -655,9 +580,13 @@ if (attachBtn) {
         "click",
         function (event) {
 
+            event.preventDefault();
             event.stopPropagation();
 
-            if (attachmentMenu.hidden) {
+            if (
+                attachmentMenu &&
+                attachmentMenu.hidden
+            ) {
 
                 openAttachmentMenu();
 
@@ -671,7 +600,6 @@ if (attachBtn) {
     );
 
 }
-
 
 document.addEventListener(
     "click",
@@ -693,9 +621,8 @@ document.addEventListener(
     }
 );
 
-
 // ==========================================
-// IMAGE PICKER
+// IMAGE
 // ==========================================
 
 function pickImage() {
@@ -710,7 +637,6 @@ function pickImage() {
 
 }
 
-
 function takePhoto() {
 
     if (!cameraPicker) return;
@@ -719,25 +645,66 @@ function takePhoto() {
 
 }
 
+function pickFile() {
 
-// Make functions available to HTML
-window.pickImage =
-    pickImage;
+    if (!filePicker) return;
 
-window.takePhoto =
-    takePhoto;
+    filePicker.click();
 
-window.pickFile =
-    function () {
+}
 
-        if (filePicker) {
+window.pickImage = pickImage;
+window.takePhoto = takePhoto;
+window.pickFile = pickFile;
 
-            filePicker.click();
+// ==========================================
+// ATTACHMENT BUTTONS
+// ==========================================
+
+if (pickImageBtn) {
+
+    pickImageBtn.addEventListener(
+        "click",
+        function () {
+
+            pickImage();
+
+            closeAttachmentMenu();
 
         }
+    );
 
-    };
+}
 
+if (takePhotoBtn) {
+
+    takePhotoBtn.addEventListener(
+        "click",
+        function () {
+
+            takePhoto();
+
+            closeAttachmentMenu();
+
+        }
+    );
+
+}
+
+if (pickFileBtn) {
+
+    pickFileBtn.addEventListener(
+        "click",
+        function () {
+
+            pickFile();
+
+            closeAttachmentMenu();
+
+        }
+    );
+
+}
 
 // ==========================================
 // PROCESS IMAGE
@@ -747,43 +714,35 @@ function processImage(file) {
 
     if (!file) return;
 
-
     const reader =
         new FileReader();
 
-
     reader.onload =
         function (event) {
+
+            const imageData =
+                event.target.result;
 
             window.aiAttachment = {
 
                 type: "image",
 
-                data: event.target.result,
+                data: imageData,
 
                 file: file
 
             };
 
-
-            const safeURL =
-                String(
-                    event.target.result
-                );
-
-
             addMessage(
                 "user",
-                `<img src="${safeURL}" class="chatImage" alt="Uploaded image">`,
+                `<img src="${imageData}" class="chatImage" alt="Uploaded image">`,
                 true
             );
-
 
             rememberUpload(
                 file,
                 "image"
             );
-
 
             aiUploadReply(
                 "image",
@@ -792,12 +751,11 @@ function processImage(file) {
 
         };
 
-
     reader.onerror =
         function (error) {
 
             console.error(
-                "❌ Image read error:",
+                "❌ Image error:",
                 error
             );
 
@@ -808,37 +766,31 @@ function processImage(file) {
 
         };
 
-
     reader.readAsDataURL(file);
 
 }
-
 
 // ==========================================
 // IMAGE INPUT
 // ==========================================
 
-function handleImageInput(
-    input
-) {
+function handleImageInput(input) {
+
+    if (!input) return;
 
     const file =
         input.files &&
         input.files[0];
 
-
     if (!file) return;
 
-
     processImage(file);
-
 
     input.value = "";
 
     closeAttachmentMenu();
 
 }
-
 
 if (imagePicker) {
 
@@ -855,7 +807,6 @@ if (imagePicker) {
 
 }
 
-
 if (cameraPicker) {
 
     cameraPicker.addEventListener(
@@ -871,7 +822,6 @@ if (cameraPicker) {
 
 }
 
-
 // ==========================================
 // FILE UPLOAD
 // ==========================================
@@ -886,9 +836,7 @@ if (filePicker) {
                 filePicker.files &&
                 filePicker.files[0];
 
-
             if (!file) return;
-
 
             window.aiAttachment = {
 
@@ -898,9 +846,7 @@ if (filePicker) {
 
             };
 
-
             const html = `
-
                 <div class="chatFile">
 
                     <div class="fileIcon">
@@ -920,9 +866,7 @@ if (filePicker) {
                     </div>
 
                 </div>
-
             `;
-
 
             addMessage(
                 "user",
@@ -930,18 +874,15 @@ if (filePicker) {
                 true
             );
 
-
             rememberUpload(
                 file,
                 "file"
             );
 
-
             aiUploadReply(
                 "file",
                 file
             );
-
 
             filePicker.value = "";
 
@@ -952,31 +893,25 @@ if (filePicker) {
 
 }
 
-
 // ==========================================
 // UPLOAD RESPONSE
 // ==========================================
 
-function aiUploadReply(
-    type,
-    file
-) {
+function aiUploadReply(type, file) {
 
     let reply = "";
-
 
     if (type === "image") {
 
         reply =
             "📷 Nice! I received your image.\n\n" +
             "I can help you:\n" +
-            "📝 Read text from the image\n" +
-            "👀 Describe what I see\n" +
+            "📝 Read the text from the image\n" +
+            "👀 Describe the image\n" +
             "🔍 Analyze the image\n" +
             "❓ Answer questions about it.";
 
     }
-
 
     if (type === "file") {
 
@@ -989,7 +924,6 @@ function aiUploadReply(
             "❓ Answer questions about it.";
 
     }
-
 
     setTimeout(
         function () {
@@ -1004,7 +938,6 @@ function aiUploadReply(
     );
 
 }
-
 
 // ==========================================
 // VOICE
@@ -1026,7 +959,6 @@ if (voiceBtn) {
 
 }
 
-
 // ==========================================
 // INITIALIZE
 // ==========================================
@@ -1034,5 +966,5 @@ if (voiceBtn) {
 updateComposer();
 
 console.log(
-    "✅ chat.js fully loaded"
+    "✅ chat.js Version 8.0 fully loaded"
 );
