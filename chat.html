@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -230,39 +229,35 @@
 ========================================== -->
 
 <script>
+// Combined DOMContentLoaded handler: set welcome name and attach send button listener
 document.addEventListener("DOMContentLoaded", () => {
 
-    const name =
-        localStorage.getItem("profileName") || "Samuel";
-
-    const nameEl =
-        document.getElementById("welcomeName");
-
+    // Welcome name
+    const name = localStorage.getItem("profileName") || "Samuel";
+    const nameEl = document.getElementById("welcomeName");
     if (nameEl) {
         nameEl.textContent = name;
     }
 
-});
-<script>
-console.log("TEST: chat.html reached bottom");
-
-document.addEventListener("DOMContentLoaded", function () {
+    // Debugging / send button wiring
+    console.log("TEST: chat.html reached bottom");
     console.log("TEST: DOM loaded");
 
     const button = document.getElementById("sendBtn");
-
     console.log("TEST: sendBtn =", button);
 
     if (button) {
         button.addEventListener("click", function () {
             console.log("TEST: SEND BUTTON WAS CLICKED");
-
             alert("Send button is working!");
         });
+    } else {
+        console.warn("sendBtn not found in DOM");
     }
+
 });
 </script>
-    
 
+    
 </body>
 </html>
