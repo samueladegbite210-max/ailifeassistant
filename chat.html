@@ -248,7 +248,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+<script>
+console.log("TEST: chat.html reached bottom");
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("TEST: DOM loaded");
+
+    const button = document.getElementById("sendBtn");
+
+    console.log("TEST: sendBtn =", button);
+
+    if (button) {
+        button.addEventListener("click", function () {
+            console.log("TEST: SEND BUTTON WAS CLICKED");
+
+            alert("Send button is working!");
+        });
+    }
+});
 </script>
+    
 
 </body>
 </html>
