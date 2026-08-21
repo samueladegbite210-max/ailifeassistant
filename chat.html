@@ -199,75 +199,18 @@
 <script src="js/streak.js?v=2"></script>
 <script src="js/streakReply.js?v=2"></script>
 <script src="js/profileReply.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
+        type="module"></script>
 
-<!-- ==========================================
-     EXTERNAL DOCUMENT / OCR LIBRARIES
-========================================== -->
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
-<!-- Tesseract.js - Image OCR -->
-<script
-    src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
-</script>
+<script src="js/fileReader.js"></script>
 
+<script src="js/chat.js"></script>
 
-<!-- Mammoth.js - DOCX Reader -->
-<script
-    src="https://unpkg.com/mammoth/mammoth.browser.min.js">
-</script>
-
-
-<!-- PDF.js - PDF Reader -->
-<script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js">
-</script>
-
-
-<!-- ==========================================
-     PDF.JS WORKER CONFIGURATION
-========================================== -->
-
-<script>
-
-    if (typeof pdfjsLib !== "undefined") {
-
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
-
-        console.log("✅ PDF.js loaded");
-
-    } else {
-
-        console.error(
-            "❌ PDF.js failed to load"
-        );
-
-    }
-
-</script>
-
-
-<!-- ==========================================
-     ATTACHMENT AI
-========================================== -->
-
-
-<!-- Visible Debugger for iPhone -->
-<script src="https://jsdelivr.net"></script>
-<script>eruda.init();</script>
-
-<!-- ==========================================
-     AI ENGINE
-========================================== -->
-
-<script src="js/smartAI.js?v=8"></script>
-
-
-<!-- ==========================================
-     CHAT CONTROLLER
-========================================== -->
-
-<script src="js/chat.js?v=8"></script>
+<script src="js/smartAI.js"></script>
 
 
 </body>
