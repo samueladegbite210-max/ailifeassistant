@@ -965,6 +965,9 @@ if (voiceBtn) {
 
 updateComposer();
 
-console.log(
-    "✅ chat.js Version 8.0 fully loaded"
-);
+window.sendMessage = sendMessage;
+window.aiReply = aiReply;
+
+console.log("✅ chat.js fully loaded");
+console.log("📤 sendMessage available:", typeof window.sendMessage);
+console.log("🤖 aiReply available:", typeof window.aiReply);
