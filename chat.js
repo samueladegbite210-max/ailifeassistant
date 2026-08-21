@@ -417,24 +417,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ======================================
-    // SEND BUTTON
+    // SEND BUTTON AND EVENT LISTENERS
     // ======================================
 
     sendBtn.addEventListener(
         "click",
         function (event) {
-
             event.preventDefault();
-
-            console.log(
-                "🟢 SEND BUTTON CLICKED"
-            );
-
             sendMessage();
-
         }
     );
 
+    userInput.addEventListener(
+        "keydown",
+        function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+    );
+
+    userInput.addEventListener(
+        "input",
+        updateComposer
+    );
+
+    // ======================================
+    // ATTACHMENT MENU TOGGLE
+    // ======================================
+
+    if (attachBtn && attachmentMenu) {
+        attachBtn.addEventListener("click", function (event) {
+            event.stopPropagation();
+            attachmentMenu.classList.toggle("active");
+        });
+
+        document.addEventListener("click", function () {
+            attachmentMenu.classList.remove("active");
+        });
+    }
+
+    if (pickImageBtn && imagePicker) {
+        pickImageBtn.addEventListener("click", () => imagePicker.click());
+    }
+    if (takePhotoBtn && cameraPicker) {
+        takePhotoBtn.addEventListener("click", () => cameraPicker.click());
+    }
+    if (pickFileBtn && filePicker) {
+        pickFileBtn.addEventListener("click", () => filePicker.click());
+    }
+
+}); // Ends DOMContentLoaded safely
 
     // ======================================
     // ENTER KEY
