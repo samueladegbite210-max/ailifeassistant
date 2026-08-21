@@ -313,20 +313,13 @@ async function smartAIReply(rawMsg) {
         ];
 
 
-        // ==================================
+               // ==================================
         // RUN MODULES
         // ==================================
 
-        for (
-            const [name, fn] of modules
-        ) {
+        for (const [name, fn] of modules) {
 
-            const answer =
-                await runAIModule(
-                    name,
-                    fn
-                );
-
+            const answer = await runAIModule(name, fn);
 
             if (
                 answer !== null &&
@@ -334,16 +327,61 @@ async function smartAIReply(rawMsg) {
                 String(answer).trim() !== ""
             ) {
 
-                console.log(
-                    "🤖 Final response from:",
-                    name
-                );
-
+                console.log("🤖 Final response from:", name);
                 return String(answer);
-
             }
-
         }
+
+        // Fallback response if no module handles the text
+        return "🤖 I hear you, but I'm not sure how to handle that request yet.";
+
+    } catch (error) {
+        console.error("❌ High-level smartAIReply error:", error);
+        return "⚠️ An internal error occurred in the AI controller.";
+    }
+}
+
+// Make the main controller available globally
+window.smartAIReply = smartAIReply;
+
+
+// ==========================================
+// COMPLEMENTARY HELPER FUNCTIONS
+// ==========================================
+
+function isImageCommand(msg) {
+    return msg.includes("image") || msg.includes("picture") || msg.includes("photo") || msg.includes("ocr");
+}
+
+function isFileCommand(msg) {
+    return msg.includes("file") || msg.includes("document") || msg.includes("pdf") || msg.includes("docx");
+}
+
+async function handleImageCommand(msg) {
+    const attachment = getCurrentAttachment();
+    if (!attachment) return "🖼️ You mentioned an image command, but I don't see an image attached.";
+    return `🖼️ Analyzing your attached image. (File: ${attachment.name || "Unknown"})`;
+}
+
+async function handleFileCommand(msg) {
+    const attachment = getCurrentAttachment();
+    if (!attachment) return "📄 You mentioned a file command, but no file is currently attached.";
+    return `📄 Processing your file document. (File: ${attachment.name || "Unknown"})`;
+}
+
+function getUploadList() {
+    const files = window.uploadedFiles || [];
+    if (files.length === 0) {
+        return "📁 You haven't uploaded any files during this chat session.";
+    }
+    
+    let response = "📁 Here are your uploaded files:\n";
+    files.forEach((file, index) => {
+        response += `${index + 1}. ${file.name || "Unnamed File"} (${file.type || "unknown style"})\n`;
+    });
+    return response;
+}
+
 
 
         // ==================================
