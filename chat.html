@@ -36,7 +36,7 @@
 
 
 <!-- ==========================================
-     CHAT AREA
+     CHAT
 ========================================== -->
 
 <main class="chatPage">
@@ -45,8 +45,6 @@
         id="chatBox"
         class="chatBox"
     >
-
-        <!-- Welcome message -->
 
         <div class="message ai">
 
@@ -73,13 +71,11 @@
 
 
 <!-- ==========================================
-     CHAT COMPOSER
+     COMPOSER
 ========================================== -->
 
 <footer class="chatComposer">
 
-
-    <!-- Attachment -->
 
     <button
         type="button"
@@ -91,8 +87,6 @@
     </button>
 
 
-    <!-- Message input -->
-
     <textarea
         id="userInput"
         rows="1"
@@ -100,8 +94,6 @@
         autocomplete="off"
     ></textarea>
 
-
-    <!-- Voice -->
 
     <button
         type="button"
@@ -113,13 +105,11 @@
     </button>
 
 
-    <!-- Send -->
-
     <button
         type="button"
         id="sendBtn"
         class="sendButton"
-        aria-label="Send message"
+        aria-label="Send"
     >
         ➤
     </button>
@@ -239,170 +229,81 @@
 
 <!-- ==========================================
      AI LIFE ASSISTANT ENGINE
-     LOAD ORDER IS IMPORTANT
 ========================================== -->
-
-
-<!-- Helpers -->
 
 <script src="js/helpers.js?v=5"></script>
 
-
-<!-- Basic conversation -->
-
 <script src="js/conversation.js?v=5"></script>
-
-
-<!-- Knowledge -->
 
 <script src="js/knowledge.js?v=5"></script>
 
-
-<!-- Calculator -->
-
 <script src="js/calculator.js?v=5"></script>
-
-
-<!-- Date / Time -->
 
 <script src="js/datetime.js?v=5"></script>
 
-
-<!-- Tasks -->
-
 <script src="js/tasks.js?v=5"></script>
-
-
-<!-- Goals -->
 
 <script src="js/goals.js?v=5"></script>
 
-
-<!-- Notes -->
-
 <script src="js/notes.js?v=5"></script>
-
-
-<!-- Events -->
 
 <script src="js/events.js?v=5"></script>
 
-
-<!-- Natural conversation -->
-
 <script src="js/natural.js?v=5"></script>
-
-
-<!-- Weather -->
 
 <script src="js/weather.js?v=5"></script>
 
-
-<!-- Search -->
-
 <script src="js/search.js?v=5"></script>
-
-
-<!-- Memory -->
 
 <script src="js/memory.js?v=5"></script>
 
-
-<!-- Learn user -->
-
 <script src="js/learnUser.js?v=5"></script>
-
-
-<!-- AI Brain -->
 
 <script src="js/brain.js?v=5"></script>
 
-
-<!-- Advice -->
-
 <script src="js/advice.js?v=5"></script>
-
-
-<!-- Online search -->
 
 <script src="js/searchOnline.js?v=5"></script>
 
-
-<!-- Food -->
-
 <script src="js/food.js?v=5"></script>
-
-
-<!-- Internet -->
 
 <script src="js/internet.js?v=5"></script>
 
-
-<!-- Context -->
-
 <script src="js/context.js?v=5"></script>
-
-
-<!-- Teacher -->
 
 <script src="js/teacher.js?v=5"></script>
 
-
-<!-- XP -->
-
 <script src="js/xp.js?v=5"></script>
-
-
-<!-- Achievements -->
 
 <script src="js/achievement.js?v=5"></script>
 
-
-<!-- Quiz -->
-
 <script src="js/quiz.js?v=5"></script>
-
-
-<!-- Quiz score -->
 
 <script src="js/quizScore.js?v=5"></script>
 
-
-<!-- Profile statistics -->
-
 <script src="js/profileStats.js?v=5"></script>
-
-
-<!-- Streak -->
 
 <script src="js/streak.js?v=5"></script>
 
-
-<!-- Streak replies -->
-
 <script src="js/streakReply.js?v=5"></script>
-
-
-<!-- Profile replies -->
 
 <script src="js/profileReply.js?v=5"></script>
 
 
 
 <!-- ==========================================
-     IMAGE / FILE AI ENGINES
+     IMAGE / FILE SYSTEM
 ========================================== -->
 
 
-<!-- Tesseract OCR -->
+<!-- OCR -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"
 ></script>
 
 
-
-<!-- PDF.js -->
+<!-- PDF -->
 
 <script
     src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
@@ -410,13 +311,11 @@
 ></script>
 
 
-
-<!-- DOCX reader -->
+<!-- DOCX -->
 
 <script
     src="https://unpkg.com/mammoth/mammoth.browser.min.js"
 ></script>
-
 
 
 <!-- Attachment AI -->
@@ -424,7 +323,7 @@
 <script src="js/attachmentAI.js?v=5"></script>
 
 
-<!-- File reader -->
+<!-- File Reader -->
 
 <script src="js/fileReader.js?v=5"></script>
 
@@ -440,7 +339,7 @@
 
 <!-- ==========================================
      MAIN AI CONTROLLER
-     LOAD ONLY ONCE
+     LOAD THIS ONLY ONCE
 ========================================== -->
 
 <script src="js/smartAI.js?v=5"></script>
@@ -448,20 +347,33 @@
 
 
 <!-- ==========================================
-     STARTUP
+     STARTUP CHECK
 ========================================== -->
 
 <script>
 
     console.log(
-        "✅ AI Life Assistant Chat page loaded."
+        "✅ AI Life Assistant Chat loaded"
     );
 
     console.log(
-        "📎 Attachment system:",
-        window.aiAttachment
-            ? "Ready"
-            : "Waiting for attachment"
+        "📎 Attachment:",
+        window.aiAttachment || "None"
+    );
+
+    console.log(
+        "🧠 smartAIReply:",
+        typeof smartAIReply
+    );
+
+    console.log(
+        "📄 analyzeFile:",
+        typeof analyzeFile
+    );
+
+    console.log(
+        "🖼️ readImageText:",
+        typeof readImageText
     );
 
 </script>
