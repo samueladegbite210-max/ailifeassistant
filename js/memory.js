@@ -1,131 +1,90 @@
 "use strict";
 
-/* ==========================================
-   AI LIFE ASSISTANT
-   memory.js
-   Version 1.0
-   Personal Memory Engine
-========================================== */
+// ==========================================
+// AI LIFE ASSISTANT
+// memory.js
+// Version 6.0
+// Stable Memory System
+// ==========================================
 
 console.log("🧠 memory.js loading...");
 
 
-/* ==========================================
-   DEFAULT MEMORY
-========================================== */
+// ==========================================
+// DEFAULT MEMORY
+// ==========================================
 
 const DEFAULT_MEMORY = {
-
     name: null,
-
     city: null,
-
     job: null,
-
     study: null,
-
     birthday: null,
-
     favoriteColor: null,
-
     favoriteFood: null,
-
     club: null,
-
     phone: null,
-
     email: null,
-
     relationship: null,
 
     dog: null,
-
     girlfriend: null,
-
     mother: null,
-
     father: null,
-
     brother: null,
-
     sister: null,
 
     likes: [],
-
     dislikes: [],
-
     facts: []
-
 };
 
 
-/* ==========================================
-   LOAD MEMORY
-========================================== */
+// ==========================================
+// LOAD MEMORY
+// ==========================================
 
 function loadMemory() {
 
     try {
 
         const saved =
-            localStorage.getItem("memory");
-
-        if (!saved) {
-
-            return {
-                ...DEFAULT_MEMORY,
-                likes: [],
-                dislikes: [],
-                facts: []
-            };
-
-        }
-
-
-        const parsed =
-            JSON.parse(saved);
-
+            JSON.parse(
+                localStorage.getItem("memory")
+            );
 
         return {
-
             ...DEFAULT_MEMORY,
+            ...(saved || {}),
 
-            ...parsed,
+            likes:
+                Array.isArray(saved?.likes)
+                    ? saved.likes
+                    : [],
 
-            likes: Array.isArray(parsed.likes)
-                ? parsed.likes
-                : [],
+            dislikes:
+                Array.isArray(saved?.dislikes)
+                    ? saved.dislikes
+                    : [],
 
-            dislikes: Array.isArray(parsed.dislikes)
-                ? parsed.dislikes
-                : [],
-
-            facts: Array.isArray(parsed.facts)
-                ? parsed.facts
-                : []
-
+            facts:
+                Array.isArray(saved?.facts)
+                    ? saved.facts
+                    : []
         };
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "❌ Could not load memory:",
+            "❌ Memory load error:",
             error
         );
 
-
         return {
-
             ...DEFAULT_MEMORY,
-
             likes: [],
-
             dislikes: [],
-
             facts: []
-
         };
 
     }
@@ -133,11 +92,18 @@ function loadMemory() {
 }
 
 
-/* ==========================================
-   SAVE MEMORY
-========================================== */
+// ==========================================
+// MEMORY STATE
+// ==========================================
 
-function saveMemory(memory) {
+let memory = loadMemory();
+
+
+// ==========================================
+// SAVE MEMORY
+// ==========================================
+
+function saveMemory() {
 
     try {
 
@@ -146,14 +112,17 @@ function saveMemory(memory) {
             JSON.stringify(memory)
         );
 
+        console.log(
+            "💾 Memory saved:",
+            memory
+        );
+
         return true;
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "❌ Could not save memory:",
+            "❌ Memory save error:",
             error
         );
 
@@ -164,28 +133,32 @@ function saveMemory(memory) {
 }
 
 
-/* ==========================================
-   GET MEMORY
-========================================== */
+// ==========================================
+// NORMALIZE TEXT
+// ==========================================
 
-function getMemory() {
+function normalizeMemoryText(value) {
 
-    return loadMemory();
+    return String(value || "")
+        .trim()
+        .replace(/\s+/g, " ");
 
 }
 
 
-/* ==========================================
-   MEMORY REPLY
-========================================== */
+// ==========================================
+// MEMORY REPLY
+// ==========================================
 
-function memoryReply(rawMsg) {
+function memoryReply(originalMsg, lowerMsg) {
 
-    const text =
-        safeString(rawMsg).trim();
+    const original =
+        normalizeMemoryText(originalMsg);
 
     const msg =
-        normalizeMessage(text);
+        normalizeMemoryText(
+            lowerMsg || original
+        ).toLowerCase();
 
 
     if (!msg) {
@@ -195,29 +168,24 @@ function memoryReply(rawMsg) {
     }
 
 
-    let memory =
-        loadMemory();
+    console.log(
+        "🧠 memoryReply:",
+        msg
+    );
 
 
-    /* ======================================
-       SAVE NAME
-    ====================================== */
+    // ======================================
+    // SAVE NAME
+    // ======================================
 
-    if (
-        msg.startsWith("my name is ")
-    ) {
+    if (msg.startsWith("my name is ")) {
 
         memory.name =
-            text
-                .replace(
-                    /^my name is /i,
-                    ""
-                )
+            original
+                .replace(/^my name is /i, "")
                 .trim();
 
-
-        saveMemory(memory);
-
+        saveMemory();
 
         return (
             "😊 Nice to meet you " +
@@ -228,25 +196,18 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       SAVE LOCATION
-    ====================================== */
+    // ======================================
+    // SAVE LOCATION
+    // ======================================
 
-    if (
-        msg.startsWith("i live in ")
-    ) {
+    if (msg.startsWith("i live in ")) {
 
         memory.city =
-            text
-                .replace(
-                    /^i live in /i,
-                    ""
-                )
+            original
+                .replace(/^i live in /i, "")
                 .trim();
 
-
-        saveMemory(memory);
-
+        saveMemory();
 
         return (
             "📍 I'll remember that you live in " +
@@ -257,9 +218,9 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       SAVE JOB
-    ====================================== */
+    // ======================================
+    // SAVE JOB
+    // ======================================
 
     if (
         msg.startsWith("i work as ") ||
@@ -268,80 +229,58 @@ function memoryReply(rawMsg) {
     ) {
 
         memory.job =
-            text
+            original
                 .replace(/^i work as /i, "")
                 .replace(/^i work at /i, "")
                 .replace(/^my job is /i, "")
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return (
-            "💼 I'll remember that your job is " +
-            memory.job +
-            "."
-        );
+        return "💼 I'll remember your job.";
 
     }
 
 
-    /* ======================================
-       SAVE STUDY
-    ====================================== */
+    // ======================================
+    // SAVE STUDY
+    // ======================================
 
-    if (
-        msg.startsWith("i study ")
-    ) {
+    if (msg.startsWith("i study ")) {
 
         memory.study =
-            text
-                .replace(
-                    /^i study /i,
-                    ""
-                )
+            original
+                .replace(/^i study /i, "")
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return (
-            "📚 I'll remember what you study."
-        );
+        return "📚 I'll remember what you study.";
 
     }
 
 
-    /* ======================================
-       SAVE BIRTHDAY
-    ====================================== */
+    // ======================================
+    // SAVE BIRTHDAY
+    // ======================================
 
-    if (
-        msg.startsWith("my birthday is ")
-    ) {
+    if (msg.startsWith("my birthday is ")) {
 
         memory.birthday =
-            text
-                .replace(
-                    /^my birthday is /i,
-                    ""
-                )
+            original
+                .replace(/^my birthday is /i, "")
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return "🎂 Birthday saved.";
+        return "🎂 Your birthday has been saved.";
 
     }
 
 
-    /* ======================================
-       SAVE FAVORITE COLOR
-    ====================================== */
+    // ======================================
+    // SAVE FAVORITE COLOR
+    // ======================================
 
     if (
         msg.startsWith(
@@ -350,25 +289,23 @@ function memoryReply(rawMsg) {
     ) {
 
         memory.favoriteColor =
-            text
+            original
                 .replace(
                     /^my favorite color is /i,
                     ""
                 )
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return "🎨 Favorite color saved.";
+        return "🎨 Your favorite color has been saved.";
 
     }
 
 
-    /* ======================================
-       SAVE FAVORITE FOOD
-    ====================================== */
+    // ======================================
+    // SAVE FAVORITE FOOD
+    // ======================================
 
     if (
         msg.startsWith(
@@ -377,25 +314,23 @@ function memoryReply(rawMsg) {
     ) {
 
         memory.favoriteFood =
-            text
+            original
                 .replace(
                     /^my favorite food is /i,
                     ""
                 )
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return "🍲 Favorite food saved.";
+        return "🍲 Your favorite food has been saved.";
 
     }
 
 
-    /* ======================================
-       SAVE FAVORITE CLUB
-    ====================================== */
+    // ======================================
+    // SAVE FAVORITE CLUB
+    // ======================================
 
     if (
         msg.startsWith(
@@ -404,25 +339,23 @@ function memoryReply(rawMsg) {
     ) {
 
         memory.club =
-            text
+            original
                 .replace(
                     /^my favorite club is /i,
                     ""
                 )
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return "⚽ Favorite club saved.";
+        return "⚽ Your favorite club has been saved.";
 
     }
 
 
-    /* ======================================
-       SAVE PHONE
-    ====================================== */
+    // ======================================
+    // SAVE PHONE
+    // ======================================
 
     if (
         msg.startsWith(
@@ -431,25 +364,23 @@ function memoryReply(rawMsg) {
     ) {
 
         memory.phone =
-            text
+            original
                 .replace(
                     /^my phone number is /i,
                     ""
                 )
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return "📱 Phone number saved.";
+        return "📱 Your phone number has been saved.";
 
     }
 
 
-    /* ======================================
-       SAVE EMAIL
-    ====================================== */
+    // ======================================
+    // SAVE EMAIL
+    // ======================================
 
     if (
         msg.startsWith(
@@ -458,304 +389,124 @@ function memoryReply(rawMsg) {
     ) {
 
         memory.email =
-            text
+            original
                 .replace(
                     /^my email is /i,
                     ""
                 )
                 .trim();
 
+        saveMemory();
 
-        saveMemory(memory);
-
-
-        return "📧 Email saved.";
+        return "📧 Your email has been saved.";
 
     }
 
 
-    /* ======================================
-       RELATIONSHIP
-    ====================================== */
+    // ======================================
+    // RELATIONSHIP
+    // ======================================
 
-    if (
-        msg === "i am single" ||
-        msg.startsWith("i am single ")
-    ) {
+    if (msg.startsWith("i am single")) {
 
-        memory.relationship =
-            "Single";
+        memory.relationship = "Single";
 
-
-        saveMemory(memory);
-
+        saveMemory();
 
         return "❤️ I'll remember that you're single.";
 
     }
 
 
-    if (
-        msg === "i am married" ||
-        msg.startsWith("i am married ")
-    ) {
+    if (msg.startsWith("i am married")) {
 
-        memory.relationship =
-            "Married";
+        memory.relationship = "Married";
 
-
-        saveMemory(memory);
-
+        saveMemory();
 
         return "❤️ I'll remember that you're married.";
 
     }
 
 
-    /* ======================================
-       SAVE DOG
-    ====================================== */
+    // ======================================
+    // SAVE PET / FAMILY
+    // ======================================
 
-    if (
-        msg.startsWith(
-            "my dog's name is "
-        ) ||
-        msg.startsWith(
-            "my dogs name is "
-        )
+    const specialMemoryPatterns = [
+
+        {
+            key: "dog",
+            pattern: /^my dog's name is /i,
+            response: "🐶 I'll remember your dog's name."
+        },
+
+        {
+            key: "girlfriend",
+            pattern: /^my girlfriend is /i,
+            response: "❤️ I'll remember your girlfriend."
+        },
+
+        {
+            key: "mother",
+            pattern: /^my mother's name is /i,
+            response: "👩 I'll remember your mother's name."
+        },
+
+        {
+            key: "father",
+            pattern: /^my father's name is /i,
+            response: "👨 I'll remember your father's name."
+        },
+
+        {
+            key: "brother",
+            pattern: /^my brother's name is /i,
+            response: "👦 I'll remember your brother's name."
+        },
+
+        {
+            key: "sister",
+            pattern: /^my sister's name is /i,
+            response: "👧 I'll remember your sister's name."
+        }
+
+    ];
+
+
+    for (
+        const item of specialMemoryPatterns
     ) {
 
-        memory.dog =
-            text
-                .replace(
-                    /^my dog's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my dogs name is /i,
-                    ""
-                )
-                .trim();
+        if (item.pattern.test(original)) {
 
+            memory[item.key] =
+                original
+                    .replace(
+                        item.pattern,
+                        ""
+                    )
+                    .trim();
 
-        saveMemory(memory);
+            saveMemory();
 
+            return item.response;
 
-        return (
-            "🐶 I'll remember that your dog's name is " +
-            memory.dog +
-            "."
-        );
+        }
 
     }
 
 
-    /* ======================================
-       SAVE GIRLFRIEND
-    ====================================== */
+    // ======================================
+    // LIKES
+    // ======================================
 
-    if (
-        msg.startsWith(
-            "my girlfriend's name is "
-        ) ||
-        msg.startsWith(
-            "my girlfriends name is "
-        )
-    ) {
-
-        memory.girlfriend =
-            text
-                .replace(
-                    /^my girlfriend's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my girlfriends name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "❤️ I'll remember your girlfriend's name is " +
-            memory.girlfriend +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE MOTHER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my mother's name is "
-        ) ||
-        msg.startsWith(
-            "my mothers name is "
-        )
-    ) {
-
-        memory.mother =
-            text
-                .replace(
-                    /^my mother's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my mothers name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👩 I'll remember your mother's name is " +
-            memory.mother +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE FATHER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my father's name is "
-        ) ||
-        msg.startsWith(
-            "my fathers name is "
-        )
-    ) {
-
-        memory.father =
-            text
-                .replace(
-                    /^my father's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my fathers name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👨 I'll remember your father's name is " +
-            memory.father +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE BROTHER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my brother's name is "
-        ) ||
-        msg.startsWith(
-            "my brothers name is "
-        )
-    ) {
-
-        memory.brother =
-            text
-                .replace(
-                    /^my brother's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my brothers name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👦 I'll remember your brother's name is " +
-            memory.brother +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE SISTER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my sister's name is "
-        ) ||
-        msg.startsWith(
-            "my sisters name is "
-        )
-    ) {
-
-        memory.sister =
-            text
-                .replace(
-                    /^my sister's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my sisters name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👧 I'll remember your sister's name is " +
-            memory.sister +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE LIKE
-    ====================================== */
-
-    if (
-        msg.startsWith("i like ")
-    ) {
+    if (msg.startsWith("i like ")) {
 
         const item =
-            text
-                .replace(
-                    /^i like /i,
-                    ""
-                )
+            original
+                .replace(/^i like /i, "")
                 .trim();
-
 
         if (item) {
 
@@ -771,37 +522,29 @@ function memoryReply(rawMsg) {
 
             }
 
+            saveMemory();
+
+            return (
+                "😊 I'll remember that you like " +
+                item +
+                "."
+            );
+
         }
-
-
-        saveMemory(memory);
-
-
-        return (
-            "😊 I'll remember that you like " +
-            item +
-            "."
-        );
 
     }
 
 
-    /* ======================================
-       SAVE DISLIKE
-    ====================================== */
+    // ======================================
+    // DISLIKES
+    // ======================================
 
-    if (
-        msg.startsWith("i don't like ")
-    ) {
+    if (msg.startsWith("i don't like ")) {
 
         const item =
-            text
-                .replace(
-                    /^i don't like /i,
-                    ""
-                )
+            original
+                .replace(/^i don't like /i, "")
                 .trim();
-
 
         if (item) {
 
@@ -817,59 +560,60 @@ function memoryReply(rawMsg) {
 
             }
 
+            saveMemory();
+
+            return (
+                "👍 I'll remember that you don't like " +
+                item +
+                "."
+            );
+
         }
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👍 I'll remember that you don't like " +
-            item +
-            "."
-        );
 
     }
 
 
-    /* ======================================
-       REMEMBER FACT
-    ====================================== */
+    // ======================================
+    // REMEMBER FACT
+    // ======================================
 
-    if (
-        msg.startsWith("remember that ")
-    ) {
+    if (msg.startsWith("remember that ")) {
 
         const fact =
-            text
-                .replace(
-                    /^remember that /i,
-                    ""
-                )
+            original
+                .replace(/^remember that /i, "")
                 .trim();
-
 
         if (fact) {
 
-            memory.facts.push(fact);
+            const exists =
+                memory.facts.some(
+                    value =>
+                        value.toLowerCase() ===
+                        fact.toLowerCase()
+                );
+
+            if (!exists) {
+
+                memory.facts.push(fact);
+
+            }
+
+            saveMemory();
+
+            return (
+                "🧠 I have remembered: " +
+                fact
+            );
 
         }
-
-
-        saveMemory(memory);
-
-
-        return (
-            "🧠 I have remembered: " +
-            fact
-        );
 
     }
 
 
-    /* ======================================
-       RECALL NAME
-    ====================================== */
+    // ======================================
+    // RECALL NAME
+    // ======================================
 
     if (
         msg.includes("what is my name") ||
@@ -885,9 +629,9 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       RECALL LOCATION
-    ====================================== */
+    // ======================================
+    // RECALL LOCATION
+    // ======================================
 
     if (
         msg.includes("where do i live")
@@ -902,13 +646,12 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       RECALL JOB
-    ====================================== */
+    // ======================================
+    // RECALL JOB
+    // ======================================
 
     if (
-        msg.includes("what is my job") ||
-        msg.includes("what do i do for work")
+        msg.includes("what is my job")
     ) {
 
         return memory.job
@@ -920,9 +663,9 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       RECALL BIRTHDAY
-    ====================================== */
+    // ======================================
+    // RECALL BIRTHDAY
+    // ======================================
 
     if (
         msg.includes("when is my birthday")
@@ -937,9 +680,9 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       RECALL FAVORITE COLOR
-    ====================================== */
+    // ======================================
+    // RECALL FAVORITES
+    // ======================================
 
     if (
         msg.includes(
@@ -956,10 +699,6 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       RECALL FAVORITE FOOD
-    ====================================== */
-
     if (
         msg.includes(
             "what is my favorite food"
@@ -974,10 +713,6 @@ function memoryReply(rawMsg) {
 
     }
 
-
-    /* ======================================
-       RECALL CLUB
-    ====================================== */
 
     if (
         msg.includes(
@@ -994,119 +729,162 @@ function memoryReply(rawMsg) {
     }
 
 
-    /* ======================================
-       RECALL DOG
-    ====================================== */
+    // ======================================
+    // RECALL FAMILY
+    // ======================================
 
-    if (
-        msg.includes("what is my dog's name") ||
-        msg.includes("what is my dogs name") ||
-        msg.includes("who is my dog")
-    ) {
+    const recallRules = [
 
-        return memory.dog
-            ? "🐶 Your dog's name is " +
-              memory.dog +
-              "."
-            : "I don't know your dog's name yet.";
+        [
+            ["what is my dog's name", "who is my dog", "my dog name"],
+            "dog",
+            "🐶 Your dog's name is ",
+            "I don't know your dog's name yet."
+        ],
 
-    }
+        [
+            ["who is my girlfriend", "what is my girlfriend's name"],
+            "girlfriend",
+            "❤️ Your girlfriend is ",
+            "I don't know your girlfriend yet."
+        ],
 
+        [
+            ["who is my mother"],
+            "mother",
+            "👩 Your mother's name is ",
+            "I don't know your mother's name yet."
+        ],
 
-    /* ======================================
-       RECALL GIRLFRIEND
-    ====================================== */
+        [
+            ["who is my father"],
+            "father",
+            "👨 Your father's name is ",
+            "I don't know your father's name yet."
+        ],
 
-    if (
-        msg.includes("who is my girlfriend") ||
-        msg.includes(
-            "what is my girlfriend's name"
-        ) ||
-        msg.includes(
-            "what is my girlfriends name"
-        )
-    ) {
+        [
+            ["who is my brother"],
+            "brother",
+            "👦 Your brother's name is ",
+            "I don't know your brother's name yet."
+        ],
 
-        return memory.girlfriend
-            ? "❤️ Your girlfriend is " +
-              memory.girlfriend +
-              "."
-            : "I don't know your girlfriend yet.";
+        [
+            ["who is my sister"],
+            "sister",
+            "👧 Your sister's name is ",
+            "I don't know your sister's name yet."
+        ]
 
-    }
-
-
-    /* ======================================
-       RECALL MOTHER
-    ====================================== */
-
-    if (
-        msg.includes("who is my mother")
-    ) {
-
-        return memory.mother
-            ? "👩 Your mother is " +
-              memory.mother +
-              "."
-            : "I don't know your mother's name yet.";
-
-    }
+    ];
 
 
-    /* ======================================
-       RECALL FATHER
-    ====================================== */
+    for (const rule of recallRules) {
 
-    if (
-        msg.includes("who is my father")
-    ) {
+        if (
+            rule[0].some(
+                phrase => msg.includes(phrase)
+            )
+        ) {
 
-        return memory.father
-            ? "👨 Your father is " +
-              memory.father +
-              "."
-            : "I don't know your father's name yet.";
+            return memory[rule[1]]
+                ? rule[2] +
+                  memory[rule[1]] +
+                  "."
+                : rule[3];
+
+        }
 
     }
 
 
-    /* ======================================
-       RECALL BROTHER
-    ====================================== */
+    // ======================================
+    // FORGET MEMORY
+    // ======================================
 
-    if (
-        msg.includes("who is my brother")
-    ) {
+    if (msg.startsWith("forget my ")) {
 
-        return memory.brother
-            ? "👦 Your brother is " +
-              memory.brother +
-              "."
-            : "I don't know your brother's name yet.";
+        const item =
+            msg
+                .replace("forget my ", "")
+                .trim();
+
+        const fields = {
+
+            name: "name",
+            city: "city",
+            location: "city",
+            job: "job",
+            birthday: "birthday",
+            "favorite color": "favoriteColor",
+            "favorite food": "favoriteFood",
+            "favorite club": "club",
+            phone: "phone",
+            "phone number": "phone",
+            email: "email",
+            relationship: "relationship",
+            dog: "dog",
+            girlfriend: "girlfriend",
+            mother: "mother",
+            father: "father",
+            brother: "brother",
+            sister: "sister"
+
+        };
+
+
+        const key = fields[item];
+
+
+        if (!key) {
+
+            return "❌ I couldn't find that memory.";
+
+        }
+
+
+        memory[key] = null;
+
+        saveMemory();
+
+        return (
+            "🗑️ Done! I've forgotten your " +
+            item +
+            "."
+        );
 
     }
 
 
-    /* ======================================
-       RECALL SISTER
-    ====================================== */
+    // ======================================
+    // FORGET FACT
+    // ======================================
 
-    if (
-        msg.includes("who is my sister")
-    ) {
+    if (msg.startsWith("forget that ")) {
 
-        return memory.sister
-            ? "👧 Your sister is " +
-              memory.sister +
-              "."
-            : "I don't know your sister's name yet.";
+        const fact =
+            original
+                .replace(/^forget that /i, "")
+                .trim();
+
+        memory.facts =
+            memory.facts.filter(
+                value =>
+                    value.toLowerCase() !==
+                    fact.toLowerCase()
+            );
+
+        saveMemory();
+
+        return "🗑️ I forgot that.";
 
     }
 
 
-    /* ======================================
-       RECALL EVERYTHING
-    ====================================== */
+    // ======================================
+    // SHOW EVERYTHING
+    // ======================================
 
     if (
         msg.includes(
@@ -1117,317 +895,140 @@ function memoryReply(rawMsg) {
         )
     ) {
 
-        return buildMemorySummary(memory);
+        let reply =
+            "🧠 Here's what I know about you:\n\n";
 
-    }
-
-
-    /* ======================================
-       FORGET MEMORY
-    ====================================== */
-
-    if (
-        msg.startsWith("forget my ")
-    ) {
-
-        return forgetMemory(
-            memory,
-            msg
-        );
-
-    }
+        let hasData = false;
 
 
-    /* ======================================
-       FORGET FACT
-    ====================================== */
+        function add(label, value) {
 
-    if (
-        msg.startsWith("forget that ")
-    ) {
+            if (
+                value !== null &&
+                value !== undefined &&
+                String(value).trim() !== ""
+            ) {
 
-        const fact =
-            text
-                .replace(
-                    /^forget that /i,
-                    ""
-                )
-                .trim();
+                reply +=
+                    label +
+                    value +
+                    "\n";
+
+                hasData = true;
+
+            }
+
+        }
 
 
-        memory.facts =
-            memory.facts.filter(
-                value =>
-                    value.toLowerCase() !==
-                    fact.toLowerCase()
+        add("👤 Name: ", memory.name);
+        add("📍 Lives in: ", memory.city);
+        add("💼 Job: ", memory.job);
+        add("🎓 Study: ", memory.study);
+        add("🎂 Birthday: ", memory.birthday);
+        add("🎨 Favorite Color: ", memory.favoriteColor);
+        add("🍲 Favorite Food: ", memory.favoriteFood);
+        add("⚽ Favorite Club: ", memory.club);
+        add("📱 Phone: ", memory.phone);
+        add("📧 Email: ", memory.email);
+        add("❤️ Relationship: ", memory.relationship);
+        add("🐶 Dog: ", memory.dog);
+        add("❤️ Girlfriend: ", memory.girlfriend);
+        add("👩 Mother: ", memory.mother);
+        add("👨 Father: ", memory.father);
+        add("👦 Brother: ", memory.brother);
+        add("👧 Sister: ", memory.sister);
+
+
+        if (memory.likes.length) {
+
+            reply += "\n😊 Likes:\n";
+
+            memory.likes.forEach(
+                item => {
+                    reply +=
+                        "• " +
+                        item +
+                        "\n";
+                }
             );
 
+            hasData = true;
 
-        saveMemory(memory);
+        }
 
 
-        return "🗑️ Done! I forgot that.";
+        if (memory.dislikes.length) {
+
+            reply += "\n😒 Dislikes:\n";
+
+            memory.dislikes.forEach(
+                item => {
+                    reply +=
+                        "• " +
+                        item +
+                        "\n";
+                }
+            );
+
+            hasData = true;
+
+        }
+
+
+        if (memory.facts.length) {
+
+            reply += "\n💡 Facts:\n";
+
+            memory.facts.forEach(
+                item => {
+                    reply +=
+                        "• " +
+                        item +
+                        "\n";
+                }
+            );
+
+            hasData = true;
+
+        }
+
+
+        if (!hasData) {
+
+            return (
+                "🧠 I don't know much about you yet."
+            );
+
+        }
+
+
+        return reply;
 
     }
 
 
-    /* ======================================
-       NO MEMORY COMMAND
-    ====================================== */
+    // ======================================
+    // NO MEMORY MATCH
+    // ======================================
 
     return null;
 
 }
 
 
-/* ==========================================
-   MEMORY SUMMARY
-========================================== */
-
-function buildMemorySummary(memory) {
-
-    let reply =
-        "🧠 Here's what I remember about you:\n\n";
-
-    let hasData = false;
-
-
-    function add(label, value) {
-
-        if (
-            value !== null &&
-            value !== undefined &&
-            String(value).trim() !== ""
-        ) {
-
-            reply +=
-                label +
-                value +
-                "\n";
-
-            hasData = true;
-
-        }
-
-    }
-
-
-    add("👤 Name: ", memory.name);
-
-    add("📍 Lives in: ", memory.city);
-
-    add("💼 Job: ", memory.job);
-
-    add("🎓 Study: ", memory.study);
-
-    add("🎂 Birthday: ", memory.birthday);
-
-    add("🎨 Favorite Color: ", memory.favoriteColor);
-
-    add("🍲 Favorite Food: ", memory.favoriteFood);
-
-    add("⚽ Favorite Club: ", memory.club);
-
-    add("📱 Phone: ", memory.phone);
-
-    add("📧 Email: ", memory.email);
-
-    add("❤️ Relationship: ", memory.relationship);
-
-    add("🐶 Dog: ", memory.dog);
-
-    add("❤️ Girlfriend: ", memory.girlfriend);
-
-    add("👩 Mother: ", memory.mother);
-
-    add("👨 Father: ", memory.father);
-
-    add("👦 Brother: ", memory.brother);
-
-    add("👧 Sister: ", memory.sister);
-
-
-    if (
-        memory.likes.length
-    ) {
-
-        reply +=
-            "\n😊 Likes:\n";
-
-        memory.likes.forEach(
-            item => {
-
-                reply +=
-                    "• " +
-                    item +
-                    "\n";
-
-            }
-        );
-
-        hasData = true;
-
-    }
-
-
-    if (
-        memory.dislikes.length
-    ) {
-
-        reply +=
-            "\n😒 Dislikes:\n";
-
-        memory.dislikes.forEach(
-            item => {
-
-                reply +=
-                    "• " +
-                    item +
-                    "\n";
-
-            }
-        );
-
-        hasData = true;
-
-    }
-
-
-    if (
-        memory.facts.length
-    ) {
-
-        reply +=
-            "\n💡 Facts:\n";
-
-        memory.facts.forEach(
-            item => {
-
-                reply +=
-                    "• " +
-                    item +
-                    "\n";
-
-            }
-        );
-
-        hasData = true;
-
-    }
-
-
-    if (!hasData) {
-
-        return (
-            "🧠 I don't know much about you yet."
-        );
-
-    }
-
-
-    return reply;
-
-}
-
-
-/* ==========================================
-   FORGET MEMORY
-========================================== */
-
-function forgetMemory(
-    memory,
-    msg
-) {
-
-    const item =
-        msg
-            .replace(
-                "forget my ",
-                ""
-            )
-            .trim();
-
-
-    const fields = {
-
-        "name": "name",
-
-        "city": "city",
-
-        "location": "city",
-
-        "job": "job",
-
-        "birthday": "birthday",
-
-        "favorite color": "favoriteColor",
-
-        "favorite food": "favoriteFood",
-
-        "favorite club": "club",
-
-        "phone": "phone",
-
-        "phone number": "phone",
-
-        "email": "email",
-
-        "relationship": "relationship",
-
-        "dog": "dog",
-
-        "girlfriend": "girlfriend",
-
-        "mother": "mother",
-
-        "father": "father",
-
-        "brother": "brother",
-
-        "sister": "sister"
-
-    };
-
-
-    const field =
-        fields[item];
-
-
-    if (!field) {
-
-        return (
-            "❌ I couldn't find that memory."
-        );
-
-    }
-
-
-    memory[field] = null;
-
-    saveMemory(memory);
-
-
-    return (
-        "🗑️ Done! I've forgotten your " +
-        item +
-        "."
-    );
-
-}
-
-
-/* ==========================================
-   GLOBAL EXPORTS
-========================================== */
-
-window.loadMemory = loadMemory;
-
-window.saveMemory = saveMemory;
-
-window.getMemory = getMemory;
+// ==========================================
+// GLOBAL ACCESS
+// ==========================================
 
 window.memoryReply = memoryReply;
+window.loadMemory = loadMemory;
+window.saveMemory = saveMemory;
 
+
+// ==========================================
+// READY
+// ==========================================
 
 console.log(
     "✅ memory.js loaded successfully"
