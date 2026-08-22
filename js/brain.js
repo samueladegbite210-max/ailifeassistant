@@ -1,1434 +1,690 @@
 "use strict";
 
-/* ==========================================
-   AI LIFE ASSISTANT
-   memory.js
-   Version 1.0
-   Personal Memory Engine
-========================================== */
+/*==========================================
+AI LIFE ASSISTANT
+brain.js
+AI ENGINE v2.0
+Stable Brain / Data Engine
+==========================================*/
 
-console.log("🧠 memory.js loading...");
-
-
-/* ==========================================
-   DEFAULT MEMORY
-========================================== */
-
-const DEFAULT_MEMORY = {
-
-    name: null,
-
-    city: null,
-
-    job: null,
-
-    study: null,
-
-    birthday: null,
-
-    favoriteColor: null,
-
-    favoriteFood: null,
-
-    club: null,
-
-    phone: null,
-
-    email: null,
-
-    relationship: null,
-
-    dog: null,
-
-    girlfriend: null,
-
-    mother: null,
-
-    father: null,
-
-    brother: null,
-
-    sister: null,
-
-    likes: [],
-
-    dislikes: [],
-
-    facts: []
-
-};
+console.log("🧠 brain.js loading...");
 
 
-/* ==========================================
-   LOAD MEMORY
-========================================== */
+/*==========================================
+SAFE STORAGE READERS
+==========================================*/
 
-function loadMemory() {
+function aiRead(key) {
 
     try {
 
-        const saved =
-            localStorage.getItem("memory");
+        const value =
+            localStorage.getItem(key);
 
-        if (!saved) {
-
-            return {
-                ...DEFAULT_MEMORY,
-                likes: [],
-                dislikes: [],
-                facts: []
-            };
-
+        if (!value) {
+            return [];
         }
 
-
         const parsed =
-            JSON.parse(saved);
+            JSON.parse(value);
 
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
 
-        return {
+    } catch (error) {
 
-            ...DEFAULT_MEMORY,
-
-            ...parsed,
-
-            likes: Array.isArray(parsed.likes)
-                ? parsed.likes
-                : [],
-
-            dislikes: Array.isArray(parsed.dislikes)
-                ? parsed.dislikes
-                : [],
-
-            facts: Array.isArray(parsed.facts)
-                ? parsed.facts
-                : []
-
-        };
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "❌ Could not load memory:",
+        console.warn(
+            "⚠️ Could not read storage:",
+            key,
             error
         );
 
-
-        return {
-
-            ...DEFAULT_MEMORY,
-
-            likes: [],
-
-            dislikes: [],
-
-            facts: []
-
-        };
+        return [];
 
     }
 
 }
 
 
-/* ==========================================
-   SAVE MEMORY
-========================================== */
-
-function saveMemory(memory) {
+function aiReadObject(
+    key,
+    fallback = {}
+) {
 
     try {
 
-        localStorage.setItem(
-            "memory",
-            JSON.stringify(memory)
-        );
+        const value =
+            localStorage.getItem(key);
 
-        return true;
+        if (!value) {
+            return fallback;
+        }
 
-    }
+        const parsed =
+            JSON.parse(value);
 
-    catch (error) {
+        return parsed &&
+               typeof parsed === "object"
+            ? parsed
+            : fallback;
 
-        console.error(
-            "❌ Could not save memory:",
+    } catch (error) {
+
+        console.warn(
+            "⚠️ Could not read object:",
+            key,
             error
         );
 
-        return false;
+        return fallback;
 
     }
 
 }
 
 
-/* ==========================================
-   GET MEMORY
-========================================== */
+/*==========================================
+LOAD AI DATA
+==========================================*/
 
-function getMemory() {
+function getAIData() {
 
-    return loadMemory();
+    return {
+
+        tasks:
+            aiRead("tasks"),
+
+        goals:
+            aiRead("goals"),
+
+        events:
+            aiRead("events"),
+
+        notes:
+            aiRead("notes"),
+
+        wellness:
+            aiReadObject(
+                "wellness",
+                {}
+            ),
+
+        xp:
+            aiReadObject(
+                "xp",
+                {
+                    xp: 0,
+                    level: 1,
+                    total: 0
+                }
+            ),
+
+        streak:
+            aiReadObject(
+                "streak",
+                {
+                    days: 0
+                }
+            )
+
+    };
 
 }
 
 
-/* ==========================================
-   MEMORY REPLY
-========================================== */
+/*==========================================
+PRODUCTIVITY SCORE
+==========================================*/
 
-function memoryReply(rawMsg) {
+function calculateProductivity() {
+
+    const data =
+        getAIData();
+
+    const tasks =
+        Array.isArray(data.tasks)
+            ? data.tasks
+            : [];
+
+    if (!tasks.length) {
+
+        return 0;
+
+    }
+
+    const completed =
+        tasks.filter(
+            task =>
+                task &&
+                (
+                    task.done === true ||
+                    task.completed === true
+                )
+        ).length;
+
+
+    return Math.round(
+        (
+            completed /
+            tasks.length
+        ) * 100
+    );
+
+}
+
+
+/*==========================================
+WELLNESS SCORE
+==========================================*/
+
+function calculateWellness() {
+
+    const data =
+        getAIData();
+
+    const wellness =
+        data.wellness || {};
+
+    let score = 50;
+
+
+    const water =
+        Number(wellness.water) || 0;
+
+    const sleep =
+        Number(wellness.sleep) || 0;
+
+
+    score +=
+        Math.min(water, 8);
+
+    score +=
+        Math.min(sleep, 8);
+
+
+    const mood =
+        wellness.mood;
+
+
+    const moodText =
+        typeof mood === "string"
+            ? mood
+            : mood?.text;
+
+
+    switch (moodText) {
+
+        case "Great":
+            score += 20;
+            break;
+
+        case "Good":
+            score += 15;
+            break;
+
+        case "Okay":
+            score += 10;
+            break;
+
+        case "Sad":
+            score -= 10;
+            break;
+
+        case "Stressed":
+            score -= 20;
+            break;
+
+    }
+
+
+    return Math.max(
+        0,
+        Math.min(score, 100)
+    );
+
+}
+
+
+/*==========================================
+TODAY'S FOCUS
+==========================================*/
+
+function getTodayFocus() {
+
+    const data =
+        getAIData();
+
+    const tasks =
+        Array.isArray(data.tasks)
+            ? data.tasks
+            : [];
+
+
+    const pending =
+        tasks.filter(
+            task =>
+                task &&
+                !(
+                    task.done === true ||
+                    task.completed === true
+                )
+        );
+
+
+    if (!pending.length) {
+
+        return [
+            "🎉 Everything is completed today!"
+        ];
+
+    }
+
+
+    const priority = {
+
+        High: 3,
+        high: 3,
+
+        Medium: 2,
+        medium: 2,
+
+        Low: 1,
+        low: 1
+
+    };
+
+
+    pending.sort(
+        (a, b) => {
+
+            return (
+                (priority[b.priority] || 0) -
+                (priority[a.priority] || 0)
+            );
+
+        }
+    );
+
+
+    return pending.slice(0, 3);
+
+}
+
+
+/*==========================================
+DAILY AI BRIEFING
+==========================================*/
+
+function getDailyBriefing() {
+
+    const data =
+        getAIData();
+
+
+    const tasks =
+        Array.isArray(data.tasks)
+            ? data.tasks
+            : [];
+
+
+    const goals =
+        Array.isArray(data.goals)
+            ? data.goals
+            : [];
+
+
+    const events =
+        Array.isArray(data.events)
+            ? data.events
+            : [];
+
+
+    const pendingTasks =
+        tasks.filter(
+            task =>
+                task &&
+                !(
+                    task.done === true ||
+                    task.completed === true
+                )
+        ).length;
+
+
+    const pendingGoals =
+        goals.filter(
+            goal =>
+                goal &&
+                !(
+                    goal.done === true ||
+                    goal.completed === true
+                )
+        ).length;
+
+
+    const upcomingEvents =
+        events.length;
+
+
+    const profileName =
+        localStorage.getItem(
+            "profileName"
+        ) || "Samuel";
+
+
+    let message = "";
+
+
+    message +=
+        `👋 Hello ${profileName}!\n\n`;
+
+
+    message +=
+        `📌 Pending Tasks: ${pendingTasks}\n`;
+
+    message +=
+        `🎯 Goals: ${pendingGoals}\n`;
+
+    message +=
+        `📅 Events: ${upcomingEvents}\n\n`;
+
+
+    if (pendingTasks > 0) {
+
+        message +=
+            "🔥 Finish your highest-priority task first today.";
+
+    }
+
+    else if (pendingGoals > 0) {
+
+        message +=
+            "🚀 Spend today making progress toward your biggest goal.";
+
+    }
+
+    else {
+
+        message +=
+            "🎉 Excellent! You're all caught up today.";
+
+    }
+
+
+    return message;
+
+}
+
+
+/*==========================================
+SMART AI RECOMMENDATION
+==========================================*/
+
+function getRecommendation() {
+
+    const productivity =
+        calculateProductivity();
+
+    const wellness =
+        calculateWellness();
+
+
+    let recommendation = "";
+
+
+    /*----------------------------------------
+    WELLNESS
+    ----------------------------------------*/
+
+    if (wellness >= 80) {
+
+        recommendation +=
+            "🚀 You're feeling great today.\n";
+
+    }
+
+    else if (wellness >= 60) {
+
+        recommendation +=
+            "🙂 Your energy is good.\n";
+
+    }
+
+    else {
+
+        recommendation +=
+            "💙 Slow down today and recharge.\n";
+
+    }
+
+
+    recommendation += "\n";
+
+
+    /*----------------------------------------
+    PRODUCTIVITY
+    ----------------------------------------*/
+
+    if (productivity >= 80) {
+
+        recommendation +=
+            "🔥 You're very productive. Keep your momentum going.";
+
+    }
+
+    else if (productivity >= 50) {
+
+        recommendation +=
+            "💪 You're making progress. Complete one important task next.";
+
+    }
+
+    else {
+
+        recommendation +=
+            "📌 Focus on finishing one task before starting another.";
+
+    }
+
+
+    return recommendation;
+
+}
+
+
+/*==========================================
+AI BRAIN REPLY
+==========================================*/
+
+function aiBrainReply(msg) {
 
     const text =
-        safeString(rawMsg).trim();
+        String(msg || "")
+            .toLowerCase()
+            .trim();
 
-    const msg =
-        normalizeMessage(text);
 
-
-    if (!msg) {
+    if (!text) {
 
         return null;
 
     }
 
 
-    let memory =
-        loadMemory();
-
-
-    /* ======================================
-       SAVE NAME
-    ====================================== */
+    /*----------------------------------------
+    DAILY BRIEFING
+    ----------------------------------------*/
 
     if (
-        msg.startsWith("my name is ")
+        text.includes("daily briefing") ||
+        text.includes("daily brief") ||
+        text.includes("my briefing") ||
+        text.includes("what should i do today")
     ) {
 
-        memory.name =
-            text
-                .replace(
-                    /^my name is /i,
-                    ""
-                )
-                .trim();
+        return getDailyBriefing();
+
+    }
 
 
-        saveMemory(memory);
+    /*----------------------------------------
+    RECOMMENDATION
+    ----------------------------------------*/
 
+    if (
+        text.includes("recommend something") ||
+        text.includes("give me a recommendation") ||
+        text.includes("what do you recommend") ||
+        text.includes("give me advice for today")
+    ) {
+
+        return getRecommendation();
+
+    }
+
+
+    /*----------------------------------------
+    PRODUCTIVITY
+    ----------------------------------------*/
+
+    if (
+        text.includes("productivity score") ||
+        text.includes("how productive am i") ||
+        text.includes("my productivity")
+    ) {
 
         return (
-            "😊 Nice to meet you " +
-            memory.name +
-            ". I'll remember your name."
+            "📊 Your productivity score is " +
+            calculateProductivity() +
+            "%."
         );
 
     }
 
 
-    /* ======================================
-       SAVE LOCATION
-    ====================================== */
+    /*----------------------------------------
+    WELLNESS
+    ----------------------------------------*/
 
     if (
-        msg.startsWith("i live in ")
+        text.includes("wellness score") ||
+        text.includes("how is my wellness") ||
+        text.includes("my wellness score")
     ) {
 
-        memory.city =
-            text
-                .replace(
-                    /^i live in /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
         return (
-            "📍 I'll remember that you live in " +
-            memory.city +
-            "."
+            "💙 Your wellness score is " +
+            calculateWellness() +
+            "%."
         );
 
     }
 
 
-    /* ======================================
-       SAVE JOB
-    ====================================== */
+    /*----------------------------------------
+    TODAY'S FOCUS
+    ----------------------------------------*/
 
     if (
-        msg.startsWith("i work as ") ||
-        msg.startsWith("i work at ") ||
-        msg.startsWith("my job is ")
+        text.includes("today's focus") ||
+        text.includes("todays focus") ||
+        text.includes("what should i focus on")
     ) {
 
-        memory.job =
-            text
-                .replace(/^i work as /i, "")
-                .replace(/^i work at /i, "")
-                .replace(/^my job is /i, "")
-                .trim();
+        const focus =
+            getTodayFocus();
 
 
-        saveMemory(memory);
+        if (!focus.length) {
 
+            return "🎉 You have nothing pending.";
 
-        return (
-            "💼 I'll remember that your job is " +
-            memory.job +
-            "."
-        );
+        }
 
-    }
 
+        let reply =
+            "🎯 Here's what you should focus on:\n\n";
 
-    /* ======================================
-       SAVE STUDY
-    ====================================== */
 
-    if (
-        msg.startsWith("i study ")
-    ) {
+        focus.forEach(
+            (item, index) => {
 
-        memory.study =
-            text
-                .replace(
-                    /^i study /i,
-                    ""
-                )
-                .trim();
+                if (
+                    typeof item === "string"
+                ) {
 
+                    reply +=
+                        `${index + 1}. ${item}\n`;
 
-        saveMemory(memory);
+                    return;
 
+                }
 
-        return (
-            "📚 I'll remember what you study."
-        );
 
-    }
+                const title =
+                    item.title ||
+                    item.name ||
+                    item.task ||
+                    "Untitled task";
 
 
-    /* ======================================
-       SAVE BIRTHDAY
-    ====================================== */
-
-    if (
-        msg.startsWith("my birthday is ")
-    ) {
-
-        memory.birthday =
-            text
-                .replace(
-                    /^my birthday is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return "🎂 Birthday saved.";
-
-    }
-
-
-    /* ======================================
-       SAVE FAVORITE COLOR
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my favorite color is "
-        )
-    ) {
-
-        memory.favoriteColor =
-            text
-                .replace(
-                    /^my favorite color is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return "🎨 Favorite color saved.";
-
-    }
-
-
-    /* ======================================
-       SAVE FAVORITE FOOD
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my favorite food is "
-        )
-    ) {
-
-        memory.favoriteFood =
-            text
-                .replace(
-                    /^my favorite food is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return "🍲 Favorite food saved.";
-
-    }
-
-
-    /* ======================================
-       SAVE FAVORITE CLUB
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my favorite club is "
-        )
-    ) {
-
-        memory.club =
-            text
-                .replace(
-                    /^my favorite club is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return "⚽ Favorite club saved.";
-
-    }
-
-
-    /* ======================================
-       SAVE PHONE
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my phone number is "
-        )
-    ) {
-
-        memory.phone =
-            text
-                .replace(
-                    /^my phone number is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return "📱 Phone number saved.";
-
-    }
-
-
-    /* ======================================
-       SAVE EMAIL
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my email is "
-        )
-    ) {
-
-        memory.email =
-            text
-                .replace(
-                    /^my email is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return "📧 Email saved.";
-
-    }
-
-
-    /* ======================================
-       RELATIONSHIP
-    ====================================== */
-
-    if (
-        msg === "i am single" ||
-        msg.startsWith("i am single ")
-    ) {
-
-        memory.relationship =
-            "Single";
-
-
-        saveMemory(memory);
-
-
-        return "❤️ I'll remember that you're single.";
-
-    }
-
-
-    if (
-        msg === "i am married" ||
-        msg.startsWith("i am married ")
-    ) {
-
-        memory.relationship =
-            "Married";
-
-
-        saveMemory(memory);
-
-
-        return "❤️ I'll remember that you're married.";
-
-    }
-
-
-    /* ======================================
-       SAVE DOG
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my dog's name is "
-        ) ||
-        msg.startsWith(
-            "my dogs name is "
-        )
-    ) {
-
-        memory.dog =
-            text
-                .replace(
-                    /^my dog's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my dogs name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "🐶 I'll remember that your dog's name is " +
-            memory.dog +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE GIRLFRIEND
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my girlfriend's name is "
-        ) ||
-        msg.startsWith(
-            "my girlfriends name is "
-        )
-    ) {
-
-        memory.girlfriend =
-            text
-                .replace(
-                    /^my girlfriend's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my girlfriends name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "❤️ I'll remember your girlfriend's name is " +
-            memory.girlfriend +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE MOTHER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my mother's name is "
-        ) ||
-        msg.startsWith(
-            "my mothers name is "
-        )
-    ) {
-
-        memory.mother =
-            text
-                .replace(
-                    /^my mother's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my mothers name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👩 I'll remember your mother's name is " +
-            memory.mother +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE FATHER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my father's name is "
-        ) ||
-        msg.startsWith(
-            "my fathers name is "
-        )
-    ) {
-
-        memory.father =
-            text
-                .replace(
-                    /^my father's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my fathers name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👨 I'll remember your father's name is " +
-            memory.father +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE BROTHER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my brother's name is "
-        ) ||
-        msg.startsWith(
-            "my brothers name is "
-        )
-    ) {
-
-        memory.brother =
-            text
-                .replace(
-                    /^my brother's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my brothers name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👦 I'll remember your brother's name is " +
-            memory.brother +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE SISTER
-    ====================================== */
-
-    if (
-        msg.startsWith(
-            "my sister's name is "
-        ) ||
-        msg.startsWith(
-            "my sisters name is "
-        )
-    ) {
-
-        memory.sister =
-            text
-                .replace(
-                    /^my sister's name is /i,
-                    ""
-                )
-                .replace(
-                    /^my sisters name is /i,
-                    ""
-                )
-                .trim();
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👧 I'll remember your sister's name is " +
-            memory.sister +
-            "."
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE LIKE
-    ====================================== */
-
-    if (
-        msg.startsWith("i like ")
-    ) {
-
-        const item =
-            text
-                .replace(
-                    /^i like /i,
-                    ""
-                )
-                .trim();
-
-
-        if (item) {
-
-            if (
-                !memory.likes.some(
-                    value =>
-                        value.toLowerCase() ===
-                        item.toLowerCase()
-                )
-            ) {
-
-                memory.likes.push(item);
+                reply +=
+                    `${index + 1}. ${title}\n`;
 
             }
-
-        }
-
-
-        saveMemory(memory);
-
-
-        return (
-            "😊 I'll remember that you like " +
-            item +
-            "."
         );
 
-    }
 
-
-    /* ======================================
-       SAVE DISLIKE
-    ====================================== */
-
-    if (
-        msg.startsWith("i don't like ")
-    ) {
-
-        const item =
-            text
-                .replace(
-                    /^i don't like /i,
-                    ""
-                )
-                .trim();
-
-
-        if (item) {
-
-            if (
-                !memory.dislikes.some(
-                    value =>
-                        value.toLowerCase() ===
-                        item.toLowerCase()
-                )
-            ) {
-
-                memory.dislikes.push(item);
-
-            }
-
-        }
-
-
-        saveMemory(memory);
-
-
-        return (
-            "👍 I'll remember that you don't like " +
-            item +
-            "."
-        );
+        return reply;
 
     }
 
 
-    /* ======================================
-       REMEMBER FACT
-    ====================================== */
-
-    if (
-        msg.startsWith("remember that ")
-    ) {
-
-        const fact =
-            text
-                .replace(
-                    /^remember that /i,
-                    ""
-                )
-                .trim();
-
-
-        if (fact) {
-
-            memory.facts.push(fact);
-
-        }
-
-
-        saveMemory(memory);
-
-
-        return (
-            "🧠 I have remembered: " +
-            fact
-        );
-
-    }
-
-
-    /* ======================================
-       RECALL NAME
-    ====================================== */
-
-    if (
-        msg.includes("what is my name") ||
-        msg.includes("who am i")
-    ) {
-
-        return memory.name
-            ? "😊 Your name is " +
-              memory.name +
-              "."
-            : "I don't know your name yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL LOCATION
-    ====================================== */
-
-    if (
-        msg.includes("where do i live")
-    ) {
-
-        return memory.city
-            ? "📍 You live in " +
-              memory.city +
-              "."
-            : "I don't know where you live yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL JOB
-    ====================================== */
-
-    if (
-        msg.includes("what is my job") ||
-        msg.includes("what do i do for work")
-    ) {
-
-        return memory.job
-            ? "💼 You work as " +
-              memory.job +
-              "."
-            : "I don't know your job yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL BIRTHDAY
-    ====================================== */
-
-    if (
-        msg.includes("when is my birthday")
-    ) {
-
-        return memory.birthday
-            ? "🎂 Your birthday is " +
-              memory.birthday +
-              "."
-            : "I don't know your birthday.";
-
-    }
-
-
-    /* ======================================
-       RECALL FAVORITE COLOR
-    ====================================== */
-
-    if (
-        msg.includes(
-            "what is my favorite color"
-        )
-    ) {
-
-        return memory.favoriteColor
-            ? "🎨 Your favorite color is " +
-              memory.favoriteColor +
-              "."
-            : "I don't know your favorite color.";
-
-    }
-
-
-    /* ======================================
-       RECALL FAVORITE FOOD
-    ====================================== */
-
-    if (
-        msg.includes(
-            "what is my favorite food"
-        )
-    ) {
-
-        return memory.favoriteFood
-            ? "🍲 Your favorite food is " +
-              memory.favoriteFood +
-              "."
-            : "I don't know your favorite food.";
-
-    }
-
-
-    /* ======================================
-       RECALL CLUB
-    ====================================== */
-
-    if (
-        msg.includes(
-            "what is my favorite club"
-        )
-    ) {
-
-        return memory.club
-            ? "⚽ Your favorite club is " +
-              memory.club +
-              "."
-            : "I don't know your favorite club.";
-
-    }
-
-
-    /* ======================================
-       RECALL DOG
-    ====================================== */
-
-    if (
-        msg.includes("what is my dog's name") ||
-        msg.includes("what is my dogs name") ||
-        msg.includes("who is my dog")
-    ) {
-
-        return memory.dog
-            ? "🐶 Your dog's name is " +
-              memory.dog +
-              "."
-            : "I don't know your dog's name yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL GIRLFRIEND
-    ====================================== */
-
-    if (
-        msg.includes("who is my girlfriend") ||
-        msg.includes(
-            "what is my girlfriend's name"
-        ) ||
-        msg.includes(
-            "what is my girlfriends name"
-        )
-    ) {
-
-        return memory.girlfriend
-            ? "❤️ Your girlfriend is " +
-              memory.girlfriend +
-              "."
-            : "I don't know your girlfriend yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL MOTHER
-    ====================================== */
-
-    if (
-        msg.includes("who is my mother")
-    ) {
-
-        return memory.mother
-            ? "👩 Your mother is " +
-              memory.mother +
-              "."
-            : "I don't know your mother's name yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL FATHER
-    ====================================== */
-
-    if (
-        msg.includes("who is my father")
-    ) {
-
-        return memory.father
-            ? "👨 Your father is " +
-              memory.father +
-              "."
-            : "I don't know your father's name yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL BROTHER
-    ====================================== */
-
-    if (
-        msg.includes("who is my brother")
-    ) {
-
-        return memory.brother
-            ? "👦 Your brother is " +
-              memory.brother +
-              "."
-            : "I don't know your brother's name yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL SISTER
-    ====================================== */
-
-    if (
-        msg.includes("who is my sister")
-    ) {
-
-        return memory.sister
-            ? "👧 Your sister is " +
-              memory.sister +
-              "."
-            : "I don't know your sister's name yet.";
-
-    }
-
-
-    /* ======================================
-       RECALL EVERYTHING
-    ====================================== */
-
-    if (
-        msg.includes(
-            "what do you remember about me"
-        ) ||
-        msg.includes(
-            "tell me what you know about me"
-        )
-    ) {
-
-        return buildMemorySummary(memory);
-
-    }
-
-
-    /* ======================================
-       FORGET MEMORY
-    ====================================== */
-
-    if (
-        msg.startsWith("forget my ")
-    ) {
-
-        return forgetMemory(
-            memory,
-            msg
-        );
-
-    }
-
-
-    /* ======================================
-       FORGET FACT
-    ====================================== */
-
-    if (
-        msg.startsWith("forget that ")
-    ) {
-
-        const fact =
-            text
-                .replace(
-                    /^forget that /i,
-                    ""
-                )
-                .trim();
-
-
-        memory.facts =
-            memory.facts.filter(
-                value =>
-                    value.toLowerCase() !==
-                    fact.toLowerCase()
-            );
-
-
-        saveMemory(memory);
-
-
-        return "🗑️ Done! I forgot that.";
-
-    }
-
-
-    /* ======================================
-       NO MEMORY COMMAND
-    ====================================== */
+    /*----------------------------------------
+    NO MATCH
+    ----------------------------------------*/
 
     return null;
 
 }
 
 
-/* ==========================================
-   MEMORY SUMMARY
-========================================== */
+/*==========================================
+GLOBAL EXPORTS
+==========================================*/
 
-function buildMemorySummary(memory) {
+window.aiRead =
+    aiRead;
 
-    let reply =
-        "🧠 Here's what I remember about you:\n\n";
+window.aiReadObject =
+    aiReadObject;
 
-    let hasData = false;
+window.getAIData =
+    getAIData;
 
+window.calculateProductivity =
+    calculateProductivity;
 
-    function add(label, value) {
+window.calculateWellness =
+    calculateWellness;
 
-        if (
-            value !== null &&
-            value !== undefined &&
-            String(value).trim() !== ""
-        ) {
+window.getTodayFocus =
+    getTodayFocus;
 
-            reply +=
-                label +
-                value +
-                "\n";
+window.getDailyBriefing =
+    getDailyBriefing;
 
-            hasData = true;
+window.getRecommendation =
+    getRecommendation;
 
-        }
+window.aiBrainReply =
+    aiBrainReply;
 
-    }
 
-
-    add("👤 Name: ", memory.name);
-
-    add("📍 Lives in: ", memory.city);
-
-    add("💼 Job: ", memory.job);
-
-    add("🎓 Study: ", memory.study);
-
-    add("🎂 Birthday: ", memory.birthday);
-
-    add("🎨 Favorite Color: ", memory.favoriteColor);
-
-    add("🍲 Favorite Food: ", memory.favoriteFood);
-
-    add("⚽ Favorite Club: ", memory.club);
-
-    add("📱 Phone: ", memory.phone);
-
-    add("📧 Email: ", memory.email);
-
-    add("❤️ Relationship: ", memory.relationship);
-
-    add("🐶 Dog: ", memory.dog);
-
-    add("❤️ Girlfriend: ", memory.girlfriend);
-
-    add("👩 Mother: ", memory.mother);
-
-    add("👨 Father: ", memory.father);
-
-    add("👦 Brother: ", memory.brother);
-
-    add("👧 Sister: ", memory.sister);
-
-
-    if (
-        memory.likes.length
-    ) {
-
-        reply +=
-            "\n😊 Likes:\n";
-
-        memory.likes.forEach(
-            item => {
-
-                reply +=
-                    "• " +
-                    item +
-                    "\n";
-
-            }
-        );
-
-        hasData = true;
-
-    }
-
-
-    if (
-        memory.dislikes.length
-    ) {
-
-        reply +=
-            "\n😒 Dislikes:\n";
-
-        memory.dislikes.forEach(
-            item => {
-
-                reply +=
-                    "• " +
-                    item +
-                    "\n";
-
-            }
-        );
-
-        hasData = true;
-
-    }
-
-
-    if (
-        memory.facts.length
-    ) {
-
-        reply +=
-            "\n💡 Facts:\n";
-
-        memory.facts.forEach(
-            item => {
-
-                reply +=
-                    "• " +
-                    item +
-                    "\n";
-
-            }
-        );
-
-        hasData = true;
-
-    }
-
-
-    if (!hasData) {
-
-        return (
-            "🧠 I don't know much about you yet."
-        );
-
-    }
-
-
-    return reply;
-
-}
-
-
-/* ==========================================
-   FORGET MEMORY
-========================================== */
-
-function forgetMemory(
-    memory,
-    msg
-) {
-
-    const item =
-        msg
-            .replace(
-                "forget my ",
-                ""
-            )
-            .trim();
-
-
-    const fields = {
-
-        "name": "name",
-
-        "city": "city",
-
-        "location": "city",
-
-        "job": "job",
-
-        "birthday": "birthday",
-
-        "favorite color": "favoriteColor",
-
-        "favorite food": "favoriteFood",
-
-        "favorite club": "club",
-
-        "phone": "phone",
-
-        "phone number": "phone",
-
-        "email": "email",
-
-        "relationship": "relationship",
-
-        "dog": "dog",
-
-        "girlfriend": "girlfriend",
-
-        "mother": "mother",
-
-        "father": "father",
-
-        "brother": "brother",
-
-        "sister": "sister"
-
-    };
-
-
-    const field =
-        fields[item];
-
-
-    if (!field) {
-
-        return (
-            "❌ I couldn't find that memory."
-        );
-
-    }
-
-
-    memory[field] = null;
-
-    saveMemory(memory);
-
-
-    return (
-        "🗑️ Done! I've forgotten your " +
-        item +
-        "."
-    );
-
-}
-
-
-/* ==========================================
-   GLOBAL EXPORTS
-========================================== */
-
-window.loadMemory = loadMemory;
-
-window.saveMemory = saveMemory;
-
-window.getMemory = getMemory;
-
-window.memoryReply = memoryReply;
-
+/*==========================================
+READY
+==========================================*/
 
 console.log(
-    "✅ memory.js loaded successfully"
+    "✅ brain.js loaded successfully"
 );
