@@ -2,9 +2,7 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -12,27 +10,18 @@
 
     <title>AI Life Assistant - Chat</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
 
-
 <body>
-
 
 <!-- ==========================================
      HEADER
 ========================================== -->
 
 <header class="chatHeader">
-
     <h1>🤖 AI Life Assistant</h1>
-
 </header>
-
 
 
 <!-- ==========================================
@@ -41,16 +30,14 @@
 
 <main class="chatPage">
 
-    <div
-        id="chatBox"
-        class="chatBox"
-    >
+    <div id="chatBox" class="chatBox">
 
         <div class="message ai">
 
             <div class="messageText">
 
-                👋 Hello Samuel!
+                👋 Hello
+                <span id="welcomeName">Samuel</span>!
 
                 <br><br>
 
@@ -69,13 +56,11 @@
 </main>
 
 
-
 <!-- ==========================================
      CHAT COMPOSER
 ========================================== -->
 
 <footer class="chatComposer">
-
 
     <button
         type="button"
@@ -114,9 +99,7 @@
         ➤
     </button>
 
-
 </footer>
-
 
 
 <!-- ==========================================
@@ -127,7 +110,6 @@
     id="attachmentMenu"
     class="attachmentMenu"
 >
-
 
     <button
         type="button"
@@ -152,16 +134,12 @@
         📄 File
     </button>
 
-
 </div>
-
 
 
 <!-- ==========================================
      HIDDEN FILE INPUTS
 ========================================== -->
-
-<!-- PHOTO -->
 
 <input
     type="file"
@@ -169,9 +147,6 @@
     accept="image/*"
     hidden
 >
-
-
-<!-- CAMERA -->
 
 <input
     type="file"
@@ -181,9 +156,6 @@
     hidden
 >
 
-
-<!-- FILE -->
-
 <input
     type="file"
     id="filePicker"
@@ -192,20 +164,16 @@
 >
 
 
-
 <!-- ==========================================
      BOTTOM NAVIGATION
 ========================================== -->
 
 <nav class="navbar">
 
-
     <a href="dashboard.html">
-
         🏠
         <br>
         Home
-
     </a>
 
 
@@ -213,154 +181,237 @@
         href="chat.html"
         class="active"
     >
-
         🤖
         <br>
         AI
-
     </a>
 
 
     <a href="notes.html">
-
         📝
         <br>
         Notes
-
     </a>
 
 
     <a href="calendar.html">
-
         📅
         <br>
         Calendar
-
     </a>
 
 
     <a href="profile.html">
-
         👤
         <br>
         Profile
-
     </a>
-
 
 </nav>
 
 
-
 <!-- ==========================================
-     CORE AI MODULES
+     CORE AI FILES
+     
+     IMPORTANT:
+     Load helper/module files FIRST.
+     Load smartAI AFTER them.
+     Load chat.js LAST.
 ========================================== -->
 
-<script src="js/helpers.js?v=6"></script>
+<script src="js/helpers.js?v=10"></script>
 
-<script src="js/conversation.js?v=6"></script>
+<script src="js/conversation.js?v=10"></script>
 
-<script src="js/knowledge.js?v=6"></script>
+<script src="js/knowledge.js?v=10"></script>
 
-<script src="js/calculator.js?v=6"></script>
+<script src="js/memory.js?v=10"></script>
 
-<script src="js/datetime.js?v=6"></script>
-
-<script src="js/tasks.js?v=6"></script>
-
-<script src="js/goals.js?v=6"></script>
-
-<script src="js/notes.js?v=6"></script>
-
-<script src="js/events.js?v=6"></script>
-
-<script src="js/natural.js?v=6"></script>
-
-<script src="js/weather.js?v=6"></script>
-
-<script src="js/search.js?v=6"></script>
-
-<script src="js/memory.js?v=6"></script>
-
-<script src="js/learnUser.js?v=6"></script>
-
-<script src="js/brain.js?v=6"></script>
-
-<script src="js/advice.js?v=6"></script>
-
-<script src="js/searchOnline.js?v=6"></script>
-
-<script src="js/food.js?v=6"></script>
-
-<script src="js/internet.js?v=6"></script>
-
-<script src="js/context.js?v=6"></script>
-
-<script src="js/teacher.js?v=6"></script>
-
-<script src="js/xp.js?v=6"></script>
-
-<script src="js/achievement.js?v=6"></script>
-
-<script src="js/quiz.js?v=6"></script>
-
-<script src="js/quizScore.js?v=6"></script>
-
-<script src="js/profileStats.js?v=6"></script>
-
-<script src="js/streak.js?v=6"></script>
-
-<script src="js/streakReply.js?v=6"></script>
-
-<script src="js/profileReply.js?v=6"></script>
-
+<script src="js/brain.js?v=10"></script>
 
 
 <!-- ==========================================
-     EXTERNAL LIBRARIES
+     OTHER AI MODULES
 ========================================== -->
 
-<!-- OCR -->
+<script src="js/calculator.js?v=10"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="js/datetime.js?v=10"></script>
 
+<script src="js/tasks.js?v=10"></script>
 
-<!-- DOCX -->
+<script src="js/goals.js?v=10"></script>
 
-<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<script src="js/notes.js?v=10"></script>
 
+<script src="js/events.js?v=10"></script>
+
+<script src="js/natural.js?v=10"></script>
+
+<script src="js/weather.js?v=10"></script>
+
+<script src="js/search.js?v=10"></script>
+
+<script src="js/learnUser.js?v=10"></script>
+
+<script src="js/advice.js?v=10"></script>
+
+<script src="js/searchOnline.js?v=10"></script>
+
+<script src="js/food.js?v=10"></script>
+
+<script src="js/internet.js?v=10"></script>
+
+<script src="js/context.js?v=10"></script>
+
+<script src="js/teacher.js?v=10"></script>
+
+<script src="js/xp.js?v=10"></script>
+
+<script src="js/achievement.js?v=10"></script>
+
+<script src="js/quiz.js?v=10"></script>
+
+<script src="js/quizScore.js?v=10"></script>
+
+<script src="js/profileStats.js?v=10"></script>
+
+<script src="js/streak.js?v=10"></script>
+
+<script src="js/streakReply.js?v=10"></script>
+
+<script src="js/profileReply.js?v=10"></script>
 
 
 <!-- ==========================================
-     ATTACHMENT SYSTEM
+     EXTERNAL DOCUMENT LIBRARIES
 ========================================== -->
 
-<script src="js/attachmentAI.js?v=6"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"
+></script>
+
+<script
+    src="https://unpkg.com/mammoth/mammoth.browser.min.js"
+></script>
 
 
-<!-- Load ONLY if the file exists -->
+<!-- ==========================================
+     ATTACHMENT AI
+========================================== -->
 
-<!--
-<script src="js/fileReader.js?v=6"></script>
--->
-
+<script src="js/attachmentAI.js?v=10"></script>
 
 
 <!-- ==========================================
      MAIN AI CONTROLLER
 ========================================== -->
 
-<script src="js/smartAI.js?v=6"></script>
-
+<script src="js/smartAI.js?v=10"></script>
 
 
 <!-- ==========================================
      CHAT CONTROLLER
-     MUST LOAD LAST
+     
+     MUST BE LAST
 ========================================== -->
 
-<script src="js/chat.js?v=6"></script>
+<script src="js/chat.js?v=10"></script>
 
+
+<!-- ==========================================
+     STARTUP TEST
+========================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    console.log("=================================");
+    console.log("🚀 AI LIFE ASSISTANT STARTUP");
+    console.log("=================================");
+
+    const sendButton =
+        document.getElementById("sendBtn");
+
+    const input =
+        document.getElementById("userInput");
+
+    const chat =
+        document.getElementById("chatBox");
+
+
+    console.log(
+        "chatBox:",
+        chat
+    );
+
+    console.log(
+        "userInput:",
+        input
+    );
+
+    console.log(
+        "sendBtn:",
+        sendButton
+    );
+
+    console.log(
+        "sendMessage:",
+        typeof window.sendMessage
+    );
+
+    console.log(
+        "aiReply:",
+        typeof window.aiReply
+    );
+
+    console.log(
+        "smartAIReply:",
+        typeof window.smartAIReply
+    );
+
+    console.log(
+        "conversationReply:",
+        typeof window.conversationReply
+    );
+
+    console.log(
+        "memoryReply:",
+        typeof window.memoryReply
+    );
+
+    console.log(
+        "brain:",
+        typeof window.aiBrainReply
+    );
+
+    console.log("=================================");
+
+
+    // Welcome name
+
+    const profileName =
+        localStorage.getItem("profileName");
+
+    const welcomeName =
+        document.getElementById("welcomeName");
+
+
+    if (
+        welcomeName &&
+        profileName
+    ) {
+
+        welcomeName.textContent =
+            profileName;
+
+    }
+
+
+});
+
+</script>
 
 </body>
 
