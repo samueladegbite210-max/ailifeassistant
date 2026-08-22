@@ -3,7 +3,7 @@
 // ==========================================
 // AI LIFE ASSISTANT
 // helpers.js
-// Version 6.0
+// Version 7.0
 // Shared Utility Functions
 // ==========================================
 
@@ -16,15 +16,11 @@ console.log("🛠️ helpers.js loading...");
 
 function safeString(value, fallback = "") {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
+    if (value === null || value === undefined) {
         return fallback;
     }
 
     return String(value);
-
 }
 
 
@@ -42,13 +38,26 @@ function normalizeText(value) {
 
 
 // ==========================================
+// NORMALIZE MESSAGE
+// IMPORTANT:
+// conversation.js uses this function.
+// ==========================================
+
+function normalizeMessage(value) {
+
+    return normalizeText(value)
+        .toLowerCase();
+
+}
+
+
+// ==========================================
 // LOWERCASE TEXT
 // ==========================================
 
 function lowerText(value) {
 
-    return normalizeText(value)
-        .toLowerCase();
+    return normalizeMessage(value);
 
 }
 
@@ -100,9 +109,7 @@ function safeJSONParse(
             value === undefined ||
             value === ""
         ) {
-
             return fallback;
-
         }
 
         return JSON.parse(value);
@@ -136,9 +143,7 @@ function readStorage(
             localStorage.getItem(key);
 
         if (value === null) {
-
             return fallback;
-
         }
 
         return safeJSONParse(
@@ -222,7 +227,7 @@ function removeStorage(key) {
 
 
 // ==========================================
-// GET PROFILE NAME
+// PROFILE NAME
 // ==========================================
 
 function getProfileName() {
@@ -230,13 +235,11 @@ function getProfileName() {
     try {
 
         return (
-            localStorage.getItem(
-                "profileName"
-            ) ||
+            localStorage.getItem("profileName") ||
             "Samuel"
         );
 
-    } catch {
+    } catch (error) {
 
         return "Samuel";
 
@@ -277,7 +280,9 @@ function getCurrentTime() {
 // DATE STRING
 // ==========================================
 
-function getDateString(date = new Date()) {
+function getDateString(
+    date = new Date()
+) {
 
     try {
 
@@ -299,8 +304,7 @@ function getDateString(date = new Date()) {
 
 function formatFileSize(bytes) {
 
-    const size =
-        Number(bytes);
+    const size = Number(bytes);
 
     if (
         !Number.isFinite(size) ||
@@ -311,7 +315,6 @@ function formatFileSize(bytes) {
 
     }
 
-
     const units = [
         "Bytes",
         "KB",
@@ -319,25 +322,19 @@ function formatFileSize(bytes) {
         "GB"
     ];
 
-
-    const index =
-        Math.min(
-            Math.floor(
-                Math.log(size) /
-                Math.log(1024)
-            ),
-            units.length - 1
-        );
-
+    const index = Math.min(
+        Math.floor(
+            Math.log(size) /
+            Math.log(1024)
+        ),
+        units.length - 1
+    );
 
     return (
         parseFloat(
             (
                 size /
-                Math.pow(
-                    1024,
-                    index
-                )
+                Math.pow(1024, index)
             ).toFixed(1)
         ) +
         " " +
@@ -348,7 +345,7 @@ function formatFileSize(bytes) {
 
 
 // ==========================================
-// ARRAY CHECK
+// SAFE ARRAY
 // ==========================================
 
 function safeArray(value) {
@@ -361,7 +358,7 @@ function safeArray(value) {
 
 
 // ==========================================
-// OBJECT CHECK
+// SAFE OBJECT
 // ==========================================
 
 function safeObject(
@@ -400,15 +397,13 @@ function uniqueArray(array) {
 
 
 // ==========================================
-// FIND ELEMENT
+// GET ELEMENT
 // ==========================================
 
 function getElement(id) {
 
     if (!id) {
-
         return null;
-
     }
 
     return document.getElementById(id);
@@ -432,7 +427,6 @@ async function safeCall(
         return fallback;
 
     }
-
 
     try {
 
@@ -492,6 +486,9 @@ window.safeString =
 
 window.normalizeText =
     normalizeText;
+
+window.normalizeMessage =
+    normalizeMessage;
 
 window.lowerText =
     lowerText;
@@ -557,4 +554,14 @@ window.functionExists =
 
 console.log(
     "✅ helpers.js loaded successfully"
+);
+
+console.log(
+    "🔎 normalizeMessage:",
+    typeof window.normalizeMessage
+);
+
+console.log(
+    "🔎 getProfileName:",
+    typeof window.getProfileName
 );
