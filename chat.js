@@ -1,15 +1,17 @@
 // ==========================================
 // AI LIFE ASSISTANT
 // chat.js
-// Version 4.0
-// Clean Chat Foundation
+// Version 10.0
+// STABLE CHAT CONTROLLER
 // ==========================================
 
 "use strict";
 
+console.log("💬 chat.js loading...");
+
 
 // ==========================================
-// ELEMENTS
+// DOM ELEMENTS
 // ==========================================
 
 const chatBox = document.getElementById("chatBox");
@@ -21,29 +23,57 @@ const attachBtn = document.getElementById("attachBtn");
 const attachmentMenu = document.getElementById("attachmentMenu");
 
 const imagePicker = document.getElementById("imagePicker");
+const cameraPicker = document.getElementById("cameraPicker");
 const filePicker = document.getElementById("filePicker");
 
-
-// ==========================================
-// ATTACHMENT STATE
-// ==========================================
-
-// IMPORTANT:
-// Do NOT declare currentAttachment again
-// inside smartAI.js.
-
-window.aiAttachment = null;
+const pickImageBtn = document.getElementById("pickImageBtn");
+const takePhotoBtn = document.getElementById("takePhotoBtn");
+const pickFileBtn = document.getElementById("pickFileBtn");
 
 
 // ==========================================
-// UPLOAD MEMORY
+// STARTUP CHECK
 // ==========================================
 
-window.uploadedFiles = window.uploadedFiles || [];
+console.log("💬 Chat elements:");
+
+console.log("chatBox =", chatBox);
+console.log("userInput =", userInput);
+console.log("sendBtn =", sendBtn);
+console.log("voiceBtn =", voiceBtn);
+console.log("attachBtn =", attachBtn);
 
 
 // ==========================================
-// HELPER — CURRENT TIME
+// GLOBAL UPLOAD MEMORY
+// ==========================================
+
+window.uploadedFiles =
+    Array.isArray(window.uploadedFiles)
+        ? window.uploadedFiles
+        : [];
+
+
+// ==========================================
+// GLOBAL ATTACHMENT
+// ==========================================
+
+if (!("aiAttachment" in window)) {
+
+    window.aiAttachment = null;
+
+}
+
+
+// ==========================================
+// STATE
+// ==========================================
+
+let isSending = false;
+
+
+// ==========================================
+// TIME
 // ==========================================
 
 function getCurrentTime() {
@@ -57,25 +87,27 @@ function getCurrentTime() {
 
 
 // ==========================================
-// HELPER — SCROLL CHAT
+// SCROLL
 // ==========================================
 
 function scrollBottom() {
 
     if (!chatBox) return;
 
-    chatBox.scrollTop = chatBox.scrollHeight;
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
 
 }
 
 
 // ==========================================
-// HELPER — ESCAPE TEXT
+// ESCAPE HTML
 // ==========================================
 
 function escapeHTML(value) {
 
     return String(value)
+
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -89,44 +121,72 @@ function escapeHTML(value) {
 // ADD MESSAGE
 // ==========================================
 
-function addMessage(type, text, html = false) {
+function addMessage(
+    type,
+    text,
+    isHTML = false
+) {
 
-    if (!chatBox) return;
+    if (!chatBox) {
 
-    const message = document.createElement("div");
+        console.error(
+            "❌ chatBox was not found."
+        );
 
-    message.className = "message " + type;
+        return;
+
+    }
 
 
-    const messageText = document.createElement("div");
+    const message =
+        document.createElement("div");
 
-    messageText.className = "messageText";
+    message.className =
+        "message " + type;
 
 
-    if (html) {
+    const messageText =
+        document.createElement("div");
 
-        messageText.innerHTML = text;
+    messageText.className =
+        "messageText";
+
+
+    if (isHTML) {
+
+        messageText.innerHTML =
+            text;
 
     } else {
 
         messageText.innerHTML =
-            escapeHTML(text).replace(/\n/g, "<br>");
+            escapeHTML(text)
+                .replace(/\n/g, "<br>");
 
     }
 
 
-    const messageTime = document.createElement("div");
+    const messageTime =
+        document.createElement("div");
 
-    messageTime.className = "messageTime";
+    messageTime.className =
+        "messageTime";
 
-    messageTime.textContent = getCurrentTime();
+    messageTime.textContent =
+        getCurrentTime();
 
 
-    message.appendChild(messageText);
+    message.appendChild(
+        messageText
+    );
 
-    message.appendChild(messageTime);
+    message.appendChild(
+        messageTime
+    );
 
-    chatBox.appendChild(message);
+    chatBox.appendChild(
+        message
+    );
 
 
     scrollBottom();
@@ -135,210 +195,57 @@ function addMessage(type, text, html = false) {
 
 
 // ==========================================
-// SEND MESSAGE
+// TYPING INDICATOR
 // ==========================================
 
-async function sendMessage(event) {
+function showTyping() {
 
-    if (event) {
+    hideTyping();
 
-        event.preventDefault();
-        event.stopPropagation();
-
-    }
-
-
-    if (!userInput) return;
-
-
-    const text = userInput.value.trim();
-
-
-    if (!text) return;
-
-
-    // Show user message
-
-    addMessage("user", text);
-
-
-    // Save conversation
-
-    if (typeof saveContext === "function") {
-
-        try {
-
-            saveContext("user", text);
-
-        } catch (error) {
-
-            console.error(
-                "saveContext error:",
-                error
-            );
-
-        }
-
-    }
-
-
-    // Clear input
-
-    userInput.value = "";
-
-    userInput.style.height = "48px";
-
-
-    updateComposer();
-
-
-    // Ask AI
-
-    await aiReply(text);
-
-}
-
-
-// ==========================================
-// AI REPLY
-// ==========================================
-
-async function aiReply(text) {
 
     if (!chatBox) return;
 
 
-    const typing = document.createElement("div");
+    const typing =
+        document.createElement("div");
+
+    typing.id =
+        "typingIndicator";
 
     typing.className =
-        "message ai typing";
+        "message ai";
 
 
     typing.innerHTML = `
+
         <div class="messageText">
             🤖 AI is typing...
         </div>
+
     `;
 
 
-    chatBox.appendChild(typing);
+    chatBox.appendChild(
+        typing
+    );
+
 
     scrollBottom();
 
-
-    // Disable composer
-
-    if (userInput) {
-
-        userInput.disabled = true;
-
-    }
+}
 
 
-    if (sendBtn) {
+function hideTyping() {
 
-        sendBtn.disabled = true;
-
-    }
-
-
-    try {
-
-        let reply;
-
-
-        if (
-            typeof smartAIReply === "function"
-        ) {
-
-            reply =
-                await smartAIReply(text);
-
-        } else {
-
-            reply =
-                "⚠️ AI controller is not connected.";
-
-        }
-
-
-        typing.remove();
-
-
-        if (reply !== null && reply !== undefined) {
-
-            addMessage(
-                "ai",
-                String(reply)
-            );
-
-        }
-
-
-        // Save AI response
-
-        if (
-            reply &&
-            typeof saveContext === "function"
-        ) {
-
-            try {
-
-                saveContext(
-                    "ai",
-                    String(reply)
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "AI saveContext error:",
-                    error
-                );
-
-            }
-
-        }
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "AI Reply Error:",
-            error
+    const typing =
+        document.getElementById(
+            "typingIndicator"
         );
 
 
+    if (typing) {
+
         typing.remove();
-
-
-        addMessage(
-            "ai",
-            "⚠️ Sorry, something went wrong while processing your message."
-        );
-
-    }
-
-    finally {
-
-        if (userInput) {
-
-            userInput.disabled = false;
-
-            userInput.focus();
-
-        }
-
-
-        if (sendBtn) {
-
-            sendBtn.disabled = false;
-
-        }
-
-
-        updateComposer();
 
     }
 
@@ -351,7 +258,11 @@ async function aiReply(text) {
 
 function updateComposer() {
 
-    if (!userInput || !sendBtn) return;
+    if (!userInput || !sendBtn) {
+
+        return;
+
+    }
 
 
     const hasText =
@@ -360,25 +271,29 @@ function updateComposer() {
 
     if (hasText) {
 
-        sendBtn.classList.add("active");
+        sendBtn.classList.add(
+            "active"
+        );
 
 
         if (voiceBtn) {
 
-            voiceBtn.style.display = "none";
+            voiceBtn.style.display =
+                "none";
 
         }
 
-    }
+    } else {
 
-    else {
-
-        sendBtn.classList.remove("active");
+        sendBtn.classList.remove(
+            "active"
+        );
 
 
         if (voiceBtn) {
 
-            voiceBtn.style.display = "flex";
+            voiceBtn.style.display =
+                "flex";
 
         }
 
@@ -388,7 +303,350 @@ function updateComposer() {
 
 
 // ==========================================
-// TEXTAREA AUTO EXPAND
+// SEND MESSAGE
+// ==========================================
+
+async function sendMessage(event) {
+
+    // Prevent button/form default behavior
+
+    if (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+    }
+
+
+    console.log(
+        "🚀 sendMessage() called"
+    );
+
+
+    // --------------------------------------
+    // Check input
+    // --------------------------------------
+
+    if (!userInput) {
+
+        console.error(
+            "❌ userInput not found."
+        );
+
+        return;
+
+    }
+
+
+    // --------------------------------------
+    // Prevent double sending
+    // --------------------------------------
+
+    if (isSending) {
+
+        console.log(
+            "⏳ Message already processing."
+        );
+
+        return;
+
+    }
+
+
+    const text =
+        userInput.value.trim();
+
+
+    console.log(
+        "📝 User message:",
+        text
+    );
+
+
+    // --------------------------------------
+    // Empty message
+    // --------------------------------------
+
+    if (!text) {
+
+        console.log(
+            "⚠️ Empty message."
+        );
+
+        return;
+
+    }
+
+
+    isSending = true;
+
+
+    // --------------------------------------
+    // Show user message
+    // --------------------------------------
+
+    addMessage(
+        "user",
+        text
+    );
+
+
+    // --------------------------------------
+    // Save user context
+    // --------------------------------------
+
+    try {
+
+        if (
+            typeof window.saveContext ===
+            "function"
+        ) {
+
+            window.saveContext(
+                "user",
+                text
+            );
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "⚠️ saveContext failed:",
+            error
+        );
+
+    }
+
+
+    // --------------------------------------
+    // Clear input
+    // --------------------------------------
+
+    userInput.value = "";
+
+    userInput.style.height =
+        "auto";
+
+
+    updateComposer();
+
+
+    // --------------------------------------
+    // Generate AI response
+    // --------------------------------------
+
+    await aiReply(text);
+
+}
+
+
+// ==========================================
+// AI REPLY
+// ==========================================
+
+async function aiReply(text) {
+
+    console.log(
+        "🧠 aiReply() started:",
+        text
+    );
+
+
+    showTyping();
+
+
+    // Disable input while processing
+
+    if (userInput) {
+
+        userInput.disabled =
+            true;
+
+    }
+
+
+    if (sendBtn) {
+
+        sendBtn.disabled =
+            true;
+
+    }
+
+
+    try {
+
+        let reply = null;
+
+
+        // ----------------------------------
+        // Check AI controller
+        // ----------------------------------
+
+        if (
+            typeof window.smartAIReply !==
+            "function"
+        ) {
+
+            throw new Error(
+                "smartAIReply() is not loaded."
+            );
+
+        }
+
+
+        console.log(
+            "🧠 Calling smartAIReply()..."
+        );
+
+
+        // ----------------------------------
+        // CALL MAIN AI
+        // ----------------------------------
+
+        reply =
+            await window.smartAIReply(
+                text
+            );
+
+
+        console.log(
+            "🤖 AI response:",
+            reply
+        );
+
+
+        hideTyping();
+
+
+        // ----------------------------------
+        // Empty response
+        // ----------------------------------
+
+        if (
+            reply === null ||
+            reply === undefined ||
+            String(reply).trim() === ""
+        ) {
+
+            reply =
+                "🤖 I couldn't generate a response.";
+
+        }
+
+
+        // ----------------------------------
+        // Show AI response
+        // ----------------------------------
+
+        addMessage(
+            "ai",
+            String(reply)
+        );
+
+
+        // ----------------------------------
+        // Save AI context
+        // ----------------------------------
+
+        try {
+
+            if (
+                typeof window.saveContext ===
+                "function"
+            ) {
+
+                window.saveContext(
+                    "ai",
+                    String(reply)
+                );
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "⚠️ AI context save failed:",
+                error
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ AI REPLY ERROR:",
+            error
+        );
+
+
+        hideTyping();
+
+
+        addMessage(
+            "ai",
+            "⚠️ I couldn't process that message.\n\n" +
+            "Error: " +
+            error.message
+        );
+
+    } finally {
+
+        // ----------------------------------
+        // ALWAYS UNLOCK CHAT
+        // ----------------------------------
+
+        isSending =
+            false;
+
+
+        if (userInput) {
+
+            userInput.disabled =
+                false;
+
+            userInput.focus();
+
+        }
+
+
+        if (sendBtn) {
+
+            sendBtn.disabled =
+                false;
+
+        }
+
+
+        updateComposer();
+
+
+        console.log(
+            "✅ Chat ready."
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// MAKE FUNCTIONS GLOBAL
+// ==========================================
+
+window.sendMessage =
+    sendMessage;
+
+window.aiReply =
+    aiReply;
+
+window.addMessage =
+    addMessage;
+
+
+// ==========================================
+// TEXTAREA INPUT
 // ==========================================
 
 if (userInput) {
@@ -397,10 +655,13 @@ if (userInput) {
         "input",
         function () {
 
-            this.style.height = "48px";
+            this.style.height =
+                "auto";
+
 
             this.style.height =
                 this.scrollHeight + "px";
+
 
             updateComposer();
 
@@ -419,7 +680,7 @@ if (userInput) {
 
                 event.preventDefault();
 
-                sendMessage();
+                sendMessage(event);
 
             }
 
@@ -437,7 +698,22 @@ if (sendBtn) {
 
     sendBtn.addEventListener(
         "click",
-        sendMessage
+        function (event) {
+
+            console.log(
+                "🟢 SEND BUTTON CLICKED"
+            );
+
+
+            sendMessage(event);
+
+        }
+    );
+
+} else {
+
+    console.error(
+        "❌ sendBtn NOT FOUND."
     );
 
 }
@@ -451,7 +727,9 @@ function openAttachmentMenu() {
 
     if (!attachmentMenu) return;
 
-    attachmentMenu.classList.add("show");
+    attachmentMenu.classList.add(
+        "show"
+    );
 
 }
 
@@ -460,7 +738,9 @@ function closeAttachmentMenu() {
 
     if (!attachmentMenu) return;
 
-    attachmentMenu.classList.remove("show");
+    attachmentMenu.classList.remove(
+        "show"
+    );
 
 }
 
@@ -469,7 +749,9 @@ function toggleAttachmentMenu() {
 
     if (!attachmentMenu) return;
 
-    attachmentMenu.classList.toggle("show");
+    attachmentMenu.classList.toggle(
+        "show"
+    );
 
 }
 
@@ -485,6 +767,7 @@ if (attachBtn) {
         function (event) {
 
             event.preventDefault();
+
             event.stopPropagation();
 
             toggleAttachmentMenu();
@@ -496,7 +779,7 @@ if (attachBtn) {
 
 
 // ==========================================
-// CLOSE ATTACHMENT MENU
+// CLOSE MENU WHEN CLICKING OUTSIDE
 // ==========================================
 
 document.addEventListener(
@@ -507,7 +790,9 @@ document.addEventListener(
 
 
         if (
-            !attachmentMenu.contains(event.target) &&
+            !attachmentMenu.contains(
+                event.target
+            ) &&
             event.target !== attachBtn
         ) {
 
@@ -525,11 +810,21 @@ document.addEventListener(
 
 function pickImage() {
 
-    if (!imagePicker) return;
+    if (!imagePicker) {
+
+        console.error(
+            "❌ imagePicker not found."
+        );
+
+        return;
+
+    }
+
 
     imagePicker.removeAttribute(
         "capture"
     );
+
 
     imagePicker.click();
 
@@ -538,63 +833,149 @@ function pickImage() {
 
 function takePhoto() {
 
-    if (!imagePicker) return;
+    if (!cameraPicker) {
 
-    imagePicker.setAttribute(
-        "capture",
-        "environment"
-    );
+        console.error(
+            "❌ cameraPicker not found."
+        );
 
-    imagePicker.click();
+        return;
+
+    }
+
+
+    cameraPicker.click();
 
 }
 
 
-// ==========================================
-// FILE PICKER
-// ==========================================
-
 function pickFile() {
 
-    if (!filePicker) return;
+    if (!filePicker) {
+
+        console.error(
+            "❌ filePicker not found."
+        );
+
+        return;
+
+    }
+
 
     filePicker.click();
 
 }
 
 
+// Make attachment functions global
+
+window.pickImage =
+    pickImage;
+
+window.takePhoto =
+    takePhoto;
+
+window.pickFile =
+    pickFile;
+
+
 // ==========================================
 // IMAGE UPLOAD
 // ==========================================
 
-if (imagePicker) {
+if (pickImageBtn) {
 
-    imagePicker.addEventListener(
-        "change",
-        handleImageUpload
+    pickImageBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            pickImage();
+
+            closeAttachmentMenu();
+
+        }
     );
 
 }
 
 
-function handleImageUpload() {
+if (takePhotoBtn) {
+
+    takePhotoBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            takePhoto();
+
+            closeAttachmentMenu();
+
+        }
+    );
+
+}
+
+
+if (imagePicker) {
+
+    imagePicker.addEventListener(
+        "change",
+        function () {
+
+            processImage(
+                imagePicker
+            );
+
+        }
+    );
+
+}
+
+
+if (cameraPicker) {
+
+    cameraPicker.addEventListener(
+        "change",
+        function () {
+
+            processImage(
+                cameraPicker
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// PROCESS IMAGE
+// ==========================================
+
+function processImage(input) {
 
     const file =
-        imagePicker.files &&
-        imagePicker.files[0];
+        input.files &&
+        input.files[0];
 
 
     if (!file) return;
 
 
-    if (!file.type.startsWith("image/")) {
+    if (
+        !file.type ||
+        !file.type.startsWith("image/")
+    ) {
 
         addMessage(
             "ai",
             "⚠️ Please select a valid image."
         );
 
-        imagePicker.value = "";
+        input.value = "";
 
         return;
 
@@ -605,83 +986,91 @@ function handleImageUpload() {
         new FileReader();
 
 
-    reader.onload = function (event) {
+    reader.onload =
+        function (event) {
 
-        const imageData =
-            event.target.result;
+            const imageData =
+                event.target.result;
 
 
-        // Store attachment globally
+            window.aiAttachment = {
 
-        window.aiAttachment = {
+                type: "image",
 
-            type: "image",
+                name: file.name,
 
-            name: file.name,
+                mimeType: file.type,
 
-            mimeType: file.type,
+                size: file.size,
 
-            size: file.size,
+                data: imageData,
 
-            data: imageData,
+                file: file,
 
-            file: file,
+                date:
+                    new Date().toISOString()
 
-            date: new Date().toISOString()
+            };
+
+
+            addMessage(
+                "user",
+
+                `<img
+                    src="${imageData}"
+                    class="chatImage"
+                    alt="Uploaded image"
+                >`,
+
+                true
+            );
+
+
+            rememberUpload(
+                file,
+                "image"
+            );
+
+
+            addMessage(
+                "ai",
+                "📷 Image received.\n\n" +
+                "You can ask me to:\n" +
+                "📝 Read the text\n" +
+                "👀 Describe the image\n" +
+                "🔍 Analyze the image"
+            );
+
+
+            input.value = "";
+
+            input.removeAttribute(
+                "capture"
+            );
+
+
+            closeAttachmentMenu();
 
         };
 
 
-        // Display image
+    reader.onerror =
+        function () {
 
-        addMessage(
-            "user",
-            `
-            <img
-                src="${imageData}"
-                class="chatImage"
-                alt="Uploaded image"
-            >
-            `,
-            true
-        );
+            console.error(
+                "❌ Image FileReader error"
+            );
 
 
-        // Save upload
-
-        rememberUpload(
-            file,
-            "image"
-        );
+            addMessage(
+                "ai",
+                "⚠️ I couldn't read that image."
+            );
 
 
-        addMessage(
-            "ai",
-            "📷 Image received. You can now ask me to read the text, describe it, or analyze it."
-        );
+            input.value = "";
 
-
-        imagePicker.value = "";
-
-        imagePicker.removeAttribute(
-            "capture"
-        );
-
-        closeAttachmentMenu();
-
-    };
-
-
-    reader.onerror = function () {
-
-        addMessage(
-            "ai",
-            "⚠️ I couldn't read that image."
-        );
-
-        imagePicker.value = "";
-
-    };
+        };
 
 
     reader.readAsDataURL(file);
@@ -693,27 +1082,53 @@ function handleImageUpload() {
 // FILE UPLOAD
 // ==========================================
 
-if (filePicker) {
+if (pickFileBtn) {
 
-    filePicker.addEventListener(
-        "change",
-        handleFileUpload
+    pickFileBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            pickFile();
+
+            closeAttachmentMenu();
+
+        }
     );
 
 }
 
 
-function handleFileUpload() {
+if (filePicker) {
+
+    filePicker.addEventListener(
+        "change",
+        function () {
+
+            processFile(
+                filePicker
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// PROCESS FILE
+// ==========================================
+
+function processFile(input) {
 
     const file =
-        filePicker.files &&
-        filePicker.files[0];
+        input.files &&
+        input.files[0];
 
 
     if (!file) return;
 
-
-    // Store attachment globally
 
     window.aiAttachment = {
 
@@ -729,15 +1144,15 @@ function handleFileUpload() {
 
         file: file,
 
-        date: new Date().toISOString()
+        date:
+            new Date().toISOString()
 
     };
 
 
-    // Display file
-
     addMessage(
         "user",
+
         `
         <div class="chatFile">
 
@@ -759,11 +1174,10 @@ function handleFileUpload() {
 
         </div>
         `,
+
         true
     );
 
-
-    // Save upload
 
     rememberUpload(
         file,
@@ -773,11 +1187,12 @@ function handleFileUpload() {
 
     addMessage(
         "ai",
-        `📄 ${file.name} received. You can now ask me to read or summarize it.`
+        `📄 ${file.name} received.\n\n` +
+        "You can ask me to read, explain, or summarize it."
     );
 
 
-    filePicker.value = "";
+    input.value = "";
 
     closeAttachmentMenu();
 
@@ -790,7 +1205,11 @@ function handleFileUpload() {
 
 function formatFileSize(bytes) {
 
-    if (!bytes) return "0 Bytes";
+    if (!bytes || bytes <= 0) {
+
+        return "0 Bytes";
+
+    }
 
 
     const units = [
@@ -802,22 +1221,20 @@ function formatFileSize(bytes) {
 
 
     const index =
-        Math.floor(
-            Math.log(bytes) /
-            Math.log(1024)
+        Math.min(
+            Math.floor(
+                Math.log(bytes) /
+                Math.log(1024)
+            ),
+            units.length - 1
         );
 
 
     return (
-        parseFloat(
-            (
-                bytes /
-                Math.pow(
-                    1024,
-                    index
-                )
-            ).toFixed(1)
-        )
+        (
+            bytes /
+            Math.pow(1024, index)
+        ).toFixed(1)
         +
         " " +
         units[index]
@@ -827,12 +1244,20 @@ function formatFileSize(bytes) {
 
 
 // ==========================================
-// UPLOAD MEMORY
+// REMEMBER UPLOAD
 // ==========================================
 
-function rememberUpload(file, type) {
+function rememberUpload(
+    file,
+    type
+) {
 
-    if (!window.uploadedFiles) {
+    if (!file) return;
+
+
+    if (!Array.isArray(
+        window.uploadedFiles
+    )) {
 
         window.uploadedFiles = [];
 
@@ -848,8 +1273,7 @@ function rememberUpload(file, type) {
         size: file.size,
 
         date:
-            new Date()
-            .toLocaleString()
+            new Date().toISOString()
 
     });
 
@@ -857,12 +1281,41 @@ function rememberUpload(file, type) {
 
 
 // ==========================================
-// GET UPLOADED FILES
+// GET UPLOADS
 // ==========================================
 
 function getUploadedFiles() {
 
-    return window.uploadedFiles || [];
+    return Array.isArray(
+        window.uploadedFiles
+    )
+        ? window.uploadedFiles
+        : [];
+
+}
+
+
+window.getUploadedFiles =
+    getUploadedFiles;
+
+
+// ==========================================
+// VOICE
+// ==========================================
+
+if (voiceBtn) {
+
+    voiceBtn.addEventListener(
+        "click",
+        function () {
+
+            addMessage(
+                "ai",
+                "🎤 Voice input is coming soon."
+            );
+
+        }
+    );
 
 }
 
@@ -875,5 +1328,23 @@ updateComposer();
 
 
 console.log(
-    "✅ AI Life Assistant chat.js loaded successfully"
+    "================================="
+);
+
+console.log(
+    "✅ chat.js VERSION 10 LOADED"
+);
+
+console.log(
+    "sendMessage:",
+    typeof window.sendMessage
+);
+
+console.log(
+    "aiReply:",
+    typeof window.aiReply
+);
+
+console.log(
+    "================================="
 );
