@@ -1,23 +1,26 @@
 "use strict";
 
-/* ==========================================
-   AI LIFE ASSISTANT
-   helpers.js
-   Version 1.0
-   Shared Utility Functions
-========================================== */
+// ==========================================
+// AI LIFE ASSISTANT
+// helpers.js
+// Version 6.0
+// Shared Utility Functions
+// ==========================================
 
 console.log("🛠️ helpers.js loading...");
 
 
-/* ==========================================
-   SAFE STRING
-========================================== */
+// ==========================================
+// SAFE STRING
+// ==========================================
 
-function safeString(value) {
+function safeString(value, fallback = "") {
 
-    if (value === null || value === undefined) {
-        return "";
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return fallback;
     }
 
     return String(value);
@@ -25,22 +28,34 @@ function safeString(value) {
 }
 
 
-/* ==========================================
-   NORMALIZE MESSAGE
-========================================== */
+// ==========================================
+// NORMALIZE TEXT
+// ==========================================
 
-function normalizeMessage(value) {
+function normalizeText(value) {
 
     return safeString(value)
-        .toLowerCase()
-        .trim();
+        .trim()
+        .replace(/\s+/g, " ");
 
 }
 
 
-/* ==========================================
-   ESCAPE HTML
-========================================== */
+// ==========================================
+// LOWERCASE TEXT
+// ==========================================
+
+function lowerText(value) {
+
+    return normalizeText(value)
+        .toLowerCase();
+
+}
+
+
+// ==========================================
+// ESCAPE HTML
+// ==========================================
 
 function escapeHTML(value) {
 
@@ -54,68 +69,66 @@ function escapeHTML(value) {
 }
 
 
-/* ==========================================
-   CHECK EMPTY VALUE
-========================================== */
+// ==========================================
+// CHECK EMPTY VALUE
+// ==========================================
 
 function isEmpty(value) {
 
     return (
         value === null ||
         value === undefined ||
-        safeString(value).trim() === ""
+        String(value).trim() === ""
     );
 
 }
 
 
-/* ==========================================
-   GET PROFILE NAME
-========================================== */
+// ==========================================
+// SAFE JSON PARSE
+// ==========================================
 
-function getProfileName() {
+function safeJSONParse(
+    value,
+    fallback = null
+) {
 
-    return (
-        localStorage.getItem("profileName") ||
-        "Samuel"
-    );
+    try {
 
-}
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
 
+            return fallback;
 
-/* ==========================================
-   CURRENT DATE
-========================================== */
+        }
 
-function getCurrentDate() {
+        return JSON.parse(value);
 
-    return new Date().toLocaleDateString();
+    } catch (error) {
 
-}
+        console.warn(
+            "⚠️ JSON parse failed:",
+            error
+        );
 
+        return fallback;
 
-/* ==========================================
-   CURRENT TIME
-========================================== */
-
-function getCurrentTime() {
-
-    return new Date().toLocaleTimeString([], {
-
-        hour: "2-digit",
-
-        minute: "2-digit"
-
-    });
+    }
 
 }
 
 
-/* ==========================================
-   SAFE LOCAL STORAGE READ
-========================================== */
+// ==========================================
+// READ LOCAL STORAGE
+// ==========================================
 
-function readStorage(key, fallback = null) {
+function readStorage(
+    key,
+    fallback = null
+) {
 
     try {
 
@@ -128,7 +141,10 @@ function readStorage(key, fallback = null) {
 
         }
 
-        return JSON.parse(value);
+        return safeJSONParse(
+            value,
+            fallback
+        );
 
     } catch (error) {
 
@@ -145,11 +161,14 @@ function readStorage(key, fallback = null) {
 }
 
 
-/* ==========================================
-   SAFE LOCAL STORAGE WRITE
-========================================== */
+// ==========================================
+// WRITE LOCAL STORAGE
+// ==========================================
 
-function writeStorage(key, value) {
+function writeStorage(
+    key,
+    value
+) {
 
     try {
 
@@ -175,32 +194,164 @@ function writeStorage(key, value) {
 }
 
 
-/* ==========================================
-   GENERATE ID
-========================================== */
+// ==========================================
+// REMOVE STORAGE
+// ==========================================
 
-function generateID(prefix = "id") {
+function removeStorage(key) {
 
-    return (
+    try {
 
-        prefix +
-        "_" +
-        Date.now() +
-        "_" +
-        Math.random()
-            .toString(36)
-            .substring(2, 8)
+        localStorage.removeItem(key);
 
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "❌ Storage remove failed:",
+            key,
+            error
+        );
+
+        return false;
+
+    }
+
+}
+
+
+// ==========================================
+// GET PROFILE NAME
+// ==========================================
+
+function getProfileName() {
+
+    try {
+
+        return (
+            localStorage.getItem(
+                "profileName"
+            ) ||
+            "Samuel"
+        );
+
+    } catch {
+
+        return "Samuel";
+
+    }
+
+}
+
+
+// ==========================================
+// CURRENT DATE
+// ==========================================
+
+function getCurrentDate() {
+
+    return new Date();
+
+}
+
+
+// ==========================================
+// CURRENT TIME
+// ==========================================
+
+function getCurrentTime() {
+
+    return new Date().toLocaleTimeString(
+        [],
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
     );
 
 }
 
 
-/* ==========================================
-   ARRAY CHECK
-========================================== */
+// ==========================================
+// DATE STRING
+// ==========================================
 
-function ensureArray(value) {
+function getDateString(date = new Date()) {
+
+    try {
+
+        return new Date(date)
+            .toLocaleDateString();
+
+    } catch {
+
+        return "";
+
+    }
+
+}
+
+
+// ==========================================
+// FORMAT FILE SIZE
+// ==========================================
+
+function formatFileSize(bytes) {
+
+    const size =
+        Number(bytes);
+
+    if (
+        !Number.isFinite(size) ||
+        size <= 0
+    ) {
+
+        return "0 Bytes";
+
+    }
+
+
+    const units = [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+
+    const index =
+        Math.min(
+            Math.floor(
+                Math.log(size) /
+                Math.log(1024)
+            ),
+            units.length - 1
+        );
+
+
+    return (
+        parseFloat(
+            (
+                size /
+                Math.pow(
+                    1024,
+                    index
+                )
+            ).toFixed(1)
+        ) +
+        " " +
+        units[index]
+    );
+
+}
+
+
+// ==========================================
+// ARRAY CHECK
+// ==========================================
+
+function safeArray(value) {
 
     return Array.isArray(value)
         ? value
@@ -209,11 +360,14 @@ function ensureArray(value) {
 }
 
 
-/* ==========================================
-   OBJECT CHECK
-========================================== */
+// ==========================================
+// OBJECT CHECK
+// ==========================================
 
-function ensureObject(value) {
+function safeObject(
+    value,
+    fallback = {}
+) {
 
     if (
         value &&
@@ -225,114 +379,181 @@ function ensureObject(value) {
 
     }
 
-    return {};
+    return fallback;
 
 }
 
 
-/* ==========================================
-   FORMAT FILE SIZE
-========================================== */
+// ==========================================
+// UNIQUE ARRAY
+// ==========================================
 
-function formatFileSize(bytes) {
+function uniqueArray(array) {
 
-    bytes = Number(bytes) || 0;
+    return [
+        ...new Set(
+            safeArray(array)
+        )
+    ];
 
-    if (bytes < 1024) {
+}
 
-        return bytes + " Bytes";
+
+// ==========================================
+// FIND ELEMENT
+// ==========================================
+
+function getElement(id) {
+
+    if (!id) {
+
+        return null;
 
     }
 
-    if (bytes < 1024 * 1024) {
+    return document.getElementById(id);
 
-        return (
-            (bytes / 1024).toFixed(1) +
-            " KB"
+}
+
+
+// ==========================================
+// SAFE FUNCTION CALL
+// ==========================================
+
+async function safeCall(
+    fn,
+    fallback = null
+) {
+
+    if (
+        typeof fn !== "function"
+    ) {
+
+        return fallback;
+
+    }
+
+
+    try {
+
+        return await fn();
+
+    } catch (error) {
+
+        console.error(
+            "❌ Function error:",
+            error
         );
 
-    }
-
-    if (bytes < 1024 * 1024 * 1024) {
-
-        return (
-            (bytes / (1024 * 1024)).toFixed(1) +
-            " MB"
-        );
+        return fallback;
 
     }
+
+}
+
+
+// ==========================================
+// DELAY
+// ==========================================
+
+function delay(ms = 0) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                ms
+            )
+    );
+
+}
+
+
+// ==========================================
+// CHECK FUNCTION
+// ==========================================
+
+function functionExists(name) {
 
     return (
-        (bytes / (1024 * 1024 * 1024)).toFixed(1) +
-        " GB"
+        typeof window[name] ===
+        "function"
     );
 
 }
 
 
-/* ==========================================
-   DELAY
-========================================== */
+// ==========================================
+// GLOBAL EXPORTS
+// ==========================================
 
-function delay(ms) {
+window.safeString =
+    safeString;
 
-    return new Promise(function(resolve) {
+window.normalizeText =
+    normalizeText;
 
-        setTimeout(resolve, ms);
+window.lowerText =
+    lowerText;
 
-    });
+window.escapeHTML =
+    escapeHTML;
 
-}
+window.isEmpty =
+    isEmpty;
+
+window.safeJSONParse =
+    safeJSONParse;
+
+window.readStorage =
+    readStorage;
+
+window.writeStorage =
+    writeStorage;
+
+window.removeStorage =
+    removeStorage;
+
+window.getProfileName =
+    getProfileName;
+
+window.getCurrentDate =
+    getCurrentDate;
+
+window.getCurrentTime =
+    getCurrentTime;
+
+window.getDateString =
+    getDateString;
+
+window.formatFileSize =
+    formatFileSize;
+
+window.safeArray =
+    safeArray;
+
+window.safeObject =
+    safeObject;
+
+window.uniqueArray =
+    uniqueArray;
+
+window.getElement =
+    getElement;
+
+window.safeCall =
+    safeCall;
+
+window.delay =
+    delay;
+
+window.functionExists =
+    functionExists;
 
 
-/* ==========================================
-   DEBUG LOGGER
-========================================== */
-
-function aiLog(...args) {
-
-    console.log(
-        "🤖 AI Life Assistant:",
-        ...args
-    );
-
-}
-
-
-/* ==========================================
-   GLOBAL EXPORTS
-========================================== */
-
-window.safeString = safeString;
-
-window.normalizeMessage = normalizeMessage;
-
-window.escapeHTML = escapeHTML;
-
-window.isEmpty = isEmpty;
-
-window.getProfileName = getProfileName;
-
-window.getCurrentDate = getCurrentDate;
-
-window.getCurrentTime = getCurrentTime;
-
-window.readStorage = readStorage;
-
-window.writeStorage = writeStorage;
-
-window.generateID = generateID;
-
-window.ensureArray = ensureArray;
-
-window.ensureObject = ensureObject;
-
-window.formatFileSize = formatFileSize;
-
-window.delay = delay;
-
-window.aiLog = aiLog;
-
+// ==========================================
+// READY
+// ==========================================
 
 console.log(
     "✅ helpers.js loaded successfully"
