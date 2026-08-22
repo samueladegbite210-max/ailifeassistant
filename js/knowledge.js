@@ -1,161 +1,318 @@
-alert("Knowledge loaded");
-function knowledgeReply(msg){
+"use strict";
 
-    if(msg.includes("what is ai")){
-        return "🤖 Artificial Intelligence (AI) enables computers to perform tasks that normally require human intelligence.";
+/* ==========================================
+   AI LIFE ASSISTANT
+   knowledge.js
+   Version 1.0
+   Basic Knowledge Engine
+========================================== */
+
+console.log("📚 knowledge.js loading...");
+
+
+/* ==========================================
+   KNOWLEDGE DATABASE
+========================================== */
+
+const aiKnowledge = {
+
+    /* --------------------------------------
+       AI
+    -------------------------------------- */
+
+    ai: {
+        keywords: [
+            "artificial intelligence",
+            "what is ai",
+            "define ai"
+        ],
+
+        answer:
+            "🤖 Artificial Intelligence (AI) is technology that allows computers to perform tasks that normally require human intelligence, such as understanding language, recognizing images, learning patterns, and solving problems."
+    },
+
+
+    /* --------------------------------------
+       MACHINE LEARNING
+    -------------------------------------- */
+
+    machineLearning: {
+        keywords: [
+            "machine learning",
+            "what is machine learning"
+        ],
+
+        answer:
+            "🧠 Machine learning is a branch of AI where computers learn patterns from data and use those patterns to make predictions or decisions."
+    },
+
+
+    /* --------------------------------------
+       INTERNET
+    -------------------------------------- */
+
+    internet: {
+        keywords: [
+            "what is internet",
+            "internet"
+        ],
+
+        answer:
+            "🌐 The Internet is a worldwide network that connects computers and devices so they can communicate and share information."
+    },
+
+
+    /* --------------------------------------
+       WEBSITE
+    -------------------------------------- */
+
+    website: {
+        keywords: [
+            "what is a website",
+            "what is website"
+        ],
+
+        answer:
+            "🌍 A website is a collection of web pages that can be accessed through the Internet using a web browser."
+    },
+
+
+    /* --------------------------------------
+       HTML
+    -------------------------------------- */
+
+    html: {
+        keywords: [
+            "what is html",
+            "html"
+        ],
+
+        answer:
+            "🌐 HTML stands for HyperText Markup Language. It is used to structure content on web pages."
+    },
+
+
+    /* --------------------------------------
+       CSS
+    -------------------------------------- */
+
+    css: {
+        keywords: [
+            "what is css",
+            "css"
+        ],
+
+        answer:
+            "🎨 CSS stands for Cascading Style Sheets. It controls the appearance and layout of HTML elements on a website."
+    },
+
+
+    /* --------------------------------------
+       JAVASCRIPT
+    -------------------------------------- */
+
+    javascript: {
+        keywords: [
+            "what is javascript",
+            "javascript",
+            "js"
+        ],
+
+        answer:
+            "⚙️ JavaScript is a programming language commonly used to make websites interactive and dynamic."
+    },
+
+
+    /* --------------------------------------
+       DATABASE
+    -------------------------------------- */
+
+    database: {
+        keywords: [
+            "what is a database",
+            "what is database",
+            "database"
+        ],
+
+        answer:
+            "🗄️ A database is an organized system for storing, managing, and retrieving information."
+    },
+
+
+    /* --------------------------------------
+       API
+    -------------------------------------- */
+
+    api: {
+        keywords: [
+            "what is an api",
+            "what is api",
+            "api"
+        ],
+
+        answer:
+            "🔌 An API (Application Programming Interface) allows different software systems to communicate and exchange information."
+    },
+
+
+    /* --------------------------------------
+       PROGRAMMING
+    -------------------------------------- */
+
+    programming: {
+        keywords: [
+            "what is programming",
+            "programming",
+            "coding"
+        ],
+
+        answer:
+            "💻 Programming is the process of writing instructions that tell a computer how to perform tasks."
+    },
+
+
+    /* --------------------------------------
+       APP
+    -------------------------------------- */
+
+    application: {
+        keywords: [
+            "what is an app",
+            "what is application"
+        ],
+
+        answer:
+            "📱 An app is a software program designed to perform specific tasks for users."
     }
 
-    if(msg.includes("what is nigeria")){
-        return "🇳🇬 Nigeria is a country in West Africa with 36 states and the Federal Capital Territory, Abuja.";
+};
+
+
+/* ==========================================
+   KNOWLEDGE SEARCH
+========================================== */
+
+function knowledgeReply(rawMsg) {
+
+    const msg =
+        normalizeMessage(rawMsg);
+
+    if (!msg) {
+
+        return null;
+
     }
 
-    if(msg.includes("capital of nigeria")){
-        return "🏛️ The capital of Nigeria is Abuja.";
+
+    /* ======================================
+       EXACT / KEYWORD MATCH
+    ====================================== */
+
+    for (
+        const key in aiKnowledge
+    ) {
+
+        const item =
+            aiKnowledge[key];
+
+
+        if (!item || !item.keywords) {
+
+            continue;
+
+        }
+
+
+        for (
+            const keyword of item.keywords
+        ) {
+
+            if (
+                msg === keyword ||
+                msg.includes(keyword)
+            ) {
+
+                return item.answer;
+
+            }
+
+        }
+
     }
 
-    if(msg.includes("president of nigeria")){
-        return "🇳🇬 The President of Nigeria is Bola Ahmed Tinubu.";
+
+    /* ======================================
+       SIMPLE FACTS
+    ====================================== */
+
+    if (
+        msg.includes("capital of nigeria")
+    ) {
+
+        return "🇳🇬 The capital of Nigeria is Abuja.";
+
     }
 
-    if(msg.includes("what is programming")){
-        return "💻 Programming is the process of writing instructions that tell computers what to do.";
+
+    if (
+        msg.includes("largest continent")
+    ) {
+
+        return "🌍 Asia is the largest continent by land area.";
+
     }
 
-    if(msg.includes("what is python")){
-        return "🐍 Python is one of the world's most popular programming languages used for AI, web development and automation.";
+
+    if (
+        msg.includes("largest ocean")
+    ) {
+
+        return "🌊 The Pacific Ocean is the largest ocean on Earth.";
+
     }
 
-    if(msg.includes("what is java")){
-        return "☕ Java is a programming language widely used for Android apps and enterprise software.";
+
+    if (
+        msg.includes("highest mountain in africa")
+    ) {
+
+        return (
+            "🏔️ Mount Kilimanjaro in Tanzania " +
+            "is the highest mountain in Africa."
+        );
+
     }
 
-    if(msg.includes("what is coding")){
-        return "💻 Coding means writing instructions that computers can understand and execute.";
+
+    if (
+        msg.includes("longest river in africa")
+    ) {
+
+        return (
+            "🌊 The Nile is generally recognized " +
+            "as the longest river in Africa."
+        );
+
     }
 
-    if(msg.includes("who is albert einstein")){
-        return "🧠 Albert Einstein was a famous physicist who developed the Theory of Relativity.";
-    }
 
-    if(msg.includes("what is electricity")){
-        return "⚡ Electricity is the flow of electric charge used to power electrical devices.";
-    }
+    /* ======================================
+       NO ANSWER
+    ====================================== */
 
-    if(msg.includes("tell me a joke")){
-        return "😂 Why do programmers prefer dark mode? Because light attracts bugs!";
-    }
-
-    if(msg.includes("motivate me")){
-        return "💪 Every expert was once a beginner. Keep learning—you are building something amazing.";
-    }
-// ==========================
-// General Knowledge
-// ==========================
-
-if(msg.includes("capital of france")){
-    return "🇫🇷 The capital of France is Paris.";
-}
-
-if(msg.includes("capital of usa") || msg.includes("capital of united states")){
-    return "🇺🇸 The capital of the United States is Washington, D.C.";
-}
-
-if(msg.includes("capital of uk")){
-    return "🇬🇧 The capital of the United Kingdom is London.";
-}
-
-if(msg.includes("largest continent")){
-    return "🌍 Asia is the largest continent on Earth.";
-}
-
-if(msg.includes("largest ocean")){
-    return "🌊 The Pacific Ocean is the largest ocean in the world.";
-}
-
-// ==========================
-// Technology
-// ==========================
-
-if(msg.includes("what is internet")){
-    return "🌐 The Internet is a global network connecting billions of computers and devices.";
-}
-
-if(msg.includes("what is wifi")){
-    return "📶 Wi-Fi allows devices to connect to the internet wirelessly.";
-}
-
-if(msg.includes("what is cloud computing")){
-    return "☁️ Cloud computing allows you to store data and run applications over the internet instead of your own computer.";
-}
-
-if(msg.includes("what is machine learning")){
-    return "🧠 Machine Learning is a branch of AI that enables computers to learn from data without being explicitly programmed.";
-}
-
-// ==========================
-// Electrical Engineering
-// ==========================
-
-if(msg.includes("what is voltage")){
-    return "⚡ Voltage is the electrical pressure that pushes current through a circuit. It is measured in volts (V).";
-}
-
-if(msg.includes("what is current")){
-    return "🔋 Electric current is the flow of electric charge through a conductor. It is measured in amperes (A).";
-}
-
-if(msg.includes("what is resistance")){
-    return "🛡️ Resistance opposes the flow of electric current. It is measured in ohms (Ω).";
-}
-
-if(msg.includes("what is transformer")){
-    return "🔌 A transformer increases or decreases AC voltage using electromagnetic induction.";
-}
-
-if(msg.includes("what is inverter")){
-    return "🔋 An inverter converts DC electricity from batteries or solar panels into AC electricity used by appliances.";
-}
-
-if(msg.includes("what is generator")){
-    return "⚙️ A generator converts mechanical energy into electrical energy.";
-}
-
-if(msg.includes("what is ohms law")){
-    return "📘 Ohm's Law states that Voltage = Current × Resistance (V = I × R).";
-}
-// ==========================
-// Science
-// ==========================
-
-
-
-if(msg.includes("what is gravity")){
-    return "🌍 Gravity is the force that attracts objects toward the Earth.";
-}
-
-if(msg.includes("speed of light")){
-    return "💡 The speed of light in a vacuum is about 299,792,458 metres per second.";
-}
-
-if(msg.includes("who invented telephone")){
-    return "☎️ Alexander Graham Bell is credited with inventing the first practical telephone.";
-}
-
-if(msg.includes("who invented light bulb")){
-    return "💡 Thomas Edison is widely known for improving and commercializing the electric light bulb.";
-}
-
-// ==========================
-// Mathematics
-// ==========================
-
-if(msg.includes("what is pi")){
-    return "🔢 Pi (π) is approximately 3.14159 and represents the ratio of a circle's circumference to its diameter.";
-}
-
-if(msg.includes("what is algebra")){
-    return "📐 Algebra is a branch of mathematics that uses symbols and letters to represent numbers and solve equations.";
-}
     return null;
 
 }
+
+
+/* ==========================================
+   GLOBAL EXPORT
+========================================== */
+
+window.knowledgeReply =
+    knowledgeReply;
+
+
+console.log(
+    "✅ knowledge.js loaded successfully"
+);
