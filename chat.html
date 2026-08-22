@@ -63,13 +63,13 @@
 <footer class="chatComposer">
 
     <button
-        type="button"
-        id="attachBtn"
-        class="composerIcon"
-        aria-label="Attach"
-    >
-        +
-    </button>
+    type="button"
+    id="sendBtn"
+    class="sendButton"
+    onclick="testSendButton()"
+>
+    ➤
+</button>
 
 
     <textarea
@@ -324,5 +324,11 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 </body>
+    <script>
+function testSendButton() {
+    alert("SEND BUTTON WORKS!");
+    console.log("🔥 SEND BUTTON CLICKED");
+}
+</script>
 
 </html>
