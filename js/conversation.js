@@ -1,141 +1,68 @@
 "use strict";
 
-/* ==========================================
-   AI LIFE ASSISTANT
-   conversation.js
-   Version 2.0
-   Stable Conversation Engine
-========================================== */
+// ==========================================
+// AI LIFE ASSISTANT
+// conversation.js
+// Version 7.0
+// Stable Conversation Engine
+// ==========================================
 
 console.log("💬 conversation.js loading...");
 
 
-/* ==========================================
-   SAFE MESSAGE NORMALIZATION
-========================================== */
-
-function conversationNormalizeMessage(value) {
-
-    return String(value || "")
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, " ");
-
-}
-
-
-/* ==========================================
-   SAFE PROFILE NAME
-========================================== */
-
-function conversationGetName() {
-
-    try {
-
-        if (
-            typeof getProfileName === "function"
-        ) {
-
-            const name = getProfileName();
-
-            if (name) {
-                return String(name);
-            }
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "⚠️ getProfileName unavailable:",
-            error
-        );
-
-    }
-
-
-    try {
-
-        const savedName =
-            localStorage.getItem("profileName");
-
-        if (savedName && savedName.trim()) {
-
-            return savedName.trim();
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "⚠️ Could not read profileName:",
-            error
-        );
-
-    }
-
-
-    return "Samuel";
-
-}
-
-
-/* ==========================================
-   CONVERSATION REPLY
-========================================== */
+// ==========================================
+// MAIN CONVERSATION REPLY
+// ==========================================
 
 function conversationReply(rawMsg) {
 
+    // --------------------------------------
+    // Normalize message safely
+    // --------------------------------------
+
     const msg =
-        conversationNormalizeMessage(rawMsg);
+        typeof normalizeMessage === "function"
+            ? normalizeMessage(rawMsg)
+            : String(rawMsg || "")
+                .trim()
+                .toLowerCase();
 
 
     if (!msg) {
-
         return null;
-
     }
 
 
-    const name =
-        conversationGetName();
-
-
-    console.log(
-        "💬 conversationReply:",
-        msg
-    );
-
-
-    /* ======================================
-       GREETINGS
-    ====================================== */
+    // ======================================
+    // GREETINGS
+    // ======================================
 
     if (
         msg === "hi" ||
         msg === "hello" ||
         msg === "hey" ||
         msg === "hiya" ||
-        msg === "hello there"
+        msg === "hey there"
     ) {
 
         return (
             "👋 Hello " +
-            name +
+            getProfileName() +
             "! How can I help you today?"
         );
 
     }
 
 
-    /* ======================================
-       HOW ARE YOU
-    ====================================== */
+    // ======================================
+    // HOW ARE YOU
+    // ======================================
 
     if (
         msg === "how are you" ||
         msg === "how are u" ||
-        msg.includes("how are you doing")
+        msg.includes("how are you doing") ||
+        msg.includes("how are u doing")
     ) {
 
         return (
@@ -146,9 +73,9 @@ function conversationReply(rawMsg) {
     }
 
 
-    /* ======================================
-       GOOD MORNING
-    ====================================== */
+    // ======================================
+    // GOOD MORNING
+    // ======================================
 
     if (
         msg === "good morning" ||
@@ -157,16 +84,16 @@ function conversationReply(rawMsg) {
 
         return (
             "🌅 Good morning, " +
-            name +
+            getProfileName() +
             "! I hope you have a wonderful day."
         );
 
     }
 
 
-    /* ======================================
-       GOOD AFTERNOON
-    ====================================== */
+    // ======================================
+    // GOOD AFTERNOON
+    // ======================================
 
     if (
         msg === "good afternoon" ||
@@ -175,16 +102,16 @@ function conversationReply(rawMsg) {
 
         return (
             "☀️ Good afternoon, " +
-            name +
+            getProfileName() +
             "! How is your day going?"
         );
 
     }
 
 
-    /* ======================================
-       GOOD EVENING
-    ====================================== */
+    // ======================================
+    // GOOD EVENING
+    // ======================================
 
     if (
         msg === "good evening" ||
@@ -193,16 +120,16 @@ function conversationReply(rawMsg) {
 
         return (
             "🌇 Good evening, " +
-            name +
+            getProfileName() +
             "! How has your day been?"
         );
 
     }
 
 
-    /* ======================================
-       GOOD NIGHT
-    ====================================== */
+    // ======================================
+    // GOOD NIGHT
+    // ======================================
 
     if (
         msg === "good night" ||
@@ -211,22 +138,23 @@ function conversationReply(rawMsg) {
 
         return (
             "🌙 Good night, " +
-            name +
+            getProfileName() +
             "! Sleep well and have a peaceful night."
         );
 
     }
 
 
-    /* ======================================
-       THANK YOU
-    ====================================== */
+    // ======================================
+    // THANK YOU
+    // ======================================
 
     if (
         msg === "thanks" ||
         msg === "thank you" ||
         msg.includes("thanks a lot") ||
-        msg.includes("thank you so much")
+        msg.includes("thank you so much") ||
+        msg.includes("thanks so much")
     ) {
 
         return (
@@ -237,13 +165,14 @@ function conversationReply(rawMsg) {
     }
 
 
-    /* ======================================
-       WHO ARE YOU
-    ====================================== */
+    // ======================================
+    // WHO ARE YOU
+    // ======================================
 
     if (
         msg === "who are you" ||
-        msg.includes("what are you")
+        msg === "what are you" ||
+        msg.includes("who are u")
     ) {
 
         return (
@@ -254,57 +183,50 @@ function conversationReply(rawMsg) {
     }
 
 
-    /* ======================================
-       WHAT CAN YOU DO
-    ====================================== */
+    // ======================================
+    // WHAT CAN YOU DO
+    // ======================================
 
     if (
+        msg === "help" ||
         msg.includes("what can you do") ||
         msg.includes("what do you do") ||
-        msg === "help"
+        msg.includes("how can you help me")
     ) {
 
         return (
             "🤖 I can help you with:\n\n" +
 
             "💬 Conversation\n" +
-
-            "🧠 Remembering information\n" +
-
+            "🧠 Memory\n" +
             "📚 Learning and explanations\n" +
-
             "📝 Notes\n" +
-
             "✅ Tasks\n" +
-
             "🎯 Goals\n" +
-
             "📅 Events\n" +
-
             "🧮 Calculations\n" +
-
             "🌤️ Weather\n" +
-
             "📄 Files\n" +
-
             "🖼️ Images\n" +
+            "❤️ Advice\n\n" +
 
-            "❤️ Advice and general assistance"
+            "Just tell me what you need."
         );
 
     }
 
 
-    /* ======================================
-       CREATOR
-    ====================================== */
+    // ======================================
+    // WHO CREATED YOU
+    // ======================================
 
     if (
         msg.includes("who made you") ||
         msg.includes("who created you") ||
         msg.includes("who create you") ||
         msg.includes("who built you") ||
-        msg.includes("who build you")
+        msg.includes("who build you") ||
+        msg.includes("who developed you")
     ) {
 
         return (
@@ -315,31 +237,33 @@ function conversationReply(rawMsg) {
     }
 
 
-    /* ======================================
-       BYE
-    ====================================== */
+    // ======================================
+    // BYE
+    // ======================================
 
     if (
         msg === "bye" ||
         msg === "goodbye" ||
-        msg === "see you later"
+        msg === "bye bye" ||
+        msg.includes("see you later")
     ) {
 
         return (
             "👋 Goodbye, " +
-            name +
+            getProfileName() +
             "! Have a wonderful day."
         );
 
     }
 
 
-    /* ======================================
-       LOVE / FRIENDLY
-    ====================================== */
+    // ======================================
+    // LOVE / FRIENDLY
+    // ======================================
 
     if (
         msg === "i love you" ||
+        msg.includes("i really love you") ||
         msg.includes("love you")
     ) {
 
@@ -351,34 +275,34 @@ function conversationReply(rawMsg) {
     }
 
 
-    /* ======================================
-       SAD
-    ====================================== */
+    // ======================================
+    // SAD
+    // ======================================
 
     if (
         msg.includes("i am sad") ||
         msg.includes("i'm sad") ||
         msg.includes("i feel sad") ||
-        msg === "sad"
+        msg.includes("feeling sad")
     ) {
 
         return (
             "💙 I'm sorry you're feeling this way. " +
-            "You don't have to handle everything alone. " +
-            "I'm here to listen."
+            "I'm here to listen and support you. " +
+            "You can tell me what's going on."
         );
 
     }
 
 
-    /* ======================================
-       BORED
-    ====================================== */
+    // ======================================
+    // BORED
+    // ======================================
 
     if (
         msg.includes("i am bored") ||
         msg.includes("i'm bored") ||
-        msg === "bored"
+        msg.includes("feeling bored")
     ) {
 
         return (
@@ -390,22 +314,59 @@ function conversationReply(rawMsg) {
     }
 
 
-    /* ======================================
-       NO MATCH
-    ====================================== */
+    // ======================================
+    // HAPPY
+    // ======================================
+
+    if (
+        msg.includes("i am happy") ||
+        msg.includes("i'm happy") ||
+        msg.includes("feeling happy")
+    ) {
+
+        return (
+            "😊 That's wonderful to hear! " +
+            "I'm glad you're having a good moment."
+        );
+
+    }
+
+
+    // ======================================
+    // FALL THROUGH
+    // ======================================
 
     return null;
 
 }
 
 
-/* ==========================================
-   GLOBAL EXPORT
-========================================== */
+// ==========================================
+// GLOBAL EXPORT
+// ==========================================
 
 window.conversationReply =
     conversationReply;
 
+
+// ==========================================
+// READY CHECK
+// ==========================================
+
+console.log(
+    "🔎 conversationReply:",
+    typeof window.conversationReply
+);
+
+console.log(
+    "🔎 normalizeMessage:",
+    typeof window.normalizeMessage
+);
+
+console.log(
+    "🔎 getProfileName:",
+    typeof window.getProfileName
+);
 
 console.log(
     "✅ conversation.js loaded successfully"
