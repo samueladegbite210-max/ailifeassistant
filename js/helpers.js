@@ -4,7 +4,7 @@
 // AI LIFE ASSISTANT
 // helpers.js
 // Version 7.0
-// Shared Utility Functions
+// Stable Shared Utility System
 // ==========================================
 
 console.log("🛠️ helpers.js loading...");
@@ -16,11 +16,15 @@ console.log("🛠️ helpers.js loading...");
 
 function safeString(value, fallback = "") {
 
-    if (value === null || value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
         return fallback;
     }
 
     return String(value);
+
 }
 
 
@@ -39,8 +43,9 @@ function normalizeText(value) {
 
 // ==========================================
 // NORMALIZE MESSAGE
+// ==========================================
 // IMPORTANT:
-// conversation.js uses this function.
+// Used by conversation.js and knowledge.js.
 // ==========================================
 
 function normalizeMessage(value) {
@@ -227,19 +232,26 @@ function removeStorage(key) {
 
 
 // ==========================================
-// PROFILE NAME
+// GET PROFILE NAME
 // ==========================================
 
 function getProfileName() {
 
     try {
 
+        const name =
+            localStorage.getItem(
+                "profileName"
+            );
+
         return (
-            localStorage.getItem("profileName") ||
-            "Samuel"
+            name &&
+            name.trim()
+                ? name.trim()
+                : "Samuel"
         );
 
-    } catch (error) {
+    } catch {
 
         return "Samuel";
 
@@ -304,16 +316,16 @@ function getDateString(
 
 function formatFileSize(bytes) {
 
-    const size = Number(bytes);
+    const size =
+        Number(bytes);
 
     if (
         !Number.isFinite(size) ||
         size <= 0
     ) {
-
         return "0 Bytes";
-
     }
+
 
     const units = [
         "Bytes",
@@ -322,21 +334,28 @@ function formatFileSize(bytes) {
         "GB"
     ];
 
-    const index = Math.min(
-        Math.floor(
-            Math.log(size) /
-            Math.log(1024)
-        ),
-        units.length - 1
-    );
+
+    const index =
+        Math.min(
+            Math.floor(
+                Math.log(size) /
+                Math.log(1024)
+            ),
+            units.length - 1
+        );
+
 
     return (
         parseFloat(
             (
                 size /
-                Math.pow(1024, index)
+                Math.pow(
+                    1024,
+                    index
+                )
             ).toFixed(1)
-        ) +
+        )
+        +
         " " +
         units[index]
     );
@@ -397,7 +416,7 @@ function uniqueArray(array) {
 
 
 // ==========================================
-// GET ELEMENT
+// FIND ELEMENT
 // ==========================================
 
 function getElement(id) {
@@ -423,10 +442,9 @@ async function safeCall(
     if (
         typeof fn !== "function"
     ) {
-
         return fallback;
-
     }
+
 
     try {
 
@@ -453,11 +471,12 @@ async function safeCall(
 function delay(ms = 0) {
 
     return new Promise(
-        resolve =>
+        resolve => {
             setTimeout(
                 resolve,
                 ms
-            )
+            );
+        }
     );
 
 }
@@ -472,6 +491,48 @@ function functionExists(name) {
     return (
         typeof window[name] ===
         "function"
+    );
+
+}
+
+
+// ==========================================
+// SAFE LOCAL STORAGE ARRAY
+// ==========================================
+
+function readStorageArray(
+    key
+) {
+
+    const value =
+        readStorage(
+            key,
+            []
+        );
+
+    return safeArray(value);
+
+}
+
+
+// ==========================================
+// SAFE LOCAL STORAGE OBJECT
+// ==========================================
+
+function readStorageObject(
+    key,
+    fallback = {}
+) {
+
+    const value =
+        readStorage(
+            key,
+            fallback
+        );
+
+    return safeObject(
+        value,
+        fallback
     );
 
 }
@@ -547,6 +608,12 @@ window.delay =
 window.functionExists =
     functionExists;
 
+window.readStorageArray =
+    readStorageArray;
+
+window.readStorageObject =
+    readStorageObject;
+
 
 // ==========================================
 // READY
@@ -557,11 +624,6 @@ console.log(
 );
 
 console.log(
-    "🔎 normalizeMessage:",
-    typeof window.normalizeMessage
-);
-
-console.log(
-    "🔎 getProfileName:",
-    typeof window.getProfileName
+    "🛠️ normalizeMessage() available:",
+    typeof window.normalizeMessage === "function"
 );
