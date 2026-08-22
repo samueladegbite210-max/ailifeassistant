@@ -36,7 +36,7 @@
 
 
 <!-- ==========================================
-     CHAT
+     CHAT AREA
 ========================================== -->
 
 <main class="chatPage">
@@ -71,7 +71,7 @@
 
 
 <!-- ==========================================
-     COMPOSER
+     CHAT COMPOSER
 ========================================== -->
 
 <footer class="chatComposer">
@@ -131,7 +131,7 @@
 
     <button
         type="button"
-        onclick="pickImage()"
+        id="pickImageBtn"
     >
         🖼️ Photo
     </button>
@@ -139,7 +139,7 @@
 
     <button
         type="button"
-        onclick="takePhoto()"
+        id="takePhotoBtn"
     >
         📷 Camera
     </button>
@@ -147,7 +147,7 @@
 
     <button
         type="button"
-        onclick="pickFile()"
+        id="pickFileBtn"
     >
         📄 File
     </button>
@@ -161,6 +161,8 @@
      HIDDEN FILE INPUTS
 ========================================== -->
 
+<!-- PHOTO -->
+
 <input
     type="file"
     id="imagePicker"
@@ -168,6 +170,19 @@
     hidden
 >
 
+
+<!-- CAMERA -->
+
+<input
+    type="file"
+    id="cameraPicker"
+    accept="image/*"
+    capture="environment"
+    hidden
+>
+
+
+<!-- FILE -->
 
 <input
     type="file"
@@ -186,9 +201,11 @@
 
 
     <a href="dashboard.html">
+
         🏠
         <br>
         Home
+
     </a>
 
 
@@ -196,30 +213,38 @@
         href="chat.html"
         class="active"
     >
+
         🤖
         <br>
         AI
+
     </a>
 
 
     <a href="notes.html">
+
         📝
         <br>
         Notes
+
     </a>
 
 
     <a href="calendar.html">
+
         📅
         <br>
         Calendar
+
     </a>
 
 
     <a href="profile.html">
+
         👤
         <br>
         Profile
+
     </a>
 
 
@@ -228,129 +253,113 @@
 
 
 <!-- ==========================================
-     AI LIFE ASSISTANT ENGINE
+     CORE AI MODULES
 ========================================== -->
 
-<script src="js/helpers.js?v=5"></script>
+<script src="js/helpers.js?v=6"></script>
 
-<script src="js/conversation.js?v=5"></script>
+<script src="js/conversation.js?v=6"></script>
 
-<script src="js/knowledge.js?v=5"></script>
+<script src="js/knowledge.js?v=6"></script>
 
-<script src="js/calculator.js?v=5"></script>
+<script src="js/calculator.js?v=6"></script>
 
-<script src="js/datetime.js?v=5"></script>
+<script src="js/datetime.js?v=6"></script>
 
-<script src="js/tasks.js?v=5"></script>
+<script src="js/tasks.js?v=6"></script>
 
-<script src="js/goals.js?v=5"></script>
+<script src="js/goals.js?v=6"></script>
 
-<script src="js/notes.js?v=5"></script>
+<script src="js/notes.js?v=6"></script>
 
-<script src="js/events.js?v=5"></script>
+<script src="js/events.js?v=6"></script>
 
-<script src="js/natural.js?v=5"></script>
+<script src="js/natural.js?v=6"></script>
 
-<script src="js/weather.js?v=5"></script>
+<script src="js/weather.js?v=6"></script>
 
-<script src="js/search.js?v=5"></script>
+<script src="js/search.js?v=6"></script>
 
-<script src="js/memory.js?v=5"></script>
+<script src="js/memory.js?v=6"></script>
 
-<script src="js/learnUser.js?v=5"></script>
+<script src="js/learnUser.js?v=6"></script>
 
-<script src="js/brain.js?v=5"></script>
+<script src="js/brain.js?v=6"></script>
 
-<script src="js/advice.js?v=5"></script>
+<script src="js/advice.js?v=6"></script>
 
-<script src="js/searchOnline.js?v=5"></script>
+<script src="js/searchOnline.js?v=6"></script>
 
-<script src="js/food.js?v=5"></script>
+<script src="js/food.js?v=6"></script>
 
-<script src="js/internet.js?v=5"></script>
+<script src="js/internet.js?v=6"></script>
 
-<script src="js/context.js?v=5"></script>
+<script src="js/context.js?v=6"></script>
 
-<script src="js/teacher.js?v=5"></script>
+<script src="js/teacher.js?v=6"></script>
 
-<script src="js/xp.js?v=5"></script>
+<script src="js/xp.js?v=6"></script>
 
-<script src="js/achievement.js?v=5"></script>
+<script src="js/achievement.js?v=6"></script>
 
-<script src="js/quiz.js?v=5"></script>
+<script src="js/quiz.js?v=6"></script>
 
-<script src="js/quizScore.js?v=5"></script>
+<script src="js/quizScore.js?v=6"></script>
 
-<script src="js/profileStats.js?v=5"></script>
+<script src="js/profileStats.js?v=6"></script>
 
-<script src="js/streak.js?v=5"></script>
+<script src="js/streak.js?v=6"></script>
 
-<script src="js/streakReply.js?v=5"></script>
+<script src="js/streakReply.js?v=6"></script>
 
-<script src="js/profileReply.js?v=5"></script>
+<script src="js/profileReply.js?v=6"></script>
 
 
 
 <!-- ==========================================
-     IMAGE / FILE SYSTEM
+     EXTERNAL LIBRARIES
 ========================================== -->
-
 
 <!-- OCR -->
 
-<script
-    src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"
-></script>
-
-
-<!-- PDF -->
-
-<script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"
-    type="module"
-></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 
 <!-- DOCX -->
 
-<script
-    src="https://unpkg.com/mammoth/mammoth.browser.min.js"
-></script>
-
-
-<!-- Attachment AI -->
-
-<script src="js/attachmentAI.js?v=5"></script>
-
-
-<!-- File Reader -->
-
-<script src="js/fileReader.js?v=5"></script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
 
 
 <!-- ==========================================
-     CHAT CONTROLLER
+     ATTACHMENT SYSTEM
 ========================================== -->
-<script src="js/smartAI.js?v=5"></script>
-<script src="js/chat.js?v=5"></script>
+
+<script src="js/attachmentAI.js?v=6"></script>
+
+
+<!-- Load ONLY if the file exists -->
+
+<!--
+<script src="js/fileReader.js?v=6"></script>
+-->
 
 
 
 <!-- ==========================================
      MAIN AI CONTROLLER
-     LOAD THIS ONLY ONCE
 ========================================== -->
 
-
+<script src="js/smartAI.js?v=6"></script>
 
 
 
 <!-- ==========================================
-     STARTUP CHECK
+     CHAT CONTROLLER
+     MUST LOAD LAST
 ========================================== -->
 
-
+<script src="js/chat.js?v=6"></script>
 
 
 </body>
