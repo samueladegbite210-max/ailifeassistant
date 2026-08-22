@@ -1345,6 +1345,19 @@ console.log(
     typeof window.aiReply
 );
 
+// ==========================================
+// GLOBAL CHAT EXPORTS
+// ==========================================
+
+window.sendMessage = sendMessage;
+window.aiReply = aiReply;
+window.addMessage = addMessage;
+window.updateComposer = updateComposer;
+
+console.log(
+    "📨 sendMessage exported:",
+    typeof window.sendMessage
+);
 console.log(
     "================================="
 );
