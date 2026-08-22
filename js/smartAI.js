@@ -1,434 +1,693 @@
 // ==========================================
-// AI Life Assistant
+// AI LIFE ASSISTANT
 // smartAI.js
-// Version 5.0
-// AI Controller
+// Version 8.0
+// Stable Central AI Controller
 // ==========================================
 
-console.log("🧠 smartAI.js loaded");
+"use strict";
 
-
-// ==========================================
-// CURRENT ATTACHMENT
-// ==========================================
-
-let currentAttachment = null;
+console.log("🧠 smartAI.js loading...");
 
 
 // ==========================================
-// MAIN AI CONTROLLER
+// ATTACHMENT ACCESS
 // ==========================================
 
-async function smartAIReply(msg){
+function getCurrentAttachment() {
 
-    try{
+    return window.aiAttachment || null;
 
-        // ----------------------------------
-        // Clean message
-        // ----------------------------------
+}
 
-        msg = String(msg || "").trim().toLowerCase();
 
-        if(msg === ""){
+// ==========================================
+// SAFE MODULE RUNNER
+// ==========================================
+
+async function runModule(name, callback) {
+
+    try {
+
+        if (typeof callback !== "function") {
             return null;
         }
 
+        const result = await callback();
 
-        // ==================================
-        // ATTACHMENT COMMANDS
-        // ==================================
+        if (
+            result !== null &&
+            result !== undefined &&
+            String(result).trim() !== ""
+        ) {
 
-        if(isImageCommand(msg)){
+            console.log(
+                "✅ AI module responded:",
+                name
+            );
 
-            return await handleImageCommand(msg);
-
-        }
-
-
-        if(isFileCommand(msg)){
-
-            return await handleFileCommand(msg);
-
-        }
-
-
-        // ==================================
-        // UPLOAD MEMORY
-        // ==================================
-
-        if(
-            msg.includes("what did i upload") ||
-            msg.includes("what have i uploaded") ||
-            msg.includes("show my uploads") ||
-            msg.includes("my uploaded files")
-        ){
-
-            return getUploadList();
+            return String(result);
 
         }
 
-
-        // ==================================
-        // CONVERSATION
-        // ==================================
-
-        let answer;
-
-
-        if(typeof conversationReply === "function"){
-
-            answer = conversationReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // MEMORY
-        // ==================================
-
-        if(typeof memoryReply === "function"){
-
-            answer = memoryReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // PROFILE
-        // ==================================
-
-        if(typeof profileReply === "function"){
-
-            answer = profileReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // STREAK
-        // ==================================
-
-        if(typeof streakReply === "function"){
-
-            answer = streakReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // LEARN USER
-        // ==================================
-
-        if(typeof learnUserReply === "function"){
-
-            answer = learnUserReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // KNOWLEDGE
-        // ==================================
-
-        if(typeof knowledgeReply === "function"){
-
-            answer = knowledgeReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // TEACHER
-        // ==================================
-
-        if(typeof teacherReply === "function"){
-
-            answer = teacherReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // QUIZ
-        // ==================================
-
-        if(typeof quizReply === "function"){
-
-            answer = quizReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // CALCULATOR
-        // ==================================
-
-        if(typeof calculatorReply === "function"){
-
-            answer = calculatorReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // DATE / TIME
-        // ==================================
-
-        if(typeof dateTimeReply === "function"){
-
-            answer = dateTimeReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // TASKS
-        // ==================================
-
-        if(typeof taskReply === "function"){
-
-            answer = taskReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // GOALS
-        // ==================================
-
-        if(typeof goalReply === "function"){
-
-            answer = goalReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // NOTES
-        // ==================================
-
-        if(typeof noteReply === "function"){
-
-            answer = noteReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // EVENTS
-        // ==================================
-
-        if(typeof eventReply === "function"){
-
-            answer = eventReply(msg, msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // NATURAL CONVERSATION
-        // ==================================
-
-        if(typeof naturalReply === "function"){
-
-            answer = naturalReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // FOOD
-        // ==================================
-
-        if(typeof foodReply === "function"){
-
-            answer = foodReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // WEATHER
-        // ==================================
-
-        if(typeof weatherReply === "function"){
-
-            answer = weatherReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // AI BRAIN
-        // ==================================
-
-        if(typeof aiBrainReply === "function"){
-
-            answer = await aiBrainReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // ADVICE
-        // ==================================
-
-        if(typeof adviceReply === "function"){
-
-            answer = adviceReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // INTERNET
-        // ==================================
-
-        if(typeof internetReply === "function"){
-
-            answer = await internetReply(msg);
-
-            if(answer) return answer;
-
-        }
-
-
-        // ==================================
-        // DEFAULT
-        // ==================================
-
-        return "🤖 I couldn't find an answer yet. Try asking another question.";
-
-    }
-
-    catch(error){
-
-        console.error("❌ smartAIReply error:", error);
-
-        return (
-            "⚠️ I ran into a problem while processing that.\n\n" +
-            error.message
+    } catch (error) {
+
+        console.error(
+            "❌ AI module error:",
+            name,
+            error
         );
 
     }
 
+    return null;
+
 }
 
+
+// ==========================================
+// MAIN AI
+// ==========================================
+
+async function smartAIReply(rawMessage) {
+
+    const original =
+        String(rawMessage || "").trim();
+
+    if (!original) {
+        return null;
+    }
+
+    const msg =
+        original.toLowerCase().trim();
+
+
+    console.log(
+        "🧠 Processing:",
+        original
+    );
+
+
+    // ======================================
+    // ATTACHMENT COMMANDS
+    // ======================================
+
+    if (isImageCommand(msg)) {
+
+        return await handleImageCommand(msg);
+
+    }
+
+
+    if (isFileCommand(msg)) {
+
+        return await handleFileCommand(msg);
+
+    }
+
+
+    // ======================================
+    // UPLOAD LIST
+    // ======================================
+
+    if (
+        msg.includes("what did i upload") ||
+        msg.includes("what have i uploaded") ||
+        msg.includes("show my uploads") ||
+        msg.includes("my uploaded files") ||
+        msg.includes("list my uploads")
+    ) {
+
+        return getUploadList();
+
+    }
+
+
+    // ======================================
+    // AI MODULES
+    // ======================================
+
+    const modules = [
+
+        // Conversation
+        [
+            "conversationReply",
+            () => {
+
+                if (
+                    typeof conversationReply ===
+                    "function"
+                ) {
+
+                    return conversationReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Memory
+        [
+            "memoryReply",
+            () => {
+
+                if (
+                    typeof memoryReply ===
+                    "function"
+                ) {
+
+                    return memoryReply(
+                        msg,
+                        original
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Knowledge
+        [
+            "knowledgeReply",
+            () => {
+
+                if (
+                    typeof knowledgeReply ===
+                    "function"
+                ) {
+
+                    return knowledgeReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Profile
+        [
+            "profileReply",
+            () => {
+
+                if (
+                    typeof profileReply ===
+                    "function"
+                ) {
+
+                    return profileReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Learning
+        [
+            "learnUserReply",
+            () => {
+
+                if (
+                    typeof learnUserReply ===
+                    "function"
+                ) {
+
+                    return learnUserReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Teacher
+        [
+            "teacherReply",
+            () => {
+
+                if (
+                    typeof teacherReply ===
+                    "function"
+                ) {
+
+                    return teacherReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Quiz
+        [
+            "quizReply",
+            () => {
+
+                if (
+                    typeof quizReply ===
+                    "function"
+                ) {
+
+                    return quizReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Calculator
+        [
+            "calculatorReply",
+            () => {
+
+                if (
+                    typeof calculatorReply ===
+                    "function"
+                ) {
+
+                    return calculatorReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Date / Time
+        [
+            "dateTimeReply",
+            () => {
+
+                if (
+                    typeof dateTimeReply ===
+                    "function"
+                ) {
+
+                    return dateTimeReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Tasks
+        [
+            "taskReply",
+            () => {
+
+                if (
+                    typeof taskReply ===
+                    "function"
+                ) {
+
+                    return taskReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Goals
+        [
+            "goalReply",
+            () => {
+
+                if (
+                    typeof goalReply ===
+                    "function"
+                ) {
+
+                    return goalReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Notes
+        [
+            "noteReply",
+            () => {
+
+                if (
+                    typeof noteReply ===
+                    "function"
+                ) {
+
+                    return noteReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Events
+        [
+            "eventReply",
+            () => {
+
+                if (
+                    typeof eventReply ===
+                    "function"
+                ) {
+
+                    return eventReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Natural language
+        [
+            "naturalReply",
+            () => {
+
+                if (
+                    typeof naturalReply ===
+                    "function"
+                ) {
+
+                    return naturalReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Food
+        [
+            "foodReply",
+            () => {
+
+                if (
+                    typeof foodReply ===
+                    "function"
+                ) {
+
+                    return foodReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Weather
+        [
+            "weatherReply",
+            () => {
+
+                if (
+                    typeof weatherReply ===
+                    "function"
+                ) {
+
+                    return weatherReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Advice
+        [
+            "adviceReply",
+            () => {
+
+                if (
+                    typeof adviceReply ===
+                    "function"
+                ) {
+
+                    return adviceReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Internet
+        [
+            "internetReply",
+            () => {
+
+                if (
+                    typeof internetReply ===
+                    "function"
+                ) {
+
+                    return internetReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ],
+
+
+        // Main Brain
+        [
+            "aiBrainReply",
+            () => {
+
+                if (
+                    typeof aiBrainReply ===
+                    "function"
+                ) {
+
+                    return aiBrainReply(
+                        original,
+                        msg
+                    );
+
+                }
+
+                return null;
+
+            }
+        ]
+
+    ];
+
+
+    // ======================================
+    // RUN MODULES IN ORDER
+    // ======================================
+
+    for (
+        const [name, callback]
+        of modules
+    ) {
+
+        const response =
+            await runModule(
+                name,
+                callback
+            );
+
+
+        if (response) {
+
+            return response;
+
+        }
+
+    }
+
+
+    // ======================================
+    // FALLBACK
+    // ======================================
+
+    return (
+        "🤖 I'm still learning.\n\n" +
+        "I couldn't find a good answer to that yet."
+    );
+
+}
 
 
 // ==========================================
 // IMAGE COMMAND DETECTION
 // ==========================================
 
-function isImageCommand(msg){
+function isImageCommand(msg) {
 
     return (
 
         msg.includes("describe the image") ||
-
         msg.includes("describe image") ||
 
         msg.includes("what is in the image") ||
-
         msg.includes("what's in the image") ||
 
-        msg.includes("analyze the image") ||
+        msg.includes("what does the image show") ||
 
+        msg.includes("analyze the image") ||
         msg.includes("analyze image") ||
 
         msg.includes("read text from image") ||
-
         msg.includes("read the text from image") ||
 
+        msg.includes("read the text") ||
         msg.includes("extract text from image") ||
+        msg.includes("extract text") ||
 
         msg.includes("text in the image") ||
 
-        msg.includes("what does the image say")
+        msg.includes("what does the image say") ||
+        msg.includes("what does this say") ||
+
+        msg.includes("read this image")
 
     );
 
 }
-
 
 
 // ==========================================
 // FILE COMMAND DETECTION
 // ==========================================
 
-function isFileCommand(msg){
+function isFileCommand(msg) {
 
     return (
 
         msg.includes("summarize the file") ||
-
         msg.includes("summarize file") ||
 
-        msg.includes("explain the file") ||
+        msg.includes("summarize this file") ||
+        msg.includes("summarize this") ||
+        msg.includes("summarize it") ||
 
+        msg.includes("explain the file") ||
+        msg.includes("explain this file") ||
         msg.includes("explain the contents") ||
 
         msg.includes("read the file") ||
-
         msg.includes("read this file") ||
 
         msg.includes("find important information") ||
-
         msg.includes("important information in the file") ||
 
-        msg.includes("answer questions about the file")
+        msg.includes("answer questions about the file") ||
+
+        msg.includes("what does the file say")
 
     );
 
 }
 
 
-
 // ==========================================
-// IMAGE COMMAND HANDLER
+// IMAGE HANDLER
 // ==========================================
 
-async function handleImageCommand(msg){
+async function handleImageCommand(msg) {
 
-    if(!currentAttachment){
+    const attachment =
+        getCurrentAttachment();
+
+
+    if (!attachment) {
 
         return (
             "📷 I don't currently have an image attached.\n\n" +
@@ -438,7 +697,7 @@ async function handleImageCommand(msg){
     }
 
 
-    if(currentAttachment.type !== "image"){
+    if (attachment.type !== "image") {
 
         return (
             "📎 The current attachment isn't an image.\n\n" +
@@ -448,52 +707,59 @@ async function handleImageCommand(msg){
     }
 
 
-    // ----------------------------------
-    // OCR request
-    // ----------------------------------
+    // ======================================
+    // OCR
+    // ======================================
 
-    if(
+    if (
         msg.includes("read text") ||
         msg.includes("extract text") ||
         msg.includes("what does the image say") ||
+        msg.includes("what does this say") ||
         msg.includes("text in the image")
-    ){
+    ) {
 
-        if(typeof readImageText === "function"){
+        if (
+            typeof readImageText ===
+            "function"
+        ) {
 
             return await readImageText(
-                currentAttachment.data
+                attachment.data
             );
 
         }
 
         return (
-            "📝 I have the image, but the OCR engine isn't connected yet."
+            "📝 The image is attached, but OCR is not connected."
         );
 
     }
 
 
-    // ----------------------------------
-    // Description / analysis
-    // ----------------------------------
+    // ======================================
+    // IMAGE ANALYSIS
+    // ======================================
 
-    if(
+    if (
         msg.includes("describe") ||
         msg.includes("what is in") ||
         msg.includes("analyze")
-    ){
+    ) {
 
-        if(typeof analyzeImage === "function"){
+        if (
+            typeof analyzeImage ===
+            "function"
+        ) {
 
             return await analyzeImage(
-                currentAttachment.data
+                attachment.data
             );
 
         }
 
         return (
-            "👀 I have the image, but the AI vision engine isn't connected yet."
+            "👀 I have the image, but image analysis is not connected yet."
         );
 
     }
@@ -501,24 +767,26 @@ async function handleImageCommand(msg){
 
     return (
         "📷 I have your image ready.\n\n" +
-        "You can ask me to:\n\n" +
+        "You can ask me:\n\n" +
         "📝 Read the text\n" +
         "👀 Describe the image\n" +
-        "🔍 Analyze the image\n" +
-        "❓ Answer questions about it"
+        "🔍 Analyze the image"
     );
 
 }
 
 
-
 // ==========================================
-// FILE COMMAND HANDLER
+// FILE HANDLER
 // ==========================================
 
-async function handleFileCommand(msg){
+async function handleFileCommand(msg) {
 
-    if(!currentAttachment){
+    const attachment =
+        getCurrentAttachment();
+
+
+    if (!attachment) {
 
         return (
             "📂 I don't currently have a file attached.\n\n" +
@@ -528,7 +796,7 @@ async function handleFileCommand(msg){
     }
 
 
-    if(currentAttachment.type !== "file"){
+    if (attachment.type !== "file") {
 
         return (
             "📎 The current attachment isn't a document.\n\n" +
@@ -538,52 +806,87 @@ async function handleFileCommand(msg){
     }
 
 
-    if(typeof analyzeFile === "function"){
+    if (
+        typeof analyzeFile ===
+        "function"
+    ) {
 
         return await analyzeFile(
-            currentAttachment.file
+            attachment.file
         );
 
     }
 
 
     return (
-        "📄 I have your file, but the document-reading engine isn't connected yet."
+        "📄 I have your file, but the file-reading engine is not connected yet."
     );
 
 }
-
 
 
 // ==========================================
 // UPLOAD LIST
 // ==========================================
 
-function getUploadList(){
+function getUploadList() {
 
-    if(
-        typeof uploadedFiles === "undefined" ||
-        uploadedFiles.length === 0
-    ){
+    const files =
+        window.uploadedFiles || [];
 
-        return "📂 You haven't uploaded any files yet.";
+
+    if (!files.length) {
+
+        return (
+            "📂 You haven't uploaded any files yet."
+        );
 
     }
 
 
-    let reply = "📂 Uploaded files:\n\n";
+    let reply =
+        "📂 Uploaded files:\n\n";
 
 
-    uploadedFiles.forEach((file,index)=>{
+    files.forEach(
+        function(file, index) {
 
-        reply += (
-            `${index + 1}. ${file.name} ` +
-            `(${file.type})\n`
-        );
+            reply +=
+                `${index + 1}. ${file.name} (${file.type})\n`;
 
-    });
+        }
+    );
 
 
     return reply;
 
 }
+
+
+// ==========================================
+// GLOBAL ACCESS
+// ==========================================
+
+window.smartAIReply =
+    smartAIReply;
+
+window.getCurrentAttachment =
+    getCurrentAttachment;
+
+window.handleImageCommand =
+    handleImageCommand;
+
+window.handleFileCommand =
+    handleFileCommand;
+
+window.getUploadList =
+    getUploadList;
+
+
+// ==========================================
+// READY
+// ==========================================
+
+console.log(
+    "✅ smartAI.js ready"
+);
