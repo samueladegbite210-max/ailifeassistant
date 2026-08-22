@@ -1,18 +1,18 @@
 "use strict";
 
-/*==========================================
-AI LIFE ASSISTANT
-brain.js
-AI ENGINE v2.0
-Stable Brain / Data Engine
-==========================================*/
+/* ==========================================
+   AI LIFE ASSISTANT
+   brain.js
+   Version 3.0
+   Stable AI Brain / Data Engine
+========================================== */
 
 console.log("🧠 brain.js loading...");
 
 
-/*==========================================
-SAFE STORAGE READERS
-==========================================*/
+/* ==========================================
+   SAFE STORAGE READERS
+========================================== */
 
 function aiRead(key) {
 
@@ -35,7 +35,7 @@ function aiRead(key) {
     } catch (error) {
 
         console.warn(
-            "⚠️ Could not read storage:",
+            "⚠️ AI storage read failed:",
             key,
             error
         );
@@ -47,10 +47,7 @@ function aiRead(key) {
 }
 
 
-function aiReadObject(
-    key,
-    fallback = {}
-) {
+function aiReadObject(key, fallback = {}) {
 
     try {
 
@@ -64,15 +61,22 @@ function aiReadObject(
         const parsed =
             JSON.parse(value);
 
-        return parsed &&
-               typeof parsed === "object"
-            ? parsed
-            : fallback;
+        if (
+            parsed &&
+            typeof parsed === "object" &&
+            !Array.isArray(parsed)
+        ) {
+
+            return parsed;
+
+        }
+
+        return fallback;
 
     } catch (error) {
 
         console.warn(
-            "⚠️ Could not read object:",
+            "⚠️ AI object read failed:",
             key,
             error
         );
@@ -84,58 +88,51 @@ function aiReadObject(
 }
 
 
-/*==========================================
-LOAD AI DATA
-==========================================*/
+/* ==========================================
+   LOAD AI DATA
+========================================== */
 
 function getAIData() {
 
     return {
 
-        tasks:
-            aiRead("tasks"),
+        tasks: aiRead("tasks"),
 
-        goals:
-            aiRead("goals"),
+        goals: aiRead("goals"),
 
-        events:
-            aiRead("events"),
+        events: aiRead("events"),
 
-        notes:
-            aiRead("notes"),
+        notes: aiRead("notes"),
 
-        wellness:
-            aiReadObject(
-                "wellness",
-                {}
-            ),
+        wellness: aiReadObject(
+            "wellness",
+            {}
+        ),
 
-        xp:
-            aiReadObject(
-                "xp",
-                {
-                    xp: 0,
-                    level: 1,
-                    total: 0
-                }
-            ),
+        xp: aiReadObject(
+            "xp",
+            {
+                xp: 0,
+                level: 1,
+                total: 0
+            }
+        ),
 
-        streak:
-            aiReadObject(
-                "streak",
-                {
-                    days: 0
-                }
-            )
+        streak: aiReadObject(
+            "streak",
+            {
+                days: 0
+            }
+        )
 
     };
 
 }
 
 
-/*==========================================
-PRODUCTIVITY SCORE
-==========================================*/
+/* ==========================================
+   PRODUCTIVITY SCORE
+========================================== */
 
 function calculateProductivity() {
 
@@ -154,14 +151,18 @@ function calculateProductivity() {
     }
 
     const completed =
-        tasks.filter(
-            task =>
-                task &&
-                (
-                    task.done === true ||
-                    task.completed === true
-                )
-        ).length;
+        tasks.filter(task => {
+
+            if (!task) {
+                return false;
+            }
+
+            return (
+                task.done === true ||
+                task.completed === true
+            );
+
+        }).length;
 
 
     return Math.round(
@@ -174,9 +175,9 @@ function calculateProductivity() {
 }
 
 
-/*==========================================
-WELLNESS SCORE
-==========================================*/
+/* ==========================================
+   WELLNESS SCORE
+========================================== */
 
 function calculateWellness() {
 
@@ -196,11 +197,15 @@ function calculateWellness() {
         Number(wellness.sleep) || 0;
 
 
-    score +=
-        Math.min(water, 8);
+    score += Math.min(
+        Math.max(water, 0),
+        8
+    );
 
-    score +=
-        Math.min(sleep, 8);
+    score += Math.min(
+        Math.max(sleep, 0),
+        8
+    );
 
 
     const mood =
@@ -213,25 +218,29 @@ function calculateWellness() {
             : mood?.text;
 
 
-    switch (moodText) {
+    switch (
+        String(moodText || "")
+            .trim()
+            .toLowerCase()
+    ) {
 
-        case "Great":
+        case "great":
             score += 20;
             break;
 
-        case "Good":
+        case "good":
             score += 15;
             break;
 
-        case "Okay":
+        case "okay":
             score += 10;
             break;
 
-        case "Sad":
+        case "sad":
             score -= 10;
             break;
 
-        case "Stressed":
+        case "stressed":
             score -= 20;
             break;
 
@@ -246,9 +255,27 @@ function calculateWellness() {
 }
 
 
-/*==========================================
-TODAY'S FOCUS
-==========================================*/
+/* ==========================================
+   TASK COMPLETION CHECK
+========================================== */
+
+function isTaskCompleted(task) {
+
+    if (!task) {
+        return false;
+    }
+
+    return (
+        task.done === true ||
+        task.completed === true
+    );
+
+}
+
+
+/* ==========================================
+   TODAY'S FOCUS
+========================================== */
 
 function getTodayFocus() {
 
@@ -265,10 +292,7 @@ function getTodayFocus() {
         tasks.filter(
             task =>
                 task &&
-                !(
-                    task.done === true ||
-                    task.completed === true
-                )
+                !isTaskCompleted(task)
         );
 
 
@@ -283,14 +307,14 @@ function getTodayFocus() {
 
     const priority = {
 
-        High: 3,
         high: 3,
+        High: 3,
 
-        Medium: 2,
         medium: 2,
+        Medium: 2,
 
-        Low: 1,
-        low: 1
+        low: 1,
+        Low: 1
 
     };
 
@@ -312,9 +336,9 @@ function getTodayFocus() {
 }
 
 
-/*==========================================
-DAILY AI BRIEFING
-==========================================*/
+/* ==========================================
+   DAILY AI BRIEFING
+========================================== */
 
 function getDailyBriefing() {
 
@@ -327,12 +351,10 @@ function getDailyBriefing() {
             ? data.tasks
             : [];
 
-
     const goals =
         Array.isArray(data.goals)
             ? data.goals
             : [];
-
 
     const events =
         Array.isArray(data.events)
@@ -344,10 +366,7 @@ function getDailyBriefing() {
         tasks.filter(
             task =>
                 task &&
-                !(
-                    task.done === true ||
-                    task.completed === true
-                )
+                !isTaskCompleted(task)
         ).length;
 
 
@@ -355,10 +374,7 @@ function getDailyBriefing() {
         goals.filter(
             goal =>
                 goal &&
-                !(
-                    goal.done === true ||
-                    goal.completed === true
-                )
+                !isTaskCompleted(goal)
         ).length;
 
 
@@ -366,10 +382,23 @@ function getDailyBriefing() {
         events.length;
 
 
-    const profileName =
-        localStorage.getItem(
-            "profileName"
-        ) || "Samuel";
+    let profileName =
+        "Samuel";
+
+
+    try {
+
+        profileName =
+            localStorage.getItem(
+                "profileName"
+            ) || "Samuel";
+
+    } catch {
+
+        profileName =
+            "Samuel";
+
+    }
 
 
     let message = "";
@@ -377,7 +406,6 @@ function getDailyBriefing() {
 
     message +=
         `👋 Hello ${profileName}!\n\n`;
-
 
     message +=
         `📌 Pending Tasks: ${pendingTasks}\n`;
@@ -416,9 +444,9 @@ function getDailyBriefing() {
 }
 
 
-/*==========================================
-SMART AI RECOMMENDATION
-==========================================*/
+/* ==========================================
+   SMART RECOMMENDATION
+========================================== */
 
 function getRecommendation() {
 
@@ -432,9 +460,9 @@ function getRecommendation() {
     let recommendation = "";
 
 
-    /*----------------------------------------
-    WELLNESS
-    ----------------------------------------*/
+    /* --------------------------------------
+       WELLNESS
+    -------------------------------------- */
 
     if (wellness >= 80) {
 
@@ -461,9 +489,9 @@ function getRecommendation() {
     recommendation += "\n";
 
 
-    /*----------------------------------------
-    PRODUCTIVITY
-    ----------------------------------------*/
+    /* --------------------------------------
+       PRODUCTIVITY
+    -------------------------------------- */
 
     if (productivity >= 80) {
 
@@ -492,16 +520,16 @@ function getRecommendation() {
 }
 
 
-/*==========================================
-AI BRAIN REPLY
-==========================================*/
+/* ==========================================
+   AI BRAIN REPLY
+========================================== */
 
-function aiBrainReply(msg) {
+function aiBrainReply(rawMsg) {
 
     const text =
-        String(msg || "")
-            .toLowerCase()
-            .trim();
+        String(rawMsg || "")
+            .trim()
+            .toLowerCase();
 
 
     if (!text) {
@@ -511,9 +539,9 @@ function aiBrainReply(msg) {
     }
 
 
-    /*----------------------------------------
-    DAILY BRIEFING
-    ----------------------------------------*/
+    /* ======================================
+       DAILY BRIEFING
+    ====================================== */
 
     if (
         text.includes("daily briefing") ||
@@ -527,9 +555,9 @@ function aiBrainReply(msg) {
     }
 
 
-    /*----------------------------------------
-    RECOMMENDATION
-    ----------------------------------------*/
+    /* ======================================
+       RECOMMENDATION
+    ====================================== */
 
     if (
         text.includes("recommend something") ||
@@ -543,9 +571,9 @@ function aiBrainReply(msg) {
     }
 
 
-    /*----------------------------------------
-    PRODUCTIVITY
-    ----------------------------------------*/
+    /* ======================================
+       PRODUCTIVITY
+    ====================================== */
 
     if (
         text.includes("productivity score") ||
@@ -562,9 +590,9 @@ function aiBrainReply(msg) {
     }
 
 
-    /*----------------------------------------
-    WELLNESS
-    ----------------------------------------*/
+    /* ======================================
+       WELLNESS
+    ====================================== */
 
     if (
         text.includes("wellness score") ||
@@ -581,9 +609,9 @@ function aiBrainReply(msg) {
     }
 
 
-    /*----------------------------------------
-    TODAY'S FOCUS
-    ----------------------------------------*/
+    /* ======================================
+       TODAY'S FOCUS
+    ====================================== */
 
     if (
         text.includes("today's focus") ||
@@ -625,6 +653,7 @@ function aiBrainReply(msg) {
                     item.title ||
                     item.name ||
                     item.task ||
+                    item.text ||
                     "Untitled task";
 
 
@@ -640,18 +669,18 @@ function aiBrainReply(msg) {
     }
 
 
-    /*----------------------------------------
-    NO MATCH
-    ----------------------------------------*/
+    /* ======================================
+       NO MATCH
+    ====================================== */
 
     return null;
 
 }
 
 
-/*==========================================
-GLOBAL EXPORTS
-==========================================*/
+/* ==========================================
+   GLOBAL EXPORTS
+========================================== */
 
 window.aiRead =
     aiRead;
@@ -681,9 +710,9 @@ window.aiBrainReply =
     aiBrainReply;
 
 
-/*==========================================
-READY
-==========================================*/
+/* ==========================================
+   READY
+========================================== */
 
 console.log(
     "✅ brain.js loaded successfully"
