@@ -305,26 +305,36 @@ function getTodayFocus() {
     }
 
 
-    const priority = {
+    function getPriorityValue(priority) {
 
-        high: 3,
-        High: 3,
+    const value =
+        String(priority || "")
+            .trim()
+            .toLowerCase();
 
-        medium: 2,
-        Medium: 2,
+    if (value === "high") {
+        return 3;
+    }
 
-        low: 1,
-        Low: 1
+    if (value === "medium") {
+        return 2;
+    }
 
-    };
+    if (value === "low") {
+        return 1;
+    }
+
+    return 0;
+
+}
 
 
     pending.sort(
         (a, b) => {
 
             return (
-                (priority[b.priority] || 0) -
-                (priority[a.priority] || 0)
+              getPriorityValue(b.priority) -
+              getPriorityValue(a.priority)
             );
 
         }
