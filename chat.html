@@ -1,779 +1,350 @@
-"use strict";
+<!DOCTYPE html>
+<html lang="en">
 
-/* ==========================================
-   AI LIFE ASSISTANT
-   chat.js
-   Version 15.0
-   Main Chat + Attachment Controller
-========================================== */
+<head>
 
-console.log("🚀 chat.js v15 loading...");
+    <meta charset="UTF-8">
 
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-function startChat() {
+    <title>AI Life Assistant - Chat</title>
 
-    console.log("🚀 Starting chat controller...");
+    <link rel="stylesheet" href="style.css">
 
+</head>
 
-    const chatBox =
-        document.getElementById("chatBox");
 
-    const userInput =
-        document.getElementById("userInput");
+<body>
 
-    const sendBtn =
-        document.getElementById("sendBtn");
 
-    const attachBtn =
-        document.getElementById("attachBtn");
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
-    const attachmentMenu =
-        document.getElementById("attachmentMenu");
+<header class="chatHeader">
 
-    const pickImageBtn =
-        document.getElementById("pickImageBtn");
+    <h1>
+        🤖 AI Life Assistant
+    </h1>
 
-    const takePhotoBtn =
-        document.getElementById("takePhotoBtn");
+</header>
 
-    const pickFileBtn =
-        document.getElementById("pickFileBtn");
 
-    const imagePicker =
-        document.getElementById("imagePicker");
 
-    const cameraPicker =
-        document.getElementById("cameraPicker");
+<!-- =====================================================
+     CHAT
+===================================================== -->
 
-    const filePicker =
-        document.getElementById("filePicker");
+<main class="chatPage">
 
+    <div
+        id="chatBox"
+        class="chatBox"
+    >
 
-    /* ======================================
-       CHECK REQUIRED ELEMENTS
-    ====================================== */
+        <div class="message ai">
 
-    if (
-        !chatBox ||
-        !userInput ||
-        !sendBtn
-    ) {
+            <div class="messageText">
 
-        console.error(
-            "❌ Required chat elements missing"
-        );
+                👋 Hello
+                <span id="welcomeName">
+                    Samuel
+                </span>!
 
-        console.log(
-            "chatBox:",
-            chatBox
-        );
+                <br><br>
 
-        console.log(
-            "userInput:",
-            userInput
-        );
+                How can I help you today?
 
-        console.log(
-            "sendBtn:",
-            sendBtn
-        );
+            </div>
 
-        return;
+            <div class="messageTime">
+                Now
+            </div>
 
-    }
+        </div>
 
+    </div>
 
-    console.log(
-        "✅ Chat elements found"
-    );
+</main>
 
 
-    /* ======================================
-       ATTACHMENT STORAGE
-    ====================================== */
 
-    window.aiAttachment =
-        window.aiAttachment || null;
+<!-- =====================================================
+     CHAT COMPOSER
+===================================================== -->
 
-    window.uploadedFiles =
-        window.uploadedFiles || [];
+<footer class="chatComposer">
 
 
-    /* ======================================
-       ADD MESSAGE
-    ====================================== */
+    <!-- ATTACH BUTTON -->
 
-    function addMessage(
-        sender,
-        text
-    ) {
+    <button
+        type="button"
+        id="attachBtn"
+        class="composerIcon"
+        aria-label="Attach"
+    >
+        +
+    </button>
 
-        const message =
-            document.createElement("div");
 
 
-        message.className =
-            "message " +
-            (
-                sender === "user"
-                    ? "user"
-                    : "ai"
-            );
+    <!-- MESSAGE -->
 
+    <textarea
+        id="userInput"
+        rows="1"
+        placeholder="Ask AI Life Assistant..."
+        autocomplete="off"
+        spellcheck="true"
+    ></textarea>
 
-        const messageText =
-            document.createElement("div");
 
 
-        messageText.className =
-            "messageText";
+    <!-- VOICE -->
 
+    <button
+        type="button"
+        id="voiceBtn"
+        class="composerIcon"
+        aria-label="Voice"
+    >
+        🎤
+    </button>
 
-        messageText.textContent =
-            String(text || "");
 
 
-        const messageTime =
-            document.createElement("div");
+    <!-- SEND -->
 
+    <button
+        type="button"
+        id="sendBtn"
+        class="sendButton"
+        aria-label="Send message"
+    >
+        ➤
+    </button>
 
-        messageTime.className =
-            "messageTime";
 
+</footer>
 
-        messageTime.textContent =
-            new Date().toLocaleTimeString(
-                [],
-                {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                }
-            );
 
 
-        message.appendChild(
-            messageText
-        );
+<!-- =====================================================
+     ATTACHMENT MENU
+===================================================== -->
 
+<div
+    id="attachmentMenu"
+    class="attachmentMenu"
+>
 
-        message.appendChild(
-            messageTime
-        );
+    <button
+        type="button"
+        id="pickImageBtn"
+    >
+        🖼️ Photo
+    </button>
 
 
-        chatBox.appendChild(
-            message
-        );
+    <button
+        type="button"
+        id="takePhotoBtn"
+    >
+        📷 Camera
+    </button>
 
 
-        chatBox.scrollTop =
-            chatBox.scrollHeight;
+    <button
+        type="button"
+        id="pickFileBtn"
+    >
+        📄 File
+    </button>
 
+</div>
 
-        return message;
 
-    }
 
+<!-- =====================================================
+     IMAGE PICKER
+===================================================== -->
 
-    window.addMessage =
-        addMessage;
+<input
+    type="file"
+    id="imagePicker"
+    accept="image/*"
+    hidden
+>
 
 
-    /* ======================================
-       SEND MESSAGE
-    ====================================== */
 
-    async function sendMessage(
-        event
-    ) {
+<!-- =====================================================
+     CAMERA
+===================================================== -->
 
-        if (event) {
+<input
+    type="file"
+    id="cameraPicker"
+    accept="image/*"
+    capture="environment"
+    hidden
+>
 
-            event.preventDefault();
 
-        }
 
+<!-- =====================================================
+     FILE PICKER
+===================================================== -->
 
-        console.log(
-            "🔥 SEND BUTTON CLICKED"
-        );
+<input
+    type="file"
+    id="filePicker"
+    accept=".txt,.pdf,.doc,.docx,.csv,.json,.js,.css,.html,.md"
+    hidden
+>
 
 
-        let message =
-            userInput.value.trim();
 
+<!-- =====================================================
+     BOTTOM NAVIGATION
+===================================================== -->
 
-        const attachment =
-            window.aiAttachment;
+<nav class="navbar">
 
+    <a href="dashboard.html">
+        🏠
+        <br>
+        Home
+    </a>
 
-        /*
-           Attachment only
-        */
 
-        if (
-            !message &&
-            attachment
-        ) {
+    <a
+        href="chat.html"
+        class="active"
+    >
+        🤖
+        <br>
+        AI
+    </a>
 
-            if (
-                attachment.type ===
-                "image"
-            ) {
 
-                message =
-                    "describe the image";
+    <a href="notes.html">
+        📝
+        <br>
+        Notes
+    </a>
 
-            } else {
 
-                message =
-                    "summarize the file";
+    <a href="calendar.html">
+        📅
+        <br>
+        Calendar
+    </a>
 
-            }
 
-        }
+    <a href="profile.html">
+        👤
+        <br>
+        Profile
+    </a>
 
+</nav>
 
-        if (!message) {
 
-            userInput.focus();
 
-            return;
+<!-- =====================================================
+     CORE AI
+===================================================== -->
 
-        }
+<script src="js/helpers.js?v=11"></script>
 
+<script src="js/conversation.js?v=11"></script>
 
-        addMessage(
-            "user",
-            message
-        );
+<script src="js/knowledge.js?v=11"></script>
 
+<script src="js/memory.js?v=11"></script>
 
-        userInput.value = "";
+<script src="js/brain.js?v=11"></script>
 
-        userInput.style.height =
-            "auto";
 
 
-        const thinking =
-            addMessage(
-                "ai",
-                "🧠 Thinking..."
-            );
+<!-- =====================================================
+     AI MODULES
+===================================================== -->
 
+<script src="js/calculator.js?v=11"></script>
 
-        try {
+<script src="js/datetime.js?v=11"></script>
 
-            let response;
+<script src="js/tasks.js?v=11"></script>
 
+<script src="js/goals.js?v=11"></script>
 
-            if (
-                typeof window.smartAIReply ===
-                "function"
-            ) {
+<script src="js/notes.js?v=11"></script>
 
-                response =
-                    await window.smartAIReply(
-                        message
-                    );
+<script src="js/events.js?v=11"></script>
 
-            } else {
+<script src="js/natural.js?v=11"></script>
 
-                response =
-                    "⚠️ smartAI.js is not loaded.";
+<script src="js/weather.js?v=11"></script>
 
-            }
+<script src="js/search.js?v=11"></script>
 
+<script src="js/learnUser.js?v=11"></script>
 
-            if (thinking) {
+<script src="js/advice.js?v=11"></script>
 
-                thinking.remove();
+<script src="js/searchOnline.js?v=11"></script>
 
-            }
+<script src="js/food.js?v=11"></script>
 
+<script src="js/internet.js?v=11"></script>
 
-            addMessage(
-                "ai",
-                response ||
-                "🤖 I don't have an answer yet."
-            );
+<script src="js/context.js?v=11"></script>
 
-        }
+<script src="js/teacher.js?v=11"></script>
 
-        catch (error) {
+<script src="js/xp.js?v=11"></script>
 
-            console.error(
-                "❌ SEND ERROR:",
-                error
-            );
+<script src="js/achievement.js?v=11"></script>
 
+<script src="js/quiz.js?v=11"></script>
 
-            if (thinking) {
+<script src="js/quizScore.js?v=11"></script>
 
-                thinking.remove();
+<script src="js/profileStats.js?v=11"></script>
 
-            }
+<script src="js/streak.js?v=11"></script>
 
+<script src="js/streakReply.js?v=11"></script>
 
-            addMessage(
-                "ai",
-                "⚠️ Something went wrong."
-            );
+<script src="js/profileReply.js?v=11"></script>
 
-        }
 
-    }
 
+<!-- =====================================================
+     EXTERNAL ATTACHMENT LIBRARIES
+===================================================== -->
 
-    window.sendMessage =
-        sendMessage;
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
-    /* ======================================
-       SEND BUTTON
-    ====================================== */
 
-    /*
-       Use onclick so only ONE
-       send controller exists.
-    */
 
-    sendBtn.onclick =
-        sendMessage;
 
+<!-- =====================================================
+     MAIN AI ENGINE
+===================================================== -->
+<script src="js/attachmentAI.js?v=11"></script>
+<script src="js/smartAI.js?v=11"></script>
+<script src="js/chat.js?v=15"></script>
 
-    console.log(
-        "✅ Send button connected"
-    );
 
+</body>
 
-    /* ======================================
-       ENTER KEY
-    ====================================== */
-
-    userInput.onkeydown =
-        function (event) {
-
-            if (
-                event.key === "Enter" &&
-                !event.shiftKey
-            ) {
-
-                event.preventDefault();
-
-                sendMessage(
-                    event
-                );
-
-            }
-
-        };
-
-
-    /* ======================================
-       AUTO RESIZE
-    ====================================== */
-
-    userInput.oninput =
-        function () {
-
-            this.style.height =
-                "auto";
-
-
-            this.style.height =
-                Math.min(
-                    this.scrollHeight,
-                    140
-                ) + "px";
-
-        };
-
-
-    /* ======================================
-       ATTACHMENT MENU
-    ====================================== */
-
-    function closeAttachmentMenu() {
-
-        if (!attachmentMenu) {
-            return;
-        }
-
-
-        attachmentMenu.classList.remove(
-            "show"
-        );
-
-
-        attachmentMenu.style.display =
-            "none";
-
-    }
-
-
-    function openAttachmentMenu() {
-
-        if (!attachmentMenu) {
-            return;
-        }
-
-
-        attachmentMenu.classList.add(
-            "show"
-        );
-
-
-        attachmentMenu.style.display =
-            "block";
-
-    }
-
-
-    if (attachBtn) {
-
-        attachBtn.onclick =
-            function (event) {
-
-                event.preventDefault();
-
-
-                if (
-                    attachmentMenu &&
-                    attachmentMenu.classList.contains(
-                        "show"
-                    )
-                ) {
-
-                    closeAttachmentMenu();
-
-                } else {
-
-                    openAttachmentMenu();
-
-                }
-
-            };
-
-    }
-
-
-    /* ======================================
-       SAVE IMAGE
-    ====================================== */
-
-    function saveImageAttachment(
-        file
-    ) {
-
-        if (!file) {
-            return;
-        }
-
-
-        window.aiAttachment = {
-
-            type: "image",
-
-            name: file.name,
-
-            mimeType: file.type,
-
-            size: file.size,
-
-            file: file,
-
-            data: file
-
-        };
-
-
-        window.uploadedFiles.push({
-
-            name: file.name,
-
-            type:
-                file.type ||
-                "image",
-
-            size: file.size,
-
-            uploadedAt:
-                new Date().toISOString()
-
-        });
-
-
-        addMessage(
-            "ai",
-            "🖼️ Image attached: " +
-            file.name +
-            "\n\nAsk me to read the text or describe the image."
-        );
-
-
-        console.log(
-            "✅ Image attached:",
-            file.name
-        );
-
-    }
-
-
-    /* ======================================
-       SAVE FILE
-    ====================================== */
-
-    function saveFileAttachment(
-        file
-    ) {
-
-        if (!file) {
-            return;
-        }
-
-
-        window.aiAttachment = {
-
-            type: "file",
-
-            name: file.name,
-
-            mimeType: file.type,
-
-            size: file.size,
-
-            file: file
-
-        };
-
-
-        window.uploadedFiles.push({
-
-            name: file.name,
-
-            type:
-                file.type ||
-                "application/octet-stream",
-
-            size: file.size,
-
-            uploadedAt:
-                new Date().toISOString()
-
-        });
-
-
-        addMessage(
-            "ai",
-            "📄 File attached: " +
-            file.name +
-            "\n\nAsk me to summarize or read the file."
-        );
-
-
-        console.log(
-            "✅ File attached:",
-            file.name
-        );
-
-    }
-
-
-    /* ======================================
-       IMAGE BUTTON
-    ====================================== */
-
-    if (
-        pickImageBtn &&
-        imagePicker
-    ) {
-
-        pickImageBtn.onclick =
-            function () {
-
-                closeAttachmentMenu();
-
-                imagePicker.value =
-                    "";
-
-                imagePicker.click();
-
-            };
-
-    }
-
-
-    /* ======================================
-       CAMERA BUTTON
-    ====================================== */
-
-    if (
-        takePhotoBtn &&
-        cameraPicker
-    ) {
-
-        takePhotoBtn.onclick =
-            function () {
-
-                closeAttachmentMenu();
-
-                cameraPicker.value =
-                    "";
-
-                cameraPicker.click();
-
-            };
-
-    }
-
-
-    /* ======================================
-       FILE BUTTON
-    ====================================== */
-
-    if (
-        pickFileBtn &&
-        filePicker
-    ) {
-
-        pickFileBtn.onclick =
-            function () {
-
-                closeAttachmentMenu();
-
-                filePicker.value =
-                    "";
-
-                filePicker.click();
-
-            };
-
-    }
-
-
-    /* ======================================
-       IMAGE CHANGE
-    ====================================== */
-
-    if (imagePicker) {
-
-        imagePicker.onchange =
-            function () {
-
-                const file =
-                    this.files &&
-                    this.files[0];
-
-
-                saveImageAttachment(
-                    file
-                );
-
-            };
-
-    }
-
-
-    /* ======================================
-       CAMERA CHANGE
-    ====================================== */
-
-    if (cameraPicker) {
-
-        cameraPicker.onchange =
-            function () {
-
-                const file =
-                    this.files &&
-                    this.files[0];
-
-
-                saveImageAttachment(
-                    file
-                );
-
-            };
-
-    }
-
-
-    /* ======================================
-       FILE CHANGE
-    ====================================== */
-
-    if (filePicker) {
-
-        filePicker.onchange =
-            function () {
-
-                const file =
-                    this.files &&
-                    this.files[0];
-
-
-                saveFileAttachment(
-                    file
-                );
-
-            };
-
-    }
-
-
-    /* ======================================
-       GLOBALS
-    ====================================== */
-
-    window.saveImageAttachment =
-        saveImageAttachment;
-
-    window.saveFileAttachment =
-        saveFileAttachment;
-
-    window.openAttachmentMenu =
-        openAttachmentMenu;
-
-    window.closeAttachmentMenu =
-        closeAttachmentMenu;
-
-
-    console.log(
-        "================================"
-    );
-
-    console.log(
-        "✅ chat.js v15 READY"
-    );
-
-    console.log(
-        "Send:",
-        typeof window.sendMessage
-    );
-
-    console.log(
-        "================================"
-    );
-
-}
-
-
-/* ==========================================
-   START
-========================================== */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        startChat
-    );
-
-} else {
-
-    startChat();
-
-}
+</html>
