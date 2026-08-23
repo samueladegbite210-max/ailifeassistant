@@ -60,22 +60,19 @@ function getAttachmentFile(attachment) {
        }
     */
 
-    if (attachment.file instanceof File) {
+    if (
+    typeof File !== "undefined" &&
+    attachment.file instanceof File
+) {
+    return attachment.file;
+}
 
-        return attachment.file;
-
-    }
-
-
-    /*
-       Also allow a raw File object
-    */
-
-    if (attachment instanceof File) {
-
-        return attachment;
-
-    }
+if (
+    typeof File !== "undefined" &&
+    attachment instanceof File
+) {
+    return attachment;
+}
 
 
     return null;
