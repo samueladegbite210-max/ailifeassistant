@@ -1,18 +1,18 @@
 "use strict";
 
-// ==========================================
-// AI LIFE ASSISTANT
-// chat.js
-// Version 9.0
-// Chat + Attachment Controller
-// ==========================================
+/* ==========================================
+   AI LIFE ASSISTANT
+   chat.js
+   Version 13.0
+   Stable Chat + Attachment Controller
+========================================== */
 
 console.log("🚀 chat.js loading...");
 
 
-// ==========================================
-// ELEMENTS
-// ==========================================
+/* ==========================================
+   ELEMENTS
+========================================== */
 
 const chatBox =
     document.getElementById("chatBox");
@@ -47,35 +47,26 @@ const cameraPicker =
 const filePicker =
     document.getElementById("filePicker");
 
-
-// ==========================================
-// ATTACHMENT STATE
-// ==========================================
-
-let currentAttachment = null;
+const voiceBtn =
+    document.getElementById("voiceBtn");
 
 
-// ==========================================
-// ESCAPE HTML
-// ==========================================
+/* ==========================================
+   ATTACHMENT STATE
+========================================== */
 
-function escapeHTML(value) {
+window.aiAttachment =
+    window.aiAttachment || null;
 
-    return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
+window.uploadedFiles =
+    window.uploadedFiles || [];
 
 
-// ==========================================
-// ADD MESSAGE
-// ==========================================
+/* ==========================================
+   ADD MESSAGE
+========================================== */
 
-function addMessage(type, text) {
+function addMessage(sender, text) {
 
     if (!chatBox) {
 
@@ -84,7 +75,6 @@ function addMessage(type, text) {
         );
 
         return null;
-
     }
 
 
@@ -93,24 +83,57 @@ function addMessage(type, text) {
 
 
     message.className =
-        "message " + type;
+        "message " +
+        (
+            sender === "user"
+                ? "user"
+                : "ai"
+        );
 
 
-    message.innerHTML = `
-        <div class="messageText">
-            ${escapeHTML(text)}
-        </div>
+    const messageText =
+        document.createElement("div");
 
-        <div class="messageTime">
-            ${new Date().toLocaleTimeString([], {
+
+    messageText.className =
+        "messageText";
+
+
+    messageText.textContent =
+        String(text || "");
+
+
+    const messageTime =
+        document.createElement("div");
+
+
+    messageTime.className =
+        "messageTime";
+
+
+    messageTime.textContent =
+        new Date().toLocaleTimeString(
+            [],
+            {
                 hour: "2-digit",
                 minute: "2-digit"
-            })}
-        </div>
-    `;
+            }
+        );
 
 
-    chatBox.appendChild(message);
+    message.appendChild(
+        messageText
+    );
+
+
+    message.appendChild(
+        messageTime
+    );
+
+
+    chatBox.appendChild(
+        message
+    );
 
 
     chatBox.scrollTop =
@@ -118,31 +141,33 @@ function addMessage(type, text) {
 
 
     return message;
-
 }
 
 
-// ==========================================
-// SHOW / HIDE ATTACHMENT MENU
-// ==========================================
+window.addMessage =
+    addMessage;
 
-function toggleAttachmentMenu() {
+
+/* ==========================================
+   ATTACHMENT MENU
+========================================== */
+
+function openAttachmentMenu() {
 
     if (!attachmentMenu) {
         return;
     }
 
 
-    attachmentMenu.classList.toggle(
+    attachmentMenu.classList.add(
         "show"
     );
 
+
+    attachmentMenu.style.display =
+        "block";
 }
 
-
-// ==========================================
-// CLOSE ATTACHMENT MENU
-// ==========================================
 
 function closeAttachmentMenu() {
 
@@ -155,21 +180,159 @@ function closeAttachmentMenu() {
         "show"
     );
 
+
+    attachmentMenu.style.display =
+        "none";
 }
 
 
-// ==========================================
-// SAVE IMAGE ATTACHMENT
-// ==========================================
+/* ==========================================
+   ATTACH BUTTON
+========================================== */
 
-function setImageAttachment(file) {
+if (attachBtn) {
+
+    attachBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            if (
+                attachmentMenu &&
+                attachmentMenu.classList.contains(
+                    "show"
+                )
+            ) {
+
+                closeAttachmentMenu();
+
+            } else {
+
+                openAttachmentMenu();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   IMAGE PICKER
+========================================== */
+
+if (pickImageBtn) {
+
+    pickImageBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            closeAttachmentMenu();
+
+
+            if (imagePicker) {
+
+                imagePicker.value = "";
+
+                imagePicker.click();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   CAMERA
+========================================== */
+
+if (takePhotoBtn) {
+
+    takePhotoBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            closeAttachmentMenu();
+
+
+            if (cameraPicker) {
+
+                cameraPicker.value = "";
+
+                cameraPicker.click();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   FILE PICKER
+========================================== */
+
+if (pickFileBtn) {
+
+    pickFileBtn.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            closeAttachmentMenu();
+
+
+            if (filePicker) {
+
+                filePicker.value = "";
+
+                filePicker.click();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   SAVE IMAGE ATTACHMENT
+========================================== */
+
+function saveImageAttachment(file) {
 
     if (!file) {
         return;
     }
 
 
-    currentAttachment = {
+    console.log(
+        "🖼️ Image selected:",
+        file.name
+    );
+
+
+    window.aiAttachment = {
 
         type: "image",
 
@@ -186,40 +349,56 @@ function setImageAttachment(file) {
     };
 
 
-    window.aiAttachment =
-        currentAttachment;
+    window.uploadedFiles.push({
 
+        name: file.name,
 
-    console.log(
-        "🖼️ Image attachment saved:",
-        currentAttachment
-    );
+        type: file.type || "image",
+
+        size: file.size,
+
+        uploadedAt:
+            new Date().toISOString()
+
+    });
 
 
     addMessage(
-        "user",
-        "🖼️ Attached image: " +
-        file.name
+        "ai",
+        "🖼️ Image attached: " +
+        file.name +
+        "\n\n" +
+        "You can ask me:\n" +
+        "• Read the text\n" +
+        "• Describe the image\n" +
+        "• Analyze the image"
     );
 
 
-    closeAttachmentMenu();
-
+    console.log(
+        "✅ Image attachment saved"
+    );
 }
 
 
-// ==========================================
-// SAVE FILE ATTACHMENT
-// ==========================================
+/* ==========================================
+   SAVE FILE ATTACHMENT
+========================================== */
 
-function setFileAttachment(file) {
+function saveFileAttachment(file) {
 
     if (!file) {
         return;
     }
 
 
-    currentAttachment = {
+    console.log(
+        "📄 File selected:",
+        file.name
+    );
+
+
+    window.aiAttachment = {
 
         type: "file",
 
@@ -234,31 +413,43 @@ function setFileAttachment(file) {
     };
 
 
-    window.aiAttachment =
-        currentAttachment;
+    window.uploadedFiles.push({
 
+        name: file.name,
 
-    console.log(
-        "📄 File attachment saved:",
-        currentAttachment
-    );
+        type:
+            file.type ||
+            "application/octet-stream",
+
+        size: file.size,
+
+        uploadedAt:
+            new Date().toISOString()
+
+    });
 
 
     addMessage(
-        "user",
-        "📎 Attached file: " +
-        file.name
+        "ai",
+        "📄 File attached: " +
+        file.name +
+        "\n\n" +
+        "You can ask me:\n" +
+        "• Summarize the file\n" +
+        "• Read the file\n" +
+        "• Explain the contents"
     );
 
 
-    closeAttachmentMenu();
-
+    console.log(
+        "✅ File attachment saved"
+    );
 }
 
 
-// ==========================================
-// IMAGE PICKER
-// ==========================================
+/* ==========================================
+   IMAGE CHANGE
+========================================== */
 
 if (imagePicker) {
 
@@ -271,14 +462,14 @@ if (imagePicker) {
                 this.files[0];
 
 
-            if (file) {
-
-                setImageAttachment(file);
-
+            if (!file) {
+                return;
             }
 
 
-            this.value = "";
+            saveImageAttachment(
+                file
+            );
 
         }
     );
@@ -286,9 +477,9 @@ if (imagePicker) {
 }
 
 
-// ==========================================
-// CAMERA PICKER
-// ==========================================
+/* ==========================================
+   CAMERA CHANGE
+========================================== */
 
 if (cameraPicker) {
 
@@ -301,14 +492,14 @@ if (cameraPicker) {
                 this.files[0];
 
 
-            if (file) {
-
-                setImageAttachment(file);
-
+            if (!file) {
+                return;
             }
 
 
-            this.value = "";
+            saveImageAttachment(
+                file
+            );
 
         }
     );
@@ -316,9 +507,9 @@ if (cameraPicker) {
 }
 
 
-// ==========================================
-// FILE PICKER
-// ==========================================
+/* ==========================================
+   FILE CHANGE
+========================================== */
 
 if (filePicker) {
 
@@ -331,14 +522,14 @@ if (filePicker) {
                 this.files[0];
 
 
-            if (file) {
-
-                setFileAttachment(file);
-
+            if (!file) {
+                return;
             }
 
 
-            this.value = "";
+            saveFileAttachment(
+                file
+            );
 
         }
     );
@@ -346,103 +537,9 @@ if (filePicker) {
 }
 
 
-// ==========================================
-// ATTACH BUTTON
-// ==========================================
-
-if (attachBtn) {
-
-    attachBtn.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-            toggleAttachmentMenu();
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// PICK IMAGE BUTTON
-// ==========================================
-
-if (pickImageBtn) {
-
-    pickImageBtn.addEventListener(
-        "click",
-        function () {
-
-            closeAttachmentMenu();
-
-            if (imagePicker) {
-
-                imagePicker.click();
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// TAKE PHOTO BUTTON
-// ==========================================
-
-if (takePhotoBtn) {
-
-    takePhotoBtn.addEventListener(
-        "click",
-        function () {
-
-            closeAttachmentMenu();
-
-            if (cameraPicker) {
-
-                cameraPicker.click();
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// PICK FILE BUTTON
-// ==========================================
-
-if (pickFileBtn) {
-
-    pickFileBtn.addEventListener(
-        "click",
-        function () {
-
-            closeAttachmentMenu();
-
-            if (filePicker) {
-
-                filePicker.click();
-
-            }
-
-        }
-    );
-
-}
-
-
-// ==========================================
-// SEND MESSAGE
-// ==========================================
+/* ==========================================
+   SEND MESSAGE
+========================================== */
 
 async function sendMessage(event) {
 
@@ -467,54 +564,68 @@ async function sendMessage(event) {
         );
 
         return;
+    }
+
+
+    let message =
+        userInput.value.trim();
+
+
+    const attachment =
+        window.aiAttachment;
+
+
+    /*
+       If only an attachment exists,
+       automatically choose a useful command.
+    */
+
+    if (
+        !message &&
+        attachment
+    ) {
+
+        if (
+            attachment.type ===
+            "image"
+        ) {
+
+            message =
+                "describe the image";
+
+        } else {
+
+            message =
+                "summarize the file";
+
+        }
 
     }
 
 
-    const text =
-        userInput.value.trim();
-
-
-    console.log(
-        "📝 Message:",
-        text
-    );
-
-
-    if (!text) {
+    if (!message) {
 
         console.log(
             "⚠️ Empty message"
         );
 
-        return;
+        userInput.focus();
 
+        return;
     }
 
 
-    // ======================================
-    // SHOW USER MESSAGE
-    // ======================================
-
     addMessage(
         "user",
-        text
+        message
     );
 
-
-    // ======================================
-    // CLEAR INPUT
-    // ======================================
 
     userInput.value = "";
 
     userInput.style.height =
         "auto";
 
-
-    // ======================================
-    // THINKING MESSAGE
-    // ======================================
 
     const thinking =
         addMessage(
@@ -525,36 +636,40 @@ async function sendMessage(event) {
 
     try {
 
-        // ==================================
-        // CHECK SMART AI
-        // ==================================
-
         if (
-            typeof window.smartAIReply !==
+            typeof window.smartAIReply ===
             "function"
         ) {
 
-            throw new Error(
-                "smartAIReply is not loaded."
+            console.log(
+                "🧠 Sending to smartAIReply..."
             );
+
+
+            const response =
+                await window.smartAIReply(
+                    message
+                );
+
+
+            if (thinking) {
+
+                thinking.remove();
+
+            }
+
+
+            addMessage(
+                "ai",
+                response ||
+                "🤖 I don't have an answer yet."
+            );
+
+
+            return;
 
         }
 
-
-        console.log(
-            "🧠 Sending to smartAIReply..."
-        );
-
-
-        const response =
-            await window.smartAIReply(
-                text
-            );
-
-
-        // ==================================
-        // REMOVE THINKING
-        // ==================================
 
         if (thinking) {
 
@@ -563,23 +678,17 @@ async function sendMessage(event) {
         }
 
 
-        // ==================================
-        // AI RESPONSE
-        // ==================================
-
         addMessage(
             "ai",
-            response ||
-            "🤖 I don't have an answer yet."
+            "⚠️ smartAI.js is not loaded."
         );
-
 
     }
 
     catch (error) {
 
         console.error(
-            "❌ AI SEND ERROR:",
+            "❌ SEND ERROR:",
             error
         );
 
@@ -601,22 +710,25 @@ async function sendMessage(event) {
 }
 
 
-// ==========================================
-// SEND BUTTON
-// ==========================================
+window.sendMessage =
+    sendMessage;
+
+
+/* ==========================================
+   SEND BUTTON
+========================================== */
 
 if (sendBtn) {
-
-    console.log(
-        "✅ sendBtn found"
-    );
-
 
     sendBtn.addEventListener(
         "click",
         sendMessage
     );
 
+
+    console.log(
+        "✅ sendBtn connected"
+    );
 
 } else {
 
@@ -627,9 +739,9 @@ if (sendBtn) {
 }
 
 
-// ==========================================
-// ENTER KEY
-// ==========================================
+/* ==========================================
+   ENTER KEY
+========================================== */
 
 if (userInput) {
 
@@ -651,10 +763,14 @@ if (userInput) {
         }
     );
 
+}
 
-    // ======================================
-    // AUTO RESIZE
-    // ======================================
+
+/* ==========================================
+   AUTO RESIZE
+========================================== */
+
+if (userInput) {
 
     userInput.addEventListener(
         "input",
@@ -676,72 +792,112 @@ if (userInput) {
 }
 
 
-// ==========================================
-// GLOBAL EXPORTS
-// ==========================================
+/* ==========================================
+   CLOSE ATTACHMENT MENU
+========================================== */
 
-window.sendMessage =
-    sendMessage;
+document.addEventListener(
+    "click",
+    function (event) {
 
-window.addMessage =
-    addMessage;
+        if (
+            attachmentMenu &&
+            attachBtn &&
+            !attachmentMenu.contains(
+                event.target
+            ) &&
+            !attachBtn.contains(
+                event.target
+            )
+        ) {
 
-window.getCurrentChatAttachment =
-    function () {
+            closeAttachmentMenu();
 
-        return (
-            window.aiAttachment ||
-            null
-        );
+        }
 
-    };
+    }
+);
 
 
-// ==========================================
-// STARTUP DIAGNOSTICS
-// ==========================================
+/* ==========================================
+   WELCOME NAME
+========================================== */
+
+const savedName =
+    localStorage.getItem(
+        "profileName"
+    );
+
+
+const welcomeName =
+    document.getElementById(
+        "welcomeName"
+    );
+
+
+if (
+    welcomeName &&
+    savedName
+) {
+
+    welcomeName.textContent =
+        savedName;
+
+}
+
+
+/* ==========================================
+   GLOBAL ATTACHMENT FUNCTIONS
+========================================== */
+
+window.saveImageAttachment =
+    saveImageAttachment;
+
+window.saveFileAttachment =
+    saveFileAttachment;
+
+window.openAttachmentMenu =
+    openAttachmentMenu;
+
+window.closeAttachmentMenu =
+    closeAttachmentMenu;
+
+
+/* ==========================================
+   READY
+========================================== */
 
 console.log(
-    "================================="
+    "========================================"
 );
 
 console.log(
-    "✅ chat.js Version 9.0 loaded"
+    "✅ chat.js Version 13.0 ready"
 );
 
 console.log(
-    "sendBtn:",
-    sendBtn
+    "Send:",
+    !!sendBtn
 );
 
 console.log(
-    "userInput:",
-    userInput
+    "Attach:",
+    !!attachBtn
 );
 
 console.log(
-    "chatBox:",
-    chatBox
+    "Image picker:",
+    !!imagePicker
 );
 
 console.log(
-    "attachBtn:",
-    attachBtn
+    "Camera picker:",
+    !!cameraPicker
 );
 
 console.log(
-    "imagePicker:",
-    imagePicker
-);
-
-console.log(
-    "cameraPicker:",
-    cameraPicker
-);
-
-console.log(
-    "filePicker:",
-    filePicker
+    "File picker:",
+    !!filePicker
 );
 
 console.log(
@@ -750,20 +906,5 @@ console.log(
 );
 
 console.log(
-    "readImageText:",
-    typeof window.readImageText
-);
-
-console.log(
-    "analyzeImage:",
-    typeof window.analyzeImage
-);
-
-console.log(
-    "analyzeFile:",
-    typeof window.analyzeFile
-);
-
-console.log(
-    "================================="
+    "========================================"
 );
