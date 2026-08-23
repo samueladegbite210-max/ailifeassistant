@@ -342,17 +342,53 @@
 
 <script src="js/attachmentAI.js?v=11"></script>
 <script src="js/smartAI.js?v=11"></script>
-<script src="js/chat.js?v=14"></script>
-
 <script>
-console.log("========== CHAT TEST ==========");
-console.log("chat.js:", typeof window.sendMessage);
-console.log("smartAI:", typeof window.smartAIReply);
-console.log("attachment:", typeof window.readImageText);
-console.log("analyzeFile:", typeof window.analyzeFile);
-console.log("sendBtn:", document.getElementById("sendBtn"));
-console.log("userInput:", document.getElementById("userInput"));
-console.log("================================");
+"use strict";
+
+console.log("🔥 DIRECT SEND TEST LOADING");
+
+const testSendBtn = document.getElementById("sendBtn");
+const testUserInput = document.getElementById("userInput");
+const testChatBox = document.getElementById("chatBox");
+
+console.log("sendBtn:", testSendBtn);
+console.log("userInput:", testUserInput);
+console.log("chatBox:", testChatBox);
+
+if (testSendBtn && testUserInput && testChatBox) {
+
+    testSendBtn.onclick = function () {
+
+        console.log("🔥 SEND BUTTON REALLY CLICKED");
+
+        const text = testUserInput.value.trim();
+
+        if (!text) {
+            testUserInput.focus();
+            return;
+        }
+
+        const message = document.createElement("div");
+
+        message.className = "message user";
+
+        message.textContent = text;
+
+        testChatBox.appendChild(message);
+
+        testUserInput.value = "";
+
+        console.log("✅ DIRECT SEND WORKS");
+
+    };
+
+    console.log("✅ DIRECT SEND CONTROLLER CONNECTED");
+
+} else {
+
+    console.error("❌ CHAT ELEMENTS MISSING");
+
+}
 </script>
 
 
