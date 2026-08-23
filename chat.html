@@ -341,17 +341,19 @@
 ===================================================== -->
 
 <script src="js/attachmentAI.js?v=11"></script>
-
-
-
-<!-- =====================================================
-     MAIN AI ENGINE
-===================================================== -->
-
 <script src="js/smartAI.js?v=11"></script>
+<script src="js/chat.js?v=14"></script>
 
-<script src="js/chat.js?v=13"></script>
-
+<script>
+console.log("========== CHAT TEST ==========");
+console.log("chat.js:", typeof window.sendMessage);
+console.log("smartAI:", typeof window.smartAIReply);
+console.log("attachment:", typeof window.readImageText);
+console.log("analyzeFile:", typeof window.analyzeFile);
+console.log("sendBtn:", document.getElementById("sendBtn"));
+console.log("userInput:", document.getElementById("userInput"));
+console.log("================================");
+</script>
 
 
 </body>
