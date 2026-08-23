@@ -16,14 +16,12 @@
 
 </head>
 
-
 <body>
 
 <!-- =====================================================
      AI LIFE ASSISTANT
      CHAT PAGE
 ===================================================== -->
-
 
 <!-- =====================================================
      HEADER
@@ -36,8 +34,6 @@
     </h1>
 
 </header>
-
-
 
 <!-- =====================================================
      CHAT PAGE
@@ -67,7 +63,6 @@
 
             </div>
 
-
             <div class="messageTime">
                 Now
             </div>
@@ -78,14 +73,11 @@
 
 </main>
 
-
-
 <!-- =====================================================
      CHAT COMPOSER
 ===================================================== -->
 
 <footer class="chatComposer">
-
 
     <!-- ATTACH -->
 
@@ -98,8 +90,6 @@
         +
     </button>
 
-
-
     <!-- MESSAGE INPUT -->
 
     <textarea
@@ -109,8 +99,6 @@
         autocomplete="off"
         spellcheck="true"
     ></textarea>
-
-
 
     <!-- VOICE -->
 
@@ -122,8 +110,6 @@
     >
         🎤
     </button>
-
-
 
     <!-- =================================================
          SEND BUTTON
@@ -141,10 +127,7 @@
         ➤
     </button>
 
-
 </footer>
-
-
 
 <!-- =====================================================
      ATTACHMENT MENU
@@ -162,14 +145,12 @@
         🖼️ Photo
     </button>
 
-
     <button
         type="button"
         id="takePhotoBtn"
     >
         📷 Camera
     </button>
-
 
     <button
         type="button"
@@ -179,8 +160,6 @@
     </button>
 
 </div>
-
-
 
 <!-- =====================================================
      IMAGE PICKER
@@ -192,8 +171,6 @@
     accept="image/*"
     hidden
 >
-
-
 
 <!-- =====================================================
      CAMERA
@@ -207,8 +184,6 @@
     hidden
 >
 
-
-
 <!-- =====================================================
      DOCUMENT PICKER
 ===================================================== -->
@@ -220,14 +195,11 @@
     hidden
 >
 
-
-
 <!-- =====================================================
      BOTTOM NAVIGATION
 ===================================================== -->
 
 <nav class="navbar">
-
 
     <a href="dashboard.html">
 
@@ -238,8 +210,6 @@
         Home
 
     </a>
-
-
 
     <a
         href="chat.html"
@@ -254,8 +224,6 @@
 
     </a>
 
-
-
     <a href="notes.html">
 
         📝
@@ -265,8 +233,6 @@
         Notes
 
     </a>
-
-
 
     <a href="calendar.html">
 
@@ -278,8 +244,6 @@
 
     </a>
 
-
-
     <a href="profile.html">
 
         👤
@@ -290,10 +254,7 @@
 
     </a>
 
-
 </nav>
-
-
 
 <!-- ==========================================
      AI MODULES - TEST PHASE
@@ -309,8 +270,21 @@
 
 <script src="js/brain.js?v=11"></script>
 
+<!-- =====================================================
+     AI LIFE ASSISTANT JAVASCRIPT FILES
+===================================================== -->
 
+<!-- CORE AI -->
 
+<script src="js/helpers.js?v=11"></script>
+
+<script src="js/conversation.js?v=11"></script>
+
+<script src="js/knowledge.js?v=11"></script>
+
+<script src="js/memory.js?v=11"></script>
+
+<script src="js/brain.js?v=11"></script>
 
 <!-- AI MODULES -->
 
@@ -362,25 +336,653 @@
 
 <script src="js/profileReply.js?v=11"></script>
 
-
 <!-- EXTERNAL LIBRARIES -->
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
-
 <!-- ATTACHMENT AI -->
 
 <script src="js/attachmentAI.js?v=11"></script>
-
 
 <!-- MAIN AI ENGINE -->
 
 <script src="js/smartAI.js?v=11"></script>
 
-    
+<!-- =====================================================
+     EMERGENCY SEND CONTROLLER
 
+     This guarantees that the button can be tested
+     even if chat.js has a problem.
+===================================================== -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+    console.log(
+        "🚀 Chat emergency controller loading..."
+    );
+
+    function startChat() {
+
+        const sendBtn =
+            document.getElementById("sendBtn");
+
+        const userInput =
+            document.getElementById("userInput");
+
+        const chatBox =
+            document.getElementById("chatBox");
+
+        console.log(
+            "🔎 sendBtn:",
+            sendBtn
+        );
+
+        console.log(
+            "🔎 userInput:",
+            userInput
+        );
+
+        console.log(
+            "🔎 chatBox:",
+            chatBox
+        );
+
+        if (!sendBtn) {
+
+            console.error(
+                "❌ CRITICAL: sendBtn was not found."
+            );
+
+            return;
+
+        }
+
+        if (!userInput) {
+
+            console.error(
+                "❌ CRITICAL: userInput was not found."
+            );
+
+            return;
+
+        }
+
+        if (!chatBox) {
+
+            console.error(
+                "❌ CRITICAL: chatBox was not found."
+            );
+
+            return;
+
+        }
+
+        /*
+        =================================================
+        SEND BUTTON TEST / CONTROLLER
+        =================================================
+        */
+
+        sendBtn.addEventListener(
+            "click",
+            async function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                console.log(
+                    "🔥🔥🔥 SEND BUTTON CLICKED 🔥🔥🔥"
+                );
+
+                const message =
+                    userInput.value.trim();
+
+                /*
+                -----------------------------------------
+                EMPTY MESSAGE
+                -----------------------------------------
+                */
+
+                if (!message) {
+
+                    console.log(
+                        "⚠️ Empty message"
+                    );
+
+                    userInput.focus();
+
+                    return;
+
+                }
+
+                /*
+                -----------------------------------------
+                ADD USER MESSAGE
+                -----------------------------------------
+                */
+
+                addLocalMessage(
+                    "user",
+                    message
+                );
+
+                userInput.value = "";
+
+                userInput.style.height =
+                    "auto";
+
+                /*
+                -----------------------------------------
+                SHOW THINKING
+                -----------------------------------------
+                */
+
+                const thinking =
+                    addLocalMessage(
+                        "ai",
+                        "🧠 Thinking..."
+                    );
+
+                try {
+
+                    /*
+                    =====================================
+                    USE SMART AI
+                    =====================================
+                    */
+
+                    if (
+                        typeof window.smartAIReply ===
+                        "function"
+                    ) {
+
+                        console.log(
+                            "🧠 Sending to smartAIReply..."
+                        );
+
+                        const response =
+                            await window.smartAIReply(
+                                message
+                            );
+
+                        if (thinking) {
+
+                            thinking.remove();
+
+                        }
+
+                        addLocalMessage(
+                            "ai",
+                            response ||
+                            "🤖 I don't have an answer yet."
+                        );
+
+                        return;
+
+                    }
+
+                    /*
+                    =====================================
+                    CHAT.JS FALLBACK
+                    =====================================
+                    */
+
+                    if (
+                        typeof window.sendMessage ===
+                        "function"
+                    ) {
+
+                        console.log(
+                            "💬 Using chat.js sendMessage..."
+                        );
+
+                        if (thinking) {
+
+                            thinking.remove();
+
+                        }
+
+                        /*
+                        Do not pass the message if
+                        sendMessage() reads userInput
+                        itself.
+                        */
+
+                        await window.sendMessage();
+
+                        return;
+
+                    }
+
+                    /*
+                    =====================================
+                    NO AI ENGINE
+                    =====================================
+                    */
+
+                    if (thinking) {
+
+                        thinking.remove();
+
+                    }
+
+                    addLocalMessage(
+                        "ai",
+                        "⚠️ The AI engine is not loaded. Check the browser console for the file that failed to load."
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ SEND ERROR:",
+                        error
+                    );
+
+                    if (thinking) {
+
+                        thinking.remove();
+
+                    }
+
+                    addLocalMessage(
+                        "ai",
+                        "⚠️ Something went wrong while processing your message."
+                    );
+
+                }
+
+            },
+            false
+        );
+
+        /*
+        =================================================
+        ENTER KEY
+        =================================================
+        */
+
+        userInput.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Enter" &&
+                    !event.shiftKey
+                ) {
+
+                    event.preventDefault();
+
+                    sendBtn.click();
+
+                }
+
+            }
+        );
+
+        /*
+        =================================================
+        AUTO RESIZE
+        =================================================
+        */
+
+        userInput.addEventListener(
+            "input",
+            function () {
+
+                this.style.height =
+                    "auto";
+
+                this.style.height =
+                    Math.min(
+                        this.scrollHeight,
+                        140
+                    ) + "px";
+
+            }
+        );
+
+        console.log(
+            "✅ Emergency chat controller connected."
+        );
+
+    }
+
+    /*
+    =====================================================
+    LOCAL MESSAGE RENDERER
+    =====================================================
+    */
+
+    function addLocalMessage(
+        sender,
+        text
+    ) {
+
+        const chatBox =
+            document.getElementById("chatBox");
+
+        if (!chatBox) {
+
+            return null;
+
+        }
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            "message " +
+            (
+                sender === "user"
+                    ? "user"
+                    : "ai"
+            );
+
+        const messageText =
+            document.createElement("div");
+
+        messageText.className =
+            "messageText";
+
+        /*
+        Escape HTML so user messages
+        cannot inject HTML.
+        */
+
+        messageText.textContent =
+            String(text || "");
+
+        const messageTime =
+            document.createElement("div");
+
+        messageTime.className =
+            "messageTime";
+
+        messageTime.textContent =
+            new Date().toLocaleTimeString(
+                [],
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        message.appendChild(
+            messageText
+        );
+
+        message.appendChild(
+            messageTime
+        );
+
+        chatBox.appendChild(
+            message
+        );
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+        return message;
+
+    }
+
+    /*
+    =====================================================
+    START AFTER DOM
+    =====================================================
+    */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            startChat
+        );
+
+    } else {
+
+        startChat();
+
+    }
+
+})();
+
+</script>
+
+<!-- =====================================================
+     STARTUP DIAGNOSTICS
+===================================================== -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+    function startupCheck() {
+
+        console.log(
+            "========================================"
+        );
+
+        console.log(
+            "🚀 AI LIFE ASSISTANT STARTUP CHECK"
+        );
+
+        console.log(
+            "========================================"
+        );
+
+        const elements = {
+
+            chatBox:
+                document.getElementById(
+                    "chatBox"
+                ),
+
+            userInput:
+                document.getElementById(
+                    "userInput"
+                ),
+
+            sendBtn:
+                document.getElementById(
+                    "sendBtn"
+                ),
+
+            attachBtn:
+                document.getElementById(
+                    "attachBtn"
+                ),
+
+            voiceBtn:
+                document.getElementById(
+                    "voiceBtn"
+                )
+
+        };
+
+        console.table(
+            elements
+        );
+
+        console.log(
+            "smartAIReply:",
+            typeof window.smartAIReply
+        );
+
+        console.log(
+            "conversationReply:",
+            typeof window.conversationReply
+        );
+
+        console.log(
+            "knowledgeReply:",
+            typeof window.knowledgeReply
+        );
+
+        console.log(
+            "memoryReply:",
+            typeof window.memoryReply
+        );
+
+        console.log(
+            "aiBrainReply:",
+            typeof window.aiBrainReply
+        );
+
+        console.log(
+            "analyzeImage:",
+            typeof window.analyzeImage
+        );
+
+        console.log(
+            "readImageText:",
+            typeof window.readImageText
+        );
+
+        console.log(
+            "analyzeFile:",
+            typeof window.analyzeFile
+        );
+
+        console.log(
+            "sendMessage:",
+            typeof window.sendMessage
+        );
+
+        console.log(
+            "========================================"
+        );
+
+        /*
+        -----------------------------------------
+        WELCOME NAME
+        -----------------------------------------
+        */
+
+        const savedName =
+            localStorage.getItem(
+                "profileName"
+            );
+
+        const welcomeName =
+            document.getElementById(
+                "welcomeName"
+            );
+
+        if (
+            welcomeName &&
+            savedName
+        ) {
+
+            welcomeName.textContent =
+                savedName;
+
+        }
+
+        /*
+        -----------------------------------------
+        DUPLICATE ID CHECK
+        -----------------------------------------
+        */
+
+        const sendButtons =
+            document.querySelectorAll(
+                "#sendBtn"
+            );
+
+        console.log(
+            "🔘 Number of send buttons:",
+            sendButtons.length
+        );
+
+        if (
+            sendButtons.length !== 1
+        ) {
+
+            console.error(
+                "❌ There must be EXACTLY ONE #sendBtn."
+            );
+
+        } else {
+
+            console.log(
+                "✅ Exactly one send button found."
+            );
+
+        }
+
+    }
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            startupCheck
+        );
+
+    } else {
+
+        startupCheck();
+
+    }
+
+})();
+    <script>
+
+window.addEventListener("load", function () {
+
+    console.log("========== AI FILE TEST ==========");
+
+    console.log(
+        "helpers.js:",
+        typeof window.aiRead
+    );
+
+    console.log(
+        "conversation.js:",
+        typeof window.conversationReply
+    );
+
+    console.log(
+        "knowledge.js:",
+        typeof window.knowledgeReply
+    );
+
+    console.log(
+        "memory.js:",
+        typeof window.memoryReply
+    );
+
+    console.log(
+        "brain.js:",
+        typeof window.aiBrainReply
+    );
+
+    console.log(
+        "smartAI.js:",
+        typeof window.smartAIReply
+    );
+
+    console.log("==================================");
+
+});
+
+</script>
 
 </body>
 
