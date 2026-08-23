@@ -373,15 +373,27 @@ function knowledgeReply(rawMsg) {
             }
 
 
-            if (
-                msg === cleanKeyword ||
-                msg.includes(cleanKeyword)
-            ) {
+            const escapedKeyword =
+    cleanKeyword.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+    );
 
-                return item.answer;
+const keywordRegex =
+    new RegExp(
+        "\\b" +
+        escapedKeyword +
+        "\\b",
+        "i"
+    );
 
-            }
+if (
+    keywordRegex.test(msg)
+) {
 
+    return item.answer;
+
+          }  
         }
 
     }
