@@ -2120,7 +2120,40 @@ ChatGPT Typing Animation
 .navbar {
     z-index: 4000;
 }
+/* ==========================================
+   ATTACHMENT MENU FIX
+========================================== */
 
+.attachmentMenu {
+    position: fixed !important;
+
+    bottom: 95px !important;
+
+    left: 20px !important;
+
+    z-index: 9999 !important;
+
+    display: none;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 12px;
+
+    border-radius: 16px;
+}
+
+
+.attachmentMenu.show {
+    display: flex !important;
+}
+
+
+.attachmentMenu button {
+    position: relative;
+    z-index: 10000;
+}
 /*==================================================
 THE END
 ==================================================*/
