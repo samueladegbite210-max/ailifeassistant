@@ -501,7 +501,7 @@ function removeCurrentAttachment() {
             );
 
         }
-
+removeCurrentAttachment();
         catch (error) {
 
             console.error(
