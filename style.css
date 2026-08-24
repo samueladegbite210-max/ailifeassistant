@@ -2150,9 +2150,17 @@ ChatGPT Typing Animation
 }
 
 
-.attachmentMenu button {
-    position: relative;
-    z-index: 10000;
+.attachmentMenu.attachmentMenu {
+    position: fixed;
+    bottom: 100px;
+    left: 20px;
+    z-index: 9999;
+}
+    
+/* Hide bottom navigation on chat page */
+
+.chatPage ~ .navbar {
+    display: none !important;
 }
 /*==================================================
 THE END
