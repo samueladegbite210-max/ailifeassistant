@@ -87,7 +87,209 @@ function startChat() {
         "✅ Chat elements found"
     );
 
+const attachmentPreview =
+    document.getElementById(
+        "attachmentPreview"
+    );
 
+const attachmentPreviewContent =
+    document.getElementById(
+        "attachmentPreviewContent"
+    );
+
+const removeAttachmentBtn =
+    document.getElementById(
+        "removeAttachmentBtn"
+    );
+   /* ==========================================
+   SHOW ATTACHMENT PREVIEW
+========================================== */
+
+function showAttachmentPreview(
+    file,
+    type
+) {
+
+    if (
+        !attachmentPreview ||
+        !attachmentPreviewContent ||
+        !file
+    ) {
+        return;
+    }
+
+
+    attachmentPreviewContent.innerHTML =
+        "";
+
+
+    /*
+    ------------------------------------------
+    IMAGE PREVIEW
+    ------------------------------------------
+    */
+
+    if (type === "image") {
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+
+        image.src =
+            URL.createObjectURL(
+                file
+            );
+
+
+        image.alt =
+            file.name;
+
+
+        attachmentPreviewContent.appendChild(
+            image
+        );
+
+    }
+
+
+    /*
+    ------------------------------------------
+    TEXT
+    ------------------------------------------
+    */
+
+    const textBox =
+        document.createElement(
+            "div"
+        );
+
+
+    textBox.className =
+        "attachmentPreviewText";
+
+
+    const name =
+        document.createElement(
+            "div"
+        );
+
+
+    name.className =
+        "attachmentPreviewName";
+
+
+    name.textContent =
+        type === "image"
+            ? "🖼️ " + file.name
+            : "📄 " + file.name;
+
+
+    const fileType =
+        document.createElement(
+            "div"
+        );
+
+
+    fileType.className =
+        "attachmentPreviewType";
+
+
+    fileType.textContent =
+        file.type ||
+        "Unknown file";
+
+
+    textBox.appendChild(
+        name
+    );
+
+
+    textBox.appendChild(
+        fileType
+    );
+
+
+    attachmentPreviewContent.appendChild(
+        textBox
+    );
+
+
+    attachmentPreview.classList.add(
+        "show"
+    );
+
+}
+   /* ==========================================
+   REMOVE ATTACHMENT
+========================================== */
+
+function removeCurrentAttachment() {
+
+    window.aiAttachment =
+        null;
+
+
+    if (attachmentPreview) {
+
+        attachmentPreview.classList.remove(
+            "show"
+        );
+
+    }
+
+
+    if (attachmentPreviewContent) {
+
+        attachmentPreviewContent.innerHTML =
+            "";
+
+    }
+
+
+    if (imagePicker) {
+
+        imagePicker.value =
+            "";
+
+    }
+
+
+    if (cameraPicker) {
+
+        cameraPicker.value =
+            "";
+
+    }
+
+
+    if (filePicker) {
+
+        filePicker.value =
+            "";
+
+    }
+
+
+    console.log(
+        "🗑️ Attachment removed"
+    );
+
+}
+   if (removeAttachmentBtn) {
+
+    removeAttachmentBtn.addEventListener(
+        "click",
+        function () {
+
+            removeCurrentAttachment();
+
+        }
+    );
+
+}
+   
     /* ======================================
        ATTACHMENT STORAGE
     ====================================== */
@@ -502,7 +704,10 @@ function startChat() {
                 new Date().toISOString()
 
         });
-
+       showAttachmentPreview(
+    file,
+    "image"
+);
 
         addMessage(
             "ai",
@@ -563,7 +768,10 @@ function startChat() {
 
         });
 
-
+        showAttachmentPreview(
+    file,
+    "file"
+);
         addMessage(
             "ai",
             "📄 File attached: " +
