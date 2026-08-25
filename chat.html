@@ -1270,7 +1270,16 @@ function saveImageAttachment(file) {
             "image"
         );
 
+showAttachmentPreview(
+    file,
+    "image"
+);
 
+addAttachmentMessage(
+    "user",
+    file,
+    "image"
+);
     console.log(
         "🖼️ Attachment chat message:",
         attachmentMessage
