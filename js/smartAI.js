@@ -683,6 +683,12 @@ function isFileCommand(msg) {
 
 async function handleImageCommand(msg) {
 
+    console.log(
+        "🖼️ IMAGE COMMAND DETECTED:",
+        msg
+    );
+
+
     const attachment =
         getCurrentAttachment();
 
@@ -700,11 +706,173 @@ async function handleImageCommand(msg) {
     if (attachment.type !== "image") {
 
         return (
-            "📎 The current attachment isn't an image.\n\n" +
-            "Please upload an image."
+            "📎 The current attachment isn't an image."
         );
 
     }
+
+
+    console.log(
+        "🖼️ Current image:",
+        attachment.name
+    );
+
+
+    console.log(
+        "🖼️ Image file:",
+        attachment.file
+    );
+
+
+    /*
+    ======================================
+    OCR
+    ======================================
+    */
+
+    if (
+        msg.includes("read text") ||
+        msg.includes("extract text") ||
+        msg.includes("what does the image say") ||
+        msg.includes("what does this say") ||
+        msg.includes("text in the image")
+    ) {
+
+        if (
+            typeof window.readImageText ===
+            "function"
+        ) {
+
+            try {
+
+                const result =
+                    await window.readImageText(
+                        attachment.file ||
+                        attachment.data
+                    );
+
+
+                if (
+                    result &&
+                    String(result).trim()
+                ) {
+
+                    return result;
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "❌ OCR ERROR:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        return (
+            "📝 I couldn't read text from this image."
+        );
+
+    }
+
+
+    /*
+    ======================================
+    IMAGE ANALYSIS
+    ======================================
+    */
+
+    if (
+        msg.includes("describe") ||
+        msg.includes("what is in") ||
+        msg.includes("analyze")
+    ) {
+
+        console.log(
+            "👀 Starting image analysis..."
+        );
+
+
+        if (
+            typeof window.analyzeImage ===
+            "function"
+        ) {
+
+            try {
+
+                const result =
+                    await window.analyzeImage(
+                        attachment.file ||
+                        attachment.data
+                    );
+
+
+                console.log(
+                    "👀 Image analysis result:",
+                    result
+                );
+
+
+                if (
+                    result &&
+                    String(result).trim()
+                ) {
+
+                    return String(result);
+
+                }
+
+
+                return (
+                    "👀 I received the image, but the image analysis engine did not return a description."
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "❌ IMAGE ANALYSIS ERROR:",
+                    error
+                );
+
+
+                return (
+                    "⚠️ I received your image, but something went wrong while analyzing it."
+                );
+
+            }
+
+        }
+
+
+        console.error(
+            "❌ analyzeImage is not a function"
+        );
+
+
+        return (
+            "👀 I received your image, but the image analysis function is not connected yet."
+        );
+
+    }
+
+
+    return (
+        "📷 I have your image ready.\n\n" +
+        "You can ask me:\n" +
+        "• Describe the image\n" +
+        "• Read the text\n" +
+        "• Analyze the image"
+    );
+
+}
 
 
     // ======================================
@@ -720,8 +888,7 @@ async function handleImageCommand(msg) {
     ) {
 
         if (
-            typeof readImageText ===
-            "function"
+            typeof window.readImageText === "function"
         ) {
 
             return await readImageText(
@@ -748,8 +915,7 @@ async function handleImageCommand(msg) {
     ) {
 
         if (
-            typeof analyzeImage ===
-            "function"
+            typeof window.analyzeImage === "function"
         ) {
 
             return await analyzeImage(
