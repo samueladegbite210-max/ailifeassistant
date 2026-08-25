@@ -978,7 +978,8 @@ async function handleFileCommand(msg) {
     ) {
 
         return await analyzeFile(
-            attachment.file
+    attachment
+);
         );
 
     }
