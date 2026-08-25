@@ -372,7 +372,7 @@
 ===================================================== -->
 
 <script src="js/smartAI.js?v=11"></script>
-<script src="js/attachmentController.js?v=31"></script>
+
 
 <!-- =====================================================
      CHAT CONTROLLER
@@ -1214,12 +1214,10 @@ function saveImageAttachment(file) {
         return;
     }
 
-
     console.log(
         "🖼️ Image selected:",
         file.name
     );
-
 
     window.aiAttachment = {
 
@@ -1234,7 +1232,6 @@ function saveImageAttachment(file) {
         file: file,
 
         data: file
-
     };
 
 
@@ -1250,26 +1247,36 @@ function saveImageAttachment(file) {
             new Date().toISOString()
 
     });
-      showAttachmentPreview(
-    file,
-    "image"
-);
 
-    addAttachmentMessage(
-    "user",
-    file,
-    "image"
-); 
+
+    /*
+    SHOW PREVIEW ABOVE COMPOSER
+    */
+
+    showAttachmentPreview(
+        file,
+        "image"
+    );
+
+
+    /*
+    SHOW REAL IMAGE INSIDE CHAT
+    */
+
+    const attachmentMessage =
+        addAttachmentMessage(
+            "user",
+            file,
+            "image"
+        );
 
 
     console.log(
-        "✅ window.aiAttachment:",
-        window.aiAttachment
+        "🖼️ Attachment chat message:",
+        attachmentMessage
     );
 
 }
-
-
 
 /* =====================================================
    SAVE DOCUMENT ATTACHMENT
@@ -1281,12 +1288,10 @@ function saveFileAttachment(file) {
         return;
     }
 
-
     console.log(
         "📄 File selected:",
         file.name
     );
-
 
     window.aiAttachment = {
 
@@ -1299,7 +1304,6 @@ function saveFileAttachment(file) {
         size: file.size,
 
         file: file
-
     };
 
 
@@ -1307,7 +1311,8 @@ function saveFileAttachment(file) {
 
         name: file.name,
 
-        type: file.type ||
+        type:
+            file.type ||
             "application/octet-stream",
 
         size: file.size,
@@ -1317,24 +1322,35 @@ function saveFileAttachment(file) {
 
     });
 
-   showAttachmentPreview(
-    file,
-    "file"
-);
-    addAttachmentMessage(
-    "user",
-    file,
-    "file"
-);
+
+    /*
+    SHOW PREVIEW ABOVE COMPOSER
+    */
+
+    showAttachmentPreview(
+        file,
+        "file"
+    );
+
+
+    /*
+    SHOW FILE CARD INSIDE CHAT
+    */
+
+    const attachmentMessage =
+        addAttachmentMessage(
+            "user",
+            file,
+            "file"
+        );
 
 
     console.log(
-        "✅ window.aiAttachment:",
-        window.aiAttachment
+        "📄 Attachment chat message:",
+        attachmentMessage
     );
 
 }
-
 
 
 /* =====================================================
