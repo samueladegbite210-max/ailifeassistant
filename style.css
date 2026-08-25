@@ -2350,6 +2350,85 @@ ChatGPT Typing Animation
 
     word-break: break-word;
 }
+/* ==========================================
+   ATTACHMENT PREVIEW
+========================================== */
+
+.attachmentPreview {
+    display: none;
+    align-items: center;
+    gap: 10px;
+
+    position: fixed;
+
+    left: 12px;
+    right: 12px;
+    bottom: 70px;
+
+    padding: 10px;
+
+    z-index: 1000;
+
+    border-radius: 14px;
+
+    background: #1a1a1a;
+}
+
+
+.attachmentPreview.show {
+    display: flex !important;
+}
+
+
+.attachmentPreviewContent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.attachmentPreviewContent img {
+    width: 70px;
+    height: 70px;
+
+    object-fit: cover;
+
+    border-radius: 10px;
+
+    display: block;
+}
+
+
+.attachmentPreviewText {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.attachmentPreviewName {
+    font-size: 14px;
+
+    word-break: break-word;
+}
+
+
+.attachmentPreviewType {
+    font-size: 12px;
+
+    opacity: 0.7;
+
+    margin-top: 4px;
+}
+
+
+.removeAttachmentBtn {
+    flex-shrink: 0;
+}
 /*==================================================
 THE END
 ==================================================*/
