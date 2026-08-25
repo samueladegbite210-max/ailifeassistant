@@ -1030,12 +1030,19 @@ function getUploadList() {
 }
 
 
-// ==========================================
-// GLOBAL ACCESS
-// ==========================================
+/* ==========================================
+   GLOBAL ACCESS
+========================================== */
 
 window.smartAIReply =
-    smartAIReply;
+    async function (rawMessage) {
+
+        return await smartAIReply(
+            rawMessage
+        );
+
+    };
+
 
 window.getCurrentAttachment =
     getCurrentAttachment;
@@ -1050,10 +1057,15 @@ window.getUploadList =
     getUploadList;
 
 
-// ==========================================
-// READY
-// ==========================================
+/* ==========================================
+   READY
+========================================== */
 
 console.log(
     "✅ smartAI.js ready"
+);
+
+console.log(
+    "🔎 window.smartAIReply:",
+    typeof window.smartAIReply
 );
