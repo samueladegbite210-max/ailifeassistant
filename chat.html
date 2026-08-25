@@ -787,7 +787,242 @@ window.addLocalMessage =
     addLocalMessage;
 
 
+/* ==========================================
+   ADD ATTACHMENT MESSAGE
+========================================== */
 
+function addAttachmentMessage(
+    sender,
+    file,
+    type
+) {
+
+    if (
+        !chatBox ||
+        !file
+    ) {
+
+        return null;
+
+    }
+
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        "message " +
+        (
+            sender === "user"
+                ? "user"
+                : "ai"
+        );
+
+
+    const messageText =
+        document.createElement("div");
+
+
+    messageText.className =
+        "messageText";
+
+
+    /*
+    =========================================
+    IMAGE
+    =========================================
+    */
+
+    if (
+        type === "image"
+    ) {
+
+        const image =
+            document.createElement("img");
+
+
+        image.className =
+            "chatAttachmentImage";
+
+
+        image.src =
+            URL.createObjectURL(
+                file
+            );
+
+
+        image.alt =
+            file.name;
+
+
+        image.onload =
+            function () {
+
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
+
+            };
+
+
+        messageText.appendChild(
+            image
+        );
+
+
+        const fileName =
+            document.createElement("div");
+
+
+        fileName.className =
+            "chatAttachmentName";
+
+
+        fileName.textContent =
+            "🖼️ " + file.name;
+
+
+        messageText.appendChild(
+            fileName
+        );
+
+    }
+
+
+    /*
+    =========================================
+    FILE
+    =========================================
+    */
+
+    else {
+
+        const fileBox =
+            document.createElement("div");
+
+
+        fileBox.className =
+            "chatFileAttachment";
+
+
+        const icon =
+            document.createElement("div");
+
+
+        icon.className =
+            "chatFileIcon";
+
+
+        icon.textContent =
+            "📄";
+
+
+        const fileInfo =
+            document.createElement("div");
+
+
+        fileInfo.className =
+            "chatFileInfo";
+
+
+        const fileName =
+            document.createElement("div");
+
+
+        fileName.className =
+            "chatAttachmentName";
+
+
+        fileName.textContent =
+            file.name;
+
+
+        const fileType =
+            document.createElement("div");
+
+
+        fileType.className =
+            "chatAttachmentType";
+
+
+        fileType.textContent =
+            file.type ||
+            "File";
+
+
+        fileInfo.appendChild(
+            fileName
+        );
+
+
+        fileInfo.appendChild(
+            fileType
+        );
+
+
+        fileBox.appendChild(
+            icon
+        );
+
+
+        fileBox.appendChild(
+            fileInfo
+        );
+
+
+        messageText.appendChild(
+            fileBox
+        );
+
+    }
+
+
+    /*
+    =========================================
+    TIME
+    =========================================
+    */
+
+    const messageTime =
+        document.createElement("div");
+
+
+    messageTime.className =
+        "messageTime";
+
+
+    messageTime.textContent =
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+
+    message.appendChild(
+        messageText
+    );
+
+
+    message.appendChild(
+        messageTime
+    );
+
+
+    chatBox.appendChild(
+        message
+    );
+
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+
+    return message;
+
+}
 /* =====================================================
    ATTACHMENT MENU
 ===================================================== */
@@ -1020,15 +1255,11 @@ function saveImageAttachment(file) {
     "image"
 );
 
-    addLocalMessage(
-        "ai",
-        "🖼️ Image attached: " +
-        file.name +
-        "\n\nYou can ask me:\n" +
-        "• Read the text\n" +
-        "• Describe the image\n" +
-        "• Analyze the image"
-    );
+    addAttachmentMessage(
+    "user",
+    file,
+    "image"
+); 
 
 
     console.log(
@@ -1090,15 +1321,11 @@ function saveFileAttachment(file) {
     file,
     "file"
 );
-    addLocalMessage(
-        "ai",
-        "📄 File attached: " +
-        file.name +
-        "\n\nYou can ask me to:\n" +
-        "• Summarize the file\n" +
-        "• Read the file\n" +
-        "• Explain the contents"
-    );
+    addAttachmentMessage(
+    "user",
+    file,
+    "file"
+);
 
 
     console.log(
