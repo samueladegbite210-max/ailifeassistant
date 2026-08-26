@@ -90,7 +90,15 @@ function isImageCommand(msg) {
     const attachment =
         getCurrentAttachment();
 
+console.log(
+    "📎 CURRENT ATTACHMENT:",
+    attachment
+);
 
+console.log(
+    "📎 ATTACHMENT TYPE:",
+    attachment?.type
+);
     /*
        Do not treat normal questions as
        image questions unless an image
