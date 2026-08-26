@@ -272,7 +272,15 @@ async function handleImageCommand(msg) {
         msg
     );
 
+console.log(
+    "🔎 analyzeImage:",
+    typeof window.analyzeImage
+);
 
+console.log(
+    "🔎 readImageText:",
+    typeof window.readImageText
+);
     const attachment =
         getCurrentAttachment();
 
@@ -668,16 +676,50 @@ const attachment =
     getCurrentAttachment();
 
 
+console.log(
+    "📎 ATTACHMENT:",
+    attachment
+);
+
+
+console.log(
+    "📎 ATTACHMENT TYPE:",
+    attachment
+        ? attachment.type
+        : "NONE"
+);
+
+
+console.log(
+    "🖼️ IMAGE COMMAND:",
+    isImageCommand(msg)
+);
+
+
+/* ======================================
+   IMAGE ATTACHMENT
+====================================== */
+
 if (
     attachment &&
-    attachment.type === "image" &&
-    isImageCommand(msg)
+    attachment.type === "image"
 ) {
 
-    return await handleImageCommand(msg);
+    console.log(
+        "🖼️ IMAGE ATTACHMENT FOUND"
+    );
+
+
+    return await handleImageCommand(
+        msg
+    );
 
 }
 
+
+/* ======================================
+   FILE ATTACHMENT
+====================================== */
 
 if (
     attachment &&
@@ -685,7 +727,14 @@ if (
     isFileCommand(msg)
 ) {
 
-    return await handleFileCommand(msg);
+    console.log(
+        "📄 FILE ATTACHMENT FOUND"
+    );
+
+
+    return await handleFileCommand(
+        msg
+    );
 
 }
 
