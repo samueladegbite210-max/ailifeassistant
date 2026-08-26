@@ -406,13 +406,19 @@ console.log(
 
 "use strict";
 
+/* ==========================================
+   AI LIFE ASSISTANT
+   chat.js
+   Version 14.0
+   Stable Chat + Attachment Controller
+========================================== */
 
-console.log("🚀 AI Life Assistant chat controller loading...");
+console.log("💬 chat.js loading...");
 
 
-/* =====================================================
+/* ==========================================
    ELEMENTS
-===================================================== */
+========================================== */
 
 const chatBox =
     document.getElementById("chatBox");
@@ -450,43 +456,6 @@ const filePicker =
 const voiceBtn =
     document.getElementById("voiceBtn");
 
-
-
-/* =====================================================
-   BASIC ELEMENT CHECK
-===================================================== */
-
-console.log("chatBox:", chatBox);
-
-console.log("userInput:", userInput);
-
-console.log("sendBtn:", sendBtn);
-
-console.log("attachBtn:", attachBtn);
-
-console.log("attachmentMenu:", attachmentMenu);
-
-console.log("imagePicker:", imagePicker);
-
-console.log("cameraPicker:", cameraPicker);
-
-console.log("filePicker:", filePicker);
-
-console.log(
-    "smartAIReply:",
-    typeof window.smartAIReply
-);
-
-console.log(
-    "readImageText:",
-    typeof window.readImageText
-);
-
-console.log(
-    "analyzeFile:",
-    typeof window.analyzeFile
-);
-
 const attachmentPreview =
     document.getElementById(
         "attachmentPreview"
@@ -501,6 +470,351 @@ const removeAttachmentBtn =
     document.getElementById(
         "removeAttachmentBtn"
     );
+
+
+/* ==========================================
+   INITIAL ATTACHMENT STATE
+========================================== */
+
+window.aiAttachment =
+    window.aiAttachment || null;
+
+window.uploadedFiles =
+    window.uploadedFiles || [];
+
+
+/* ==========================================
+   SCROLL CHAT TO BOTTOM
+========================================== */
+
+function scrollChatToBottom() {
+
+    if (!chatBox) {
+        return;
+    }
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+/* ==========================================
+   ADD TEXT MESSAGE
+========================================== */
+
+function addLocalMessage(
+    sender,
+    text
+) {
+
+    if (!chatBox) {
+
+        console.error(
+            "❌ chatBox not found"
+        );
+
+        return null;
+
+    }
+
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        sender === "user"
+            ? "message user"
+            : "message ai";
+
+
+    const messageText =
+        document.createElement("div");
+
+
+    messageText.className =
+        "messageText";
+
+
+    messageText.textContent =
+        String(text || "");
+
+
+    const messageTime =
+        document.createElement("div");
+
+
+    messageTime.className =
+        "messageTime";
+
+
+    messageTime.textContent =
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+
+    message.appendChild(
+        messageText
+    );
+
+
+    message.appendChild(
+        messageTime
+    );
+
+
+    chatBox.appendChild(
+        message
+    );
+
+
+    scrollChatToBottom();
+
+
+    return message;
+
+}
+
+
+/* ==========================================
+   ADD ATTACHMENT MESSAGE
+
+   IMPORTANT:
+   This function displays an attachment
+   inside the chat exactly ONCE.
+========================================== */
+
+function addAttachmentMessage(
+    sender,
+    file,
+    type
+) {
+
+    if (
+        !chatBox ||
+        !file
+    ) {
+
+        return null;
+
+    }
+
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        sender === "user"
+            ? "message user"
+            : "message ai";
+
+
+    const messageText =
+        document.createElement("div");
+
+
+    messageText.className =
+        "messageText";
+
+
+    /* ======================================
+       IMAGE
+    ====================================== */
+
+    if (type === "image") {
+
+        const image =
+            document.createElement("img");
+
+
+        image.className =
+            "chatAttachmentImage";
+
+
+        const imageURL =
+            URL.createObjectURL(file);
+
+
+        image.src =
+            imageURL;
+
+
+        image.alt =
+            file.name ||
+            "Uploaded image";
+
+
+        image.onload =
+            function () {
+
+                scrollChatToBottom();
+
+            };
+
+
+        messageText.appendChild(
+            image
+        );
+
+
+        const fileName =
+            document.createElement("div");
+
+
+        fileName.className =
+            "chatAttachmentName";
+
+
+        fileName.textContent =
+            "🖼️ " + file.name;
+
+
+        messageText.appendChild(
+            fileName
+        );
+
+    }
+
+
+    /* ======================================
+       FILE
+    ====================================== */
+
+    else {
+
+        const fileBox =
+            document.createElement("div");
+
+
+        fileBox.className =
+            "chatFileAttachment";
+
+
+        const icon =
+            document.createElement("div");
+
+
+        icon.className =
+            "chatFileIcon";
+
+
+        icon.textContent =
+            "📄";
+
+
+        const fileInfo =
+            document.createElement("div");
+
+
+        fileInfo.className =
+            "chatFileInfo";
+
+
+        const fileName =
+            document.createElement("div");
+
+
+        fileName.className =
+            "chatAttachmentName";
+
+
+        fileName.textContent =
+            file.name ||
+            "Unknown file";
+
+
+        const fileType =
+            document.createElement("div");
+
+
+        fileType.className =
+            "chatAttachmentType";
+
+
+        fileType.textContent =
+            file.type ||
+            "Unknown file type";
+
+
+        fileInfo.appendChild(
+            fileName
+        );
+
+
+        fileInfo.appendChild(
+            fileType
+        );
+
+
+        fileBox.appendChild(
+            icon
+        );
+
+
+        fileBox.appendChild(
+            fileInfo
+        );
+
+
+        messageText.appendChild(
+            fileBox
+        );
+
+    }
+
+
+    /* ======================================
+       TIME
+    ====================================== */
+
+    const messageTime =
+        document.createElement("div");
+
+
+    messageTime.className =
+        "messageTime";
+
+
+    messageTime.textContent =
+        new Date().toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+
+    message.appendChild(
+        messageText
+    );
+
+
+    message.appendChild(
+        messageTime
+    );
+
+
+    chatBox.appendChild(
+        message
+    );
+
+
+    scrollChatToBottom();
+
+
+    return message;
+
+}
+
+
 /* ==========================================
    SHOW ATTACHMENT PREVIEW
 ========================================== */
@@ -515,7 +829,9 @@ function showAttachmentPreview(
         !attachmentPreviewContent ||
         !file
     ) {
+
         return;
+
     }
 
 
@@ -523,24 +839,22 @@ function showAttachmentPreview(
         "";
 
 
-    /*
-    ------------------------------------------
-    IMAGE PREVIEW
-    ------------------------------------------
-    */
+    /* ======================================
+       IMAGE PREVIEW
+    ====================================== */
 
     if (type === "image") {
 
         const image =
-            document.createElement(
-                "img"
-            );
+            document.createElement("img");
+
+
+        image.className =
+            "attachmentPreviewImage";
 
 
         image.src =
-            URL.createObjectURL(
-                file
-            );
+            URL.createObjectURL(file);
 
 
         image.alt =
@@ -554,16 +868,12 @@ function showAttachmentPreview(
     }
 
 
-    /*
-    ------------------------------------------
-    TEXT
-    ------------------------------------------
-    */
+    /* ======================================
+       TEXT AREA
+    ====================================== */
 
     const textBox =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     textBox.className =
@@ -571,9 +881,7 @@ function showAttachmentPreview(
 
 
     const name =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     name.className =
@@ -587,9 +895,7 @@ function showAttachmentPreview(
 
 
     const fileType =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
     fileType.className =
@@ -621,8 +927,10 @@ function showAttachmentPreview(
     );
 
 }
-    /* ==========================================
-   REMOVE ATTACHMENT
+
+
+/* ==========================================
+   REMOVE CURRENT ATTACHMENT
 ========================================== */
 
 function removeCurrentAttachment() {
@@ -677,7 +985,13 @@ function removeCurrentAttachment() {
     );
 
 }
-    if (removeAttachmentBtn) {
+
+
+/* ==========================================
+   REMOVE ATTACHMENT BUTTON
+========================================== */
+
+if (removeAttachmentBtn) {
 
     removeAttachmentBtn.addEventListener(
         "click",
@@ -689,355 +1003,51 @@ function removeCurrentAttachment() {
     );
 
 }
-/* =====================================================
-   ATTACHMENT STATE
-===================================================== */
-
-window.aiAttachment =
-    window.aiAttachment || null;
-
-
-window.uploadedFiles =
-    window.uploadedFiles || [];
-
-
-
-/* =====================================================
-   ADD CHAT MESSAGE
-===================================================== */
-
-function addLocalMessage(
-    sender,
-    text
-) {
-
-    if (!chatBox) {
-
-        console.error(
-            "❌ chatBox not found"
-        );
-
-        return null;
-
-    }
-
-
-    const message =
-        document.createElement("div");
-
-
-    message.className =
-        "message " +
-        (
-            sender === "user"
-                ? "user"
-                : "ai"
-        );
-
-
-    const messageText =
-        document.createElement("div");
-
-
-    messageText.className =
-        "messageText";
-
-
-    /*
-       textContent is intentional.
-       It prevents HTML injection.
-    */
-
-    messageText.textContent =
-        String(text || "");
-
-
-    const messageTime =
-        document.createElement("div");
-
-
-    messageTime.className =
-        "messageTime";
-
-
-    messageTime.textContent =
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
-
-
-    message.appendChild(
-        messageText
-    );
-
-
-    message.appendChild(
-        messageTime
-    );
-
-
-    chatBox.appendChild(
-        message
-    );
-
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
-
-
-    return message;
-
-}
-
-
-
-window.addLocalMessage =
-    addLocalMessage;
 
 
 /* ==========================================
-   ADD ATTACHMENT MESSAGE
+   ATTACHMENT MENU
 ========================================== */
 
-function addAttachmentMessage(
-    sender,
-    file,
-    type
-) {
+function closeAttachmentMenu() {
 
-    if (
-        !chatBox ||
-        !file
-    ) {
-
-        return null;
-
+    if (!attachmentMenu) {
+        return;
     }
 
 
-    const message =
-        document.createElement("div");
-
-
-    message.className =
-        "message " +
-        (
-            sender === "user"
-                ? "user"
-                : "ai"
-        );
-
-
-    const messageText =
-        document.createElement("div");
-
-
-    messageText.className =
-        "messageText";
-
-
-    /*
-    =========================================
-    IMAGE
-    =========================================
-    */
-
-    if (
-        type === "image"
-    ) {
-
-        const image =
-            document.createElement("img");
-
-
-        image.className =
-            "chatAttachmentImage";
-
-
-        image.src =
-            URL.createObjectURL(
-                file
-            );
-
-
-        image.alt =
-            file.name;
-
-
-        image.onload =
-            function () {
-
-                chatBox.scrollTop =
-                    chatBox.scrollHeight;
-
-            };
-
-
-        messageText.appendChild(
-            image
-        );
-
-
-        const fileName =
-            document.createElement("div");
-
-
-        fileName.className =
-            "chatAttachmentName";
-
-
-        fileName.textContent =
-            "🖼️ " + file.name;
-
-
-        messageText.appendChild(
-            fileName
-        );
-
-    }
-
-
-    /*
-    =========================================
-    FILE
-    =========================================
-    */
-
-    else {
-
-        const fileBox =
-            document.createElement("div");
-
-
-        fileBox.className =
-            "chatFileAttachment";
-
-
-        const icon =
-            document.createElement("div");
-
-
-        icon.className =
-            "chatFileIcon";
-
-
-        icon.textContent =
-            "📄";
-
-
-        const fileInfo =
-            document.createElement("div");
-
-
-        fileInfo.className =
-            "chatFileInfo";
-
-
-        const fileName =
-            document.createElement("div");
-
-
-        fileName.className =
-            "chatAttachmentName";
-
-
-        fileName.textContent =
-            file.name;
-
-
-        const fileType =
-            document.createElement("div");
-
-
-        fileType.className =
-            "chatAttachmentType";
-
-
-        fileType.textContent =
-            file.type ||
-            "File";
-
-
-        fileInfo.appendChild(
-            fileName
-        );
-
-
-        fileInfo.appendChild(
-            fileType
-        );
-
-
-        fileBox.appendChild(
-            icon
-        );
-
-
-        fileBox.appendChild(
-            fileInfo
-        );
-
-
-        messageText.appendChild(
-            fileBox
-        );
-
-    }
-
-
-    /*
-    =========================================
-    TIME
-    =========================================
-    */
-
-    const messageTime =
-        document.createElement("div");
-
-
-    messageTime.className =
-        "messageTime";
-
-
-    messageTime.textContent =
-        new Date().toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
-
-
-    message.appendChild(
-        messageText
+    attachmentMenu.classList.remove(
+        "show"
     );
 
 
-    message.appendChild(
-        messageTime
-    );
-
-
-    chatBox.appendChild(
-        message
-    );
-
-
-    chatBox.scrollTop =
-        chatBox.scrollHeight;
-
-
-    return message;
+    attachmentMenu.style.display =
+        "none";
 
 }
-/* =====================================================
-   ATTACHMENT MENU
-===================================================== */
+
+
+function openAttachmentMenu() {
+
+    if (!attachmentMenu) {
+        return;
+    }
+
+
+    attachmentMenu.classList.add(
+        "show"
+    );
+
+
+    attachmentMenu.style.display =
+        "block";
+
+}
+
+
+/* ==========================================
+   ATTACH BUTTON
+========================================== */
 
 if (attachBtn) {
 
@@ -1061,29 +1071,13 @@ if (attachBtn) {
                 );
 
 
-            attachmentMenu.classList.toggle(
-                "show"
-            );
+            if (isOpen) {
 
-
-            /*
-               Some existing CSS may use
-               display rather than .show.
-            */
-
-            if (
-                !attachmentMenu.classList.contains(
-                    "show"
-                )
-            ) {
-
-                attachmentMenu.style.display =
-                    "none";
+                closeAttachmentMenu();
 
             } else {
 
-                attachmentMenu.style.display =
-                    "block";
+                openAttachmentMenu();
 
             }
 
@@ -1093,33 +1087,9 @@ if (attachBtn) {
 }
 
 
-
-/* =====================================================
-   CLOSE ATTACHMENT MENU
-===================================================== */
-
-function closeAttachmentMenu() {
-
-    if (!attachmentMenu) {
-        return;
-    }
-
-
-    attachmentMenu.classList.remove(
-        "show"
-    );
-
-
-    attachmentMenu.style.display =
-        "none";
-
-}
-
-
-
-/* =====================================================
-   OPEN IMAGE PICKER
-===================================================== */
+/* ==========================================
+   IMAGE PICKER BUTTON
+========================================== */
 
 if (pickImageBtn) {
 
@@ -1135,13 +1105,16 @@ if (pickImageBtn) {
             closeAttachmentMenu();
 
 
-            if (imagePicker) {
-
-                imagePicker.value = "";
-
-                imagePicker.click();
-
+            if (!imagePicker) {
+                return;
             }
+
+
+            imagePicker.value =
+                "";
+
+
+            imagePicker.click();
 
         }
     );
@@ -1149,10 +1122,9 @@ if (pickImageBtn) {
 }
 
 
-
-/* =====================================================
-   OPEN CAMERA
-===================================================== */
+/* ==========================================
+   CAMERA BUTTON
+========================================== */
 
 if (takePhotoBtn) {
 
@@ -1168,13 +1140,16 @@ if (takePhotoBtn) {
             closeAttachmentMenu();
 
 
-            if (cameraPicker) {
-
-                cameraPicker.value = "";
-
-                cameraPicker.click();
-
+            if (!cameraPicker) {
+                return;
             }
+
+
+            cameraPicker.value =
+                "";
+
+
+            cameraPicker.click();
 
         }
     );
@@ -1182,10 +1157,9 @@ if (takePhotoBtn) {
 }
 
 
-
-/* =====================================================
-   OPEN FILE PICKER
-===================================================== */
+/* ==========================================
+   FILE PICKER BUTTON
+========================================== */
 
 if (pickFileBtn) {
 
@@ -1201,13 +1175,16 @@ if (pickFileBtn) {
             closeAttachmentMenu();
 
 
-            if (filePicker) {
-
-                filePicker.value = "";
-
-                filePicker.click();
-
+            if (!filePicker) {
+                return;
             }
+
+
+            filePicker.value =
+                "";
+
+
+            filePicker.click();
 
         }
     );
@@ -1215,10 +1192,12 @@ if (pickFileBtn) {
 }
 
 
-
-/* =====================================================
+/* ==========================================
    SAVE IMAGE ATTACHMENT
-===================================================== */
+
+   IMPORTANT:
+   The image is added to the chat only ONCE.
+========================================== */
 
 function saveImageAttachment(file) {
 
@@ -1226,10 +1205,16 @@ function saveImageAttachment(file) {
         return;
     }
 
+
     console.log(
         "🖼️ Image selected:",
         file.name
     );
+
+
+    /* ======================================
+       SAVE CURRENT ATTACHMENT
+    ====================================== */
 
     window.aiAttachment = {
 
@@ -1244,16 +1229,24 @@ function saveImageAttachment(file) {
         file: file,
 
         data: file
+
     };
 
+
+    /* ======================================
+       ADD TO UPLOAD HISTORY
+    ====================================== */
 
     window.uploadedFiles.push({
 
         name: file.name,
 
-        type: file.type || "image",
+        type:
+            file.type ||
+            "image",
 
-        size: file.size,
+        size:
+            file.size,
 
         uploadedAt:
             new Date().toISOString()
@@ -1261,9 +1254,9 @@ function saveImageAttachment(file) {
     });
 
 
-    /*
-    SHOW PREVIEW ABOVE COMPOSER
-    */
+    /* ======================================
+       SHOW PREVIEW ONCE
+    ====================================== */
 
     showAttachmentPreview(
         file,
@@ -1271,9 +1264,11 @@ function saveImageAttachment(file) {
     );
 
 
-    /*
-    SHOW REAL IMAGE INSIDE CHAT
-    */
+    /* ======================================
+       SHOW CHAT IMAGE ONCE
+
+       DO NOT CALL THIS FUNCTION AGAIN.
+    ====================================== */
 
     const attachmentMessage =
         addAttachmentMessage(
@@ -1282,26 +1277,18 @@ function saveImageAttachment(file) {
             "image"
         );
 
-showAttachmentPreview(
-    file,
-    "image"
-);
 
-addAttachmentMessage(
-    "user",
-    file,
-    "image"
-);
     console.log(
-        "🖼️ Attachment chat message:",
+        "🖼️ Image added to chat:",
         attachmentMessage
     );
 
 }
 
-/* =====================================================
-   SAVE DOCUMENT ATTACHMENT
-===================================================== */
+
+/* ==========================================
+   SAVE FILE ATTACHMENT
+========================================== */
 
 function saveFileAttachment(file) {
 
@@ -1309,10 +1296,12 @@ function saveFileAttachment(file) {
         return;
     }
 
+
     console.log(
         "📄 File selected:",
         file.name
     );
+
 
     window.aiAttachment = {
 
@@ -1325,6 +1314,7 @@ function saveFileAttachment(file) {
         size: file.size,
 
         file: file
+
     };
 
 
@@ -1336,17 +1326,18 @@ function saveFileAttachment(file) {
             file.type ||
             "application/octet-stream",
 
-        size: file.size,
+        size:
+            file.size,
 
         uploadedAt:
             new Date().toISOString()
 
-    });
+    );
 
 
-    /*
-    SHOW PREVIEW ABOVE COMPOSER
-    */
+    /* ======================================
+       SHOW PREVIEW ONCE
+    ====================================== */
 
     showAttachmentPreview(
         file,
@@ -1354,9 +1345,9 @@ function saveFileAttachment(file) {
     );
 
 
-    /*
-    SHOW FILE CARD INSIDE CHAT
-    */
+    /* ======================================
+       SHOW FILE ONCE
+    ====================================== */
 
     const attachmentMessage =
         addAttachmentMessage(
@@ -1367,16 +1358,16 @@ function saveFileAttachment(file) {
 
 
     console.log(
-        "📄 Attachment chat message:",
+        "📄 File added to chat:",
         attachmentMessage
     );
 
 }
 
 
-/* =====================================================
+/* ==========================================
    IMAGE PICKER CHANGE
-===================================================== */
+========================================== */
 
 if (imagePicker) {
 
@@ -1404,10 +1395,9 @@ if (imagePicker) {
 }
 
 
-
-/* =====================================================
-   CAMERA CHANGE
-===================================================== */
+/* ==========================================
+   CAMERA PICKER CHANGE
+========================================== */
 
 if (cameraPicker) {
 
@@ -1435,10 +1425,9 @@ if (cameraPicker) {
 }
 
 
-
-/* =====================================================
+/* ==========================================
    FILE PICKER CHANGE
-===================================================== */
+========================================== */
 
 if (filePicker) {
 
@@ -1466,15 +1455,14 @@ if (filePicker) {
 }
 
 
-
-/* =====================================================
+/* ==========================================
    SEND MESSAGE
-===================================================== */
+========================================== */
 
 async function sendMessage() {
 
     console.log(
-        "🔥 SEND BUTTON PRESSED"
+        "📤 Sending message..."
     );
 
 
@@ -1497,11 +1485,16 @@ async function sendMessage() {
         window.aiAttachment;
 
 
-    /*
-       If there is an attachment but no
-       written message, automatically choose
-       a useful command.
-    */
+    /* ======================================
+       AUTO COMMAND FOR ATTACHMENTS
+
+       If the user only uploads an image
+       and presses send, ask the AI to
+       describe the image.
+
+       If the user uploads a file and
+       presses send, summarize the file.
+    ====================================== */
 
     if (
         !message &&
@@ -1516,7 +1509,12 @@ async function sendMessage() {
             message =
                 "describe the image";
 
-        } else {
+        }
+
+        else if (
+            attachment.type ===
+            "file"
+        ) {
 
             message =
                 "summarize the file";
@@ -1526,11 +1524,16 @@ async function sendMessage() {
     }
 
 
+    /* ======================================
+       NOTHING TO SEND
+    ====================================== */
+
     if (!message) {
 
         console.log(
-            "⚠️ Empty message"
+            "⚠️ Nothing to send"
         );
+
 
         userInput.focus();
 
@@ -1539,9 +1542,9 @@ async function sendMessage() {
     }
 
 
-    /*
-       Show user's message.
-    */
+    /* ======================================
+       SHOW USER MESSAGE
+    ====================================== */
 
     addLocalMessage(
         "user",
@@ -1549,15 +1552,21 @@ async function sendMessage() {
     );
 
 
-    userInput.value = "";
+    /* ======================================
+       CLEAR INPUT
+    ====================================== */
+
+    userInput.value =
+        "";
+
 
     userInput.style.height =
         "auto";
 
 
-    /*
-       Show thinking.
-    */
+    /* ======================================
+       SHOW THINKING
+    ====================================== */
 
     const thinking =
         addLocalMessage(
@@ -1568,43 +1577,19 @@ async function sendMessage() {
 
     try {
 
-        /*
-        =============================================
-        SMART AI
-        =============================================
-        */
+        /* ==================================
+           CHECK SMART AI
+        ================================== */
 
         if (
-            typeof window.smartAIReply ===
+            typeof window.smartAIReply !==
             "function"
         ) {
 
-            console.log(
-                "🧠 Sending to smartAIReply..."
+            console.error(
+                "❌ smartAIReply is not available"
             );
 
-
-            const response =
-                await window.smartAIReply(
-                    message
-                );
-
-
-            if (thinking) {
-
-                thinking.remove();
-
-            }
-
-
-            addLocalMessage(
-                "ai",
-                response ||
-                "🤖 I don't have an answer yet."
-            );
-
-         removeCurrentAttachment();
-        } else {
 
             if (thinking) {
 
@@ -1618,9 +1603,66 @@ async function sendMessage() {
                 "⚠️ smartAI.js is not loaded."
             );
 
+
+            return;
+
+        }
+
+
+        console.log(
+            "🧠 Sending message to Smart AI:",
+            message
+        );
+
+
+        /* ==================================
+           GET AI RESPONSE
+        ================================== */
+
+        const response =
+            await window.smartAIReply(
+                message
+            );
+
+
+        /* ==================================
+           REMOVE THINKING
+        ================================== */
+
+        if (thinking) {
+
+            thinking.remove();
+
+        }
+
+
+        /* ==================================
+           SHOW AI RESPONSE
+        ================================== */
+
+        addLocalMessage(
+            "ai",
+
+            response ||
+            "🤖 I don't have an answer yet."
+        );
+
+
+        /* ==================================
+           REMOVE ATTACHMENT
+
+           We remove it only after the AI
+           finishes processing it.
+        ================================== */
+
+        if (attachment) {
+
+            removeCurrentAttachment();
+
         }
 
     }
+
 
     catch (error) {
 
@@ -1647,15 +1689,17 @@ async function sendMessage() {
 }
 
 
+/* ==========================================
+   GLOBAL SEND ACCESS
+========================================== */
 
 window.sendMessage =
     sendMessage;
 
 
-
-/* =====================================================
+/* ==========================================
    SEND BUTTON
-===================================================== */
+========================================== */
 
 if (sendBtn) {
 
@@ -1678,19 +1722,20 @@ if (sendBtn) {
         "✅ Send button connected"
     );
 
-} else {
+}
+
+else {
 
     console.error(
-        "❌ sendBtn NOT FOUND"
+        "❌ sendBtn not found"
     );
 
 }
 
 
-
-/* =====================================================
+/* ==========================================
    ENTER KEY
-===================================================== */
+========================================== */
 
 if (userInput) {
 
@@ -1716,10 +1761,9 @@ if (userInput) {
 }
 
 
-
-/* =====================================================
-   AUTO RESIZE
-===================================================== */
+/* ==========================================
+   AUTO RESIZE TEXTAREA
+========================================== */
 
 if (userInput) {
 
@@ -1743,10 +1787,9 @@ if (userInput) {
 }
 
 
-
-/* =====================================================
+/* ==========================================
    CLOSE MENU WHEN CLICKING OUTSIDE
-===================================================== */
+========================================== */
 
 document.addEventListener(
     "click",
@@ -1755,8 +1798,12 @@ document.addEventListener(
         if (
             attachmentMenu &&
             attachBtn &&
-            !attachmentMenu.contains(event.target) &&
-            !attachBtn.contains(event.target)
+            !attachmentMenu.contains(
+                event.target
+            ) &&
+            !attachBtn.contains(
+                event.target
+            )
         ) {
 
             closeAttachmentMenu();
@@ -1767,10 +1814,9 @@ document.addEventListener(
 );
 
 
-
-/* =====================================================
+/* ==========================================
    WELCOME NAME
-===================================================== */
+========================================== */
 
 const savedName =
     localStorage.getItem(
@@ -1795,17 +1841,79 @@ if (
 }
 
 
+/* ==========================================
+   VOICE BUTTON PLACEHOLDER
+========================================== */
 
-/* =====================================================
-   FINAL STARTUP CHECK
-===================================================== */
+if (voiceBtn) {
+
+    voiceBtn.addEventListener(
+        "click",
+        function () {
+
+            console.log(
+                "🎤 Voice button pressed"
+            );
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   GLOBAL FUNCTIONS
+========================================== */
+
+window.addLocalMessage =
+    addLocalMessage;
+
+window.addAttachmentMessage =
+    addAttachmentMessage;
+
+window.showAttachmentPreview =
+    showAttachmentPreview;
+
+window.removeCurrentAttachment =
+    removeCurrentAttachment;
+
+window.saveImageAttachment =
+    saveImageAttachment;
+
+window.saveFileAttachment =
+    saveFileAttachment;
+
+
+/* ==========================================
+   FINAL CHECK
+========================================== */
 
 console.log(
     "========================================"
 );
 
 console.log(
-    "🚀 AI LIFE ASSISTANT READY"
+    "💬 CHAT.JS READY"
+);
+
+console.log(
+    "chatBox:",
+    !!chatBox
+);
+
+console.log(
+    "userInput:",
+    !!userInput
+);
+
+console.log(
+    "sendBtn:",
+    !!sendBtn
+);
+
+console.log(
+    "attachBtn:",
+    !!attachBtn
 );
 
 console.log(
@@ -1819,44 +1927,22 @@ console.log(
 );
 
 console.log(
+    "analyzeImage:",
+    typeof window.analyzeImage
+);
+
+console.log(
     "analyzeFile:",
     typeof window.analyzeFile
-);
-
-console.log(
-    "Send:",
-    !!sendBtn
-);
-
-console.log(
-    "Attach:",
-    !!attachBtn
-);
-
-console.log(
-    "Image picker:",
-    !!imagePicker
-);
-
-console.log(
-    "Camera picker:",
-    !!cameraPicker
-);
-
-console.log(
-    "File picker:",
-    !!filePicker
 );
 
 console.log(
     "========================================"
 );
 
-    window.showAttachmentPreview =
-    showAttachmentPreview;
-
-window.removeCurrentAttachment =
-    removeCurrentAttachment;
+console.log(
+    "✅ chat.js loaded successfully"
+);
 </script>
 
 
