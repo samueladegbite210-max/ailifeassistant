@@ -636,31 +636,34 @@ async function smartAIReply(
     );
 
 
-    // ======================================
-    // ATTACHMENT COMMANDS
-    // ======================================
+// ======================================
+// ATTACHMENT COMMANDS
+// ======================================
 
-    if (
-        isImageCommand(msg)
-    ) {
-
-        return await handleImageCommand(
-            msg
-        );
-
-    }
+const attachment =
+    getCurrentAttachment();
 
 
-    if (
-        isFileCommand(msg)
-    ) {
+if (
+    attachment &&
+    attachment.type === "image" &&
+    isImageCommand(msg)
+) {
 
-        return await handleFileCommand(
-            msg
-        );
+    return await handleImageCommand(msg);
 
-    }
+}
 
+
+if (
+    attachment &&
+    attachment.type === "file" &&
+    isFileCommand(msg)
+) {
+
+    return await handleFileCommand(msg);
+
+}
 
     // ======================================
     // UPLOAD LIST
