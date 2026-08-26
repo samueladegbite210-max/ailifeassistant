@@ -87,81 +87,97 @@ async function runModule(
 
 function isImageCommand(msg) {
 
-    if (!msg) {
+    const attachment =
+        getCurrentAttachment();
+
+
+    /*
+       Do not treat normal questions as
+       image questions unless an image
+       is currently attached.
+    */
+
+    if (
+        !attachment ||
+        attachment.type !== "image"
+    ) {
+
         return false;
+
     }
 
 
     return (
 
-        msg.includes(
-            "describe the image"
-        ) ||
+        // VAGUE IMAGE QUESTIONS
 
-        msg.includes(
-            "describe image"
-        ) ||
+        msg === "what is this" ||
+        msg === "what's this" ||
 
-        msg.includes(
-            "what is in the image"
-        ) ||
+        msg === "what is it" ||
+        msg === "what's it" ||
 
-        msg.includes(
-            "what's in the image"
-        ) ||
+        msg === "what is that" ||
+        msg === "what's that" ||
 
-        msg.includes(
-            "what does the image show"
-        ) ||
+        msg === "what am i looking at" ||
 
-        msg.includes(
-            "analyze the image"
-        ) ||
+        msg === "tell me about this" ||
+        msg === "tell me what this is" ||
 
-        msg.includes(
-            "analyze image"
-        ) ||
 
-        msg.includes(
-            "read text from image"
-        ) ||
+        // DESCRIBE
 
-        msg.includes(
-            "read the text from image"
-        ) ||
+        msg.includes("describe the image") ||
+        msg.includes("describe this image") ||
+        msg.includes("describe the picture") ||
+        msg.includes("describe this picture") ||
+        msg.includes("describe photo") ||
+        msg.includes("describe the photo") ||
+        msg.includes("describe this photo") ||
 
-        msg.includes(
-            "read the text"
-        ) ||
+        msg.includes("describe image") ||
 
-        msg.includes(
-            "extract text from image"
-        ) ||
+        msg.includes("what is in the image") ||
+        msg.includes("what's in the image") ||
 
-        msg.includes(
-            "extract text"
-        ) ||
+        msg.includes("what is in this image") ||
+        msg.includes("what's in this image") ||
 
-        msg.includes(
-            "text in the image"
-        ) ||
+        msg.includes("what is in the picture") ||
+        msg.includes("what's in the picture") ||
 
-        msg.includes(
-            "what does the image say"
-        ) ||
+        msg.includes("what does the image show") ||
+        msg.includes("what does this image show") ||
 
-        msg.includes(
-            "what does this say"
-        ) ||
+        msg.includes("analyze the image") ||
+        msg.includes("analyze this image") ||
+        msg.includes("analyze image") ||
 
-        msg.includes(
-            "read this image"
-        )
+
+        // OCR
+
+        msg.includes("read text from image") ||
+        msg.includes("read the text from image") ||
+
+        msg.includes("read text from this image") ||
+        msg.includes("read the text from this image") ||
+
+        msg.includes("read the text") ||
+
+        msg.includes("extract text from image") ||
+        msg.includes("extract text") ||
+
+        msg.includes("text in the image") ||
+
+        msg.includes("what does the image say") ||
+        msg.includes("what does this say") ||
+
+        msg.includes("read this image")
 
     );
 
 }
-
 
 // ==========================================
 // FILE COMMAND DETECTION
