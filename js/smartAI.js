@@ -405,19 +405,38 @@ console.log(
 
     if (
 
-        msg.includes(
-            "describe"
-        ) ||
+    msg === "what is this" ||
+    msg === "what's this" ||
 
-        msg.includes(
-            "what is in"
-        ) ||
+    msg === "what is it" ||
+    msg === "what's it" ||
 
-        msg.includes(
-            "analyze"
-        )
+    msg === "what is that" ||
+    msg === "what's that" ||
 
-    ) {
+    msg === "what am i looking at" ||
+
+    msg === "tell me about this" ||
+    msg === "tell me what this is" ||
+
+    msg.includes(
+        "describe"
+    ) ||
+
+    msg.includes(
+        "what is in"
+    ) ||
+
+    msg.includes(
+        "what's in"
+    ) ||
+
+    msg.includes(
+        "analyze"
+    )
+
+) 
+    {
 
         console.log(
             "👀 Starting image analysis..."
