@@ -268,9 +268,10 @@ function isFileCommand(msg) {
 async function handleImageCommand(msg) {
 
     console.log(
-        "🖼️ IMAGE COMMAND DETECTED:",
-        msg
-    );
+    "🖼️ IMAGE ATTACHED:",
+    attachment &&
+    attachment.type === "image"
+);
 
 console.log(
     "🔎 analyzeImage:",
@@ -333,25 +334,25 @@ console.log(
 
     if (
 
-        msg.includes(
-            "read text"
-        ) ||
+    msg.includes("read text") ||
+    msg.includes("read the text") ||
+    msg.includes("read text from image") ||
+    msg.includes("read the text from image") ||
+    msg.includes("read text from this image") ||
+    msg.includes("read the text from this image") ||
 
-        msg.includes(
-            "extract text"
-        ) ||
+    msg.includes("extract text") ||
+    msg.includes("extract text from image") ||
+    msg.includes("extract text from this image") ||
 
-        msg.includes(
-            "what does the image say"
-        ) ||
+    msg.includes("what does the image say") ||
+    msg.includes("what does this image say") ||
+    msg.includes("what does this say") ||
 
-        msg.includes(
-            "what does this say"
-        ) ||
+    msg.includes("text in the image") ||
+    msg.includes("text from the image")
 
-        msg.includes(
-            "text in the image"
-        )
+)
 
     ) {
 
