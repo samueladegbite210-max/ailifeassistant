@@ -1078,10 +1078,10 @@ async function sendMessage() {
 
 
             addLocalMessage(
-                "ai",
-                response ||
-                "🤖 I don't have an answer yet."
-            );
+    "ai",
+    response ||
+    "🤖 I don't have an answer yet."
+);
 
 
             /*
@@ -1089,7 +1089,7 @@ async function sendMessage() {
                AFTER AI responds.
             */
 
-            removeCurrentAttachment();
+            
 
         }
 
