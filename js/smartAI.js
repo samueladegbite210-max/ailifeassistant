@@ -1330,7 +1330,7 @@ async function smartAIReply(
         "🤖 I'm currently unable to connect to my online AI service.\n\n" +
         "Please check your internet connection and try again."
     );
-
+   }
 // ==========================================
 // GLOBAL ACCESS
 // ==========================================
