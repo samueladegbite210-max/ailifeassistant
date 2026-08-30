@@ -9,7 +9,6 @@
 
 console.log("🧠 smartAI.js loading...");
 
-
 // ==========================================
 // ATTACHMENT ACCESS
 // ==========================================
@@ -19,7 +18,6 @@ function getCurrentAttachment() {
     return window.aiAttachment || null;
 
 }
-
 
 // ==========================================
 // ATTACHMENT TYPE CHECK
@@ -36,7 +34,6 @@ function getAttachmentType(attachment) {
             attachment.type || ""
         ).toLowerCase();
 
-
     const mimeType =
         String(
             attachment.mimeType ||
@@ -44,7 +41,6 @@ function getAttachmentType(attachment) {
             attachment.file?.type ||
             ""
         ).toLowerCase();
-
 
     // Image
     if (
@@ -56,7 +52,6 @@ function getAttachmentType(attachment) {
 
     }
 
-
     if (
         mimeType.startsWith("image/")
     ) {
@@ -64,7 +59,6 @@ function getAttachmentType(attachment) {
         return "image";
 
     }
-
 
     // File
     if (
@@ -76,11 +70,9 @@ function getAttachmentType(attachment) {
 
     }
 
-
     return type || null;
 
 }
-
 
 // ==========================================
 // SAFE MODULE RUNNER
@@ -101,10 +93,8 @@ async function runModule(
 
         }
 
-
         const result =
             await callback();
-
 
         if (
             result !== null &&
@@ -116,7 +106,6 @@ async function runModule(
                 "✅ AI module responded:",
                 name
             );
-
 
             return String(result);
 
@@ -133,7 +122,6 @@ async function runModule(
         );
 
     }
-
 
     return null;
 
@@ -265,12 +253,10 @@ function isImageCommand(msg) {
     const attachment =
         getCurrentAttachment();
 
-
     const attachmentType =
         getAttachmentType(
             attachment
         );
-
 
     console.log(
         "📎 CURRENT ATTACHMENT:",
@@ -282,7 +268,6 @@ function isImageCommand(msg) {
         attachmentType
     );
 
-
     if (
         attachmentType !== "image"
     ) {
@@ -291,19 +276,16 @@ function isImageCommand(msg) {
 
     }
 
-
     if (!msg) {
 
         return true;
 
     }
 
-
     const text =
         String(msg)
         .toLowerCase()
         .trim();
-
 
     return (
 
@@ -323,7 +305,6 @@ function isImageCommand(msg) {
         text === "tell me about this" ||
         text === "tell me what this is" ||
 
-
         // Describe
 
         text.includes("describe") ||
@@ -339,7 +320,6 @@ function isImageCommand(msg) {
         text.includes("analyze") ||
 
         text.includes("analyse") ||
-
 
         // OCR
 
@@ -365,7 +345,6 @@ function isImageCommand(msg) {
 
 }
 
-
 // ==========================================
 // FILE COMMAND DETECTION
 // ==========================================
@@ -378,12 +357,10 @@ function isFileCommand(msg) {
 
     }
 
-
     const text =
         String(msg)
         .toLowerCase()
         .trim();
-
 
     return (
 
@@ -447,7 +424,6 @@ function isFileCommand(msg) {
 
 }
 
-
 // ==========================================
 // IMAGE OCR DETECTION
 // ==========================================
@@ -458,7 +434,6 @@ function isOCRCommand(msg) {
         String(msg || "")
         .toLowerCase()
         .trim();
-
 
     return (
 
@@ -484,7 +459,6 @@ function isOCRCommand(msg) {
 
 }
 
-
 // ==========================================
 // IMAGE ANALYSIS DETECTION
 // ==========================================
@@ -495,7 +469,6 @@ function isImageAnalysisCommand(msg) {
         String(msg || "")
         .toLowerCase()
         .trim();
-
 
     return (
 
@@ -531,7 +504,6 @@ function isImageAnalysisCommand(msg) {
 
 }
 
-
 // ==========================================
 // IMAGE HANDLER
 // ==========================================
@@ -540,7 +512,6 @@ async function handleImageCommand(msg) {
 
     const attachment =
         getCurrentAttachment();
-
 
     console.log(
         "🖼️ IMAGE COMMAND DETECTED:",
@@ -569,7 +540,6 @@ async function handleImageCommand(msg) {
         typeof window.readImageText
     );
 
-
     // No attachment
 
     if (!attachment) {
@@ -580,7 +550,6 @@ async function handleImageCommand(msg) {
         );
 
     }
-
 
     // Wrong attachment type
 
@@ -597,7 +566,6 @@ async function handleImageCommand(msg) {
 
     }
 
-
     // Get image data
 
     const imageSource =
@@ -612,14 +580,12 @@ async function handleImageCommand(msg) {
 
         null;
 
-
     if (!imageSource) {
 
         console.error(
             "❌ IMAGE DATA NOT FOUND:",
             attachment
         );
-
 
         return (
             "📷 I found the image attachment, " +
@@ -628,13 +594,11 @@ async function handleImageCommand(msg) {
 
     }
 
-
     console.log(
         "🖼️ Current image:",
         attachment.name ||
         "Unnamed image"
     );
-
 
     // ======================================
     // OCR
@@ -648,7 +612,6 @@ async function handleImageCommand(msg) {
             "📝 Starting OCR..."
         );
 
-
         if (
             typeof window.readImageText ===
             "function"
@@ -661,7 +624,6 @@ async function handleImageCommand(msg) {
                         imageSource
                     );
 
-
                 if (
                     result !== null &&
                     result !== undefined &&
@@ -671,7 +633,6 @@ async function handleImageCommand(msg) {
                     return String(result);
 
                 }
-
 
                 return (
                     "📝 I couldn't find any readable text in this image."
@@ -686,7 +647,6 @@ async function handleImageCommand(msg) {
                     error
                 );
 
-
                 return (
                     "⚠️ Something went wrong while reading the text in this image."
                 );
@@ -695,13 +655,11 @@ async function handleImageCommand(msg) {
 
         }
 
-
         return (
             "📝 Image text reading is not connected yet."
         );
 
     }
-
 
     // ======================================
     // IMAGE ANALYSIS
@@ -715,7 +673,6 @@ async function handleImageCommand(msg) {
             "👀 Starting image analysis..."
         );
 
-
         if (
             typeof window.analyzeImage ===
             "function"
@@ -728,7 +685,6 @@ async function handleImageCommand(msg) {
                         imageSource
                     );
 
-
                 if (
                     result !== null &&
                     result !== undefined &&
@@ -738,7 +694,6 @@ async function handleImageCommand(msg) {
                     return String(result);
 
                 }
-
 
                 return (
                     "👀 I analyzed the image, " +
@@ -754,7 +709,6 @@ async function handleImageCommand(msg) {
                     error
                 );
 
-
                 return (
                     "⚠️ I received your image, " +
                     "but something went wrong while analyzing it."
@@ -764,14 +718,12 @@ async function handleImageCommand(msg) {
 
         }
 
-
         return (
             "👀 I received your image, " +
             "but the image analysis function is not connected yet."
         );
 
     }
-
 
     // ======================================
     // DEFAULT IMAGE RESPONSE
@@ -788,7 +740,6 @@ async function handleImageCommand(msg) {
 
 }
 
-
 // ==========================================
 // FILE HANDLER
 // ==========================================
@@ -800,10 +751,8 @@ async function handleFileCommand(msg) {
         msg
     );
 
-
     const attachment =
         getCurrentAttachment();
-
 
     if (!attachment) {
 
@@ -813,7 +762,6 @@ async function handleFileCommand(msg) {
         );
 
     }
-
 
     if (
         getAttachmentType(
@@ -828,19 +776,16 @@ async function handleFileCommand(msg) {
 
     }
 
-
     console.log(
         "📄 Current file:",
         attachment.name ||
         "Unnamed file"
     );
 
-
     console.log(
         "🔎 analyzeFile:",
         typeof window.analyzeFile
     );
-
 
     if (
         typeof window.analyzeFile ===
@@ -854,7 +799,6 @@ async function handleFileCommand(msg) {
                     attachment
                 );
 
-
             if (
                 result !== null &&
                 result !== undefined &&
@@ -864,7 +808,6 @@ async function handleFileCommand(msg) {
                 return String(result);
 
             }
-
 
             return (
                 "📄 I read the file, " +
@@ -880,7 +823,6 @@ async function handleFileCommand(msg) {
                 error
             );
 
-
             return (
                 "⚠️ Something went wrong while reading the file."
             );
@@ -889,14 +831,12 @@ async function handleFileCommand(msg) {
 
     }
 
-
     return (
         "📄 I have your file, " +
         "but the file-reading engine is not connected yet."
     );
 
 }
-
 
 // ==========================================
 // UPLOAD LIST
@@ -907,7 +847,6 @@ function getUploadList() {
     const files =
         window.uploadedFiles || [];
 
-
     if (!files.length) {
 
         return (
@@ -916,10 +855,8 @@ function getUploadList() {
 
     }
 
-
     let reply =
         "📂 Uploaded files:\n\n";
-
 
     files.forEach(
         function (
@@ -931,13 +868,11 @@ function getUploadList() {
                 file.name ||
                 "Unnamed file";
 
-
             const type =
                 getAttachmentType(
                     file
                 ) ||
                 "Unknown type";
-
 
             reply +=
                 `${index + 1}. ${name} (${type})\n`;
@@ -945,11 +880,9 @@ function getUploadList() {
         }
     );
 
-
     return reply;
 
 }
-
 
 // ==========================================
 // AI MODULE LIST
@@ -974,7 +907,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "memoryReply",
 
@@ -986,7 +918,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "knowledgeReply",
@@ -1000,7 +931,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "profileReply",
 
@@ -1012,7 +942,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "learnUserReply",
@@ -1026,7 +955,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "teacherReply",
 
@@ -1038,7 +966,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "quizReply",
@@ -1052,7 +979,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "calculatorReply",
 
@@ -1064,7 +990,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "dateTimeReply",
@@ -1078,7 +1003,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "taskReply",
 
@@ -1090,7 +1014,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "goalReply",
@@ -1104,7 +1027,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "noteReply",
 
@@ -1116,7 +1038,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "eventReply",
@@ -1130,7 +1051,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "naturalReply",
 
@@ -1142,7 +1062,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "foodReply",
@@ -1156,7 +1075,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "weatherReply",
 
@@ -1168,7 +1086,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "adviceReply",
@@ -1182,7 +1099,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "internetReply",
 
@@ -1194,7 +1110,6 @@ function getAIModules(
                     )
                     : null
         ],
-
 
         [
             "aiBrainReply",
@@ -1212,7 +1127,6 @@ function getAIModules(
 
 }
 
-
 // ==========================================
 // MAIN AI
 // ==========================================
@@ -1226,25 +1140,21 @@ async function smartAIReply(
             rawMessage || ""
         ).trim();
 
-
     if (!original) {
 
         return null;
 
     }
 
-
     const msg =
         original
         .toLowerCase()
         .trim();
 
-
     console.log(
         "🧠 Processing:",
         original
     );
-
 
     // ======================================
     // GET CURRENT ATTACHMENT
@@ -1253,12 +1163,10 @@ async function smartAIReply(
     const attachment =
         getCurrentAttachment();
 
-
     const attachmentType =
         getAttachmentType(
             attachment
         );
-
 
     console.log(
         "📎 ATTACHMENT:",
@@ -1269,7 +1177,6 @@ async function smartAIReply(
         "📎 NORMALIZED TYPE:",
         attachmentType
     );
-
 
     // ======================================
     // IMAGE ATTACHMENT
@@ -1283,12 +1190,10 @@ async function smartAIReply(
             "🖼️ IMAGE ATTACHMENT FOUND"
         );
 
-
         console.log(
             "🖼️ IMAGE COMMAND:",
             isImageCommand(msg)
         );
-
 
         /*
            Always send image-related messages
@@ -1305,7 +1210,6 @@ async function smartAIReply(
 
     }
 
-
     // ======================================
     // FILE ATTACHMENT
     // ======================================
@@ -1319,13 +1223,11 @@ async function smartAIReply(
             "📄 FILE ATTACHMENT FOUND"
         );
 
-
         return await handleFileCommand(
             msg
         );
 
     }
-
 
     // ======================================
     // UPLOAD LIST
@@ -1359,7 +1261,6 @@ async function smartAIReply(
 
     }
 
-
     // ======================================
     // AI MODULES
     // ======================================
@@ -1369,7 +1270,6 @@ async function smartAIReply(
             original,
             msg
         );
-
 
     // ======================================
     // RUN MODULES IN ORDER
@@ -1389,7 +1289,6 @@ async function smartAIReply(
                 callback
             );
 
-
         if (response) {
 
             return response;
@@ -1397,8 +1296,6 @@ async function smartAIReply(
         }
 
     }
-
-
 // ======================================
     // ONLINE AI FALLBACK
     // ======================================
@@ -1434,55 +1331,45 @@ async function smartAIReply(
         "Please check your internet connection and try again."
     );
 
-
 // ==========================================
 // GLOBAL ACCESS
 // ==========================================
 
 window.smartAIReply =
     smartAIReply;
+
 window.askOnlineAI =
     askOnlineAI;
 
 window.getCurrentAttachment =
     getCurrentAttachment;
 
-
 window.getAttachmentType =
     getAttachmentType;
-
 
 window.isImageCommand =
     isImageCommand;
 
-
 window.isFileCommand =
     isFileCommand;
-
 
 window.isOCRCommand =
     isOCRCommand;
 
-
 window.isImageAnalysisCommand =
     isImageAnalysisCommand;
-
 
 window.handleImageCommand =
     handleImageCommand;
 
-
 window.handleFileCommand =
     handleFileCommand;
-
 
 window.getUploadList =
     getUploadList;
 
-
 window.getAIModules =
     getAIModules;
-
 
 // ==========================================
 // READY
@@ -1500,6 +1387,7 @@ console.log(
     "🔎 window.smartAIReply:",
     typeof window.smartAIReply
 );
+
 console.log(
     "🔎 window.askOnlineAI:",
     typeof window.askOnlineAI
