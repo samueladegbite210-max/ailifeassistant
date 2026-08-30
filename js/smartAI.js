@@ -139,7 +139,123 @@ async function runModule(
 
 }
 
+// ==========================================
+// ONLINE AI BACKEND
+// ==========================================
 
+async function askOnlineAI(message) {
+
+    const endpoint =
+        "https://ai-life-assistant-backend.vercel.app/api/ai";
+
+    try {
+
+        console.log(
+            "🌐 Sending message to online AI..."
+        );
+
+
+        const response =
+            await fetch(
+                endpoint,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            message:
+                                String(message || "").trim()
+
+                        })
+
+                }
+            );
+
+
+        let data = {};
+
+        try {
+
+            data =
+                await response.json();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Invalid backend response:",
+                error
+            );
+
+        }
+
+
+        if (!response.ok) {
+
+            console.error(
+                "❌ Online AI backend error:",
+                response.status,
+                data
+            );
+
+
+            return null;
+
+        }
+
+
+        if (
+            data &&
+            data.success === true &&
+            data.reply
+        ) {
+
+            console.log(
+                "✅ Online AI responded"
+            );
+
+
+            return String(
+                data.reply
+            ).trim();
+
+        }
+
+
+        console.error(
+            "❌ Online AI returned no reply:",
+            data
+        );
+
+
+        return null;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Online AI connection error:",
+            error
+        );
+
+
+        return null;
+
+    }
+
+}
 // ==========================================
 // IMAGE COMMAND DETECTION
 // ==========================================
@@ -1283,16 +1399,40 @@ async function smartAIReply(
     }
 
 
+// ======================================
+    // ONLINE AI FALLBACK
     // ======================================
-    // FALLBACK
+
+    console.log(
+        "🌐 No local AI module answered."
+    );
+
+    console.log(
+        "🌐 Trying online AI..."
+    );
+
+
+    const onlineReply =
+        await askOnlineAI(
+            original
+        );
+
+
+    if (onlineReply) {
+
+        return onlineReply;
+
+    }
+
+
+    // ======================================
+    // FINAL OFFLINE FALLBACK
     // ======================================
 
     return (
-        "🤖 I'm still learning.\n\n" +
-        "I couldn't find a good answer to that yet."
+        "🤖 I'm currently unable to connect to my online AI service.\n\n" +
+        "Please check your internet connection and try again."
     );
-
-}
 
 
 // ==========================================
@@ -1301,7 +1441,8 @@ async function smartAIReply(
 
 window.smartAIReply =
     smartAIReply;
-
+window.askOnlineAI =
+    askOnlineAI;
 
 window.getCurrentAttachment =
     getCurrentAttachment;
@@ -1359,7 +1500,10 @@ console.log(
     "🔎 window.smartAIReply:",
     typeof window.smartAIReply
 );
-
+console.log(
+    "🔎 window.askOnlineAI:",
+    typeof window.askOnlineAI
+);
 console.log(
     "🔎 window.analyzeImage:",
     typeof window.analyzeImage
