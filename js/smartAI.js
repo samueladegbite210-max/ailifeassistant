@@ -209,17 +209,27 @@ async function askOnlineAI(message) {
         }
 
 
-        if (!response.ok) {
+      if (!response.ok) {
 
-            console.error(
-                "❌ Online AI backend error:",
-                response.status,
-                data
-            );
+    console.error(
+        "❌ Online AI backend error:",
+        response.status,
+        data
+    );
 
-            return null;
+    return (
+        "⚠️ Online AI Error\n\n" +
+        "Status: " +
+        response.status +
+        "\n\n" +
+        "Server says:\n" +
+        (
+            data?.error ||
+            "Unknown backend error"
+        )
+    );
 
-        }
+}
 
 
         if (
