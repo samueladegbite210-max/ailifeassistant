@@ -142,17 +142,6 @@ async function askOnlineAI(message) {
             "🌐 Sending message to online AI..."
         );
 
-        console.log(
-            "🌐 Endpoint:",
-            endpoint
-        );
-
-        console.log(
-            "🌐 Message:",
-            message
-        );
-
-
         const response =
             await fetch(
                 endpoint,
@@ -160,32 +149,19 @@ async function askOnlineAI(message) {
                     method: "POST",
 
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type":
+                            "application/json"
                     },
 
                     body:
                         JSON.stringify({
                             message:
-                                String(message || "").trim()
+                                String(
+                                    message || ""
+                                ).trim()
                         })
                 }
             );
-
-
-        console.log(
-            "🌐 Backend status:",
-            response.status
-        );
-
-
-        const rawText =
-            await response.text();
-
-
-        console.log(
-            "🌐 Raw backend response:",
-            rawText
-        );
 
 
         let data = {};
@@ -193,44 +169,85 @@ async function askOnlineAI(message) {
         try {
 
             data =
-                JSON.parse(rawText);
+                await response.json();
 
         }
 
-        catch (parseError) {
+        catch (error) {
 
             console.error(
-                "❌ Backend returned invalid JSON:",
-                parseError
+                "❌ Invalid backend response:",
+                error
             );
-
-            return null;
 
         }
 
 
-      if (!response.ok) {
+        // ======================================
+        // NO API CREDITS
+        // ======================================
 
-    console.error(
-        "❌ Online AI backend error:",
-        response.status,
-        data
-    );
+        if (
+            response.status === 429
+        ) {
 
-    return (
-        "⚠️ Online AI Error\n\n" +
-        "Status: " +
-        response.status +
-        "\n\n" +
-        "Server says:\n" +
-        (
-            data?.error ||
-            "Unknown backend error"
-        )
-    );
+            console.warn(
+                "⚠️ Online AI has no available API credits."
+            );
 
-}
+            return (
+                "🟡 Online AI is temporarily unavailable because the AI service has reached its current usage limit.\n\n" +
+                "Your AI Life Assistant is still working, and the built-in AI features remain available.\n\n" +
+                "Please try the message again later."
+            );
 
+        }
+
+
+        // ======================================
+        // UNAUTHORIZED / BAD API KEY
+        // ======================================
+
+        if (
+            response.status === 401
+        ) {
+
+            console.error(
+                "❌ Online AI API key rejected."
+            );
+
+            return (
+                "🔐 The online AI service is currently unavailable because its server authentication needs attention."
+            );
+
+        }
+
+
+        // ======================================
+        // OTHER SERVER ERRORS
+        // ======================================
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "❌ Online AI backend error:",
+                response.status,
+                data
+            );
+
+            return (
+                "⚠️ The online AI service is temporarily unavailable.\n\n" +
+                "Your built-in AI features are still available."
+            );
+
+        }
+
+
+        // ======================================
+        // SUCCESS
+        // ======================================
 
         if (
             data &&
@@ -239,7 +256,7 @@ async function askOnlineAI(message) {
         ) {
 
             console.log(
-                "✅ Online AI responded successfully"
+                "✅ Online AI responded"
             );
 
             return String(
@@ -250,11 +267,14 @@ async function askOnlineAI(message) {
 
 
         console.error(
-            "❌ Backend response has no AI reply:",
+            "❌ Online AI returned no reply:",
             data
         );
 
-        return null;
+
+        return (
+            "⚠️ The online AI service returned an empty response."
+        );
 
     }
 
@@ -265,7 +285,10 @@ async function askOnlineAI(message) {
             error
         );
 
-        return null;
+        return (
+            "🌐 I couldn't reach the online AI service right now.\n\n" +
+            "Please check your internet connection and try again."
+        );
 
     }
 
