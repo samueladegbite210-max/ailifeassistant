@@ -834,76 +834,259 @@ function formatAIMessage(text) {
     return html;
 
 }
-    /* =====================================================
-   CLEAN AI RESPONSE FORMAT
+/* =====================================================
+   FORMAT AI RESPONSE
 ===================================================== */
 
 function formatAIResponse(text) {
 
     if (!text) {
-        return "";
+        return document.createDocumentFragment();
     }
 
-    let formatted =
-        String(text);
+
+    const fragment =
+        document.createDocumentFragment();
 
 
-    /*
-    Remove Markdown headings
-    */
-
-    formatted =
-        formatted.replace(
-            /^#{1,6}\s+/gm,
-            ""
-        );
+    const lines =
+        String(text)
+        .replace(/\r/g, "")
+        .split("\n");
 
 
-    /*
-    Remove bold Markdown
-    */
-
-    formatted =
-        formatted.replace(
-            /\*\*(.*?)\*\*/g,
-            "$1"
-        );
+    let currentList =
+        null;
 
 
-    /*
-    Remove italic Markdown
-    */
+    function closeList() {
 
-    formatted =
-        formatted.replace(
-            /\*(.*?)\*/g,
-            "$1"
-        );
+        if (currentList) {
 
+            fragment.appendChild(
+                currentList
+            );
 
-    /*
-    Remove Markdown horizontal lines
-    */
+            currentList = null;
 
-    formatted =
-        formatted.replace(
-            /^---+$/gm,
-            ""
-        );
+        }
+
+    }
 
 
-    /*
-    Fix excessive empty lines
-    */
+    lines.forEach(
+        function (line) {
 
-    formatted =
-        formatted.replace(
-            /\n{3,}/g,
-            "\n\n"
-        );
+            const trimmed =
+                line.trim();
 
 
-    return formatted.trim();
+            /*
+            EMPTY LINE
+            */
+
+            if (!trimmed) {
+
+                closeList();
+
+                return;
+
+            }
+
+
+            /*
+            HEADINGS
+            ## Heading
+            ### Heading
+            */
+
+            if (
+                /^#{1,6}\s+/.test(
+                    trimmed
+                )
+            ) {
+
+                closeList();
+
+
+                const heading =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                heading.className =
+                    "aiHeading";
+
+
+                heading.textContent =
+                    trimmed.replace(
+                        /^#{1,6}\s+/,
+                        ""
+                    );
+
+
+                fragment.appendChild(
+                    heading
+                );
+
+                return;
+
+            }
+
+
+            /*
+            BULLET LIST
+            - Item
+            * Item
+            • Item
+            */
+
+            if (
+                /^[-*•]\s+/.test(
+                    trimmed
+                )
+            ) {
+
+                if (
+                    !currentList ||
+                    currentList.tagName !== "UL"
+                ) {
+
+                    closeList();
+
+                    currentList =
+                        document.createElement(
+                            "ul"
+                        );
+
+
+                    currentList.className =
+                        "aiList";
+
+                }
+
+
+                const item =
+                    document.createElement(
+                        "li"
+                    );
+
+
+                item.textContent =
+                    trimmed.replace(
+                        /^[-*•]\s+/,
+                        ""
+                    );
+
+
+                currentList.appendChild(
+                    item
+                );
+
+                return;
+
+            }
+
+
+            /*
+            NUMBERED LIST
+            1. Item
+            2. Item
+            */
+
+            if (
+                /^\d+\.\s+/.test(
+                    trimmed
+                )
+            ) {
+
+                if (
+                    !currentList ||
+                    currentList.tagName !== "OL"
+                ) {
+
+                    closeList();
+
+                    currentList =
+                        document.createElement(
+                            "ol"
+                        );
+
+
+                    currentList.className =
+                        "aiList";
+
+                }
+
+
+                const item =
+                    document.createElement(
+                        "li"
+                    );
+
+
+                item.textContent =
+                    trimmed.replace(
+                        /^\d+\.\s+/,
+                        ""
+                    );
+
+
+                currentList.appendChild(
+                    item
+                );
+
+                return;
+
+            }
+
+
+            /*
+            NORMAL PARAGRAPH
+            */
+
+            closeList();
+
+
+            const paragraph =
+                document.createElement(
+                    "div"
+                );
+
+
+            paragraph.className =
+                "aiParagraph";
+
+
+            /*
+            Remove Markdown symbols
+            */
+
+            paragraph.textContent =
+                trimmed
+                .replace(
+                    /\*\*(.*?)\*\*/g,
+                    "$1"
+                )
+                .replace(
+                    /\*(.*?)\*/g,
+                    "$1"
+                );
+
+
+            fragment.appendChild(
+                paragraph
+            );
+
+        }
+    );
+
+
+    closeList();
+
+
+    return fragment;
 
 }
     /* =====================================================
@@ -952,13 +1135,17 @@ function addLocalMessage(
 
 } else {
 
-    const cleanText =
-    sender === "ai"
-        ? formatAIResponse(text)
-        : String(text || "");
+    if (sender === "ai") {
 
-messageText.textContent =
-    cleanText;
+    messageText.appendChild(
+        formatAIResponse(text)
+    );
+
+} else {
+
+    messageText.textContent =
+        String(text || "");
+
 
 }
 
