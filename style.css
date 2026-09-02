@@ -2497,6 +2497,51 @@ ChatGPT Typing Animation
     padding: 8px;
     border-top: 1px solid rgba(255,255,255,0.1);
 }
+/* ==========================================
+   AI MESSAGE FORMATTING
+========================================== */
+
+.message.ai .messageText {
+    line-height: 1.6;
+}
+
+
+/* HEADINGS */
+
+.aiHeading {
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 14px;
+    margin-bottom: 7px;
+}
+
+.aiHeading:first-child {
+    margin-top: 0;
+}
+
+
+/* PARAGRAPHS */
+
+.aiParagraph {
+    margin-bottom: 10px;
+}
+
+.aiParagraph:last-child {
+    margin-bottom: 0;
+}
+
+
+/* LISTS */
+
+.aiList {
+    margin: 8px 0 12px 0;
+    padding-left: 22px;
+}
+
+.aiList li {
+    margin-bottom: 6px;
+    padding-left: 2px;
+}
 /*==================================================
 THE END
 ==================================================*/
