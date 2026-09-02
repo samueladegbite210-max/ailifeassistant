@@ -1089,7 +1089,7 @@ function formatAIResponse(text) {
     return fragment;
 
 }
-    /* =====================================================
+/* =====================================================
    ADD TEXT MESSAGE
 ===================================================== */
 
@@ -1128,27 +1128,35 @@ function addLocalMessage(
     messageText.className =
         "messageText";
 
-    if (sender === "ai") {
 
-    messageText.innerHTML =
-        formatAIMessage(text);
-
-} else {
+    /*
+    AI MESSAGE
+    */
 
     if (sender === "ai") {
 
-    messageText.appendChild(
-        formatAIResponse(text)
-    );
+        messageText.appendChild(
+            formatAIResponse(text)
+        );
 
-} else {
-
-    messageText.textContent =
-        String(text || "");
+    }
 
 
-}
+    /*
+    USER MESSAGE
+    */
 
+    else {
+
+        messageText.textContent =
+            String(text || "");
+
+    }
+
+
+    /*
+    MESSAGE TIME
+    */
 
     const messageTime =
         document.createElement("div");
@@ -1189,8 +1197,6 @@ function addLocalMessage(
 
 window.addLocalMessage =
     addLocalMessage;
-
-
 /* =====================================================
    ADD ATTACHMENT MESSAGE
 ===================================================== */
