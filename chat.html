@@ -835,6 +835,78 @@ function formatAIMessage(text) {
 
 }
     /* =====================================================
+   CLEAN AI RESPONSE FORMAT
+===================================================== */
+
+function formatAIResponse(text) {
+
+    if (!text) {
+        return "";
+    }
+
+    let formatted =
+        String(text);
+
+
+    /*
+    Remove Markdown headings
+    */
+
+    formatted =
+        formatted.replace(
+            /^#{1,6}\s+/gm,
+            ""
+        );
+
+
+    /*
+    Remove bold Markdown
+    */
+
+    formatted =
+        formatted.replace(
+            /\*\*(.*?)\*\*/g,
+            "$1"
+        );
+
+
+    /*
+    Remove italic Markdown
+    */
+
+    formatted =
+        formatted.replace(
+            /\*(.*?)\*/g,
+            "$1"
+        );
+
+
+    /*
+    Remove Markdown horizontal lines
+    */
+
+    formatted =
+        formatted.replace(
+            /^---+$/gm,
+            ""
+        );
+
+
+    /*
+    Fix excessive empty lines
+    */
+
+    formatted =
+        formatted.replace(
+            /\n{3,}/g,
+            "\n\n"
+        );
+
+
+    return formatted.trim();
+
+}
+    /* =====================================================
    ADD TEXT MESSAGE
 ===================================================== */
 
@@ -880,8 +952,13 @@ function addLocalMessage(
 
 } else {
 
-    messageText.textContent =
-        String(text || "");
+    const cleanText =
+    sender === "ai"
+        ? formatAIResponse(text)
+        : String(text || "");
+
+messageText.textContent =
+    cleanText;
 
 }
 
@@ -1836,7 +1913,8 @@ if (
 /* =====================================================
    GLOBAL ACCESS
 ===================================================== */
-
+window.formatAIResponse =
+    formatAIResponse;
 window.showAttachmentPreview =
     showAttachmentPreview;
 
