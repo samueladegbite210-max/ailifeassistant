@@ -624,6 +624,217 @@ if (removeAttachmentBtn) {
 
 
 /* =====================================================
+   SIMPLE MARKDOWN FORMATTER
+===================================================== */
+
+function formatAIMessage(text) {
+
+    let html =
+        String(text || "");
+
+
+    /*
+    ESCAPE HTML FIRST
+    FOR SAFETY
+    */
+
+    html =
+        html
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+
+    /*
+    MARKDOWN TABLES
+
+    Convert tables into simple readable blocks
+    instead of allowing broken table syntax.
+    */
+
+    html =
+        html.replace(
+            /^\|(.+)\|\s*\n\|[-:\s|]+\|\s*\n((?:\|.+\|\s*\n?)*)/gm,
+            function (
+                match,
+                header,
+                rows
+            ) {
+
+                const headers =
+                    header
+                    .split("|")
+                    .map(
+                        item =>
+                            item.trim()
+                    )
+                    .filter(Boolean);
+
+
+                let output =
+                    '<div class="markdownTable">';
+
+
+                output +=
+                    '<div class="markdownTableHeader">' +
+                    headers.join(" • ") +
+                    '</div>';
+
+
+                const rowList =
+                    rows
+                    .trim()
+                    .split("\n");
+
+
+                rowList.forEach(
+                    function (row) {
+
+                        const cells =
+                            row
+                            .split("|")
+                            .map(
+                                item =>
+                                    item.trim()
+                            )
+                            .filter(Boolean);
+
+
+                        if (
+                            cells.length
+                        ) {
+
+                            output +=
+                                '<div class="markdownTableRow">' +
+                                cells.join(" — ") +
+                                '</div>';
+
+                        }
+
+                    }
+                );
+
+
+                output +=
+                    '</div>';
+
+
+                return output;
+
+            }
+        );
+
+
+    /*
+    HEADINGS
+    */
+
+    html =
+        html.replace(
+            /^### (.+)$/gm,
+            "<h3>$1</h3>"
+        );
+
+    html =
+        html.replace(
+            /^## (.+)$/gm,
+            "<h2>$1</h2>"
+        );
+
+    html =
+        html.replace(
+            /^# (.+)$/gm,
+            "<h1>$1</h1>"
+        );
+
+
+    /*
+    BOLD
+    */
+
+    html =
+        html.replace(
+            /\*\*(.+?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+    /*
+    ITALIC
+    */
+
+    html =
+        html.replace(
+            /\*(.+?)\*/g,
+            "<em>$1</em>"
+        );
+
+
+    /*
+    BULLET POINTS
+    */
+
+    html =
+        html.replace(
+            /^[-*] (.+)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /*
+    NUMBERED LISTS
+    */
+
+    html =
+        html.replace(
+            /^\d+\. (.+)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /*
+    GROUP LIST ITEMS
+    */
+
+    html =
+        html.replace(
+            /(<li>.*?<\/li>(?:\s*<li>.*?<\/li>)*)/gs,
+            "<ul>$1</ul>"
+        );
+
+
+    /*
+    LINE BREAKS
+    */
+
+    html =
+        html.replace(
+            /\n/g,
+            "<br>"
+        );
+
+
+    /*
+    CLEAN EXTRA BREAKS
+    */
+
+    html =
+        html.replace(
+            /<br><ul>/g,
+            "<ul>"
+        );
+
+    html =
+        html.replace(
+            /<\/ul><br>/g,
+            "</ul>"
+        );
+
+
+    return html;
+
+}
+    /* =====================================================
    ADD TEXT MESSAGE
 ===================================================== */
 
@@ -662,8 +873,17 @@ function addLocalMessage(
     messageText.className =
         "messageText";
 
+    if (sender === "ai") {
+
+    messageText.innerHTML =
+        formatAIMessage(text);
+
+} else {
+
     messageText.textContent =
         String(text || "");
+
+}
 
 
     const messageTime =
