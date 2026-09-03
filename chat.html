@@ -1906,9 +1906,10 @@ async function sendMessage() {
 
 
         const response =
-            await window.smartAIReply(
-                message
-            );
+    await window.smartAIReply(
+        message,
+        attachment
+    );
 
 
         if (thinking) {
