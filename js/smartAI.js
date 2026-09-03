@@ -730,9 +730,10 @@ async function handleImageCommand(msg) {
             try {
 
                 const result =
-                    await window.analyzeImage(
-                        imageSource
-                    );
+    await window.analyzeImage(
+        imageSource,
+        msg
+    );
 
                 if (
                     result !== null &&
