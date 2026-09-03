@@ -129,9 +129,13 @@ async function runModule(
 
 // ==========================================
 // ONLINE AI BACKEND
+// TEXT + IMAGE SUPPORT
 // ==========================================
 
-async function askOnlineAI(message) {
+async function askOnlineAI(
+    message,
+    attachment = null
+) {
 
     const endpoint =
         "https://ai-life-assistant-backend.vercel.app/api/ai";
@@ -139,27 +143,77 @@ async function askOnlineAI(message) {
     try {
 
         console.log(
-            "🌐 Sending message to online AI..."
+            "🌐 Sending request to online AI..."
         );
+
+        let imageData = null;
+
+
+        // ======================================
+        // PREPARE IMAGE
+        // ======================================
+
+        if (
+            attachment &&
+            getAttachmentType(attachment) ===
+            "image"
+        ) {
+
+            const file =
+                attachment.file ||
+                attachment.data ||
+                null;
+
+
+            if (
+                file instanceof Blob
+            ) {
+
+                console.log(
+                    "🖼️ Preparing image for online AI..."
+                );
+
+                imageData =
+                    await fileToBase64(
+                        file
+                    );
+
+            }
+
+        }
+
+
+        // ======================================
+        // SEND REQUEST
+        // ======================================
 
         const response =
             await fetch(
                 endpoint,
                 {
+
                     method: "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
                         JSON.stringify({
+
                             message:
                                 String(
                                     message || ""
-                                ).trim()
+                                ).trim(),
+
+                            image:
+                                imageData
+
                         })
+
                 }
             );
 
@@ -181,6 +235,121 @@ async function askOnlineAI(message) {
             );
 
         }
+
+
+        console.log(
+            "🌐 Online AI status:",
+            response.status
+        );
+
+
+        // ======================================
+        // ERROR HANDLING
+        // ======================================
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "❌ Online AI backend error:",
+                response.status,
+                data
+            );
+
+            return null;
+
+        }
+
+
+        // ======================================
+        // SUCCESS
+        // ======================================
+
+        if (
+            data &&
+            data.success === true &&
+            data.reply
+        ) {
+
+            console.log(
+                "✅ Online AI responded"
+            );
+
+            return String(
+                data.reply
+            ).trim();
+
+        }
+
+
+        console.error(
+            "❌ Online AI returned no reply:",
+            data
+        );
+
+        return null;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Online AI connection error:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+// ==========================================
+// FILE TO BASE64
+// ==========================================
+
+function fileToBase64(file) {
+
+    return new Promise(
+        function (
+            resolve,
+            reject
+        ) {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function () {
+
+                    resolve(
+                        reader.result
+                    );
+
+                };
+
+
+            reader.onerror =
+                function () {
+
+                    reject(
+                        new Error(
+                            "Failed to read image"
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+}
 
 
         // ======================================
@@ -508,284 +677,39 @@ function isOCRCommand(msg) {
 
 }
 
-// ==========================================
-// IMAGE ANALYSIS DETECTION
-// ==========================================
+// ======================================
+// ONLINE IMAGE ANALYSIS
+// ======================================
 
-function isImageAnalysisCommand(msg) {
+if (
+    isImageAnalysisCommand(msg)
+) {
 
-    const text =
-        String(msg || "")
-        .toLowerCase()
-        .trim();
+    console.log(
+        "👀 Sending image to online Vision AI..."
+    );
+
+
+    const result =
+        await askOnlineAI(
+            msg,
+            attachment
+        );
+
+
+    if (
+        result &&
+        String(result).trim() !== ""
+    ) {
+
+        return String(result);
+
+    }
+
 
     return (
-
-        text === "what is this" ||
-        text === "what's this" ||
-
-        text === "what is it" ||
-        text === "what's it" ||
-
-        text === "what is that" ||
-        text === "what's that" ||
-
-        text === "what am i looking at" ||
-
-        text === "tell me about this" ||
-        text === "tell me what this is" ||
-
-        text.includes("describe") ||
-
-        text.includes("what is in") ||
-
-        text.includes("what's in") ||
-
-        text.includes("analyze") ||
-
-        text.includes("analyse") ||
-
-        text.includes("what does the image show") ||
-
-        text.includes("what does this image show")
-
-    );
-
-}
-
-// ==========================================
-// IMAGE HANDLER
-// ==========================================
-
-async function handleImageCommand(msg) {
-
-    const attachment =
-        getCurrentAttachment();
-
-    console.log(
-        "🖼️ IMAGE COMMAND DETECTED:",
-        msg
-    );
-
-    console.log(
-        "🖼️ CURRENT ATTACHMENT:",
-        attachment
-    );
-
-    console.log(
-        "🖼️ ATTACHMENT TYPE:",
-        getAttachmentType(
-            attachment
-        )
-    );
-
-    console.log(
-        "🔎 analyzeImage:",
-        typeof window.analyzeImage
-    );
-
-    console.log(
-        "🔎 readImageText:",
-        typeof window.readImageText
-    );
-
-    // No attachment
-
-    if (!attachment) {
-
-        return (
-            "📷 I don't currently have an image attached.\n\n" +
-            "Please upload an image first."
-        );
-
-    }
-
-    // Wrong attachment type
-
-    if (
-        getAttachmentType(
-            attachment
-        ) !== "image"
-    ) {
-
-        return (
-            "📎 The current attachment isn't an image.\n\n" +
-            "Please upload an image."
-        );
-
-    }
-
-    // Get image data
-
-    const imageSource =
-
-        attachment.file ||
-
-        attachment.data ||
-
-        attachment.url ||
-
-        attachment.src ||
-
-        null;
-
-    if (!imageSource) {
-
-        console.error(
-            "❌ IMAGE DATA NOT FOUND:",
-            attachment
-        );
-
-        return (
-            "📷 I found the image attachment, " +
-            "but I couldn't access the image data."
-        );
-
-    }
-
-    console.log(
-        "🖼️ Current image:",
-        attachment.name ||
-        "Unnamed image"
-    );
-
-    // ======================================
-    // OCR
-    // ======================================
-
-    if (
-        isOCRCommand(msg)
-    ) {
-
-        console.log(
-            "📝 Starting OCR..."
-        );
-
-        if (
-            typeof window.readImageText ===
-            "function"
-        ) {
-
-            try {
-
-                const result =
-                    await window.readImageText(
-                        imageSource
-                    );
-
-                if (
-                    result !== null &&
-                    result !== undefined &&
-                    String(result).trim() !== ""
-                ) {
-
-                    return String(result);
-
-                }
-
-                return (
-                    "📝 I couldn't find any readable text in this image."
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "❌ OCR ERROR:",
-                    error
-                );
-
-                return (
-                    "⚠️ Something went wrong while reading the text in this image."
-                );
-
-            }
-
-        }
-
-        return (
-            "📝 Image text reading is not connected yet."
-        );
-
-    }
-
-    // ======================================
-    // IMAGE ANALYSIS
-    // ======================================
-
-    if (
-        isImageAnalysisCommand(msg)
-    ) {
-
-        console.log(
-            "👀 Starting image analysis..."
-        );
-
-        if (
-            typeof window.analyzeImage ===
-            "function"
-        ) {
-
-            try {
-
-                const result =
-    await window.analyzeImage(
-        imageSource,
-        msg
-    );
-
-                if (
-                    result !== null &&
-                    result !== undefined &&
-                    String(result).trim() !== ""
-                ) {
-
-                    return String(result);
-
-                }
-
-                return (
-                    "👀 I analyzed the image, " +
-                    "but no description was returned."
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "❌ IMAGE ANALYSIS ERROR:",
-                    error
-                );
-
-                return (
-                    "⚠️ I received your image, " +
-                    "but something went wrong while analyzing it."
-                );
-
-            }
-
-        }
-
-        return (
-            "👀 I received your image, " +
-            "but the image analysis function is not connected yet."
-        );
-
-    }
-
-    // ======================================
-    // DEFAULT IMAGE RESPONSE
-    // ======================================
-
-    return (
-        "📷 I still have your image attached.\n\n" +
-        "You can ask me:\n\n" +
-        "• What is this?\n" +
-        "• Describe the image\n" +
-        "• Read the text from the image\n" +
-        "• Analyze the image"
+        "⚠️ I couldn't analyze this image right now.\n\n" +
+        "Please check your internet connection and try again."
     );
 
 }
