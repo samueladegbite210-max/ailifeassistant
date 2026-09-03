@@ -1,17 +1,26 @@
-// ==========================================
-// AI LIFE ASSISTANT
-// smartAI.js
-// Version 10.0
-// Stable Central AI Controller
-// ==========================================
-
 "use strict";
+
+/* ==========================================
+   AI LIFE ASSISTANT
+   smartAI.js
+   Version 11.0
+   Central AI Controller
+
+   RESPONSIBILITIES:
+   - AI module routing
+   - Image command detection
+   - OCR routing
+   - Online Vision AI
+   - File command routing
+   - Online AI fallback
+========================================== */
 
 console.log("🧠 smartAI.js loading...");
 
-// ==========================================
-// ATTACHMENT ACCESS
-// ==========================================
+
+/* ==========================================
+   ATTACHMENT ACCESS
+========================================== */
 
 function getCurrentAttachment() {
 
@@ -19,20 +28,26 @@ function getCurrentAttachment() {
 
 }
 
-// ==========================================
-// ATTACHMENT TYPE CHECK
-// ==========================================
+
+/* ==========================================
+   ATTACHMENT TYPE DETECTION
+========================================== */
 
 function getAttachmentType(attachment) {
 
     if (!attachment) {
+
         return null;
+
     }
+
 
     const type =
         String(
             attachment.type || ""
-        ).toLowerCase();
+        )
+        .toLowerCase();
+
 
     const mimeType =
         String(
@@ -40,9 +55,14 @@ function getAttachmentType(attachment) {
             attachment.mime ||
             attachment.file?.type ||
             ""
-        ).toLowerCase();
+        )
+        .toLowerCase();
 
-    // Image
+
+    /* ======================================
+       IMAGE
+    ====================================== */
+
     if (
         type === "image" ||
         type.startsWith("image/")
@@ -52,6 +72,7 @@ function getAttachmentType(attachment) {
 
     }
 
+
     if (
         mimeType.startsWith("image/")
     ) {
@@ -60,7 +81,11 @@ function getAttachmentType(attachment) {
 
     }
 
-    // File
+
+    /* ======================================
+       FILE
+    ====================================== */
+
     if (
         type === "file" ||
         type === "document"
@@ -70,13 +95,15 @@ function getAttachmentType(attachment) {
 
     }
 
+
     return type || null;
 
 }
 
-// ==========================================
-// SAFE MODULE RUNNER
-// ==========================================
+
+/* ==========================================
+   SAFE MODULE RUNNER
+========================================== */
 
 async function runModule(
     name,
@@ -93,8 +120,10 @@ async function runModule(
 
         }
 
+
         const result =
             await callback();
+
 
         if (
             result !== null &&
@@ -123,190 +152,15 @@ async function runModule(
 
     }
 
+
     return null;
 
 }
 
-// ==========================================
-// ONLINE AI BACKEND
-// TEXT + IMAGE SUPPORT
-// ==========================================
 
-async function askOnlineAI(
-    message,
-    attachment = null
-) {
-
-    const endpoint =
-        "https://ai-life-assistant-backend.vercel.app/api/ai";
-
-    try {
-
-        console.log(
-            "🌐 Sending request to online AI..."
-        );
-
-        let imageData = null;
-
-
-        // ======================================
-        // PREPARE IMAGE
-        // ======================================
-
-        if (
-            attachment &&
-            getAttachmentType(attachment) ===
-            "image"
-        ) {
-
-            const file =
-                attachment.file ||
-                attachment.data ||
-                null;
-
-
-            if (
-                file instanceof Blob
-            ) {
-
-                console.log(
-                    "🖼️ Preparing image for online AI..."
-                );
-
-                imageData =
-                    await fileToBase64(
-                        file
-                    );
-
-            }
-
-        }
-
-
-        // ======================================
-        // SEND REQUEST
-        // ======================================
-
-        const response =
-            await fetch(
-                endpoint,
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            message:
-                                String(
-                                    message || ""
-                                ).trim(),
-
-                            image:
-                                imageData
-
-                        })
-
-                }
-            );
-
-
-        let data = {};
-
-        try {
-
-            data =
-                await response.json();
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Invalid backend response:",
-                error
-            );
-
-        }
-
-
-        console.log(
-            "🌐 Online AI status:",
-            response.status
-        );
-
-
-        // ======================================
-        // ERROR HANDLING
-        // ======================================
-
-        if (
-            !response.ok
-        ) {
-
-            console.error(
-                "❌ Online AI backend error:",
-                response.status,
-                data
-            );
-
-            return null;
-
-        }
-
-
-        // ======================================
-        // SUCCESS
-        // ======================================
-
-        if (
-            data &&
-            data.success === true &&
-            data.reply
-        ) {
-
-            console.log(
-                "✅ Online AI responded"
-            );
-
-            return String(
-                data.reply
-            ).trim();
-
-        }
-
-
-        console.error(
-            "❌ Online AI returned no reply:",
-            data
-        );
-
-        return null;
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "❌ Online AI connection error:",
-            error
-        );
-
-        return null;
-
-    }
-
-}
-// ==========================================
-// FILE TO BASE64
-// ==========================================
+/* ==========================================
+   FILE TO BASE64
+========================================== */
 
 function fileToBase64(file) {
 
@@ -315,6 +169,19 @@ function fileToBase64(file) {
             resolve,
             reject
         ) {
+
+            if (!file) {
+
+                reject(
+                    new Error(
+                        "No file provided"
+                    )
+                );
+
+                return;
+
+            }
+
 
             const reader =
                 new FileReader();
@@ -352,49 +219,185 @@ function fileToBase64(file) {
 }
 
 
-        // ======================================
-        // NO API CREDITS
-        // ======================================
+/* ==========================================
+   ONLINE AI BACKEND
+   TEXT + IMAGE SUPPORT
+========================================== */
+
+async function askOnlineAI(
+    message,
+    attachment = null
+) {
+
+    const endpoint =
+        "https://ai-life-assistant-backend.vercel.app/api/ai";
+
+
+    try {
+
+        console.log(
+            "🌐 Sending request to online AI..."
+        );
+
+
+        let imageData = null;
+
+
+        /* ======================================
+           PREPARE IMAGE
+        ====================================== */
+
+        if (
+            attachment &&
+            getAttachmentType(
+                attachment
+            ) === "image"
+        ) {
+
+            const imageFile =
+                attachment.file ||
+                attachment.data ||
+                null;
+
+
+            if (
+                imageFile instanceof Blob
+            ) {
+
+                console.log(
+                    "🖼️ Preparing image for Vision AI..."
+                );
+
+
+                imageData =
+                    await fileToBase64(
+                        imageFile
+                    );
+
+            }
+
+            else if (
+                typeof imageFile === "string"
+            ) {
+
+                /*
+                   Support existing Base64
+                   or image URL data.
+                */
+
+                imageData =
+                    imageFile;
+
+            }
+
+        }
+
+
+        /* ======================================
+           SEND REQUEST
+        ====================================== */
+
+        const response =
+            await fetch(
+                endpoint,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            message:
+                                String(
+                                    message || ""
+                                ).trim(),
+
+                            image:
+                                imageData
+
+                        })
+
+                }
+            );
+
+
+        let data = {};
+
+
+        try {
+
+            data =
+                await response.json();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Invalid backend response:",
+                error
+            );
+
+        }
+
+
+        console.log(
+            "🌐 Online AI status:",
+            response.status
+        );
+
+
+        /* ======================================
+           RATE LIMIT
+        ====================================== */
 
         if (
             response.status === 429
         ) {
 
             console.warn(
-                "⚠️ Online AI has no available API credits."
+                "⚠️ Online AI usage limit reached."
             );
 
+
             return (
-                "🟡 Online AI is temporarily unavailable because the AI service has reached its current usage limit.\n\n" +
-                "Your AI Life Assistant is still working, and the built-in AI features remain available.\n\n" +
-                "Please try the message again later."
+                "🟡 The online AI service has temporarily reached its usage limit.\n\n" +
+                "Please try again later."
             );
 
         }
 
 
-        // ======================================
-        // UNAUTHORIZED / BAD API KEY
-        // ======================================
+        /* ======================================
+           UNAUTHORIZED
+        ====================================== */
 
         if (
             response.status === 401
         ) {
 
             console.error(
-                "❌ Online AI API key rejected."
+                "❌ Online AI authentication failed."
             );
 
+
             return (
-                "🔐 The online AI service is currently unavailable because its server authentication needs attention."
+                "🔐 The online AI service authentication needs attention."
             );
 
         }
 
 
-        // ======================================
-        // OTHER SERVER ERRORS
-        // ======================================
+        /* ======================================
+           SERVER ERROR
+        ====================================== */
 
         if (
             !response.ok
@@ -406,17 +409,15 @@ function fileToBase64(file) {
                 data
             );
 
-            return (
-                "⚠️ The online AI service is temporarily unavailable.\n\n" +
-                "Your built-in AI features are still available."
-            );
+
+            return null;
 
         }
 
 
-        // ======================================
-        // SUCCESS
-        // ======================================
+        /* ======================================
+           SUCCESS
+        ====================================== */
 
         if (
             data &&
@@ -427,6 +428,7 @@ function fileToBase64(file) {
             console.log(
                 "✅ Online AI responded"
             );
+
 
             return String(
                 data.reply
@@ -441,9 +443,7 @@ function fileToBase64(file) {
         );
 
 
-        return (
-            "⚠️ The online AI service returned an empty response."
-        );
+        return null;
 
     }
 
@@ -454,37 +454,29 @@ function fileToBase64(file) {
             error
         );
 
-        return (
-            "🌐 I couldn't reach the online AI service right now.\n\n" +
-            "Please check your internet connection and try again."
-        );
+
+        return null;
 
     }
 
 }
-// ==========================================
-// IMAGE COMMAND DETECTION
-// ==========================================
+
+
+/* ==========================================
+   IMAGE COMMAND DETECTION
+========================================== */
 
 function isImageCommand(msg) {
 
     const attachment =
         getCurrentAttachment();
 
+
     const attachmentType =
         getAttachmentType(
             attachment
         );
 
-    console.log(
-        "📎 CURRENT ATTACHMENT:",
-        attachment
-    );
-
-    console.log(
-        "📎 ATTACHMENT TYPE:",
-        attachmentType
-    );
 
     if (
         attachmentType !== "image"
@@ -494,20 +486,105 @@ function isImageCommand(msg) {
 
     }
 
+
     if (!msg) {
 
         return true;
 
     }
 
+
     const text =
         String(msg)
         .toLowerCase()
         .trim();
 
+
     return (
 
-        // Vague image questions
+        isOCRCommand(text) ||
+
+        isImageAnalysisCommand(text)
+
+    );
+
+}
+
+
+/* ==========================================
+   OCR COMMAND DETECTION
+========================================== */
+
+function isOCRCommand(msg) {
+
+    const text =
+        String(msg || "")
+        .toLowerCase()
+        .trim();
+
+
+    return (
+
+        text.includes(
+            "read text"
+        ) ||
+
+        text.includes(
+            "read the text"
+        ) ||
+
+        text.includes(
+            "extract text"
+        ) ||
+
+        text.includes(
+            "extract the text"
+        ) ||
+
+        text.includes(
+            "text in the image"
+        ) ||
+
+        text.includes(
+            "text from the image"
+        ) ||
+
+        text.includes(
+            "what does the image say"
+        ) ||
+
+        text.includes(
+            "what does this image say"
+        ) ||
+
+        text.includes(
+            "what does this say"
+        ) ||
+
+        text.includes(
+            "read this image"
+        )
+
+    );
+
+}
+
+
+/* ==========================================
+   IMAGE ANALYSIS DETECTION
+========================================== */
+
+function isImageAnalysisCommand(msg) {
+
+    const text =
+        String(msg || "")
+        .toLowerCase()
+        .trim();
+
+
+    return (
+
+        /* Exact questions */
 
         text === "what is this" ||
         text === "what's this" ||
@@ -523,49 +600,265 @@ function isImageCommand(msg) {
         text === "tell me about this" ||
         text === "tell me what this is" ||
 
-        // Describe
 
-        text.includes("describe") ||
+        /* Description */
 
-        text.includes("what is in") ||
+        text.includes(
+            "describe"
+        ) ||
 
-        text.includes("what's in") ||
+        text.includes(
+            "what is in"
+        ) ||
 
-        text.includes("what does the image show") ||
+        text.includes(
+            "what's in"
+        ) ||
 
-        text.includes("what does this image show") ||
+        text.includes(
+            "what does the image show"
+        ) ||
 
-        text.includes("analyze") ||
+        text.includes(
+            "what does this image show"
+        ) ||
 
-        text.includes("analyse") ||
 
-        // OCR
+        /* Analysis */
 
-        text.includes("read text") ||
+        text.includes(
+            "analyze"
+        ) ||
 
-        text.includes("read the text") ||
+        text.includes(
+            "analyse"
+        ) ||
 
-        text.includes("extract text") ||
+        text.includes(
+            "explain this image"
+        ) ||
 
-        text.includes("text in the image") ||
-
-        text.includes("text from the image") ||
-
-        text.includes("what does the image say") ||
-
-        text.includes("what does this image say") ||
-
-        text.includes("what does this say") ||
-
-        text.includes("read this image")
+        text.includes(
+            "tell me about the image"
+        )
 
     );
 
 }
 
-// ==========================================
-// FILE COMMAND DETECTION
-// ==========================================
+
+/* ==========================================
+   IMAGE HANDLER
+========================================== */
+
+async function handleImageCommand(msg) {
+
+    console.log(
+        "🖼️ IMAGE COMMAND DETECTED:",
+        msg
+    );
+
+
+    const attachment =
+        getCurrentAttachment();
+
+
+    /* ======================================
+       NO ATTACHMENT
+    ====================================== */
+
+    if (!attachment) {
+
+        return (
+            "📷 I don't currently have an image attached.\n\n" +
+            "Please upload an image first."
+        );
+
+    }
+
+
+    /* ======================================
+       WRONG TYPE
+    ====================================== */
+
+    if (
+        getAttachmentType(
+            attachment
+        ) !== "image"
+    ) {
+
+        return (
+            "📎 The current attachment isn't an image.\n\n" +
+            "Please upload an image."
+        );
+
+    }
+
+
+    /* ======================================
+       GET IMAGE SOURCE
+    ====================================== */
+
+    const imageSource =
+
+        attachment.file ||
+
+        attachment.data ||
+
+        attachment.url ||
+
+        attachment.src ||
+
+        null;
+
+
+    if (!imageSource) {
+
+        console.error(
+            "❌ IMAGE DATA NOT FOUND:",
+            attachment
+        );
+
+
+        return (
+            "📷 I found the image attachment, " +
+            "but I couldn't access the image data."
+        );
+
+    }
+
+
+    console.log(
+        "🖼️ Current image:",
+        attachment.name ||
+        "Unnamed image"
+    );
+
+
+    /* ======================================
+       OCR
+    ====================================== */
+
+    if (
+        isOCRCommand(msg)
+    ) {
+
+        console.log(
+            "📝 Starting OCR..."
+        );
+
+
+        if (
+            typeof window.readImageText ===
+            "function"
+        ) {
+
+            try {
+
+                const result =
+                    await window.readImageText(
+                        imageSource
+                    );
+
+
+                if (
+                    result !== null &&
+                    result !== undefined &&
+                    String(result).trim() !== ""
+                ) {
+
+                    return String(result);
+
+                }
+
+
+                return (
+                    "📝 I couldn't find any readable text in this image."
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "❌ OCR ERROR:",
+                    error
+                );
+
+
+                return (
+                    "⚠️ Something went wrong while reading the text in this image."
+                );
+
+            }
+
+        }
+
+
+        return (
+            "📝 Image text reading is not connected yet."
+        );
+
+    }
+
+
+    /* ======================================
+       ONLINE VISION AI
+    ====================================== */
+
+    if (
+        isImageAnalysisCommand(msg)
+    ) {
+
+        console.log(
+            "👀 Sending image to online Vision AI..."
+        );
+
+
+        const result =
+            await askOnlineAI(
+                msg,
+                attachment
+            );
+
+
+        if (
+            result &&
+            String(result).trim() !== ""
+        ) {
+
+            return String(result);
+
+        }
+
+
+        return (
+            "⚠️ I couldn't analyze this image right now.\n\n" +
+            "Please check your internet connection and try again."
+        );
+
+    }
+
+
+    /* ======================================
+       DEFAULT IMAGE RESPONSE
+    ====================================== */
+
+    return (
+        "📷 I still have your image attached.\n\n" +
+        "You can ask me:\n\n" +
+        "• What is this?\n" +
+        "• Describe the image\n" +
+        "• Analyze the image\n" +
+        "• Read the text from the image"
+    );
+
+}
+
+
+/* ==========================================
+   FILE COMMAND DETECTION
+========================================== */
 
 function isFileCommand(msg) {
 
@@ -575,10 +868,12 @@ function isFileCommand(msg) {
 
     }
 
+
     const text =
         String(msg)
         .toLowerCase()
         .trim();
+
 
     return (
 
@@ -642,81 +937,10 @@ function isFileCommand(msg) {
 
 }
 
-// ==========================================
-// IMAGE OCR DETECTION
-// ==========================================
 
-function isOCRCommand(msg) {
-
-    const text =
-        String(msg || "")
-        .toLowerCase()
-        .trim();
-
-    return (
-
-        text.includes("read text") ||
-
-        text.includes("read the text") ||
-
-        text.includes("extract text") ||
-
-        text.includes("text in the image") ||
-
-        text.includes("text from the image") ||
-
-        text.includes("what does the image say") ||
-
-        text.includes("what does this image say") ||
-
-        text.includes("what does this say") ||
-
-        text.includes("read this image")
-
-    );
-
-}
-
-// ======================================
-// ONLINE IMAGE ANALYSIS
-// ======================================
-
-if (
-    isImageAnalysisCommand(msg)
-) {
-
-    console.log(
-        "👀 Sending image to online Vision AI..."
-    );
-
-
-    const result =
-        await askOnlineAI(
-            msg,
-            attachment
-        );
-
-
-    if (
-        result &&
-        String(result).trim() !== ""
-    ) {
-
-        return String(result);
-
-    }
-
-
-    return (
-        "⚠️ I couldn't analyze this image right now.\n\n" +
-        "Please check your internet connection and try again."
-    );
-
-}
-
-// ==========================================
-// FILE HANDLER
-// ==========================================
+/* ==========================================
+   FILE HANDLER
+========================================== */
 
 async function handleFileCommand(msg) {
 
@@ -725,8 +949,10 @@ async function handleFileCommand(msg) {
         msg
     );
 
+
     const attachment =
         getCurrentAttachment();
+
 
     if (!attachment) {
 
@@ -736,6 +962,7 @@ async function handleFileCommand(msg) {
         );
 
     }
+
 
     if (
         getAttachmentType(
@@ -750,16 +977,19 @@ async function handleFileCommand(msg) {
 
     }
 
+
     console.log(
         "📄 Current file:",
         attachment.name ||
         "Unnamed file"
     );
 
+
     console.log(
         "🔎 analyzeFile:",
         typeof window.analyzeFile
     );
+
 
     if (
         typeof window.analyzeFile ===
@@ -773,6 +1003,7 @@ async function handleFileCommand(msg) {
                     attachment
                 );
 
+
             if (
                 result !== null &&
                 result !== undefined &&
@@ -782,6 +1013,7 @@ async function handleFileCommand(msg) {
                 return String(result);
 
             }
+
 
             return (
                 "📄 I read the file, " +
@@ -797,6 +1029,7 @@ async function handleFileCommand(msg) {
                 error
             );
 
+
             return (
                 "⚠️ Something went wrong while reading the file."
             );
@@ -805,6 +1038,7 @@ async function handleFileCommand(msg) {
 
     }
 
+
     return (
         "📄 I have your file, " +
         "but the file-reading engine is not connected yet."
@@ -812,14 +1046,16 @@ async function handleFileCommand(msg) {
 
 }
 
-// ==========================================
-// UPLOAD LIST
-// ==========================================
+
+/* ==========================================
+   UPLOAD LIST
+========================================== */
 
 function getUploadList() {
 
     const files =
         window.uploadedFiles || [];
+
 
     if (!files.length) {
 
@@ -829,8 +1065,10 @@ function getUploadList() {
 
     }
 
+
     let reply =
         "📂 Uploaded files:\n\n";
+
 
     files.forEach(
         function (
@@ -842,11 +1080,13 @@ function getUploadList() {
                 file.name ||
                 "Unnamed file";
 
+
             const type =
                 getAttachmentType(
                     file
                 ) ||
                 "Unknown type";
+
 
             reply +=
                 `${index + 1}. ${name} (${type})\n`;
@@ -854,13 +1094,15 @@ function getUploadList() {
         }
     );
 
+
     return reply;
 
 }
 
-// ==========================================
-// AI MODULE LIST
-// ==========================================
+
+/* ==========================================
+   AI MODULE LIST
+========================================== */
 
 function getAIModules(
     original,
@@ -1101,9 +1343,10 @@ function getAIModules(
 
 }
 
-// ==========================================
-// MAIN AI
-// ==========================================
+
+/* ==========================================
+   MAIN AI CONTROLLER
+========================================== */
 
 async function smartAIReply(
     rawMessage
@@ -1114,47 +1357,55 @@ async function smartAIReply(
             rawMessage || ""
         ).trim();
 
+
     if (!original) {
 
         return null;
 
     }
 
+
     const msg =
         original
         .toLowerCase()
         .trim();
+
 
     console.log(
         "🧠 Processing:",
         original
     );
 
-    // ======================================
-    // GET CURRENT ATTACHMENT
-    // ======================================
+
+    /* ======================================
+       CURRENT ATTACHMENT
+    ====================================== */
 
     const attachment =
         getCurrentAttachment();
+
 
     const attachmentType =
         getAttachmentType(
             attachment
         );
 
+
     console.log(
         "📎 ATTACHMENT:",
         attachment
     );
+
 
     console.log(
         "📎 NORMALIZED TYPE:",
         attachmentType
     );
 
-    // ======================================
-    // IMAGE ATTACHMENT
-    // ======================================
+
+    /* ======================================
+       IMAGE ATTACHMENT
+    ====================================== */
 
     if (
         attachmentType === "image"
@@ -1164,19 +1415,6 @@ async function smartAIReply(
             "🖼️ IMAGE ATTACHMENT FOUND"
         );
 
-        console.log(
-            "🖼️ IMAGE COMMAND:",
-            isImageCommand(msg)
-        );
-
-        /*
-           Always send image-related messages
-           to the image handler while an image
-           remains attached.
-
-           The image handler decides whether
-           to analyze, OCR, or show help.
-        */
 
         return await handleImageCommand(
             msg
@@ -1184,9 +1422,10 @@ async function smartAIReply(
 
     }
 
-    // ======================================
-    // FILE ATTACHMENT
-    // ======================================
+
+    /* ======================================
+       FILE ATTACHMENT
+    ====================================== */
 
     if (
         attachmentType === "file" &&
@@ -1197,15 +1436,17 @@ async function smartAIReply(
             "📄 FILE ATTACHMENT FOUND"
         );
 
+
         return await handleFileCommand(
             msg
         );
 
     }
 
-    // ======================================
-    // UPLOAD LIST
-    // ======================================
+
+    /* ======================================
+       UPLOAD LIST
+    ====================================== */
 
     if (
 
@@ -1235,9 +1476,10 @@ async function smartAIReply(
 
     }
 
-    // ======================================
-    // AI MODULES
-    // ======================================
+
+    /* ======================================
+       LOCAL AI MODULES
+    ====================================== */
 
     const modules =
         getAIModules(
@@ -1245,9 +1487,6 @@ async function smartAIReply(
             msg
         );
 
-    // ======================================
-    // RUN MODULES IN ORDER
-    // ======================================
 
     for (
         const [
@@ -1263,6 +1502,7 @@ async function smartAIReply(
                 callback
             );
 
+
         if (response) {
 
             return response;
@@ -1270,13 +1510,16 @@ async function smartAIReply(
         }
 
     }
-// ======================================
-    // ONLINE AI FALLBACK
-    // ======================================
+
+
+    /* ======================================
+       ONLINE AI FALLBACK
+    ====================================== */
 
     console.log(
         "🌐 No local AI module answered."
     );
+
 
     console.log(
         "🌐 Trying online AI..."
@@ -1296,24 +1539,30 @@ async function smartAIReply(
     }
 
 
-    // ======================================
-    // FINAL OFFLINE FALLBACK
-    // ======================================
+    /* ======================================
+       FINAL FALLBACK
+    ====================================== */
 
     return (
         "🤖 I'm currently unable to connect to my online AI service.\n\n" +
         "Please check your internet connection and try again."
     );
-   }
-// ==========================================
-// GLOBAL ACCESS
-// ==========================================
+
+}
+
+
+/* ==========================================
+   GLOBAL EXPORTS
+========================================== */
 
 window.smartAIReply =
     smartAIReply;
 
 window.askOnlineAI =
     askOnlineAI;
+
+window.fileToBase64 =
+    fileToBase64;
 
 window.getCurrentAttachment =
     getCurrentAttachment;
@@ -1324,14 +1573,14 @@ window.getAttachmentType =
 window.isImageCommand =
     isImageCommand;
 
-window.isFileCommand =
-    isFileCommand;
-
 window.isOCRCommand =
     isOCRCommand;
 
 window.isImageAnalysisCommand =
     isImageAnalysisCommand;
+
+window.isFileCommand =
+    isFileCommand;
 
 window.handleImageCommand =
     handleImageCommand;
@@ -1345,16 +1594,17 @@ window.getUploadList =
 window.getAIModules =
     getAIModules;
 
-// ==========================================
-// READY
-// ==========================================
+
+/* ==========================================
+   READY
+========================================== */
 
 console.log(
     "========================================"
 );
 
 console.log(
-    "✅ smartAI.js Version 10.0 ready"
+    "✅ smartAI.js Version 11.0 ready"
 );
 
 console.log(
@@ -1366,9 +1616,15 @@ console.log(
     "🔎 window.askOnlineAI:",
     typeof window.askOnlineAI
 );
+
 console.log(
-    "🔎 window.analyzeImage:",
-    typeof window.analyzeImage
+    "🔎 window.handleImageCommand:",
+    typeof window.handleImageCommand
+);
+
+console.log(
+    "🔎 window.isImageAnalysisCommand:",
+    typeof window.isImageAnalysisCommand
 );
 
 console.log(
