@@ -180,12 +180,223 @@ async function readImageText(imageSource) {
 
 }
 
+/* ==========================================
+   IMAGE TO BASE64
+========================================== */
 
+function imageToBase64(file) {
+
+    return new Promise(
+        function (
+            resolve,
+            reject
+        ) {
+
+            if (!file) {
+
+                reject(
+                    new Error(
+                        "No image file provided"
+                    )
+                );
+
+                return;
+
+            }
+
+
+            /*
+               If already a data URL
+            */
+
+            if (
+                typeof file === "string" &&
+                file.startsWith("data:image/")
+            ) {
+
+                resolve(file);
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function () {
+
+                    resolve(
+                        reader.result
+                    );
+
+                };
+
+
+            reader.onerror =
+                function () {
+
+                    reject(
+                        new Error(
+                            "Failed to read image"
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+}
+
+
+/* ==========================================
+   SEND IMAGE TO ONLINE AI
+========================================== */
+
+async function analyzeImageOnline(
+    imageSource,
+    question
+) {
+
+    const endpoint =
+        "https://ai-life-assistant-backend.vercel.app/api/ai";
+
+
+    try {
+
+        console.log(
+            "🌐 Preparing image for Vision AI..."
+        );
+
+
+        const imageData =
+            await imageToBase64(
+                imageSource
+            );
+
+
+        console.log(
+            "🖼️ Image converted successfully"
+        );
+
+
+        const response =
+            await fetch(
+                endpoint,
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+
+                    body:
+                        JSON.stringify({
+
+                            message:
+                                question ||
+                                "Describe this image.",
+
+                            image:
+                                imageData
+
+                        })
+
+                }
+            );
+
+
+        let data = {};
+
+
+        try {
+
+            data =
+                await response.json();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Invalid Vision response:",
+                error
+            );
+
+        }
+
+
+        if (!response.ok) {
+
+            console.error(
+                "❌ Vision backend error:",
+                response.status,
+                data
+            );
+
+
+            return null;
+
+        }
+
+
+        if (
+            data &&
+            data.success === true &&
+            data.reply
+        ) {
+
+            console.log(
+                "✅ Vision AI responded"
+            );
+
+
+            return String(
+                data.reply
+            ).trim();
+
+        }
+
+
+        return null;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Vision AI error:",
+            error
+        );
+
+
+        return null;
+
+    }
+
+}
 /* ==========================================
    IMAGE ANALYSIS
 ========================================== */
 
-async function analyzeImage(imageSource) {
+async function analyzeImage(
+    imageSource,
+    question
+) {
 
     try {
 
@@ -198,21 +409,29 @@ async function analyzeImage(imageSource) {
         }
 
 
-        /*
-           Important:
+        console.log(
+            "👀 Sending image to Vision AI..."
+        );
 
-           This browser-only version does not
-           have a real vision AI model connected.
 
-           We should NOT pretend that OCR is
-           full image understanding.
-        */
+        const result =
+            await analyzeImageOnline(
+                imageSource,
+                question ||
+                "Describe this image."
+            );
+
+
+        if (result) {
+
+            return result;
+
+        }
+
 
         return (
-            "👀 I have the image attached, but a full vision AI engine is not connected yet.\n\n" +
-            "I can currently read text from the image using OCR.\n\n" +
-            "Try asking:\n" +
-            "📝 Read the text from the image"
+            "⚠️ I couldn't analyze this image right now.\n\n" +
+            "Please check your internet connection and try again."
         );
 
     }
@@ -226,13 +445,12 @@ async function analyzeImage(imageSource) {
 
 
         return (
-            "⚠️ I couldn't analyze that image."
+            "⚠️ Something went wrong while analyzing this image."
         );
 
     }
 
 }
-
 
 /* ==========================================
    TEXT FILE
@@ -835,7 +1053,11 @@ window.readImageText =
 
 window.analyzeImage =
     analyzeImage;
+window.imageToBase64 =
+    imageToBase64;
 
+window.analyzeImageOnline =
+    analyzeImageOnline;
 window.analyzeFile =
     analyzeFile;
 
