@@ -400,19 +400,28 @@ async function askOnlineAI(
         ====================================== */
 
         if (
-            !response.ok
-        ) {
+    !response.ok
+) {
 
-            console.error(
-                "❌ Online AI backend error:",
-                response.status,
-                data
-            );
+    console.error(
+        "❌ Online AI backend error:",
+        response.status,
+        data
+    );
 
+    return (
+        "⚠️ Online AI Error\n\n" +
+        "Status: " + response.status +
+        "\n\n" +
+        "Message: " +
+        (
+            data?.error ||
+            data?.message ||
+            "Unknown backend error"
+        )
+    );
 
-            return null;
-
-        }
+}
 
 
         /* ======================================
@@ -449,17 +458,20 @@ async function askOnlineAI(
 
     catch (error) {
 
-        console.error(
-            "❌ Online AI connection error:",
-            error
-        );
+    console.error(
+        "❌ Online AI connection error:",
+        error
+    );
 
+    return (
+        "⚠️ Connection Error\n\n" +
+        error.message
+    );
 
-        return null;
-
-    }
+  }
 
 }
+
 
 
 /* ==========================================
