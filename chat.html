@@ -836,7 +836,6 @@ function formatAIMessage(text) {
 }
  /* =====================================================
    CLEAN AI RESPONSE
-   REMOVE INTERNAL THINKING
 ===================================================== */
 
 function cleanAIResponse(text) {
@@ -850,7 +849,7 @@ function cleanAIResponse(text) {
 
 
     /*
-    REMOVE <think>...</think>
+    REMOVE COMPLETE THINK BLOCK ONLY
     */
 
     cleanText =
@@ -861,12 +860,13 @@ function cleanAIResponse(text) {
 
 
     /*
-    REMOVE UNCLOSED <think>
+    REMOVE THINK TAG ITSELF
+    BUT DO NOT DELETE THE REST
     */
 
     cleanText =
         cleanText.replace(
-            /<think>[\s\S]*/gi,
+            /<\/?think>/gi,
             ""
         );
 
@@ -874,7 +874,6 @@ function cleanAIResponse(text) {
     return cleanText.trim();
 
 }
- 
 /* =====================================================
    FORMAT AI RESPONSE
 ===================================================== */
@@ -1647,11 +1646,23 @@ async function autoAnalyzeAttachment(attachment) {
 
     try {
 
-        const response =
-            await window.smartAIReply(
-                prompt,
-                attachment
-            );
+        console.log(
+    "📤 Sending attachment to smartAI:",
+    attachment
+);
+
+
+const response =
+    await window.smartAIReply(
+        prompt,
+        attachment
+    );
+
+
+console.log(
+    "📥 Raw AI response:",
+    response
+);
 
 
         if (thinking) {
@@ -1664,9 +1675,17 @@ async function autoAnalyzeAttachment(attachment) {
         const cleanResponse =
     cleanAIResponse(response);
 
+
+console.log(
+    "🧹 Clean AI response:",
+    cleanResponse
+);
+
+
 addLocalMessage(
     "ai",
     cleanResponse ||
+    response ||
     "⚠️ I couldn't analyze this attachment."
 );
 
