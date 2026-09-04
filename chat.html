@@ -834,6 +834,47 @@ function formatAIMessage(text) {
     return html;
 
 }
+ /* =====================================================
+   CLEAN AI RESPONSE
+   REMOVE INTERNAL THINKING
+===================================================== */
+
+function cleanAIResponse(text) {
+
+    if (!text) {
+        return "";
+    }
+
+    let cleanText =
+        String(text);
+
+
+    /*
+    REMOVE <think>...</think>
+    */
+
+    cleanText =
+        cleanText.replace(
+            /<think>[\s\S]*?<\/think>/gi,
+            ""
+        );
+
+
+    /*
+    REMOVE UNCLOSED <think>
+    */
+
+    cleanText =
+        cleanText.replace(
+            /<think>[\s\S]*/gi,
+            ""
+        );
+
+
+    return cleanText.trim();
+
+}
+ 
 /* =====================================================
    FORMAT AI RESPONSE
 ===================================================== */
@@ -1135,11 +1176,14 @@ function addLocalMessage(
 
     if (sender === "ai") {
 
-        messageText.appendChild(
-            formatAIResponse(text)
-        );
+    const cleanText =
+        cleanAIResponse(text);
 
-    }
+    messageText.appendChild(
+        formatAIResponse(cleanText)
+    );
+
+}
 
 
     /*
@@ -1617,12 +1661,14 @@ async function autoAnalyzeAttachment(attachment) {
         }
 
 
-        addLocalMessage(
-            "ai",
-            response ||
-            "⚠️ I couldn't analyze this attachment."
-        );
+        const cleanResponse =
+    cleanAIResponse(response);
 
+addLocalMessage(
+    "ai",
+    cleanResponse ||
+    "⚠️ I couldn't analyze this attachment."
+);
 
         console.log(
             "✅ Automatic analysis complete"
