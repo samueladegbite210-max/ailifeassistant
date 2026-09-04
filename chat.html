@@ -1557,7 +1557,102 @@ if (pickFileBtn) {
 
 }
 
+/* =====================================================
+   AUTOMATIC ATTACHMENT ANALYSIS
+===================================================== */
 
+async function autoAnalyzeAttachment(attachment) {
+
+    if (!attachment) {
+        return;
+    }
+
+
+    console.log(
+        "🤖 Automatic attachment analysis starting..."
+    );
+
+
+    if (
+        typeof window.smartAIReply !== "function"
+    ) {
+
+        console.error(
+            "❌ smartAIReply not available"
+        );
+
+        return;
+
+    }
+
+
+    const prompt =
+        attachment.type === "image"
+            ? "Describe and analyze this image clearly."
+            : "Read and summarize this file clearly.";
+
+
+    const thinking =
+        addLocalMessage(
+            "ai",
+            attachment.type === "image"
+                ? "👀 Analyzing your image..."
+                : "📄 Reading your file..."
+        );
+
+
+    try {
+
+        const response =
+            await window.smartAIReply(
+                prompt,
+                attachment
+            );
+
+
+        if (thinking) {
+
+            thinking.remove();
+
+        }
+
+
+        addLocalMessage(
+            "ai",
+            response ||
+            "⚠️ I couldn't analyze this attachment."
+        );
+
+
+        console.log(
+            "✅ Automatic analysis complete"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Automatic analysis error:",
+            error
+        );
+
+
+        if (thinking) {
+
+            thinking.remove();
+
+        }
+
+
+        addLocalMessage(
+            "ai",
+            "⚠️ I received your attachment but couldn't analyze it."
+        );
+
+    }
+
+}
 /* =====================================================
    SAVE IMAGE ATTACHMENT
 ===================================================== */
@@ -1622,17 +1717,33 @@ function saveImageAttachment(file) {
     */
 
     const attachmentMessage =
-        addAttachmentMessage(
-            "user",
-            file,
-            "image"
+    addAttachmentMessage(
+        "user",
+        file,
+        "image"
+    );
+
+
+console.log(
+    "🖼️ Image added:",
+    attachmentMessage
+);
+
+
+/*
+AUTO ANALYZE IMAGE
+*/
+
+setTimeout(
+    function () {
+
+        autoAnalyzeAttachment(
+            window.aiAttachment
         );
 
-
-    console.log(
-        "🖼️ Image added:",
-        attachmentMessage
-    );
+    },
+    300
+);
 
 }
 
@@ -1692,11 +1803,26 @@ function saveFileAttachment(file) {
 
 
     addAttachmentMessage(
-        "user",
-        file,
-        "file"
-    );
+    "user",
+    file,
+    "file"
+);
 
+
+/*
+AUTO ANALYZE FILE
+*/
+
+setTimeout(
+    function () {
+
+        autoAnalyzeAttachment(
+            window.aiAttachment
+        );
+
+    },
+    300
+);
 }
 
 
