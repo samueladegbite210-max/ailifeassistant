@@ -319,9 +319,37 @@
      EXTERNAL ATTACHMENT LIBRARIES
 ===================================================== -->
 
+<!-- OCR FOR IMAGES -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
+
+<!-- DOCX READER -->
 <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
+
+<!-- PDF READER -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script>
+
+    if (window.pdfjsLib) {
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+        console.log(
+            "✅ PDF.js loaded successfully"
+        );
+
+    } else {
+
+        console.error(
+            "❌ PDF.js failed to load"
+        );
+
+    }
+
+</script>
 
 <!-- =====================================================
      ATTACHMENT AI
