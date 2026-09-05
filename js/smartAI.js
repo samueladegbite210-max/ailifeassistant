@@ -3,19 +3,34 @@
 /* ==========================================
    AI LIFE ASSISTANT
    smartAI.js
-   Version 11.0
-   Central AI Controller
+   Version 12.0
+
+   CENTRAL AI CONTROLLER
 
    RESPONSIBILITIES:
    - AI module routing
    - Image command detection
    - OCR routing
    - Online Vision AI
-   - File command routing
+   - File reading
+   - File summarization
+   - File question answering
    - Online AI fallback
 ========================================== */
 
-console.log("🧠 smartAI.js loading...");
+console.log("🧠 smartAI.js Version 12.0 loading...");
+
+
+/* ==========================================
+   CONFIGURATION
+========================================== */
+
+const ONLINE_AI_ENDPOINT =
+    "https://ai-life-assistant-backend.vercel.app/api/ai";
+
+
+const MAX_FILE_CONTENT_LENGTH =
+    12000;
 
 
 /* ==========================================
@@ -46,7 +61,8 @@ function getAttachmentType(attachment) {
         String(
             attachment.type || ""
         )
-        .toLowerCase();
+        .toLowerCase()
+        .trim();
 
 
     const mimeType =
@@ -54,9 +70,11 @@ function getAttachmentType(attachment) {
             attachment.mimeType ||
             attachment.mime ||
             attachment.file?.type ||
+            attachment.data?.type ||
             ""
         )
-        .toLowerCase();
+        .toLowerCase()
+        .trim();
 
 
     /* ======================================
@@ -83,12 +101,43 @@ function getAttachmentType(attachment) {
 
 
     /* ======================================
-       FILE
+       FILE / DOCUMENT
     ====================================== */
 
     if (
         type === "file" ||
         type === "document"
+    ) {
+
+        return "file";
+
+    }
+
+
+    /*
+       Detect common document MIME types
+    */
+
+    if (
+
+        mimeType.includes("pdf") ||
+
+        mimeType.includes("word") ||
+
+        mimeType.includes("document") ||
+
+        mimeType.includes("text") ||
+
+        mimeType.includes("json") ||
+
+        mimeType.includes("csv") ||
+
+        mimeType.includes("javascript") ||
+
+        mimeType.includes("html") ||
+
+        mimeType.includes("css")
+
     ) {
 
         return "file";
@@ -136,6 +185,7 @@ async function runModule(
                 name
             );
 
+
             return String(result);
 
         }
@@ -159,7 +209,7 @@ async function runModule(
 
 
 /* ==========================================
-   FILE TO BASE64
+   FILE / IMAGE TO BASE64
 ========================================== */
 
 function fileToBase64(file) {
@@ -202,7 +252,7 @@ function fileToBase64(file) {
 
                     reject(
                         new Error(
-                            "Failed to read image"
+                            "Failed to read file"
                         )
                     );
 
@@ -229,10 +279,6 @@ async function askOnlineAI(
     attachment = null
 ) {
 
-    const endpoint =
-        "https://ai-life-assistant-backend.vercel.app/api/ai";
-
-
     try {
 
         console.log(
@@ -240,7 +286,8 @@ async function askOnlineAI(
         );
 
 
-        let imageData = null;
+        let imageData =
+            null;
 
 
         /* ======================================
@@ -255,8 +302,11 @@ async function askOnlineAI(
         ) {
 
             const imageFile =
+
                 attachment.file ||
+
                 attachment.data ||
+
                 null;
 
 
@@ -280,11 +330,6 @@ async function askOnlineAI(
                 typeof imageFile === "string"
             ) {
 
-                /*
-                   Support existing Base64
-                   or image URL data.
-                */
-
                 imageData =
                     imageFile;
 
@@ -299,7 +344,7 @@ async function askOnlineAI(
 
         const response =
             await fetch(
-                endpoint,
+                ONLINE_AI_ENDPOINT,
                 {
 
                     method: "POST",
@@ -328,7 +373,8 @@ async function askOnlineAI(
             );
 
 
-        let data = {};
+        let data =
+            {};
 
 
         try {
@@ -362,11 +408,6 @@ async function askOnlineAI(
             response.status === 429
         ) {
 
-            console.warn(
-                "⚠️ Online AI usage limit reached."
-            );
-
-
             return (
                 "🟡 The online AI service has temporarily reached its usage limit.\n\n" +
                 "Please try again later."
@@ -383,11 +424,6 @@ async function askOnlineAI(
             response.status === 401
         ) {
 
-            console.error(
-                "❌ Online AI authentication failed."
-            );
-
-
             return (
                 "🔐 The online AI service authentication needs attention."
             );
@@ -400,28 +436,29 @@ async function askOnlineAI(
         ====================================== */
 
         if (
-    !response.ok
-) {
+            !response.ok
+        ) {
 
-    console.error(
-        "❌ Online AI backend error:",
-        response.status,
-        data
-    );
+            console.error(
+                "❌ Online AI backend error:",
+                response.status,
+                data
+            );
 
-    return (
-        "⚠️ Online AI Error\n\n" +
-        "Status: " + response.status +
-        "\n\n" +
-        "Message: " +
-        (
-            data?.error ||
-            data?.message ||
-            "Unknown backend error"
-        )
-    );
 
-}
+            return (
+                "⚠️ Online AI Error\n\n" +
+                "Status: " +
+                response.status +
+                "\n\nMessage: " +
+                (
+                    data?.error ||
+                    data?.message ||
+                    "Unknown backend error"
+                )
+            );
+
+        }
 
 
         /* ======================================
@@ -458,20 +495,20 @@ async function askOnlineAI(
 
     catch (error) {
 
-    console.error(
-        "❌ Online AI connection error:",
-        error
-    );
+        console.error(
+            "❌ Online AI connection error:",
+            error
+        );
 
-    return (
-        "⚠️ Connection Error\n\n" +
-        error.message
-    );
 
-  }
+        return (
+            "⚠️ Connection Error\n\n" +
+            error.message
+        );
+
+    }
 
 }
-
 
 
 /* ==========================================
@@ -537,45 +574,25 @@ function isOCRCommand(msg) {
 
     return (
 
-        text.includes(
-            "read text"
-        ) ||
+        text.includes("read text") ||
 
-        text.includes(
-            "read the text"
-        ) ||
+        text.includes("read the text") ||
 
-        text.includes(
-            "extract text"
-        ) ||
+        text.includes("extract text") ||
 
-        text.includes(
-            "extract the text"
-        ) ||
+        text.includes("extract the text") ||
 
-        text.includes(
-            "text in the image"
-        ) ||
+        text.includes("text in the image") ||
 
-        text.includes(
-            "text from the image"
-        ) ||
+        text.includes("text from the image") ||
 
-        text.includes(
-            "what does the image say"
-        ) ||
+        text.includes("what does the image say") ||
 
-        text.includes(
-            "what does this image say"
-        ) ||
+        text.includes("what does this image say") ||
 
-        text.includes(
-            "what does this say"
-        ) ||
+        text.includes("what does this say") ||
 
-        text.includes(
-            "read this image"
-        )
+        text.includes("read this image")
 
     );
 
@@ -596,63 +613,41 @@ function isImageAnalysisCommand(msg) {
 
     return (
 
-        /* Exact questions */
-
         text === "what is this" ||
+
         text === "what's this" ||
 
         text === "what is it" ||
+
         text === "what's it" ||
 
         text === "what is that" ||
+
         text === "what's that" ||
 
         text === "what am i looking at" ||
 
         text === "tell me about this" ||
+
         text === "tell me what this is" ||
 
+        text.includes("describe") ||
 
-        /* Description */
+        text.includes("what is in") ||
 
-        text.includes(
-            "describe"
-        ) ||
+        text.includes("what's in") ||
 
-        text.includes(
-            "what is in"
-        ) ||
+        text.includes("what does the image show") ||
 
-        text.includes(
-            "what's in"
-        ) ||
+        text.includes("what does this image show") ||
 
-        text.includes(
-            "what does the image show"
-        ) ||
+        text.includes("analyze") ||
 
-        text.includes(
-            "what does this image show"
-        ) ||
+        text.includes("analyse") ||
 
+        text.includes("explain this image") ||
 
-        /* Analysis */
-
-        text.includes(
-            "analyze"
-        ) ||
-
-        text.includes(
-            "analyse"
-        ) ||
-
-        text.includes(
-            "explain this image"
-        ) ||
-
-        text.includes(
-            "tell me about the image"
-        )
+        text.includes("tell me about the image")
 
     );
 
@@ -663,7 +658,10 @@ function isImageAnalysisCommand(msg) {
    IMAGE HANDLER
 ========================================== */
 
-async function handleImageCommand(msg) {
+async function handleImageCommand(
+    msg,
+    providedAttachment = null
+) {
 
     console.log(
         "🖼️ IMAGE COMMAND DETECTED:",
@@ -672,6 +670,7 @@ async function handleImageCommand(msg) {
 
 
     const attachment =
+        providedAttachment ||
         getCurrentAttachment();
 
 
@@ -818,51 +817,31 @@ async function handleImageCommand(msg) {
        ONLINE VISION AI
     ====================================== */
 
+    console.log(
+        "👀 Sending image to online Vision AI..."
+    );
+
+
+    const result =
+        await askOnlineAI(
+            msg,
+            attachment
+        );
+
+
     if (
-        isImageAnalysisCommand(msg)
+        result &&
+        String(result).trim() !== ""
     ) {
 
-        console.log(
-            "👀 Sending image to online Vision AI..."
-        );
-
-
-        const result =
-            await askOnlineAI(
-                msg,
-                attachment
-            );
-
-
-        if (
-            result &&
-            String(result).trim() !== ""
-        ) {
-
-            return String(result);
-
-        }
-
-
-        return (
-            "⚠️ I couldn't analyze this image right now.\n\n" +
-            "Please check your internet connection and try again."
-        );
+        return String(result);
 
     }
 
 
-    /* ======================================
-       DEFAULT IMAGE RESPONSE
-    ====================================== */
-
     return (
-        "📷 I still have your image attached.\n\n" +
-        "You can ask me:\n\n" +
-        "• What is this?\n" +
-        "• Describe the image\n" +
-        "• Analyze the image\n" +
-        "• Read the text from the image"
+        "⚠️ I couldn't analyze this image right now.\n\n" +
+        "Please check your internet connection and try again."
     );
 
 }
@@ -890,9 +869,17 @@ function isFileCommand(msg) {
 
         text.includes("analyse this file") ||
 
+        text.includes("analyze the file") ||
+
+        text.includes("analyse the file") ||
+
         text.includes("analyze this document") ||
 
         text.includes("analyse this document") ||
+
+        text.includes("analyze the document") ||
+
+        text.includes("analyse the document") ||
 
         text.includes("read and summarize") ||
 
@@ -908,10 +895,98 @@ function isFileCommand(msg) {
 
         text.includes("important information") ||
 
+        text.includes("find important information") ||
+
         text.includes("what does the file say") ||
 
-        text.includes("answer questions about the file")
+        text.includes("answer questions about the file") ||
 
+        text.includes("provide a concise summary")
+
+    );
+
+}
+
+
+/* ==========================================
+   DETECT FILE QUESTION
+========================================== */
+
+function hasFileContent() {
+
+    return (
+        typeof window.currentFileContent ===
+        "string" &&
+
+        window.currentFileContent.trim() !== ""
+    );
+
+}
+
+
+/* ==========================================
+   FILE QUESTION HANDLER
+========================================== */
+
+async function answerFileQuestion(msg) {
+
+    if (!hasFileContent()) {
+
+        return null;
+
+    }
+
+
+    const fileContent =
+        window.currentFileContent;
+
+
+    const fileName =
+        window.currentFileName ||
+        "the uploaded file";
+
+
+    console.log(
+        "📄 Answering question about:",
+        fileName
+    );
+
+
+    const contentForAI =
+        fileContent.length >
+        MAX_FILE_CONTENT_LENGTH
+
+            ? fileContent.substring(
+                0,
+                MAX_FILE_CONTENT_LENGTH
+            )
+
+            : fileContent;
+
+
+    const prompt =
+        `
+You are answering a question about an uploaded document.
+
+FILE NAME:
+${fileName}
+
+DOCUMENT CONTENT:
+${contentForAI}
+
+USER QUESTION:
+${msg}
+
+IMPORTANT:
+- Answer only from the document content.
+- Do not invent information.
+- Be concise and helpful.
+- Do not reproduce the entire document.
+        `.trim();
+
+
+    return await askOnlineAI(
+        prompt
     );
 
 }
@@ -921,7 +996,10 @@ function isFileCommand(msg) {
    FILE HANDLER
 ========================================== */
 
-async function handleFileCommand(msg, providedAttachment = null) {
+async function handleFileCommand(
+    msg,
+    providedAttachment = null
+) {
 
     console.log(
         "📄 FILE COMMAND DETECTED:",
@@ -934,6 +1012,10 @@ async function handleFileCommand(msg, providedAttachment = null) {
         getCurrentAttachment();
 
 
+    /* ======================================
+       NO FILE
+    ====================================== */
+
     if (!attachment) {
 
         return (
@@ -944,6 +1026,10 @@ async function handleFileCommand(msg, providedAttachment = null) {
     }
 
 
+    /* ======================================
+       WRONG TYPE
+    ====================================== */
+
     if (
         getAttachmentType(
             attachment
@@ -951,25 +1037,15 @@ async function handleFileCommand(msg, providedAttachment = null) {
     ) {
 
         return (
-            "📎 The current attachment isn't a document.\n\n" +
-            "Please upload a file."
+            "📎 The current attachment isn't a document."
         );
 
     }
 
 
-    console.log(
-        "📄 Current file:",
-        attachment.name ||
-        "Unnamed file"
-    );
-
-
-    console.log(
-        "🔎 analyzeFile:",
-        typeof window.analyzeFile
-    );
-
+    /* ======================================
+       FILE ENGINE CHECK
+    ====================================== */
 
     if (
         typeof window.analyzeFile !==
@@ -986,16 +1062,22 @@ async function handleFileCommand(msg, providedAttachment = null) {
     try {
 
         const fileData =
+
             attachment.file ||
+
             attachment.data ||
+
             attachment;
 
 
         console.log(
-            "📄 Sending file to analyzeFile:",
-            fileData
+            "📖 Extracting file content..."
         );
 
+
+        /* ==================================
+           STEP 1: READ FILE
+        ================================== */
 
         const result =
             await window.analyzeFile(
@@ -1003,26 +1085,151 @@ async function handleFileCommand(msg, providedAttachment = null) {
             );
 
 
-        console.log(
-            "📥 File analysis result:",
-            result
-        );
-
-
         if (
-            result !== null &&
-            result !== undefined &&
-            String(result).trim() !== ""
+
+            result === null ||
+
+            result === undefined ||
+
+            String(result).trim() === ""
+
         ) {
 
-            return String(result).trim();
+            return (
+                "📄 I couldn't find readable content in this file."
+            );
 
         }
 
 
+        const fileContent =
+            String(result).trim();
+
+
+        console.log(
+            "✅ File content extracted"
+        );
+
+
+        console.log(
+            "📄 Content length:",
+            fileContent.length
+        );
+
+
+        /* ==================================
+           STEP 2: STORE FILE CONTENT
+        ================================== */
+
+        window.currentFileContent =
+            fileContent;
+
+
+        window.currentFileName =
+            attachment.name ||
+            "Uploaded file";
+
+
+        /*
+           Store attachment reference
+        */
+
+        window.currentFileAttachment =
+            attachment;
+
+
+        /* ==================================
+           STEP 3: LIMIT CONTENT
+        ================================== */
+
+        let contentForAI =
+            fileContent;
+
+
+        if (
+            fileContent.length >
+            MAX_FILE_CONTENT_LENGTH
+        ) {
+
+            contentForAI =
+                fileContent.substring(
+                    0,
+                    MAX_FILE_CONTENT_LENGTH
+                );
+
+
+            console.warn(
+                "⚠️ Large file detected. Using first",
+                MAX_FILE_CONTENT_LENGTH,
+                "characters for summary."
+            );
+
+        }
+
+
+        /* ==================================
+           STEP 4: CREATE SUMMARY PROMPT
+        ================================== */
+
+        const summaryPrompt =
+            `
+You are analyzing an uploaded document.
+
+Give a concise and useful summary.
+
+IMPORTANT RULES:
+
+- Do NOT reproduce the entire document.
+- Do NOT list every line.
+- Do NOT dump the raw file contents.
+- Focus on the most important information.
+- Organize the answer clearly.
+- Mention important names, dates, numbers, decisions, or actions only when relevant.
+- Keep the summary reasonably short.
+
+DOCUMENT NAME:
+${window.currentFileName}
+
+DOCUMENT CONTENT:
+
+${contentForAI}
+            `.trim();
+
+
+        console.log(
+            "🧠 Sending document for summarization..."
+        );
+
+
+        /* ==================================
+           STEP 5: AI SUMMARY
+        ================================== */
+
+        const summary =
+            await askOnlineAI(
+                summaryPrompt
+            );
+
+
+        if (
+            summary &&
+            String(summary).trim() !== ""
+        ) {
+
+            return String(
+                summary
+            ).trim();
+
+        }
+
+
+        /* ==================================
+           FALLBACK
+        ================================== */
+
         return (
-            "📄 I read the file, " +
-            "but no readable content was returned."
+            "📄 I've successfully read this file.\n\n" +
+            "I can now answer questions about its contents."
         );
 
     }
@@ -1042,6 +1249,8 @@ async function handleFileCommand(msg, providedAttachment = null) {
     }
 
 }
+
+
 /* ==========================================
    UPLOAD LIST
 ========================================== */
@@ -1077,9 +1286,7 @@ function getUploadList() {
 
 
             const type =
-                getAttachmentType(
-                    file
-                ) ||
+                file.type ||
                 "Unknown type";
 
 
@@ -1091,6 +1298,35 @@ function getUploadList() {
 
 
     return reply;
+
+}
+
+
+/* ==========================================
+   UPLOAD LIST DETECTION
+========================================== */
+
+function isUploadListCommand(msg) {
+
+    const text =
+        String(msg || "")
+        .toLowerCase()
+        .trim();
+
+
+    return (
+
+        text.includes("what did i upload") ||
+
+        text.includes("what have i uploaded") ||
+
+        text.includes("show my uploads") ||
+
+        text.includes("my uploaded files") ||
+
+        text.includes("list my uploads")
+
+    );
 
 }
 
@@ -1110,227 +1346,302 @@ function getAIModules(
             "conversationReply",
 
             () =>
-                typeof window.conversationReply === "function"
+                typeof window.conversationReply ===
+                "function"
+
                     ? window.conversationReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "memoryReply",
 
             () =>
-                typeof window.memoryReply === "function"
+                typeof window.memoryReply ===
+                "function"
+
                     ? window.memoryReply(
                         msg,
                         original
                     )
+
                     : null
         ],
+
 
         [
             "knowledgeReply",
 
             () =>
-                typeof window.knowledgeReply === "function"
+                typeof window.knowledgeReply ===
+                "function"
+
                     ? window.knowledgeReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "profileReply",
 
             () =>
-                typeof window.profileReply === "function"
+                typeof window.profileReply ===
+                "function"
+
                     ? window.profileReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "learnUserReply",
 
             () =>
-                typeof window.learnUserReply === "function"
+                typeof window.learnUserReply ===
+                "function"
+
                     ? window.learnUserReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "teacherReply",
 
             () =>
-                typeof window.teacherReply === "function"
+                typeof window.teacherReply ===
+                "function"
+
                     ? window.teacherReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "quizReply",
 
             () =>
-                typeof window.quizReply === "function"
+                typeof window.quizReply ===
+                "function"
+
                     ? window.quizReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "calculatorReply",
 
             () =>
-                typeof window.calculatorReply === "function"
+                typeof window.calculatorReply ===
+                "function"
+
                     ? window.calculatorReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "dateTimeReply",
 
             () =>
-                typeof window.dateTimeReply === "function"
+                typeof window.dateTimeReply ===
+                "function"
+
                     ? window.dateTimeReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "taskReply",
 
             () =>
-                typeof window.taskReply === "function"
+                typeof window.taskReply ===
+                "function"
+
                     ? window.taskReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "goalReply",
 
             () =>
-                typeof window.goalReply === "function"
+                typeof window.goalReply ===
+                "function"
+
                     ? window.goalReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "noteReply",
 
             () =>
-                typeof window.noteReply === "function"
+                typeof window.noteReply ===
+                "function"
+
                     ? window.noteReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "eventReply",
 
             () =>
-                typeof window.eventReply === "function"
+                typeof window.eventReply ===
+                "function"
+
                     ? window.eventReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "naturalReply",
 
             () =>
-                typeof window.naturalReply === "function"
+                typeof window.naturalReply ===
+                "function"
+
                     ? window.naturalReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "foodReply",
 
             () =>
-                typeof window.foodReply === "function"
+                typeof window.foodReply ===
+                "function"
+
                     ? window.foodReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "weatherReply",
 
             () =>
-                typeof window.weatherReply === "function"
+                typeof window.weatherReply ===
+                "function"
+
                     ? window.weatherReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "adviceReply",
 
             () =>
-                typeof window.adviceReply === "function"
+                typeof window.adviceReply ===
+                "function"
+
                     ? window.adviceReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "internetReply",
 
             () =>
-                typeof window.internetReply === "function"
+                typeof window.internetReply ===
+                "function"
+
                     ? window.internetReply(
                         original,
                         msg
                     )
+
                     : null
         ],
+
 
         [
             "aiBrainReply",
 
             () =>
-                typeof window.aiBrainReply === "function"
+                typeof window.aiBrainReply ===
+                "function"
+
                     ? window.aiBrainReply(
                         original,
                         msg
                     )
+
                     : null
         ]
 
@@ -1368,18 +1679,22 @@ async function smartAIReply(
 
 
     console.log(
+        "========================================"
+    );
+
+    console.log(
         "🧠 Processing:",
         original
     );
 
 
     /* ======================================
-       CURRENT ATTACHMENT
+       GET ATTACHMENT
     ====================================== */
 
     const attachment =
-    providedAttachment ||
-    getCurrentAttachment();
+        providedAttachment ||
+        getCurrentAttachment();
 
 
     const attachmentType =
@@ -1401,6 +1716,19 @@ async function smartAIReply(
 
 
     /* ======================================
+       UPLOAD LIST
+    ====================================== */
+
+    if (
+        isUploadListCommand(msg)
+    ) {
+
+        return getUploadList();
+
+    }
+
+
+    /* ======================================
        IMAGE ATTACHMENT
     ====================================== */
 
@@ -1414,14 +1742,15 @@ async function smartAIReply(
 
 
         return await handleImageCommand(
-            msg
+            original,
+            attachment
         );
 
     }
 
 
     /* ======================================
-       FILE ATTACHMENT
+       FILE ATTACHMENT COMMAND
     ====================================== */
 
     if (
@@ -1435,41 +1764,46 @@ async function smartAIReply(
 
 
         return await handleFileCommand(
-            msg
+            original,
+            attachment
         );
 
     }
 
 
     /* ======================================
-       UPLOAD LIST
+       FILE QUESTION MODE
+
+       If a file has already been read,
+       allow normal questions about it.
     ====================================== */
 
     if (
-
-        msg.includes(
-            "what did i upload"
-        ) ||
-
-        msg.includes(
-            "what have i uploaded"
-        ) ||
-
-        msg.includes(
-            "show my uploads"
-        ) ||
-
-        msg.includes(
-            "my uploaded files"
-        ) ||
-
-        msg.includes(
-            "list my uploads"
-        )
-
+        attachmentType === "file" &&
+        hasFileContent()
     ) {
 
-        return getUploadList();
+        console.log(
+            "📄 FILE QUESTION MODE"
+        );
+
+
+        const fileAnswer =
+            await answerFileQuestion(
+                original
+            );
+
+
+        if (
+            fileAnswer &&
+            String(fileAnswer).trim() !== ""
+        ) {
+
+            return String(
+                fileAnswer
+            ).trim();
+
+        }
 
     }
 
@@ -1529,7 +1863,10 @@ async function smartAIReply(
         );
 
 
-    if (onlineReply) {
+    if (
+        onlineReply &&
+        String(onlineReply).trim() !== ""
+    ) {
 
         return onlineReply;
 
@@ -1579,6 +1916,12 @@ window.isImageAnalysisCommand =
 window.isFileCommand =
     isFileCommand;
 
+window.hasFileContent =
+    hasFileContent;
+
+window.answerFileQuestion =
+    answerFileQuestion;
+
 window.handleImageCommand =
     handleImageCommand;
 
@@ -1593,7 +1936,7 @@ window.getAIModules =
 
 
 /* ==========================================
-   READY
+   READY CHECK
 ========================================== */
 
 console.log(
@@ -1601,36 +1944,36 @@ console.log(
 );
 
 console.log(
-    "✅ smartAI.js Version 11.0 ready"
+    "✅ smartAI.js Version 12.0 ready"
 );
 
 console.log(
-    "🔎 window.smartAIReply:",
+    "🔎 smartAIReply:",
     typeof window.smartAIReply
 );
 
 console.log(
-    "🔎 window.askOnlineAI:",
+    "🔎 askOnlineAI:",
     typeof window.askOnlineAI
 );
 
 console.log(
-    "🔎 window.handleImageCommand:",
+    "🔎 handleImageCommand:",
     typeof window.handleImageCommand
 );
 
 console.log(
-    "🔎 window.isImageAnalysisCommand:",
-    typeof window.isImageAnalysisCommand
+    "🔎 handleFileCommand:",
+    typeof window.handleFileCommand
 );
 
 console.log(
-    "🔎 window.readImageText:",
+    "🔎 readImageText:",
     typeof window.readImageText
 );
 
 console.log(
-    "🔎 window.analyzeFile:",
+    "🔎 analyzeFile:",
     typeof window.analyzeFile
 );
 
