@@ -990,15 +990,130 @@ IMPORTANT:
     );
 
 }
+/* ==========================================
+   FILE CONTENT SUMMARIZER
+========================================== */
 
+async function summarizeFileContent(
+    content,
+    fileName
+) {
+
+    if (
+        !content ||
+        String(content).trim() === ""
+    ) {
+
+        return (
+            "📄 I couldn't find readable content in this file."
+        );
+
+    }
+
+
+    let text =
+        String(content).trim();
+
+
+    /*
+       Prevent extremely large files
+       from overwhelming the AI request.
+    */
+
+    const maxLength =
+        12000;
+
+
+    if (
+        text.length > maxLength
+    ) {
+
+        text =
+            text.substring(
+                0,
+                maxLength
+            );
+
+    }
+
+
+    console.log(
+        "🧠 Sending extracted file content for summarization..."
+    );
+
+
+    const prompt =
+        `You are analyzing a file named "${fileName || "Unknown file"}".
+
+Summarize the file clearly for the user.
+
+IMPORTANT RULES:
+
+- Do NOT reproduce the entire file.
+- Do NOT list every line.
+- Give a short overview first.
+- Identify the main topics.
+- Extract important information.
+- Use bullet points where helpful.
+- Keep the response concise and easy to understand.
+- If the file is code, explain what the code does instead of reproducing it.
+
+FILE CONTENT:
+
+${text}`;
+
+
+    const response =
+        await askOnlineAI(
+            prompt
+        );
+
+
+    if (
+        response &&
+        String(response).trim() !== ""
+    ) {
+
+        return String(
+            response
+        ).trim();
+
+    }
+
+
+    /*
+       FALLBACK SUMMARY
+    */
+
+    const lines =
+        text
+        .split("\n")
+        .filter(
+            line =>
+                line.trim() !== ""
+        );
+
+
+    return (
+        `📄 **${fileName || "File"}**\n\n` +
+        `I successfully read the file.\n\n` +
+        `• File contains approximately ${lines.length} lines.\n` +
+        `• The file was processed successfully.\n\n` +
+        `You can now ask me specific questions about it, such as:\n` +
+        `• What is this file about?\n` +
+        `• Explain the important parts\n` +
+        `• Find specific information\n` +
+        `• Explain a section of the file`
+    );
+
+}
 
 /* ==========================================
    FILE HANDLER
 ========================================== */
 
 async function handleFileCommand(
-    msg,
-    providedAttachment = null
+    msg
 ) {
 
     console.log(
@@ -1008,12 +1123,11 @@ async function handleFileCommand(
 
 
     const attachment =
-        providedAttachment ||
         getCurrentAttachment();
 
 
     /* ======================================
-       NO FILE
+       NO ATTACHMENT
     ====================================== */
 
     if (!attachment) {
@@ -1037,10 +1151,24 @@ async function handleFileCommand(
     ) {
 
         return (
-            "📎 The current attachment isn't a document."
+            "📎 The current attachment isn't a document.\n\n" +
+            "Please upload a file."
         );
 
     }
+
+
+    console.log(
+        "📄 Current file:",
+        attachment.name ||
+        "Unnamed file"
+    );
+
+
+    console.log(
+        "🔎 analyzeFile:",
+        typeof window.analyzeFile
+    );
 
 
     /* ======================================
@@ -1053,7 +1181,7 @@ async function handleFileCommand(
     ) {
 
         return (
-            "📄 The file-reading engine is not connected yet."
+            "📄 I have your file, but the file-reading engine is not connected yet."
         );
 
     }
@@ -1061,175 +1189,161 @@ async function handleFileCommand(
 
     try {
 
-        const fileData =
-
-            attachment.file ||
-
-            attachment.data ||
-
-            attachment;
-
-
         console.log(
-            "📖 Extracting file content..."
+            "📖 Reading file..."
         );
-
-
-        /* ==================================
-           STEP 1: READ FILE
-        ================================== */
-
-        const result =
-            await window.analyzeFile(
-                fileData
-            );
-
-
-        if (
-
-            result === null ||
-
-            result === undefined ||
-
-            String(result).trim() === ""
-
-        ) {
-
-            return (
-                "📄 I couldn't find readable content in this file."
-            );
-
-        }
-
-
-        const fileContent =
-            String(result).trim();
-
-
-        console.log(
-            "✅ File content extracted"
-        );
-
-
-        console.log(
-            "📄 Content length:",
-            fileContent.length
-        );
-
-
-        /* ==================================
-           STEP 2: STORE FILE CONTENT
-        ================================== */
-
-        window.currentFileContent =
-            fileContent;
-
-
-        window.currentFileName =
-            attachment.name ||
-            "Uploaded file";
 
 
         /*
-           Store attachment reference
+           STEP 1:
+           Extract file content
         */
 
-        window.currentFileAttachment =
-            attachment;
+        const fileContent =
+            await window.analyzeFile(
+                attachment
+            );
 
 
-        /* ==================================
-           STEP 3: LIMIT CONTENT
-        ================================== */
-
-        let contentForAI =
-            fileContent;
+        console.log(
+            "📖 File content received:",
+            typeof fileContent,
+            String(
+                fileContent || ""
+            ).length,
+            "characters"
+        );
 
 
         if (
-            fileContent.length >
-            MAX_FILE_CONTENT_LENGTH
+            fileContent === null ||
+            fileContent === undefined ||
+            String(fileContent).trim() === ""
         ) {
 
-            contentForAI =
-                fileContent.substring(
-                    0,
-                    MAX_FILE_CONTENT_LENGTH
-                );
-
-
-            console.warn(
-                "⚠️ Large file detected. Using first",
-                MAX_FILE_CONTENT_LENGTH,
-                "characters for summary."
+            return (
+                "📄 I read the file, but no readable content was found."
             );
 
         }
 
 
-        /* ==================================
-           STEP 4: CREATE SUMMARY PROMPT
-        ================================== */
+        /*
+           STEP 2:
+           Determine user request
+        */
 
-        const summaryPrompt =
-            `
-You are analyzing an uploaded document.
-
-Give a concise and useful summary.
-
-IMPORTANT RULES:
-
-- Do NOT reproduce the entire document.
-- Do NOT list every line.
-- Do NOT dump the raw file contents.
-- Focus on the most important information.
-- Organize the answer clearly.
-- Mention important names, dates, numbers, decisions, or actions only when relevant.
-- Keep the summary reasonably short.
-
-DOCUMENT NAME:
-${window.currentFileName}
-
-DOCUMENT CONTENT:
-
-${contentForAI}
-            `.trim();
+        const request =
+            String(
+                msg || ""
+            )
+            .toLowerCase()
+            .trim();
 
 
-        console.log(
-            "🧠 Sending document for summarization..."
-        );
+        /*
+           DEFAULT:
+           Summarize the file
+        */
+
+        if (
+
+            request.includes("summarize") ||
+
+            request.includes("summary") ||
+
+            request.includes("read the file") ||
+
+            request.includes("read this file") ||
+
+            request.includes("what does the file say") ||
+
+            request.includes("important information") ||
+
+            request.includes("explain the file") ||
+
+            request.includes("explain this file") ||
+
+            request.includes("explain the contents") ||
+
+            request === ""
+
+        ) {
+
+            console.log(
+                "🧠 Creating file summary..."
+            );
 
 
-        /* ==================================
-           STEP 5: AI SUMMARY
-        ================================== */
+            return await summarizeFileContent(
+                fileContent,
+                attachment.name
+            );
 
-        const summary =
+        }
+
+
+        /*
+           SPECIFIC QUESTION ABOUT FILE
+        */
+
+        let content =
+            String(fileContent);
+
+
+        const maxLength =
+            12000;
+
+
+        if (
+            content.length > maxLength
+        ) {
+
+            content =
+                content.substring(
+                    0,
+                    maxLength
+                );
+
+        }
+
+
+        const prompt =
+            `The user uploaded a file named "${attachment.name || "Unknown file"}".
+
+Answer the user's question using the file content.
+
+USER QUESTION:
+${msg}
+
+FILE CONTENT:
+${content}
+
+IMPORTANT:
+Answer clearly and directly.
+Do not reproduce the entire file unless absolutely necessary.`;
+
+
+        const response =
             await askOnlineAI(
-                summaryPrompt
+                prompt
             );
 
 
         if (
-            summary &&
-            String(summary).trim() !== ""
+            response &&
+            String(response).trim() !== ""
         ) {
 
             return String(
-                summary
+                response
             ).trim();
 
         }
 
 
-        /* ==================================
-           FALLBACK
-        ================================== */
-
         return (
-            "📄 I've successfully read this file.\n\n" +
-            "I can now answer questions about its contents."
+            "📄 I read the file successfully, but I couldn't answer that question right now."
         );
 
     }
@@ -1243,13 +1357,13 @@ ${contentForAI}
 
 
         return (
-            "⚠️ Something went wrong while reading the file."
+            "⚠️ Something went wrong while reading the file.\n\n" +
+            error.message
         );
 
     }
 
-}
-
+} 
 
 /* ==========================================
    UPLOAD LIST
@@ -1933,7 +2047,8 @@ window.getUploadList =
 
 window.getAIModules =
     getAIModules;
-
+window.summarizeFileContent =
+    summarizeFileContent;
 
 /* ==========================================
    READY CHECK
