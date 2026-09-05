@@ -1666,53 +1666,21 @@ async function autoAnalyzeAttachment(attachment) {
     let prompt;
 
 
-    /*
-    IMAGE
-    */
+if (attachment.type === "image") {
 
-    if (attachment.type === "image") {
+    prompt =
+        "Describe and analyze this image clearly. " +
+        "Do not mention technical limitations unless necessary.";
 
-        prompt = `
-Analyze the uploaded image naturally.
+}
 
-Describe what is visible clearly and concisely.
+else {
 
-Identify important objects, text, or details when relevant.
-
-Do not expose internal reasoning or AI instructions.
-
-Respond naturally like an intelligent AI assistant.
-`;
-
-    }
-
-
-    /*
-    FILE
-    */
-
-    else {
-
-        prompt = `
-You are analyzing a file uploaded by the user.
-
-Do NOT repeat, dump, or list the entire contents of the file.
-
-Instead:
-
-1. Briefly explain what the file is about.
-2. Provide a concise summary.
-3. Extract the most important key points.
-4. Mention important names, dates, numbers, or deadlines only when relevant.
-5. Keep the response organized and easy to read.
-
-Do not reproduce the entire document unless the user specifically asks for it.
-
-End by telling the user they can ask questions about the file.
-`;
-
-    }
-
+    prompt =
+        "Analyze this document and provide a concise summary. " +
+        "Do not list or reproduce the entire contents of the file. " +
+        "Focus only on the most important information.";
+}
 
     /*
     =====================================================
