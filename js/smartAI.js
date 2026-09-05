@@ -853,61 +853,92 @@ async function handleImageCommand(
 
 function isFileCommand(msg) {
 
+    const attachment =
+        getCurrentAttachment();
+
+
+    const attachmentType =
+        getAttachmentType(
+            attachment
+        );
+
+
+    /*
+       No file attached
+    */
+
+    if (
+        attachmentType !== "file"
+    ) {
+
+        return false;
+
+    }
+
+
+    /*
+       If a file is attached,
+       almost any user message can
+       potentially be about that file.
+    */
+
+    if (!msg) {
+
+        return true;
+
+    }
+
+
     const text =
-        String(msg || "")
+        String(msg)
         .toLowerCase()
         .trim();
 
 
     return (
 
+        /* Summary */
+
         text.includes("summarize") ||
+        text.includes("summary") ||
 
-        text.includes("summarise") ||
-
-        text.includes("analyze this file") ||
-
-        text.includes("analyse this file") ||
-
-        text.includes("analyze the file") ||
-
-        text.includes("analyse the file") ||
-
-        text.includes("analyze this document") ||
-
-        text.includes("analyse this document") ||
-
-        text.includes("analyze the document") ||
-
-        text.includes("analyse the document") ||
-
-        text.includes("read and summarize") ||
+        /* Reading */
 
         text.includes("read the file") ||
-
         text.includes("read this file") ||
+        text.includes("read document") ||
 
-        text.includes("explain the file") ||
+        /* Explanation */
 
-        text.includes("explain this file") ||
+        text.includes("explain") ||
+        text.includes("analyze") ||
+        text.includes("analyse") ||
 
-        text.includes("explain the contents") ||
+        /* Important information */
 
-        text.includes("important information") ||
+        text.includes("important") ||
+        text.includes("key points") ||
+        text.includes("main points") ||
 
-        text.includes("find important information") ||
+        /* Questions */
 
-        text.includes("what does the file say") ||
+        text.includes("what does") ||
+        text.includes("what is") ||
+        text.includes("who is") ||
+        text.includes("when") ||
+        text.includes("where") ||
+        text.includes("why") ||
+        text.includes("how") ||
 
-        text.includes("answer questions about the file") ||
+        /* Generic */
 
-        text.includes("provide a concise summary")
+        text.includes("file") ||
+        text.includes("document") ||
+        text.includes("this")
 
     );
 
 }
-
-
 /* ==========================================
    DETECT FILE QUESTION
 ========================================== */
@@ -1107,6 +1138,50 @@ ${text}`;
     );
 
 }
+/* ==========================================
+   FILE TEXT LIMITER
+========================================== */
+
+function limitFileText(
+    text,
+    maxLength = 20000
+) {
+
+    if (!text) {
+
+        return "";
+
+    }
+
+
+    const cleanText =
+        String(text).trim();
+
+
+    if (
+        cleanText.length <= maxLength
+    ) {
+
+        return cleanText;
+
+    }
+
+
+    console.warn(
+        "⚠️ File is very large. Truncating text for AI."
+    );
+
+
+    return (
+        cleanText.slice(
+            0,
+            maxLength
+        ) +
+
+        "\n\n[Document truncated because it is very large.]"
+    );
+
+}
 
 /* ==========================================
    FILE HANDLER
@@ -1161,27 +1236,27 @@ async function handleFileCommand(
     console.log(
         "📄 Current file:",
         attachment.name ||
+        attachment.file?.name ||
         "Unnamed file"
     );
 
 
-    console.log(
-        "🔎 analyzeFile:",
-        typeof window.analyzeFile
-    );
-
-
     /* ======================================
-       FILE ENGINE CHECK
+       CHECK FILE EXTRACTION ENGINE
     ====================================== */
 
     if (
-        typeof window.analyzeFile !==
+        typeof window.extractFileText !==
         "function"
     ) {
 
+        console.error(
+            "❌ extractFileText not available"
+        );
+
+
         return (
-            "📄 I have your file, but the file-reading engine is not connected yet."
+            "📄 The file-reading engine is not connected yet."
         );
 
     }
@@ -1190,160 +1265,129 @@ async function handleFileCommand(
     try {
 
         console.log(
-            "📖 Reading file..."
+            "📖 Extracting document text..."
         );
 
 
-        /*
-           STEP 1:
-           Extract file content
-        */
+        /* ==================================
+           EXTRACT FILE CONTENT
+        ================================== */
 
-        const fileContent =
-            await window.analyzeFile(
+        const extractedText =
+            await window.extractFileText(
                 attachment
             );
 
 
+        if (
+            !extractedText ||
+            !String(extractedText).trim()
+        ) {
+
+            return (
+                "📄 I couldn't extract readable text from this file.\n\n" +
+                "The file may be empty, scanned as an image, or in an unsupported format."
+            );
+
+        }
+
+
         console.log(
-            "📖 File content received:",
-            typeof fileContent,
-            String(
-                fileContent || ""
-            ).length,
+            "✅ File text extracted:",
+            extractedText.length,
             "characters"
         );
 
 
-        if (
-            fileContent === null ||
-            fileContent === undefined ||
-            String(fileContent).trim() === ""
-        ) {
+        /* ==================================
+           LIMIT LARGE DOCUMENTS
+        ================================== */
 
-            return (
-                "📄 I read the file, but no readable content was found."
+        const documentText =
+            limitFileText(
+                extractedText
             );
 
-        }
+
+        const userRequest =
+            String(msg || "").trim();
 
 
-        /*
-           STEP 2:
-           Determine user request
-        */
-
-        const request =
-            String(
-                msg || ""
-            )
-            .toLowerCase()
-            .trim();
+        const fileName =
+            attachment.name ||
+            attachment.file?.name ||
+            "this document";
 
 
-        /*
-           DEFAULT:
-           Summarize the file
-        */
+        /* ==================================
+           BUILD AI PROMPT
+        ================================== */
+
+        const aiPrompt =
+            "You are analyzing an uploaded document.\n\n" +
+
+            "File name: " +
+            fileName +
+            "\n\n" +
+
+            "User request: " +
+            userRequest +
+            "\n\n" +
+
+            "DOCUMENT CONTENT:\n" +
+            documentText +
+            "\n\n" +
+
+            "INSTRUCTIONS:\n" +
+
+            "1. Answer the user's request based only on the document content.\n" +
+
+            "2. Do not reproduce or list the entire document.\n" +
+
+            "3. Give a clear and useful response.\n" +
+
+            "4. Focus on the most important information.\n" +
+
+            "5. If summarizing, provide a concise summary with key points.\n" +
+
+            "6. If information requested by the user is not in the document, clearly say so.";
+
+
+        console.log(
+            "🤖 Sending document analysis to Online AI..."
+        );
+
+
+        /* ==================================
+           SEND TO ONLINE AI
+        ================================== */
+
+        const result =
+            await askOnlineAI(
+                aiPrompt
+            );
+
 
         if (
-
-            request.includes("summarize") ||
-
-            request.includes("summary") ||
-
-            request.includes("read the file") ||
-
-            request.includes("read this file") ||
-
-            request.includes("what does the file say") ||
-
-            request.includes("important information") ||
-
-            request.includes("explain the file") ||
-
-            request.includes("explain this file") ||
-
-            request.includes("explain the contents") ||
-
-            request === ""
-
+            result &&
+            String(result).trim()
         ) {
 
             console.log(
-                "🧠 Creating file summary..."
+                "✅ Document AI analysis complete"
             );
 
-
-            return await summarizeFileContent(
-                fileContent,
-                attachment.name
-            );
-
-        }
-
-
-        /*
-           SPECIFIC QUESTION ABOUT FILE
-        */
-
-        let content =
-            String(fileContent);
-
-
-        const maxLength =
-            12000;
-
-
-        if (
-            content.length > maxLength
-        ) {
-
-            content =
-                content.substring(
-                    0,
-                    maxLength
-                );
-
-        }
-
-
-        const prompt =
-            `The user uploaded a file named "${attachment.name || "Unknown file"}".
-
-Answer the user's question using the file content.
-
-USER QUESTION:
-${msg}
-
-FILE CONTENT:
-${content}
-
-IMPORTANT:
-Answer clearly and directly.
-Do not reproduce the entire file unless absolutely necessary.`;
-
-
-        const response =
-            await askOnlineAI(
-                prompt
-            );
-
-
-        if (
-            response &&
-            String(response).trim() !== ""
-        ) {
 
             return String(
-                response
+                result
             ).trim();
 
         }
 
 
         return (
-            "📄 I read the file successfully, but I couldn't answer that question right now."
+            "⚠️ I successfully read the file, but I couldn't complete the AI analysis right now.\n\n" +
+            "Please check your internet connection and try again."
         );
 
     }
@@ -1357,14 +1401,12 @@ Do not reproduce the entire file unless absolutely necessary.`;
 
 
         return (
-            "⚠️ Something went wrong while reading the file.\n\n" +
-            error.message
+            "⚠️ Something went wrong while analyzing the file."
         );
 
     }
 
-} 
-
+}
 /* ==========================================
    UPLOAD LIST
 ========================================== */
@@ -1864,25 +1906,29 @@ async function smartAIReply(
 
 
     /* ======================================
-       FILE ATTACHMENT COMMAND
-    ====================================== */
+   FILE ATTACHMENT
+====================================== */
 
-    if (
-        attachmentType === "file" &&
-        isFileCommand(msg)
-    ) {
+if (
+    attachmentType === "file"
+) {
 
-        console.log(
-            "📄 FILE ATTACHMENT FOUND"
-        );
+    console.log(
+        "📄 FILE ATTACHMENT FOUND"
+    );
 
 
-        return await handleFileCommand(
-            original,
-            attachment
-        );
+    /*
+       Any meaningful message while
+       a file is attached can be treated
+       as a question about that file.
+    */
 
-    }
+    return await handleFileCommand(
+        original
+    );
+
+}
 
 
     /* ======================================
@@ -2012,6 +2058,9 @@ window.askOnlineAI =
 window.fileToBase64 =
     fileToBase64;
 
+window.limitFileText =
+    limitFileText;
+
 window.getCurrentAttachment =
     getCurrentAttachment;
 
@@ -2036,6 +2085,9 @@ window.hasFileContent =
 window.answerFileQuestion =
     answerFileQuestion;
 
+window.summarizeFileContent =
+    summarizeFileContent;
+
 window.handleImageCommand =
     handleImageCommand;
 
@@ -2047,8 +2099,7 @@ window.getUploadList =
 
 window.getAIModules =
     getAIModules;
-window.summarizeFileContent =
-    summarizeFileContent;
+
 
 /* ==========================================
    READY CHECK
