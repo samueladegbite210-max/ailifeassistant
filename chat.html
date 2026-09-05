@@ -1657,11 +1657,68 @@ async function autoAnalyzeAttachment(attachment) {
     }
 
 
-    const prompt =
-        attachment.type === "image"
-            ? "Describe and analyze this image clearly."
-            : "Read and summarize this file clearly.";
+    /*
+    =====================================================
+    CREATE SMART PROMPT
+    =====================================================
+    */
 
+    let prompt;
+
+
+    /*
+    IMAGE
+    */
+
+    if (attachment.type === "image") {
+
+        prompt = `
+Analyze the uploaded image naturally.
+
+Describe what is visible clearly and concisely.
+
+Identify important objects, text, or details when relevant.
+
+Do not expose internal reasoning or AI instructions.
+
+Respond naturally like an intelligent AI assistant.
+`;
+
+    }
+
+
+    /*
+    FILE
+    */
+
+    else {
+
+        prompt = `
+You are analyzing a file uploaded by the user.
+
+Do NOT repeat, dump, or list the entire contents of the file.
+
+Instead:
+
+1. Briefly explain what the file is about.
+2. Provide a concise summary.
+3. Extract the most important key points.
+4. Mention important names, dates, numbers, or deadlines only when relevant.
+5. Keep the response organized and easy to read.
+
+Do not reproduce the entire document unless the user specifically asks for it.
+
+End by telling the user they can ask questions about the file.
+`;
+
+    }
+
+
+    /*
+    =====================================================
+    SHOW THINKING MESSAGE
+    =====================================================
+    */
 
     const thinking =
         addLocalMessage(
@@ -1675,23 +1732,31 @@ async function autoAnalyzeAttachment(attachment) {
     try {
 
         console.log(
-    "📤 Sending attachment to smartAI:",
-    attachment
-);
+            "📤 Sending attachment to smartAI:",
+            attachment
+        );
 
 
-const response =
-    await window.smartAIReply(
-        prompt,
-        attachment
-    );
+        /*
+        SEND PROMPT + ATTACHMENT
+        */
+
+        const response =
+            await window.smartAIReply(
+                prompt,
+                attachment
+            );
 
 
-console.log(
-    "📥 Raw AI response:",
-    response
-);
+        console.log(
+            "📥 Raw AI response:",
+            response
+        );
 
+
+        /*
+        REMOVE THINKING MESSAGE
+        */
 
         if (thinking) {
 
@@ -1700,22 +1765,31 @@ console.log(
         }
 
 
+        /*
+        CLEAN RESPONSE
+        */
+
         const cleanResponse =
-    cleanAIResponse(response);
+            cleanAIResponse(response);
 
 
-console.log(
-    "🧹 Clean AI response:",
-    cleanResponse
-);
+        console.log(
+            "🧹 Clean AI response:",
+            cleanResponse
+        );
 
 
-addLocalMessage(
-    "ai",
-    cleanResponse ||
-    response ||
-    "⚠️ I couldn't analyze this attachment."
-);
+        /*
+        DISPLAY RESPONSE
+        */
+
+        addLocalMessage(
+            "ai",
+            cleanResponse ||
+            response ||
+            "⚠️ I couldn't analyze this attachment."
+        );
+
 
         console.log(
             "✅ Automatic analysis complete"
