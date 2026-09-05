@@ -3,18 +3,18 @@
 /* ==========================================
    AI LIFE ASSISTANT
    attachmentAI.js
-   Version 4.0
+   Version 5.0
    Attachment Processing Engine
 
    RESPONSIBILITIES:
    - Image OCR
-   - Image analysis
-   - TXT reading
-   - PDF reading
-   - DOCX reading
-   - CSV reading
-   - JSON reading
-   - Code/text files
+   - Online image analysis
+   - TXT extraction
+   - PDF extraction
+   - DOCX extraction
+   - CSV extraction
+   - JSON extraction
+   - Code/text extraction
    - Safe attachment processing
 
    IMPORTANT:
@@ -27,55 +27,76 @@
    chat.js controls those.
 ========================================== */
 
-console.log("📎 attachmentAI.js loading...");
+console.log("📎 attachmentAI.js Version 5.0 loading...");
 
 
 /* ==========================================
-   OCR STATE
-========================================== */
-
-let ocrWorker = null;
-
-
-/* ==========================================
-   GET ATTACHMENT DATA
+   GET ATTACHMENT FILE
 ========================================== */
 
 function getAttachmentFile(attachment) {
 
     if (!attachment) {
+
         return null;
+
     }
 
 
-    /*
-       New chat.js format:
-
-       {
-           type: "file",
-           name: "...",
-           mimeType: "...",
-           size: ...,
-           file: File
-       }
-    */
+    /* Attachment object */
 
     if (
-    typeof File !== "undefined" &&
-    attachment.file instanceof File
-) {
-    return attachment.file;
-}
+        typeof File !== "undefined" &&
+        attachment.file instanceof File
+    ) {
 
-if (
-    typeof File !== "undefined" &&
-    attachment instanceof File
-) {
-    return attachment;
-}
+        return attachment.file;
+
+    }
+
+
+    /* Raw File object */
+
+    if (
+        typeof File !== "undefined" &&
+        attachment instanceof File
+    ) {
+
+        return attachment;
+
+    }
 
 
     return null;
+
+}
+
+
+/* ==========================================
+   GET FILE EXTENSION
+========================================== */
+
+function getFileExtension(file) {
+
+    if (
+        !file ||
+        !file.name
+    ) {
+
+        return "";
+
+    }
+
+
+    const parts =
+        file.name
+            .toLowerCase()
+            .split(".");
+
+
+    return parts.length > 1
+        ? parts.pop()
+        : "";
 
 }
 
@@ -89,23 +110,17 @@ async function readImageText(imageSource) {
     try {
 
         if (
-            typeof Tesseract ===
-            "undefined"
+            typeof Tesseract === "undefined"
         ) {
 
-            return (
-                "⚠️ OCR engine is not available.\n\n" +
-                "Please make sure Tesseract.js is loaded."
-            );
+            return null;
 
         }
 
 
         if (!imageSource) {
 
-            return (
-                "📷 I couldn't find an image to read."
-            );
+            return null;
 
         }
 
@@ -115,19 +130,12 @@ async function readImageText(imageSource) {
         );
 
 
-        /*
-           Use the browser's global
-           Tesseract.recognize() API.
-
-           This avoids creating a second
-           worker manually.
-        */
-
         const result =
             await Tesseract.recognize(
                 imageSource,
                 "eng",
                 {
+
                     logger: function (info) {
 
                         console.log(
@@ -136,31 +144,18 @@ async function readImageText(imageSource) {
                         );
 
                     }
+
                 }
             );
 
 
         const text =
-            result &&
-            result.data &&
-            result.data.text
+            result?.data?.text
                 ? result.data.text.trim()
                 : "";
 
 
-        if (!text) {
-
-            return (
-                "📝 I couldn't find readable text in this image."
-            );
-
-        }
-
-
-        return (
-            "📝 Text extracted from the image:\n\n" +
-            text
-        );
+        return text || null;
 
     }
 
@@ -172,13 +167,12 @@ async function readImageText(imageSource) {
         );
 
 
-        return (
-            "⚠️ I couldn't extract text from this image."
-        );
+        return null;
 
     }
 
 }
+
 
 /* ==========================================
    IMAGE TO BASE64
@@ -205,9 +199,7 @@ function imageToBase64(file) {
             }
 
 
-            /*
-               If already a data URL
-            */
+            /* Already Base64 */
 
             if (
                 typeof file === "string" &&
@@ -258,7 +250,7 @@ function imageToBase64(file) {
 
 
 /* ==========================================
-   SEND IMAGE TO ONLINE AI
+   ONLINE IMAGE ANALYSIS
 ========================================== */
 
 async function analyzeImageOnline(
@@ -283,18 +275,12 @@ async function analyzeImageOnline(
             );
 
 
-        console.log(
-            "🖼️ Image converted successfully"
-        );
-
-
         const response =
             await fetch(
                 endpoint,
                 {
 
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
 
@@ -303,13 +289,12 @@ async function analyzeImageOnline(
 
                     },
 
-
                     body:
                         JSON.stringify({
 
                             message:
                                 question ||
-                                "Describe this image.",
+                                "Describe this image clearly.",
 
                             image:
                                 imageData
@@ -355,15 +340,9 @@ async function analyzeImageOnline(
 
 
         if (
-            data &&
-            data.success === true &&
-            data.reply
+            data?.success === true &&
+            data?.reply
         ) {
-
-            console.log(
-                "✅ Vision AI responded"
-            );
-
 
             return String(
                 data.reply
@@ -389,6 +368,8 @@ async function analyzeImageOnline(
     }
 
 }
+
+
 /* ==========================================
    IMAGE ANALYSIS
 ========================================== */
@@ -402,36 +383,15 @@ async function analyzeImage(
 
         if (!imageSource) {
 
-            return (
-                "📷 I couldn't find an image to analyze."
-            );
+            return null;
 
         }
 
 
-        console.log(
-            "👀 Sending image to Vision AI..."
-        );
-
-
-        const result =
-            await analyzeImageOnline(
-                imageSource,
-                question ||
-                "Describe this image."
-            );
-
-
-        if (result) {
-
-            return result;
-
-        }
-
-
-        return (
-            "⚠️ I couldn't analyze this image right now.\n\n" +
-            "Please check your internet connection and try again."
+        return await analyzeImageOnline(
+            imageSource,
+            question ||
+            "Describe this image clearly."
         );
 
     }
@@ -444,16 +404,15 @@ async function analyzeImage(
         );
 
 
-        return (
-            "⚠️ Something went wrong while analyzing this image."
-        );
+        return null;
 
     }
 
 }
 
+
 /* ==========================================
-   TEXT FILE
+   READ TEXT FILE
 ========================================== */
 
 async function readTextFile(file) {
@@ -464,19 +423,7 @@ async function readTextFile(file) {
             await file.text();
 
 
-        if (!text.trim()) {
-
-            return (
-                "📄 The text file appears to be empty."
-            );
-
-        }
-
-
-        return (
-            "📄 File contents:\n\n" +
-            text
-        );
+        return text.trim() || null;
 
     }
 
@@ -488,9 +435,7 @@ async function readTextFile(file) {
         );
 
 
-        return (
-            "⚠️ I couldn't read this text file."
-        );
+        return null;
 
     }
 
@@ -498,7 +443,7 @@ async function readTextFile(file) {
 
 
 /* ==========================================
-   JSON FILE
+   READ JSON FILE
 ========================================== */
 
 async function readJSONFile(file) {
@@ -511,9 +456,7 @@ async function readJSONFile(file) {
 
         if (!text.trim()) {
 
-            return (
-                "📄 The JSON file appears to be empty."
-            );
+            return null;
 
         }
 
@@ -522,13 +465,10 @@ async function readJSONFile(file) {
             JSON.parse(text);
 
 
-        return (
-            "📄 JSON file contents:\n\n" +
-            JSON.stringify(
-                data,
-                null,
-                2
-            )
+        return JSON.stringify(
+            data,
+            null,
+            2
         );
 
     }
@@ -541,10 +481,7 @@ async function readJSONFile(file) {
         );
 
 
-        return (
-            "⚠️ I couldn't read this JSON file. " +
-            "It may contain invalid JSON."
-        );
+        return null;
 
     }
 
@@ -552,7 +489,7 @@ async function readJSONFile(file) {
 
 
 /* ==========================================
-   CSV FILE
+   READ CSV FILE
 ========================================== */
 
 async function readCSVFile(file) {
@@ -563,19 +500,7 @@ async function readCSVFile(file) {
             await file.text();
 
 
-        if (!text.trim()) {
-
-            return (
-                "📄 The CSV file appears to be empty."
-            );
-
-        }
-
-
-        return (
-            "📊 CSV file contents:\n\n" +
-            text
-        );
+        return text.trim() || null;
 
     }
 
@@ -587,9 +512,7 @@ async function readCSVFile(file) {
         );
 
 
-        return (
-            "⚠️ I couldn't read this CSV file."
-        );
+        return null;
 
     }
 
@@ -597,7 +520,7 @@ async function readCSVFile(file) {
 
 
 /* ==========================================
-   DOCX FILE
+   READ DOCX FILE
 ========================================== */
 
 async function readDOCXFile(file) {
@@ -605,13 +528,15 @@ async function readDOCXFile(file) {
     try {
 
         if (
-            typeof mammoth ===
-            "undefined"
+            typeof mammoth === "undefined"
         ) {
 
-            return (
-                "⚠️ DOCX reader library is not loaded."
+            console.error(
+                "❌ Mammoth.js not loaded"
             );
+
+
+            return null;
 
         }
 
@@ -622,30 +547,20 @@ async function readDOCXFile(file) {
 
         const result =
             await mammoth.extractRawText({
-                arrayBuffer: buffer
+
+                arrayBuffer:
+                    buffer
+
             });
 
 
         const text =
-            result &&
-            result.value
+            result?.value
                 ? result.value.trim()
                 : "";
 
 
-        if (!text) {
-
-            return (
-                "📄 The Word document appears to be empty."
-            );
-
-        }
-
-
-        return (
-            "📄 Word Document contents:\n\n" +
-            text
-        );
+        return text || null;
 
     }
 
@@ -657,9 +572,7 @@ async function readDOCXFile(file) {
         );
 
 
-        return (
-            "⚠️ I couldn't read this Word document."
-        );
+        return null;
 
     }
 
@@ -667,33 +580,27 @@ async function readDOCXFile(file) {
 
 
 /* ==========================================
-   PDF FILE
+   READ PDF FILE
 ========================================== */
 
 async function readPDFFile(file) {
 
     try {
 
-        /*
-           pdf.js 4.x is loaded as an ES module
-           in your HTML.
-
-           Because the module is not automatically
-           exposed as window.pdfjsLib, we check for
-           a globally available PDF library first.
-        */
-
         const pdfjs =
             window.pdfjsLib ||
-            window.pdfjs;
+            window.pdfjs ||
+            null;
 
 
         if (!pdfjs) {
 
-            return (
-                "⚠️ PDF reader is not connected yet.\n\n" +
-                "Please make sure PDF.js is loaded correctly."
+            console.error(
+                "❌ PDF.js not available"
             );
+
+
+            return null;
 
         }
 
@@ -704,7 +611,10 @@ async function readPDFFile(file) {
 
         const pdf =
             await pdfjs.getDocument({
-                data: buffer
+
+                data:
+                    buffer
+
             }).promise;
 
 
@@ -736,9 +646,15 @@ async function readPDFFile(file) {
                     .join(" ");
 
 
-            fullText +=
-                `\n\n--- Page ${pageNumber} ---\n\n` +
-                pageText;
+            if (
+                pageText.trim()
+            ) {
+
+                fullText +=
+                    "\n\n" +
+                    pageText;
+
+            }
 
         }
 
@@ -747,19 +663,7 @@ async function readPDFFile(file) {
             fullText.trim();
 
 
-        if (!fullText) {
-
-            return (
-                "📄 I couldn't find readable text in this PDF."
-            );
-
-        }
-
-
-        return (
-            "📄 PDF contents:\n\n" +
-            fullText
-        );
+        return fullText || null;
 
     }
 
@@ -771,9 +675,7 @@ async function readPDFFile(file) {
         );
 
 
-        return (
-            "⚠️ I couldn't read this PDF."
-        );
+        return null;
 
     }
 
@@ -781,39 +683,21 @@ async function readPDFFile(file) {
 
 
 /* ==========================================
-   FILE TYPE DETECTION
+   EXTRACT FILE TEXT
+   MAIN FILE READING FUNCTION
+
+   Returns ONLY the extracted text.
+
+   It does NOT add:
+   "File contents:"
+   "PDF contents:"
+   etc.
+
+   This prevents the AI from automatically
+   dumping the entire document into chat.
 ========================================== */
 
-function getFileExtension(file) {
-
-    if (
-        !file ||
-        !file.name
-    ) {
-
-        return "";
-
-    }
-
-
-    const parts =
-        file.name
-            .toLowerCase()
-            .split(".");
-
-
-    return parts.length > 1
-        ? parts.pop()
-        : "";
-
-}
-
-
-/* ==========================================
-   ANALYZE FILE
-========================================== */
-
-async function analyzeFile(attachment) {
+async function extractFileText(attachment) {
 
     try {
 
@@ -825,21 +709,26 @@ async function analyzeFile(attachment) {
 
         if (!file) {
 
-            return (
-                "📄 I couldn't access the attached file."
+            console.error(
+                "❌ Could not access file"
             );
+
+
+            return null;
 
         }
 
 
         console.log(
-            "📄 Analyzing file:",
+            "📄 Extracting file text:",
             file.name
         );
 
 
         const extension =
-            getFileExtension(file);
+            getFileExtension(
+                file
+            );
 
 
         const mime =
@@ -848,17 +737,22 @@ async function analyzeFile(attachment) {
             ).toLowerCase();
 
 
-        /* ======================================
-           TXT / MARKDOWN / CODE
-        ====================================== */
+        /* TXT / MARKDOWN / CODE */
 
         if (
+
             extension === "txt" ||
             extension === "md" ||
             extension === "js" ||
             extension === "css" ||
             extension === "html" ||
-            extension === "htm"
+            extension === "htm" ||
+            extension === "xml" ||
+            extension === "py" ||
+            extension === "java" ||
+            extension === "php" ||
+            extension === "ts"
+
         ) {
 
             return await readTextFile(
@@ -868,13 +762,13 @@ async function analyzeFile(attachment) {
         }
 
 
-        /* ======================================
-           JSON
-        ====================================== */
+        /* JSON */
 
         if (
+
             extension === "json" ||
             mime.includes("json")
+
         ) {
 
             return await readJSONFile(
@@ -884,13 +778,13 @@ async function analyzeFile(attachment) {
         }
 
 
-        /* ======================================
-           CSV
-        ====================================== */
+        /* CSV */
 
         if (
+
             extension === "csv" ||
             mime.includes("csv")
+
         ) {
 
             return await readCSVFile(
@@ -900,15 +794,15 @@ async function analyzeFile(attachment) {
         }
 
 
-        /* ======================================
-           DOCX
-        ====================================== */
+        /* DOCX */
 
         if (
+
             extension === "docx" ||
             mime.includes(
                 "wordprocessingml"
             )
+
         ) {
 
             return await readDOCXFile(
@@ -918,13 +812,13 @@ async function analyzeFile(attachment) {
         }
 
 
-        /* ======================================
-           PDF
-        ====================================== */
+        /* PDF */
 
         if (
+
             extension === "pdf" ||
             mime.includes("pdf")
+
         ) {
 
             return await readPDFFile(
@@ -934,47 +828,82 @@ async function analyzeFile(attachment) {
         }
 
 
-        /* ======================================
-           IMAGE
-        ====================================== */
-
-        if (
-            mime.startsWith("image/")
-        ) {
-
-            return (
-                "🖼️ This is an image file.\n\n" +
-                "Ask me to read the text from the image."
-            );
-
-        }
-
-
-        /* ======================================
-           UNKNOWN
-        ====================================== */
-
-        return (
-            "📎 I received " +
-            file.name +
-            ", but I don't currently support reading this file type."
+        console.warn(
+            "⚠️ Unsupported file:",
+            file.name
         );
+
+
+        return null;
 
     }
 
     catch (error) {
 
         console.error(
-            "❌ File analysis error:",
+            "❌ File extraction error:",
             error
         );
 
 
-        return (
-            "⚠️ Something went wrong while reading the file."
-        );
+        return null;
 
     }
+
+}
+
+
+/* ==========================================
+   ANALYZE FILE
+
+   Compatibility function for smartAI.js.
+
+   Returns extracted text only.
+========================================== */
+
+async function analyzeFile(attachment) {
+
+    return await extractFileText(
+        attachment
+    );
+
+}
+
+
+/* ==========================================
+   GET FILE INFORMATION
+========================================== */
+
+function getFileInfo(attachment) {
+
+    const file =
+        getAttachmentFile(
+            attachment
+        );
+
+
+    if (!file) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        name:
+            file.name || "Unnamed file",
+
+        size:
+            file.size || 0,
+
+        type:
+            file.type || "Unknown",
+
+        extension:
+            getFileExtension(file)
+
+    };
 
 }
 
@@ -991,55 +920,78 @@ async function analyzeCurrentAttachment() {
 
     if (!attachment) {
 
-        return (
-            "📎 There is no attachment available."
-        );
+        return null;
 
     }
 
+
+    /* Image */
 
     if (
         attachment.type === "image"
     ) {
 
-        return (
-            "🖼️ I have your image.\n\n" +
-            "You can ask me to read the text from it."
-        );
+        return {
+
+            type: "image",
+
+            text: null
+
+        };
 
     }
 
+
+    /* File */
 
     if (
         attachment.type === "file"
     ) {
 
-        return await analyzeFile(
-            attachment
-        );
+        const text =
+            await extractFileText(
+                attachment
+            );
+
+
+        return {
+
+            type: "file",
+
+            text:
+                text
+
+        };
 
     }
 
 
-    /*
-       Support raw File objects
-       from older versions.
-    */
+    /* Raw File */
 
     if (
+        typeof File !== "undefined" &&
         attachment instanceof File
     ) {
 
-        return await analyzeFile(
-            attachment
-        );
+        const text =
+            await extractFileText(
+                attachment
+            );
+
+
+        return {
+
+            type: "file",
+
+            text:
+                text
+
+        };
 
     }
 
 
-    return (
-        "📎 I don't recognize the current attachment."
-    );
+    return null;
 
 }
 
@@ -1048,24 +1000,26 @@ async function analyzeCurrentAttachment() {
    GLOBAL EXPORTS
 ========================================== */
 
+window.getAttachmentFile =
+    getAttachmentFile;
+
+window.getFileExtension =
+    getFileExtension;
+
+window.getFileInfo =
+    getFileInfo;
+
 window.readImageText =
     readImageText;
 
-window.analyzeImage =
-    analyzeImage;
 window.imageToBase64 =
     imageToBase64;
 
 window.analyzeImageOnline =
     analyzeImageOnline;
-window.analyzeFile =
-    analyzeFile;
 
-window.readDOCXFile =
-    readDOCXFile;
-
-window.readPDFFile =
-    readPDFFile;
+window.analyzeImage =
+    analyzeImage;
 
 window.readTextFile =
     readTextFile;
@@ -1076,11 +1030,20 @@ window.readJSONFile =
 window.readCSVFile =
     readCSVFile;
 
+window.readDOCXFile =
+    readDOCXFile;
+
+window.readPDFFile =
+    readPDFFile;
+
+window.extractFileText =
+    extractFileText;
+
+window.analyzeFile =
+    analyzeFile;
+
 window.analyzeCurrentAttachment =
     analyzeCurrentAttachment;
-
-window.getFileExtension =
-    getFileExtension;
 
 
 /* ==========================================
@@ -1088,5 +1051,43 @@ window.getFileExtension =
 ========================================== */
 
 console.log(
-    "✅ attachmentAI.js loaded successfully"
+    "========================================"
+);
+
+console.log(
+    "✅ attachmentAI.js Version 5.0 ready"
+);
+
+console.log(
+    "🔎 OCR:",
+    typeof window.readImageText
+);
+
+console.log(
+    "🔎 Image Analysis:",
+    typeof window.analyzeImage
+);
+
+console.log(
+    "🔎 File Extraction:",
+    typeof window.extractFileText
+);
+
+console.log(
+    "🔎 File Analysis:",
+    typeof window.analyzeFile
+);
+
+console.log(
+    "🔎 PDF Reader:",
+    typeof window.readPDFFile
+);
+
+console.log(
+    "🔎 DOCX Reader:",
+    typeof window.readDOCXFile
+);
+
+console.log(
+    "========================================"
 );
