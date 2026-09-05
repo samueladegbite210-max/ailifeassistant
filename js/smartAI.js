@@ -874,76 +874,43 @@ async function handleImageCommand(msg) {
 
 function isFileCommand(msg) {
 
-    if (!msg) {
-
-        return false;
-
-    }
-
-
     const text =
-        String(msg)
+        String(msg || "")
         .toLowerCase()
         .trim();
 
 
     return (
 
-        text.includes(
-            "summarize the file"
-        ) ||
+        text.includes("summarize") ||
 
-        text.includes(
-            "summarize file"
-        ) ||
+        text.includes("summarise") ||
 
-        text.includes(
-            "summarize this file"
-        ) ||
+        text.includes("analyze this file") ||
 
-        text.includes(
-            "summarize this"
-        ) ||
+        text.includes("analyse this file") ||
 
-        text.includes(
-            "summarize it"
-        ) ||
+        text.includes("analyze this document") ||
 
-        text.includes(
-            "explain the file"
-        ) ||
+        text.includes("analyse this document") ||
 
-        text.includes(
-            "explain this file"
-        ) ||
+        text.includes("read and summarize") ||
 
-        text.includes(
-            "explain the contents"
-        ) ||
+        text.includes("read the file") ||
 
-        text.includes(
-            "read the file"
-        ) ||
+        text.includes("read this file") ||
 
-        text.includes(
-            "read this file"
-        ) ||
+        text.includes("explain the file") ||
 
-        text.includes(
-            "find important information"
-        ) ||
+        text.includes("explain this file") ||
 
-        text.includes(
-            "important information"
-        ) ||
+        text.includes("explain the contents") ||
 
-        text.includes(
-            "answer questions about the file"
-        ) ||
+        text.includes("important information") ||
 
-        text.includes(
-            "what does the file say"
-        )
+        text.includes("what does the file say") ||
+
+        text.includes("answer questions about the file")
 
     );
 
@@ -954,7 +921,7 @@ function isFileCommand(msg) {
    FILE HANDLER
 ========================================== */
 
-async function handleFileCommand(msg) {
+async function handleFileCommand(msg, providedAttachment = null) {
 
     console.log(
         "📄 FILE COMMAND DETECTED:",
@@ -963,6 +930,7 @@ async function handleFileCommand(msg) {
 
 
     const attachment =
+        providedAttachment ||
         getCurrentAttachment();
 
 
@@ -1004,61 +972,76 @@ async function handleFileCommand(msg) {
 
 
     if (
-        typeof window.analyzeFile ===
+        typeof window.analyzeFile !==
         "function"
     ) {
 
-        try {
-
-            const result =
-                await window.analyzeFile(
-                    attachment
-                );
-
-
-            if (
-                result !== null &&
-                result !== undefined &&
-                String(result).trim() !== ""
-            ) {
-
-                return String(result);
-
-            }
-
-
-            return (
-                "📄 I read the file, " +
-                "but no readable content was returned."
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ FILE ANALYSIS ERROR:",
-                error
-            );
-
-
-            return (
-                "⚠️ Something went wrong while reading the file."
-            );
-
-        }
+        return (
+            "📄 The file-reading engine is not connected yet."
+        );
 
     }
 
 
-    return (
-        "📄 I have your file, " +
-        "but the file-reading engine is not connected yet."
-    );
+    try {
+
+        const fileData =
+            attachment.file ||
+            attachment.data ||
+            attachment;
+
+
+        console.log(
+            "📄 Sending file to analyzeFile:",
+            fileData
+        );
+
+
+        const result =
+            await window.analyzeFile(
+                fileData
+            );
+
+
+        console.log(
+            "📥 File analysis result:",
+            result
+        );
+
+
+        if (
+            result !== null &&
+            result !== undefined &&
+            String(result).trim() !== ""
+        ) {
+
+            return String(result).trim();
+
+        }
+
+
+        return (
+            "📄 I read the file, " +
+            "but no readable content was returned."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ FILE ANALYSIS ERROR:",
+            error
+        );
+
+
+        return (
+            "⚠️ Something went wrong while reading the file."
+        );
+
+    }
 
 }
-
-
 /* ==========================================
    UPLOAD LIST
 ========================================== */
@@ -1361,7 +1344,8 @@ function getAIModules(
 ========================================== */
 
 async function smartAIReply(
-    rawMessage
+    rawMessage,
+    providedAttachment = null
 ) {
 
     const original =
@@ -1394,7 +1378,8 @@ async function smartAIReply(
     ====================================== */
 
     const attachment =
-        getCurrentAttachment();
+    providedAttachment ||
+    getCurrentAttachment();
 
 
     const attachmentType =
