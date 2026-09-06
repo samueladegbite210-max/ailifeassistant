@@ -852,23 +852,114 @@ async function extractFileText(attachment) {
 
 }
 
+/* ==========================================
+   DOCUMENT MEMORY
+========================================== */
 
+window.currentDocumentText =
+    window.currentDocumentText || "";
+
+window.currentDocumentName =
+    window.currentDocumentName || "";
 /* ==========================================
    ANALYZE FILE
 
    Compatibility function for smartAI.js.
-
-   Returns extracted text only.
+   Extracts the document and stores it
+   temporarily for follow-up questions.
 ========================================== */
 
 async function analyzeFile(attachment) {
 
-    return await extractFileText(
-        attachment
-    );
+    try {
+
+        const file =
+            getAttachmentFile(
+                attachment
+            );
+
+
+        if (!file) {
+
+            console.error(
+                "❌ Could not access file for analysis"
+            );
+
+
+            return null;
+
+        }
+
+
+        console.log(
+            "📄 Analyzing file:",
+            file.name
+        );
+
+
+        /*
+           Extract document text
+        */
+
+        const text =
+            await extractFileText(
+                attachment
+            );
+
+
+        if (!text) {
+
+            console.warn(
+                "⚠️ No readable text extracted"
+            );
+
+
+            return null;
+
+        }
+
+
+        /*
+           Store document in memory
+        */
+
+        window.currentDocumentText =
+            text;
+
+
+        window.currentDocumentName =
+            file.name;
+
+
+        console.log(
+            "🧠 Document stored in memory:",
+            file.name
+        );
+
+
+        console.log(
+            "📄 Document characters:",
+            text.length
+        );
+
+
+        return text;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ File analysis error:",
+            error
+        );
+
+
+        return null;
+
+    }
 
 }
-
 
 /* ==========================================
    GET FILE INFORMATION
@@ -1038,6 +1129,12 @@ window.readPDFFile =
 
 window.extractFileText =
     extractFileText;
+
+window.currentDocumentText =
+    window.currentDocumentText;
+
+window.currentDocumentName =
+    window.currentDocumentName;
 
 window.analyzeFile =
     analyzeFile;
