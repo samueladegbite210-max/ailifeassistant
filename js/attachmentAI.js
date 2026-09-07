@@ -1187,12 +1187,12 @@ window.currentDocumentText =
 
 window.currentDocumentName =
     window.currentDocumentName || "";
+
 /* ==========================================
    ANALYZE FILE
 
-   Compatibility function for smartAI.js.
-   Extracts the document and stores it
-   temporarily for follow-up questions.
+   Extracts file text and saves it
+   into Document Memory.
 ========================================== */
 
 async function analyzeFile(attachment) {
@@ -1211,7 +1211,6 @@ async function analyzeFile(attachment) {
                 "❌ Could not access file for analysis"
             );
 
-
             return null;
 
         }
@@ -1222,10 +1221,6 @@ async function analyzeFile(attachment) {
             file.name
         );
 
-
-        /*
-           Extract document text
-        */
 
         const text =
             await extractFileText(
@@ -1239,15 +1234,14 @@ async function analyzeFile(attachment) {
                 "⚠️ No readable text extracted"
             );
 
-
             return null;
 
         }
 
 
-        /*
-           Store document in memory
-        */
+        /* ======================================
+           SAVE DOCUMENT MEMORY
+        ====================================== */
 
         window.currentDocumentText =
             text;
@@ -1258,14 +1252,14 @@ async function analyzeFile(attachment) {
 
 
         console.log(
-            "🧠 Document stored in memory:",
-            file.name
+            "🧠 Document saved to memory:",
+            window.currentDocumentName
         );
 
 
         console.log(
-            "📄 Document characters:",
-            text.length
+            "📊 Document characters:",
+            window.currentDocumentText.length
         );
 
 
@@ -1284,6 +1278,61 @@ async function analyzeFile(attachment) {
         return null;
 
     }
+
+}
+/* ==========================================
+   DOCUMENT MEMORY HELPERS
+========================================== */
+
+function hasCurrentDocument() {
+
+    return Boolean(
+        window.currentDocumentText &&
+        String(
+            window.currentDocumentText
+        ).trim()
+    );
+
+}
+
+
+function getCurrentDocument() {
+
+    if (
+        !hasCurrentDocument()
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        name:
+            window.currentDocumentName ||
+            "Uploaded document",
+
+        text:
+            window.currentDocumentText
+
+    };
+
+}
+
+
+function clearCurrentDocument() {
+
+    window.currentDocumentText =
+        "";
+
+    window.currentDocumentName =
+        "";
+
+
+    console.log(
+        "🗑️ Current document memory cleared"
+    );
 
 }
 
@@ -1464,6 +1513,15 @@ window.currentDocumentName =
 
 window.analyzeFile =
     analyzeFile;
+
+window.hasCurrentDocument =
+    hasCurrentDocument;
+
+window.getCurrentDocument =
+    getCurrentDocument;
+
+window.clearCurrentDocument =
+    clearCurrentDocument;
 
 window.analyzeCurrentAttachment =
     analyzeCurrentAttachment;
