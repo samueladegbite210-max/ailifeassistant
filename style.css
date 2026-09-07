@@ -1822,37 +1822,39 @@ Modern Chat Input
 .aiTableWrapper {
     width: 100%;
     overflow-x: auto;
-    margin: 15px 0;
+    margin: 18px 0;
 }
 
 .aiTable {
     width: 100%;
+    min-width: 480px;
     border-collapse: collapse;
-    min-width: 500px;
+    border-spacing: 0;
 }
 
 .aiTable th,
 .aiTable td {
-    padding: 12px;
+    padding: 12px 14px;
     text-align: left;
     vertical-align: top;
     word-break: normal;
     overflow-wrap: break-word;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 
 .aiTable th {
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .aiTable td:first-child,
 .aiTable th:first-child {
     min-width: 120px;
-    width: 35%;
 }
 
 .aiTable td:last-child,
 .aiTable th:last-child {
-    min-width: 250px;
+    min-width: 260px;
 }
 /*==============================
 Attachment Menu
