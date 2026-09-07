@@ -1287,6 +1287,306 @@ function addLocalMessage(
 
 window.addLocalMessage =
     addLocalMessage;
+ /* ==========================================
+   FORMAT AI MESSAGE
+========================================== */
+
+function formatAIMessage(text) {
+
+    if (
+        text === null ||
+        text === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    let message =
+        String(text);
+
+
+    /* ======================================
+       FIX LITERAL \n
+    ====================================== */
+
+    message =
+        message.replace(
+            /\\n/g,
+            "\n"
+        );
+
+
+    /* ======================================
+       ESCAPE HTML FIRST
+    ====================================== */
+
+    message =
+        message
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            );
+
+
+    /* ======================================
+       MARKDOWN HEADINGS
+    ====================================== */
+
+    message =
+        message.replace(
+            /^### (.*)$/gm,
+            "<h3>$1</h3>"
+        );
+
+    message =
+        message.replace(
+            /^## (.*)$/gm,
+            "<h2>$1</h2>"
+        );
+
+    message =
+        message.replace(
+            /^# (.*)$/gm,
+            "<h1>$1</h1>"
+        );
+
+
+    /* ======================================
+       BOLD
+    ====================================== */
+
+    message =
+        message.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+    /* ======================================
+       BULLET POINTS
+    ====================================== */
+
+    message =
+        message.replace(
+            /^[-•] (.*)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /*
+       Wrap consecutive list items
+    */
+
+    message =
+        message.replace(
+            /(<li>.*?<\/li>(\n|$))+/gs,
+            function (match) {
+
+                return (
+                    "<ul>" +
+                    match.replace(
+                        /\n/g,
+                        ""
+                    ) +
+                    "</ul>"
+                );
+
+            }
+        );
+
+
+    /* ======================================
+       NUMBERED LISTS
+    ====================================== */
+
+    message =
+        message.replace(
+            /^\d+\.\s+(.*)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /* ======================================
+       MARKDOWN TABLES
+    ====================================== */
+
+    const lines =
+        message.split("\n");
+
+
+    let result = [];
+
+    let tableRows = [];
+
+
+    function flushTable() {
+
+        if (
+            tableRows.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        let table =
+            "<div class='ai-table-wrapper'>" +
+            "<table class='ai-table'>";
+
+
+        tableRows.forEach(
+            function (
+                row,
+                index
+            ) {
+
+                const cells =
+                    row
+                        .split("|")
+                        .map(
+                            cell =>
+                                cell.trim()
+                        )
+                        .filter(
+                            cell =>
+                                cell !== ""
+                        );
+
+
+                if (
+                    index === 0
+                ) {
+
+                    table += "<thead><tr>";
+
+                    cells.forEach(
+                        cell => {
+
+                            table +=
+                                "<th>" +
+                                cell +
+                                "</th>";
+
+                        }
+                    );
+
+                    table +=
+                        "</tr></thead><tbody>";
+
+                }
+
+                else {
+
+                    /*
+                       Skip Markdown
+                       separator row
+                    */
+
+                    if (
+                        row.includes("---")
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    table += "<tr>";
+
+                    cells.forEach(
+                        cell => {
+
+                            table +=
+                                "<td>" +
+                                cell +
+                                "</td>";
+
+                        }
+                    );
+
+                    table += "</tr>";
+
+                }
+
+            }
+        );
+
+
+        table +=
+            "</tbody></table></div>";
+
+
+        result.push(
+            table
+        );
+
+
+        tableRows = [];
+
+    }
+
+
+    lines.forEach(
+        function (
+            line
+        ) {
+
+            if (
+                line.trim().startsWith("|")
+            ) {
+
+                tableRows.push(
+                    line
+                );
+
+            }
+
+            else {
+
+                flushTable();
+
+                result.push(
+                    line
+                );
+
+            }
+
+        }
+    );
+
+
+    flushTable();
+
+
+    message =
+        result.join("\n");
+
+
+    /* ======================================
+       LINE BREAKS
+    ====================================== */
+
+    message =
+        message.replace(
+            /\n/g,
+            "<br>"
+        );
+
+
+    return message;
+
+}
 /* =====================================================
    ADD ATTACHMENT MESSAGE
 ===================================================== */
