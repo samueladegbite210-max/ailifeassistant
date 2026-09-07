@@ -1645,12 +1645,12 @@ async function handleDocumentQuestion(msg) {
         */
 
         const documentText =
-            String(
-                document.text || ""
-            ).slice(
-                0,
-                30000
-            );
+    String(
+        document.text || ""
+    ).slice(
+        0,
+        12000
+    );
 
 
         if (!documentText.trim()) {
@@ -1661,21 +1661,21 @@ async function handleDocumentQuestion(msg) {
 
 
         const prompt =
-            "You are answering a question about an uploaded document.\n\n" +
+    "Answer the user's question using the uploaded document below.\n\n" +
 
-            "Document name: " +
-            document.name +
+    "Document: " +
+    document.name +
 
-            "\n\nDOCUMENT CONTENT:\n" +
+    "\n\nDocument Content:\n" +
 
-            documentText +
+    documentText +
 
-            "\n\nUSER QUESTION:\n" +
+    "\n\nQuestion: " +
 
-            msg +
+    msg +
 
-            "\n\nIMPORTANT INSTRUCTIONS:\n" +
-
+    "\n\nGive a concise answer based only on the document.";
+       
             "Answer based only on the uploaded document. " +
 
             "Do not invent information. " +
