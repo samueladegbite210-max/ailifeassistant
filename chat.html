@@ -487,7 +487,26 @@ console.log(
     !!attachBtn
 );
 
+ /* =====================================================
+   scrollChatToBottom
+===================================================== */
 
+ function scrollChatToBottom() {
+
+    if (!chatBox) {
+        return;
+    }
+
+    setTimeout(() => {
+
+        chatBox.scrollTo({
+            top: chatBox.scrollHeight,
+            behavior: "smooth"
+        });
+
+    }, 100);
+
+}
 /* =====================================================
    SHOW ATTACHMENT PREVIEW
 ===================================================== */
