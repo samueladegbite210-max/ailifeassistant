@@ -581,6 +581,15 @@ async function readDOCXFile(file) {
 
 /* ==========================================
    READ PDF FILE
+
+   Supports:
+
+   1. Normal text PDFs
+   2. Scanned PDFs
+   3. Image-based PDFs
+
+   If normal text extraction fails,
+   OCR is used automatically.
 ========================================== */
 
 async function readPDFFile(file) {
@@ -599,10 +608,15 @@ async function readPDFFile(file) {
                 "❌ PDF.js not available"
             );
 
-
             return null;
 
         }
+
+
+        console.log(
+            "📄 Reading PDF:",
+            file.name
+        );
 
 
         const buffer =
@@ -611,15 +625,23 @@ async function readPDFFile(file) {
 
         const pdf =
             await pdfjs.getDocument({
-
-                data:
-                    buffer
-
+                data: buffer
             }).promise;
+
+
+        console.log(
+            "📖 PDF pages:",
+            pdf.numPages
+        );
 
 
         let fullText = "";
 
+
+        /* ======================================
+           STEP 1
+           TRY NORMAL PDF TEXT EXTRACTION
+        ====================================== */
 
         for (
             let pageNumber = 1;
@@ -652,7 +674,7 @@ async function readPDFFile(file) {
 
                 fullText +=
                     "\n\n" +
-                    pageText;
+                    pageText.trim();
 
             }
 
@@ -663,14 +685,204 @@ async function readPDFFile(file) {
             fullText.trim();
 
 
-        return fullText || null;
+        /* ======================================
+           NORMAL PDF TEXT FOUND
+        ====================================== */
+
+        if (
+            fullText.length > 20
+        ) {
+
+            console.log(
+                "✅ Normal PDF text extracted"
+            );
+
+
+            return fullText;
+
+        }
+
+
+        console.log(
+            "🔎 No normal PDF text found."
+        );
+
+        console.log(
+            "📝 Trying OCR on PDF pages..."
+        );
+
+
+        /* ======================================
+           STEP 2
+           OCR FALLBACK FOR SCANNED PDFs
+        ====================================== */
+
+        if (
+            typeof Tesseract ===
+            "undefined"
+        ) {
+
+            console.error(
+                "❌ Tesseract OCR not available"
+            );
+
+
+            return null;
+
+        }
+
+
+        let ocrText = "";
+
+
+        for (
+            let pageNumber = 1;
+            pageNumber <= pdf.numPages;
+            pageNumber++
+        ) {
+
+            console.log(
+                "📝 OCR reading PDF page:",
+                pageNumber
+            );
+
+
+            const page =
+                await pdf.getPage(
+                    pageNumber
+                );
+
+
+            /*
+               Render page larger
+               for better OCR accuracy
+            */
+
+            const viewport =
+                page.getViewport({
+
+                    scale: 2
+
+                });
+
+
+            const canvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            const context =
+                canvas.getContext(
+                    "2d"
+                );
+
+
+            canvas.width =
+                viewport.width;
+
+
+            canvas.height =
+                viewport.height;
+
+
+            await page.render({
+
+                canvasContext:
+                    context,
+
+                viewport:
+                    viewport
+
+            }).promise;
+
+
+            /*
+               OCR the rendered PDF page
+            */
+
+            const result =
+                await Tesseract.recognize(
+                    canvas,
+                    "eng",
+                    {
+
+                        logger:
+                            function (info) {
+
+                                console.log(
+                                    "PDF OCR:",
+                                    pageNumber,
+                                    info.status,
+                                    info.progress
+                                );
+
+                            }
+
+                    }
+                );
+
+
+            const pageOCRText =
+                result?.data?.text
+                    ? result.data.text.trim()
+                    : "";
+
+
+            if (
+                pageOCRText
+            ) {
+
+                ocrText +=
+                    "\n\n--- Page " +
+                    pageNumber +
+                    " ---\n\n" +
+                    pageOCRText;
+
+            }
+
+
+            /*
+               Clean memory
+            */
+
+            canvas.width = 1;
+            canvas.height = 1;
+
+        }
+
+
+        ocrText =
+            ocrText.trim();
+
+
+        if (
+            ocrText
+        ) {
+
+            console.log(
+                "✅ PDF OCR completed successfully"
+            );
+
+
+            return ocrText;
+
+        }
+
+
+        console.warn(
+            "⚠️ No readable text found in PDF"
+        );
+
+
+        return null;
 
     }
 
     catch (error) {
 
         console.error(
-            "❌ PDF error:",
+            "❌ PDF reading error:",
             error
         );
 
