@@ -885,18 +885,25 @@ function formatAIMessage(text) {
    CLEAN AI RESPONSE
 ===================================================== */
 
+/* =====================================================
+   CLEAN AI RESPONSE
+===================================================== */
+
 function cleanAIResponse(text) {
 
     if (!text) {
+
         return "";
+
     }
+
 
     let cleanText =
         String(text);
 
 
     /*
-    REMOVE COMPLETE THINK BLOCK ONLY
+    REMOVE COMPLETE THINK BLOCK
     */
 
     cleanText =
@@ -907,8 +914,7 @@ function cleanAIResponse(text) {
 
 
     /*
-    REMOVE THINK TAG ITSELF
-    BUT DO NOT DELETE THE REST
+    REMOVE LEFTOVER THINK TAGS
     */
 
     cleanText =
@@ -918,9 +924,69 @@ function cleanAIResponse(text) {
         );
 
 
+    /*
+    CONVERT HTML BREAK TAGS
+    <br>
+    <br/>
+    <br />
+    */
+
+    cleanText =
+        cleanText.replace(
+            /<br\s*\/?>/gi,
+            "\n"
+        );
+
+
+    /*
+    CONVERT HTML PARAGRAPH ENDINGS
+    */
+
+    cleanText =
+        cleanText.replace(
+            /<\/p>/gi,
+            "\n\n"
+        );
+
+
+    /*
+    REMOVE OPENING/CLOSING P TAGS
+    */
+
+    cleanText =
+        cleanText.replace(
+            /<p[^>]*>/gi,
+            ""
+        );
+
+
+    /*
+    REMOVE SIMPLE HTML TAGS
+    */
+
+    cleanText =
+        cleanText.replace(
+            /<\/?(div|span|strong|b|em|i)[^>]*>/gi,
+            ""
+        );
+
+
+    /*
+    FIX TOO MANY EMPTY LINES
+    */
+
+    cleanText =
+        cleanText.replace(
+            /\n{3,}/g,
+            "\n\n"
+        );
+
+
     return cleanText.trim();
 
 }
+
+
 /* =====================================================
    FORMAT AI RESPONSE
 ===================================================== */
@@ -928,7 +994,9 @@ function cleanAIResponse(text) {
 function formatAIResponse(text) {
 
     if (!text) {
+
         return document.createDocumentFragment();
+
     }
 
 
@@ -946,6 +1014,14 @@ function formatAIResponse(text) {
         null;
 
 
+    let tableRows =
+        [];
+
+
+    /* =================================================
+       CLOSE LIST
+    ================================================= */
+
     function closeList() {
 
         if (currentList) {
@@ -960,6 +1036,237 @@ function formatAIResponse(text) {
 
     }
 
+
+    /* =================================================
+       DETECT MARKDOWN TABLE
+    ================================================= */
+
+    function isTableLine(line) {
+
+        return (
+            line.includes("|") &&
+            line.trim().startsWith("|")
+        );
+
+    }
+
+
+    /* =================================================
+       CHECK TABLE DIVIDER
+
+       Example:
+
+       |------|------|
+       | :--- | ---: |
+    ================================================= */
+
+    function isTableDivider(line) {
+
+        return /^[\s|:-]+$/.test(
+            line.trim()
+        );
+
+    }
+
+
+    /* =================================================
+       PARSE TABLE ROW
+    ================================================= */
+
+    function parseTableRow(line) {
+
+        return line
+            .trim()
+            .replace(/^\|/, "")
+            .replace(/\|$/, "")
+            .split("|")
+            .map(
+                cell =>
+                    cell.trim()
+                    .replace(
+                        /\*\*(.*?)\*\*/g,
+                        "$1"
+                    )
+                    .replace(
+                        /\*(.*?)\*/g,
+                        "$1"
+                    )
+            );
+
+    }
+
+
+    /* =================================================
+       CREATE TABLE
+    ================================================= */
+
+    function renderTable(rows) {
+
+        if (
+            !rows ||
+            rows.length < 2
+        ) {
+
+            return;
+
+        }
+
+
+        const wrapper =
+            document.createElement(
+                "div"
+            );
+
+
+        wrapper.className =
+            "aiTableWrapper";
+
+
+        const table =
+            document.createElement(
+                "table"
+            );
+
+
+        table.className =
+            "aiTable";
+
+
+        const headerRow =
+            rows[0];
+
+
+        const thead =
+            document.createElement(
+                "thead"
+            );
+
+
+        const trHead =
+            document.createElement(
+                "tr"
+            );
+
+
+        headerRow.forEach(
+            function (cell) {
+
+                const th =
+                    document.createElement(
+                        "th"
+                    );
+
+
+                th.textContent =
+                    cell;
+
+
+                trHead.appendChild(
+                    th
+                );
+
+            }
+        );
+
+
+        thead.appendChild(
+            trHead
+        );
+
+
+        table.appendChild(
+            thead
+        );
+
+
+        const tbody =
+            document.createElement(
+                "tbody"
+            );
+
+
+        for (
+            let i = 1;
+            i < rows.length;
+            i++
+        ) {
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            rows[i].forEach(
+                function (cell) {
+
+                    const td =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    td.textContent =
+                        cell;
+
+
+                    tr.appendChild(
+                        td
+                    );
+
+                }
+            );
+
+
+            tbody.appendChild(
+                tr
+            );
+
+        }
+
+
+        table.appendChild(
+            tbody
+        );
+
+
+        wrapper.appendChild(
+            table
+        );
+
+
+        fragment.appendChild(
+            wrapper
+        );
+
+    }
+
+
+    /* =================================================
+       CLOSE TABLE
+    ================================================= */
+
+    function closeTable() {
+
+        if (
+            tableRows.length > 0
+        ) {
+
+            renderTable(
+                tableRows
+            );
+
+
+            tableRows = [];
+
+        }
+
+    }
+
+
+    /* =================================================
+       PROCESS EACH LINE
+    ================================================= */
 
     lines.forEach(
         function (line) {
@@ -976,13 +1283,62 @@ function formatAIResponse(text) {
 
                 closeList();
 
+                closeTable();
+
                 return;
 
             }
 
 
             /*
+            MARKDOWN TABLE
+            */
+
+            if (
+                isTableLine(
+                    trimmed
+                )
+            ) {
+
+                closeList();
+
+
+                /*
+                Ignore divider row
+
+                |------|------|
+                */
+
+                if (
+                    !isTableDivider(
+                        trimmed
+                    )
+                ) {
+
+                    tableRows.push(
+                        parseTableRow(
+                            trimmed
+                        )
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+            /*
+            IF NORMAL TEXT AFTER TABLE
+            */
+
+            closeTable();
+
+
+            /*
             HEADINGS
+            # Heading
             ## Heading
             ### Heading
             */
@@ -1017,6 +1373,7 @@ function formatAIResponse(text) {
                     heading
                 );
 
+
                 return;
 
             }
@@ -1042,6 +1399,7 @@ function formatAIResponse(text) {
 
                     closeList();
 
+
                     currentList =
                         document.createElement(
                             "ul"
@@ -1064,12 +1422,21 @@ function formatAIResponse(text) {
                     trimmed.replace(
                         /^[-*•]\s+/,
                         ""
+                    )
+                    .replace(
+                        /\*\*(.*?)\*\*/g,
+                        "$1"
+                    )
+                    .replace(
+                        /\*(.*?)\*/g,
+                        "$1"
                     );
 
 
                 currentList.appendChild(
                     item
                 );
+
 
                 return;
 
@@ -1095,6 +1462,7 @@ function formatAIResponse(text) {
 
                     closeList();
 
+
                     currentList =
                         document.createElement(
                             "ol"
@@ -1117,12 +1485,21 @@ function formatAIResponse(text) {
                     trimmed.replace(
                         /^\d+\.\s+/,
                         ""
+                    )
+                    .replace(
+                        /\*\*(.*?)\*\*/g,
+                        "$1"
+                    )
+                    .replace(
+                        /\*(.*?)\*/g,
+                        "$1"
                     );
 
 
                 currentList.appendChild(
                     item
                 );
+
 
                 return;
 
@@ -1146,10 +1523,6 @@ function formatAIResponse(text) {
                 "aiParagraph";
 
 
-            /*
-            Remove Markdown symbols
-            */
-
             paragraph.textContent =
                 trimmed
                 .replace(
@@ -1157,7 +1530,15 @@ function formatAIResponse(text) {
                     "$1"
                 )
                 .replace(
+                    /__(.*?)__/g,
+                    "$1"
+                )
+                .replace(
                     /\*(.*?)\*/g,
+                    "$1"
+                )
+                .replace(
+                    /_(.*?)_/g,
                     "$1"
                 );
 
@@ -1170,7 +1551,13 @@ function formatAIResponse(text) {
     );
 
 
+    /*
+    CLOSE ANY OPEN ELEMENTS
+    */
+
     closeList();
+
+    closeTable();
 
 
     return fragment;
