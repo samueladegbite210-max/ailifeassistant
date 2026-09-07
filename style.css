@@ -1815,6 +1815,45 @@ Modern Chat Input
 .aiTable th {
     font-weight: 700;
 }
+/* ==========================================
+   AI RESPONSE TABLES
+========================================== */
+
+.aiTableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 15px 0;
+}
+
+.aiTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 500px;
+}
+
+.aiTable th,
+.aiTable td {
+    padding: 12px;
+    text-align: left;
+    vertical-align: top;
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+.aiTable th {
+    font-weight: 700;
+}
+
+.aiTable td:first-child,
+.aiTable th:first-child {
+    min-width: 120px;
+    width: 35%;
+}
+
+.aiTable td:last-child,
+.aiTable th:last-child {
+    min-width: 250px;
+}
 /*==============================
 Attachment Menu
 ==============================*/
