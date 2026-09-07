@@ -1755,6 +1755,66 @@ Modern Chat Input
     margin-top: 14px;
     margin-bottom: 8px;
 }
+/* =====================================================
+   AI RESPONSE FORMATTING
+===================================================== */
+
+.aiParagraph {
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+
+.aiHeading {
+    font-weight: 700;
+    font-size: 16px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+
+.aiList {
+    padding-left: 22px;
+    margin: 8px 0 12px;
+}
+
+
+.aiList li {
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+
+/* TABLE CONTAINER */
+
+.aiTableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 12px 0;
+    border-radius: 10px;
+}
+
+
+/* TABLE */
+
+.aiTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 400px;
+}
+
+
+.aiTable th,
+.aiTable td {
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+
+.aiTable th {
+    font-weight: 700;
+}
 /*==============================
 Attachment Menu
 ==============================*/
