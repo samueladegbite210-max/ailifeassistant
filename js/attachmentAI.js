@@ -583,13 +583,9 @@ async function readDOCXFile(file) {
    READ PDF FILE
 
    Supports:
-
-   1. Normal text PDFs
-   2. Scanned PDFs
-   3. Image-based PDFs
-
-   If normal text extraction fails,
-   OCR is used automatically.
+   - Normal text PDFs
+   - Scanned PDFs
+   - Image-based PDFs
 ========================================== */
 
 async function readPDFFile(file) {
@@ -613,8 +609,19 @@ async function readPDFFile(file) {
         }
 
 
+        if (!file) {
+
+            console.error(
+                "❌ No PDF file provided"
+            );
+
+            return null;
+
+        }
+
+
         console.log(
-            "📄 Reading PDF:",
+            "📄 Starting PDF reader:",
             file.name
         );
 
@@ -623,31 +630,50 @@ async function readPDFFile(file) {
             await file.arrayBuffer();
 
 
-        const pdf =
-            await pdfjs.getDocument({
+        console.log(
+            "📄 PDF file converted to ArrayBuffer"
+        );
+
+
+        const loadingTask =
+            pdfjs.getDocument({
                 data: buffer
-            }).promise;
+            });
+
+
+        const pdf =
+            await loadingTask.promise;
 
 
         console.log(
-            "📖 PDF pages:",
+            "✅ PDF loaded successfully"
+        );
+
+        console.log(
+            "📖 Total pages:",
             pdf.numPages
         );
 
 
-        let fullText = "";
-
-
         /* ======================================
            STEP 1
-           TRY NORMAL PDF TEXT EXTRACTION
+           NORMAL TEXT EXTRACTION
         ====================================== */
+
+        let normalText = "";
+
 
         for (
             let pageNumber = 1;
             pageNumber <= pdf.numPages;
             pageNumber++
         ) {
+
+            console.log(
+                "📄 Reading text from page:",
+                pageNumber
+            );
+
 
             const page =
                 await pdf.getPage(
@@ -665,56 +691,59 @@ async function readPDFFile(file) {
                         item =>
                             item.str || ""
                     )
-                    .join(" ");
+                    .join(" ")
+                    .trim();
 
 
-            if (
-                pageText.trim()
-            ) {
+            if (pageText) {
 
-                fullText +=
-                    "\n\n" +
-                    pageText.trim();
+                normalText +=
+                    "\n\n--- Page " +
+                    pageNumber +
+                    " ---\n\n" +
+                    pageText;
 
             }
 
         }
 
 
-        fullText =
-            fullText.trim();
+        normalText =
+            normalText.trim();
 
 
         /* ======================================
-           NORMAL PDF TEXT FOUND
+           NORMAL TEXT FOUND
         ====================================== */
 
         if (
-            fullText.length > 20
+            normalText.length > 20
         ) {
 
             console.log(
-                "✅ Normal PDF text extracted"
+                "✅ Normal PDF text extracted:",
+                normalText.length,
+                "characters"
             );
 
 
-            return fullText;
+            return normalText;
 
         }
 
 
         console.log(
-            "🔎 No normal PDF text found."
+            "⚠️ No embedded text found."
         );
 
         console.log(
-            "📝 Trying OCR on PDF pages..."
+            "🔎 Starting OCR fallback..."
         );
 
 
         /* ======================================
            STEP 2
-           OCR FALLBACK FOR SCANNED PDFs
+           CHECK OCR
         ====================================== */
 
         if (
@@ -723,9 +752,8 @@ async function readPDFFile(file) {
         ) {
 
             console.error(
-                "❌ Tesseract OCR not available"
+                "❌ Tesseract.js is not loaded"
             );
-
 
             return null;
 
@@ -735,6 +763,12 @@ async function readPDFFile(file) {
         let ocrText = "";
 
 
+        /* ======================================
+           STEP 3
+           CONVERT PDF PAGES TO PNG
+           THEN OCR THEM
+        ====================================== */
+
         for (
             let pageNumber = 1;
             pageNumber <= pdf.numPages;
@@ -742,7 +776,7 @@ async function readPDFFile(file) {
         ) {
 
             console.log(
-                "📝 OCR reading PDF page:",
+                "🖼️ Rendering PDF page:",
                 pageNumber
             );
 
@@ -753,16 +787,9 @@ async function readPDFFile(file) {
                 );
 
 
-            /*
-               Render page larger
-               for better OCR accuracy
-            */
-
             const viewport =
                 page.getViewport({
-
-                    scale: 2
-
+                    scale: 2.5
                 });
 
 
@@ -778,12 +805,27 @@ async function readPDFFile(file) {
                 );
 
 
+            if (!context) {
+
+                console.error(
+                    "❌ Could not create canvas"
+                );
+
+                continue;
+
+            }
+
+
             canvas.width =
-                viewport.width;
+                Math.floor(
+                    viewport.width
+                );
 
 
             canvas.height =
-                viewport.height;
+                Math.floor(
+                    viewport.height
+                );
 
 
             await page.render({
@@ -797,57 +839,124 @@ async function readPDFFile(file) {
             }).promise;
 
 
+            console.log(
+                "✅ PDF page rendered:",
+                pageNumber
+            );
+
+
             /*
-               OCR the rendered PDF page
+               Convert canvas to PNG image.
+
+               This is more reliable for
+               Tesseract than passing canvas
+               directly.
             */
 
-            const result =
-                await Tesseract.recognize(
-                    canvas,
-                    "eng",
-                    {
-
-                        logger:
-                            function (info) {
-
-                                console.log(
-                                    "PDF OCR:",
-                                    pageNumber,
-                                    info.status,
-                                    info.progress
-                                );
-
-                            }
-
-                    }
+            const imageData =
+                canvas.toDataURL(
+                    "image/png"
                 );
 
 
-            const pageOCRText =
-                result?.data?.text
+            console.log(
+                "📝 Starting OCR for page:",
+                pageNumber
+            );
+
+
+            let result;
+
+
+            try {
+
+                result =
+                    await Tesseract.recognize(
+                        imageData,
+                        "eng",
+                        {
+
+                            logger:
+                                function (info) {
+
+                                    if (
+                                        info.status
+                                    ) {
+
+                                        console.log(
+                                            "PDF OCR:",
+                                            pageNumber,
+                                            info.status,
+                                            Math.round(
+                                                (
+                                                    info.progress ||
+                                                    0
+                                                ) * 100
+                                            ) + "%"
+                                        );
+
+                                    }
+
+                                }
+
+                        }
+                    );
+
+            }
+
+            catch (ocrError) {
+
+                console.error(
+                    "❌ OCR failed on page:",
+                    pageNumber,
+                    ocrError
+                );
+
+                continue;
+
+            }
+
+
+            const pageText =
+                result &&
+                result.data &&
+                result.data.text
                     ? result.data.text.trim()
                     : "";
 
 
-            if (
-                pageOCRText
-            ) {
+            if (pageText) {
+
+                console.log(
+                    "✅ OCR text found on page:",
+                    pageNumber
+                );
+
 
                 ocrText +=
                     "\n\n--- Page " +
                     pageNumber +
                     " ---\n\n" +
-                    pageOCRText;
+                    pageText;
+
+            }
+
+            else {
+
+                console.warn(
+                    "⚠️ No OCR text found on page:",
+                    pageNumber
+                );
 
             }
 
 
             /*
-               Clean memory
+               Release canvas memory
             */
 
-            canvas.width = 1;
-            canvas.height = 1;
+            canvas.width = 0;
+            canvas.height = 0;
 
         }
 
@@ -856,12 +965,19 @@ async function readPDFFile(file) {
             ocrText.trim();
 
 
-        if (
-            ocrText
-        ) {
+        /* ======================================
+           OCR SUCCESS
+        ====================================== */
+
+        if (ocrText) {
 
             console.log(
-                "✅ PDF OCR completed successfully"
+                "🎉 PDF OCR SUCCESS"
+            );
+
+            console.log(
+                "📊 Extracted characters:",
+                ocrText.length
             );
 
 
@@ -870,8 +986,8 @@ async function readPDFFile(file) {
         }
 
 
-        console.warn(
-            "⚠️ No readable text found in PDF"
+        console.error(
+            "❌ PDF OCR found no text"
         );
 
 
@@ -882,7 +998,7 @@ async function readPDFFile(file) {
     catch (error) {
 
         console.error(
-            "❌ PDF reading error:",
+            "❌ PDF reader crashed:",
             error
         );
 
@@ -892,8 +1008,6 @@ async function readPDFFile(file) {
     }
 
 }
-
-
 /* ==========================================
    EXTRACT FILE TEXT
    MAIN FILE READING FUNCTION
