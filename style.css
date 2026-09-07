@@ -1693,6 +1693,68 @@ Modern Chat Input
     background:#2563EB;
 
 }
+/* ==========================================
+   AI MESSAGE FORMATTING
+========================================== */
+
+.ai-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 12px 0;
+}
+
+.ai-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.ai-table th,
+.ai-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+.ai-table th {
+    font-weight: 700;
+}
+
+.ai-table ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.ai-table li {
+    margin-bottom: 6px;
+}
+
+.ai-table h1,
+.ai-table h2,
+.ai-table h3 {
+    margin-top: 15px;
+    margin-bottom: 8px;
+}
+.message.ai ul,
+.ai-message ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.message.ai li,
+.ai-message li {
+    margin-bottom: 6px;
+}
+
+.message.ai h1,
+.message.ai h2,
+.message.ai h3,
+.ai-message h1,
+.ai-message h2,
+.ai-message h3 {
+    margin-top: 14px;
+    margin-bottom: 8px;
+}
 /*==============================
 Attachment Menu
 ==============================*/
