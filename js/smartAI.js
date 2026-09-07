@@ -1486,7 +1486,245 @@ function isUploadListCommand(msg) {
 
 }
 
+/* ==========================================
+   DOCUMENT QUESTION DETECTION
+========================================== */
 
+function isDocumentQuestion(msg) {
+
+    if (!msg) {
+
+        return false;
+
+    }
+
+
+    if (
+        typeof window.hasCurrentDocument !==
+        "function"
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        !window.hasCurrentDocument()
+    ) {
+
+        return false;
+
+    }
+
+
+    const text =
+        String(msg)
+        .toLowerCase()
+        .trim();
+
+
+    /*
+       Explicit document references
+    */
+
+    const documentWords = [
+
+        "document",
+        "file",
+        "pdf",
+        "this document",
+        "this file",
+        "uploaded file",
+        "uploaded document",
+        "the document",
+        "the file"
+
+    ];
+
+
+    /*
+       Question patterns that should
+       use the current document.
+    */
+
+    const questionPatterns = [
+
+        "what is this about",
+        "what is it about",
+        "summarize",
+        "summary",
+        "explain",
+        "important points",
+        "key points",
+        "main points",
+        "main idea",
+        "tell me about",
+        "what does",
+        "who is",
+        "when is",
+        "where is",
+        "why",
+        "how",
+        "section",
+        "chapter",
+        "page",
+        "according to",
+        "mentioned",
+        "information"
+
+    ];
+
+
+    const hasDocumentWord =
+        documentWords.some(
+            word =>
+                text.includes(word)
+        );
+
+
+    const hasQuestionPattern =
+        questionPatterns.some(
+            pattern =>
+                text.includes(pattern)
+        );
+
+
+    return (
+        hasDocumentWord ||
+        hasQuestionPattern
+    );
+
+}
+/* ==========================================
+   DOCUMENT QUESTION HANDLER
+========================================== */
+
+async function handleDocumentQuestion(msg) {
+
+    try {
+
+        if (
+            typeof window.getCurrentDocument !==
+            "function"
+        ) {
+
+            return null;
+
+        }
+
+
+        const document =
+            window.getCurrentDocument();
+
+
+        if (!document) {
+
+            return null;
+
+        }
+
+
+        console.log(
+            "📚 Document question detected"
+        );
+
+
+        console.log(
+            "📄 Document:",
+            document.name
+        );
+
+
+        /*
+           Limit document size sent
+           to the backend if necessary.
+
+           We keep the first 30,000 characters
+           for now.
+        */
+
+        const documentText =
+            String(
+                document.text || ""
+            ).slice(
+                0,
+                30000
+            );
+
+
+        if (!documentText.trim()) {
+
+            return null;
+
+        }
+
+
+        const prompt =
+            "You are answering a question about an uploaded document.\n\n" +
+
+            "Document name: " +
+            document.name +
+
+            "\n\nDOCUMENT CONTENT:\n" +
+
+            documentText +
+
+            "\n\nUSER QUESTION:\n" +
+
+            msg +
+
+            "\n\nIMPORTANT INSTRUCTIONS:\n" +
+
+            "Answer based only on the uploaded document. " +
+
+            "Do not invent information. " +
+
+            "Give a clear and helpful answer. " +
+
+            "Do not reproduce the entire document unless specifically asked.";
+
+
+        console.log(
+            "🧠 Sending document question to Online AI..."
+        );
+
+
+        const response =
+            await askOnlineAI(
+                prompt
+            );
+
+
+        if (
+            response &&
+            String(response).trim()
+        ) {
+
+            return String(
+                response
+            ).trim();
+
+        }
+
+
+        return null;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Document question error:",
+            error
+        );
+
+
+        return null;
+
+    }
+
+}
 /* ==========================================
    AI MODULE LIST
 ========================================== */
@@ -1930,7 +2168,34 @@ if (
 
 }
 
+/* ======================================
+   DOCUMENT MEMORY QUESTIONS
+===================================== */
 
+if (
+    isDocumentQuestion(
+        original
+    )
+) {
+
+    console.log(
+        "📚 CURRENT DOCUMENT QUESTION FOUND"
+    );
+
+
+    const documentReply =
+        await handleDocumentQuestion(
+            original
+        );
+
+
+    if (documentReply) {
+
+        return documentReply;
+
+    }
+
+}
     /* ======================================
        FILE QUESTION MODE
 
@@ -2100,7 +2365,11 @@ window.getUploadList =
 window.getAIModules =
     getAIModules;
 
+window.isDocumentQuestion =
+    isDocumentQuestion;
 
+window.handleDocumentQuestion =
+    handleDocumentQuestion;
 /* ==========================================
    READY CHECK
 ========================================== */
