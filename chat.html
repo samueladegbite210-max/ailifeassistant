@@ -2954,7 +2954,47 @@ async function sendMessage() {
 window.sendMessage =
     sendMessage;
 
+/* ==========================================
+   VOICE TRANSCRIPT RECEIVER
+========================================== */
 
+window.addEventListener(
+    "voiceTranscript",
+    function (event) {
+
+        const text =
+            event.detail?.text ||
+            "";
+
+
+        if (!text) {
+
+            return;
+
+        }
+
+
+        console.log(
+            "🗣️ Received voice transcript:",
+            text
+        );
+
+
+        if (
+            typeof userInput !== "undefined" &&
+            userInput
+        ) {
+
+            userInput.value =
+                text;
+
+
+            userInput.focus();
+
+        }
+
+    }
+);
 /* =====================================================
    SEND BUTTON
 ===================================================== */
