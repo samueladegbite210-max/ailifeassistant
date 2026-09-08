@@ -32,7 +32,109 @@ const ONLINE_AI_ENDPOINT =
 const MAX_FILE_CONTENT_LENGTH =
     12000;
 
+/* ==========================================
+   DOCUMENT MEMORY SYSTEM
+========================================== */
 
+window.currentDocument =
+    window.currentDocument || null;
+
+
+/* ==========================================
+   SAVE CURRENT DOCUMENT
+========================================== */
+
+function saveCurrentDocument(
+    name,
+    text
+) {
+
+    if (
+        !text ||
+        !String(text).trim()
+    ) {
+
+        return false;
+
+    }
+
+
+    window.currentDocument = {
+
+        name:
+            name ||
+            "Uploaded document",
+
+        text:
+            String(text).trim(),
+
+        savedAt:
+            new Date().toISOString()
+
+    };
+
+
+    console.log(
+        "📚 Document saved to memory:",
+        window.currentDocument.name
+    );
+
+
+    return true;
+
+}
+
+
+/* ==========================================
+   GET CURRENT DOCUMENT
+========================================== */
+
+function getCurrentDocument() {
+
+    return (
+        window.currentDocument ||
+        null
+    );
+
+}
+
+
+/* ==========================================
+   CHECK CURRENT DOCUMENT
+========================================== */
+
+function hasCurrentDocument() {
+
+    return !!(
+
+        window.currentDocument &&
+
+        window.currentDocument.text &&
+
+        String(
+            window.currentDocument.text
+        ).trim() !== ""
+
+    );
+
+}
+
+
+/* ==========================================
+   CLEAR CURRENT DOCUMENT
+========================================== */
+
+function clearCurrentDocument() {
+
+    window.currentDocument =
+        null;
+
+
+    console.log(
+        "🗑️ Current document cleared"
+    );
+
+}
 /* ==========================================
    ATTACHMENT ACCESS
 ========================================== */
@@ -1298,7 +1400,20 @@ async function handleFileCommand(
             "characters"
         );
 
+/* ==================================
+   SAVE DOCUMENT TO MEMORY
+================================== */
 
+const currentFileName =
+    attachment.name ||
+    attachment.file?.name ||
+    "Uploaded document";
+
+
+saveCurrentDocument(
+    currentFileName,
+    extractedText
+);
         /* ==================================
            LIMIT LARGE DOCUMENTS
         ================================== */
@@ -1666,25 +1781,21 @@ async function handleDocumentQuestion(msg) {
     "Document: " +
     document.name +
 
-    "\n\nDocument Content:\n" +
+    "\n\nDOCUMENT CONTENT:\n" +
 
     documentText +
 
-    "\n\nQuestion: " +
+    "\n\nUSER QUESTION:\n" +
 
     msg +
 
-    "\n\nGive a concise answer based only on the document.";
+    "\n\nINSTRUCTIONS:\n" +
+    "- Answer based only on the uploaded document.\n" +
+    "- Do not invent information.\n" +
+    "- Give a clear and helpful answer.\n" +
+    "- Keep the answer concise.\n" +
+    "- Do not reproduce the entire document unless specifically asked.";
        
-            "Answer based only on the uploaded document. " +
-
-            "Do not invent information. " +
-
-            "Give a clear and helpful answer. " +
-
-            "Do not reproduce the entire document unless specifically asked.";
-
-
         console.log(
             "🧠 Sending document question to Online AI..."
         );
@@ -2143,7 +2254,7 @@ async function smartAIReply(
     }
 
 
-    /* ======================================
+ /* ======================================
    FILE ATTACHMENT
 ====================================== */
 
@@ -2156,15 +2267,13 @@ if (
     );
 
 
-    /*
-       Any meaningful message while
-       a file is attached can be treated
-       as a question about that file.
-    */
+    const fileReply =
+        await handleFileCommand(
+            original
+        );
 
-    return await handleFileCommand(
-        original
-    );
+
+    return fileReply;
 
 }
 
@@ -2370,7 +2479,20 @@ window.isDocumentQuestion =
 
 window.handleDocumentQuestion =
     handleDocumentQuestion;
-/* ==========================================
+
+window.saveCurrentDocument =
+    saveCurrentDocument;
+
+window.getCurrentDocument =
+    getCurrentDocument;
+
+window.hasCurrentDocument =
+    hasCurrentDocument;
+
+window.clearCurrentDocument =
+    clearCurrentDocument;
+
+   ========================================
    READY CHECK
 ========================================== */
 
