@@ -453,7 +453,47 @@ function updateVoiceButton() {
 
 }
 
+/* ==========================================
+   CONNECT VOICE BUTTON
+========================================== */
 
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const voiceBtn =
+            document.getElementById(
+                "voiceBtn"
+            );
+
+
+        if (!voiceBtn) {
+
+            console.warn(
+                "⚠️ voiceBtn not found"
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "🎤 Voice button connected"
+        );
+
+
+        voiceBtn.addEventListener(
+            "click",
+            function () {
+
+                toggleListening();
+
+            }
+        );
+
+    }
+);
 /* ==========================================
    GLOBAL EXPORTS
 ========================================== */
