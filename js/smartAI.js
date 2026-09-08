@@ -2492,10 +2492,9 @@ window.hasCurrentDocument =
 window.clearCurrentDocument =
     clearCurrentDocument;
 
-   ========================================
+/* ==========================================
    READY CHECK
 ========================================== */
-
 console.log(
     "========================================"
 );
