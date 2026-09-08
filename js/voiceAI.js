@@ -14,7 +14,7 @@
 
 console.log("🎤 voiceAI.js loading...");
 
-
+console.log("🎤 voiceAI.js finished loading");
 /* ==========================================
    VOICE VARIABLES
 ========================================== */
