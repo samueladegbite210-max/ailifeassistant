@@ -1191,8 +1191,7 @@ window.currentDocumentName =
 /* ==========================================
    ANALYZE FILE
 
-   Extracts file text and saves it
-   into Document Memory.
+   Extracts and remembers document text.
 ========================================== */
 
 async function analyzeFile(attachment) {
@@ -1208,7 +1207,7 @@ async function analyzeFile(attachment) {
         if (!file) {
 
             console.error(
-                "❌ Could not access file for analysis"
+                "❌ Could not access file"
             );
 
             return null;
@@ -1217,7 +1216,7 @@ async function analyzeFile(attachment) {
 
 
         console.log(
-            "📄 Analyzing file:",
+            "📄 Analyzing and saving document:",
             file.name
         );
 
@@ -1239,9 +1238,11 @@ async function analyzeFile(attachment) {
         }
 
 
-        /* ======================================
-           SAVE DOCUMENT MEMORY
-        ====================================== */
+        /*
+        ======================================
+        SAVE DOCUMENT MEMORY
+        ======================================
+        */
 
         window.currentDocumentText =
             text;
@@ -1252,14 +1253,14 @@ async function analyzeFile(attachment) {
 
 
         console.log(
-            "🧠 Document saved to memory:",
-            window.currentDocumentName
+            "💾 Document saved to memory:",
+            file.name
         );
 
 
         console.log(
-            "📊 Document characters:",
-            window.currentDocumentText.length
+            "📄 Document characters:",
+            text.length
         );
 
 
@@ -1270,10 +1271,9 @@ async function analyzeFile(attachment) {
     catch (error) {
 
         console.error(
-            "❌ File analysis error:",
+            "❌ analyzeFile error:",
             error
         );
-
 
         return null;
 
@@ -1410,58 +1410,82 @@ async function analyzeCurrentAttachment() {
 
     /* File */
 
-    if (
-        attachment.type === "file"
-    ) {
+if (
+    attachment.type === "file"
+) {
 
-        const text =
-            await extractFileText(
-                attachment
-            );
-
-
-        return {
-
-            type: "file",
-
-            text:
-                text
-
-        };
-
-    }
+    const text =
+        await analyzeFile(
+            attachment
+        );
 
 
-    /* Raw File */
+    return {
 
-    if (
-        typeof File !== "undefined" &&
-        attachment instanceof File
-    ) {
+        type: "file",
 
-        const text =
-            await extractFileText(
-                attachment
-            );
+        text:
+            text
+
+    };
+
+}
+
+   /* Raw File */
+
+if (
+    typeof File !== "undefined" &&
+    attachment instanceof File
+) {
+
+    const text =
+        await analyzeFile(
+            attachment
+        );
 
 
-        return {
+    return {
 
-            type: "file",
+        type: "file",
 
-            text:
-                text
+        text:
+            text
 
-        };
+    };
 
-    }
-
+}
 
     return null;
 
 }
 
+/* ==========================================
+   GET CURRENT DOCUMENT CONTEXT
+========================================== */
 
+function getCurrentDocumentContext() {
+
+    if (
+        !window.currentDocumentText
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        name:
+            window.currentDocumentName ||
+            "Unknown document",
+
+        text:
+            window.currentDocumentText
+
+    };
+
+}
 /* ==========================================
    GLOBAL EXPORTS
 ========================================== */
@@ -1526,7 +1550,8 @@ window.clearCurrentDocument =
 window.analyzeCurrentAttachment =
     analyzeCurrentAttachment;
 
-
+window.getCurrentDocumentContext =
+    getCurrentDocumentContext;
 /* ==========================================
    READY
 ========================================== */
