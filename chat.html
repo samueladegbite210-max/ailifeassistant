@@ -2208,21 +2208,21 @@ async function autoAnalyzeAttachment(attachment) {
 
     }
 
-    /*
-    =====================================================
-    CREATE SMART PROMPT
-    =====================================================
-    */
+ /* =====================================================
+   CREATE SMART PROMPT
+===================================================== */
 
-    let prompt;
+let prompt;
+
 
 if (attachment.type === "image") {
 
     prompt =
         "Describe and analyze this image clearly. " +
-        "Do not mention technical limitations unless necessary.";
-"Do not use Markdown tables or table formatting. " +
-"Use simple headings and bullet points instead. "
+        "Do not mention technical limitations unless necessary. " +
+        "Do not use Markdown tables or table formatting. " +
+        "Use simple headings and bullet points instead.";
+
 }
 
 else {
@@ -2230,12 +2230,11 @@ else {
     prompt =
         "Analyze this document and provide a concise, easy-to-understand summary. " +
         "Do not list, reproduce, or display the entire contents of the file. " +
-    
-   "Focus only on the most important information, main topics, and key points.";
- "Do not use Markdown tables or table formatting. " +
-"Use simple headings and bullet points instead. "
+        "Focus only on the most important information, main topics, and key points. " +
+        "Do not use Markdown tables or table formatting. " +
+        "Use simple headings and bullet points instead.";
+
 }
- 
 
     /*
     =====================================================
