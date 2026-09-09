@@ -407,10 +407,10 @@ console.log(
 ===================================================== -->
 
 <script>
+
 "use strict";
 
 console.log("🚀 AI Life Assistant chat controller loading...");
-
 
 /* =====================================================
    ELEMENTS
@@ -467,7 +467,6 @@ const removeAttachmentBtn =
         "removeAttachmentBtn"
     );
 
-
 /* =====================================================
    ATTACHMENT STATE
 ===================================================== */
@@ -477,7 +476,6 @@ window.aiAttachment =
 
 window.uploadedFiles =
     window.uploadedFiles || [];
-
 
 /* =====================================================
    BASIC CHECK
@@ -540,10 +538,8 @@ function showAttachmentPreview(
         return;
     }
 
-
     attachmentPreviewContent.innerHTML =
         "";
-
 
     /*
     IMAGE PREVIEW
@@ -566,7 +562,6 @@ function showAttachmentPreview(
 
     }
 
-
     /*
     FILE TEXT
     */
@@ -576,7 +571,6 @@ function showAttachmentPreview(
 
     textBox.className =
         "attachmentPreviewText";
-
 
     const name =
         document.createElement("div");
@@ -589,7 +583,6 @@ function showAttachmentPreview(
             ? "🖼️ " + file.name
             : "📄 " + file.name;
 
-
     const fileType =
         document.createElement("div");
 
@@ -600,7 +593,6 @@ function showAttachmentPreview(
         file.type ||
         "Unknown file";
 
-
     textBox.appendChild(name);
 
     textBox.appendChild(fileType);
@@ -609,13 +601,11 @@ function showAttachmentPreview(
         textBox
     );
 
-
     attachmentPreview.classList.add(
         "show"
     );
 
 }
-
 
 /* =====================================================
    REMOVE ATTACHMENT
@@ -626,7 +616,6 @@ function removeCurrentAttachment() {
     window.aiAttachment =
         null;
 
-
     if (attachmentPreview) {
 
         attachmentPreview.classList.remove(
@@ -635,7 +624,6 @@ function removeCurrentAttachment() {
 
     }
 
-
     if (attachmentPreviewContent) {
 
         attachmentPreviewContent.innerHTML =
@@ -643,13 +631,11 @@ function removeCurrentAttachment() {
 
     }
 
-
     if (imagePicker) {
 
         imagePicker.value = "";
 
     }
-
 
     if (cameraPicker) {
 
@@ -657,20 +643,17 @@ function removeCurrentAttachment() {
 
     }
 
-
     if (filePicker) {
 
         filePicker.value = "";
 
     }
 
-
     console.log(
         "🗑️ Attachment removed"
     );
 
 }
-
 
 if (removeAttachmentBtn) {
 
@@ -685,8 +668,199 @@ if (removeAttachmentBtn) {
 
 }
 
+/* =====================================================
+   SIMPLE MARKDOWN FORMATTER
+===================================================== */
 
-/
+function formatAIMessage(text) {
+
+    let html =
+        String(text || "");
+
+    /*
+    ESCAPE HTML FIRST
+    FOR SAFETY
+    */
+
+    html =
+        html
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    /*
+    MARKDOWN TABLES
+
+    Convert tables into simple readable blocks
+    instead of allowing broken table syntax.
+    */
+
+    html =
+        html.replace(
+            /^\|(.+)\|\s*\n\|[-:\s|]+\|\s*\n((?:\|.+\|\s*\n?)*)/gm,
+            function (
+                match,
+                header,
+                rows
+            ) {
+
+                const headers =
+                    header
+                    .split("|")
+                    .map(
+                        item =>
+                            item.trim()
+                    )
+                    .filter(Boolean);
+
+                let output =
+                    '<div class="markdownTable">';
+
+                output +=
+                    '<div class="markdownTableHeader">' +
+                    headers.join(" • ") +
+                    '</div>';
+
+                const rowList =
+                    rows
+                    .trim()
+                    .split("\n");
+
+                rowList.forEach(
+                    function (row) {
+
+                        const cells =
+                            row
+                            .split("|")
+                            .map(
+                                item =>
+                                    item.trim()
+                            )
+                            .filter(Boolean);
+
+                        if (
+                            cells.length
+                        ) {
+
+                            output +=
+                                '<div class="markdownTableRow">' +
+                                cells.join(" — ") +
+                                '</div>';
+
+                        }
+
+                    }
+                );
+
+                output +=
+                    '</div>';
+
+                return output;
+
+            }
+        );
+
+    /*
+    HEADINGS
+    */
+
+    html =
+        html.replace(
+            /^### (.+)$/gm,
+            "<h3>$1</h3>"
+        );
+
+    html =
+        html.replace(
+            /^## (.+)$/gm,
+            "<h2>$1</h2>"
+        );
+
+    html =
+        html.replace(
+            /^# (.+)$/gm,
+            "<h1>$1</h1>"
+        );
+
+    /*
+    BOLD
+    */
+
+    html =
+        html.replace(
+            /\*\*(.+?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+    /*
+    ITALIC
+    */
+
+    html =
+        html.replace(
+            /\*(.+?)\*/g,
+            "<em>$1</em>"
+        );
+
+    /*
+    BULLET POINTS
+    */
+
+    html =
+        html.replace(
+            /^[-*] (.+)$/gm,
+            "<li>$1</li>"
+        );
+
+    /*
+    NUMBERED LISTS
+    */
+
+    html =
+        html.replace(
+            /^\d+\. (.+)$/gm,
+            "<li>$1</li>"
+        );
+
+    /*
+    GROUP LIST ITEMS
+    */
+
+    html =
+        html.replace(
+            /(<li>.*?<\/li>(?:\s*<li>.*?<\/li>)*)/gs,
+            "<ul>$1</ul>"
+        );
+
+    /*
+    LINE BREAKS
+    */
+
+    html =
+        html.replace(
+            /\n/g,
+            "<br>"
+        );
+
+    /*
+    CLEAN EXTRA BREAKS
+    */
+
+    html =
+        html.replace(
+            /<br><ul>/g,
+            "<ul>"
+        );
+
+    html =
+        html.replace(
+            /<\/ul><br>/g,
+            "</ul>"
+        );
+
+    return html;
+
+}
 /* =====================================================
    CLEAN AI RESPONSE
 ===================================================== */
@@ -699,10 +873,8 @@ function cleanAIResponse(text) {
 
     }
 
-
     let cleanText =
         String(text);
-
 
     /*
     REMOVE COMPLETE THINK BLOCK
@@ -714,7 +886,6 @@ function cleanAIResponse(text) {
             ""
         );
 
-
     /*
     REMOVE LEFTOVER THINK TAGS
     */
@@ -724,7 +895,6 @@ function cleanAIResponse(text) {
             /<\/?think>/gi,
             ""
         );
-
 
     /*
     CONVERT HTML BREAK TAGS
@@ -739,7 +909,6 @@ function cleanAIResponse(text) {
             "\n"
         );
 
-
     /*
     CONVERT HTML PARAGRAPH ENDINGS
     */
@@ -749,7 +918,6 @@ function cleanAIResponse(text) {
             /<\/p>/gi,
             "\n\n"
         );
-
 
     /*
     REMOVE OPENING/CLOSING P TAGS
@@ -761,7 +929,6 @@ function cleanAIResponse(text) {
             ""
         );
 
-
     /*
     REMOVE SIMPLE HTML TAGS
     */
@@ -771,7 +938,6 @@ function cleanAIResponse(text) {
             /<\/?(div|span|strong|b|em|i)[^>]*>/gi,
             ""
         );
-
 
     /*
     FIX TOO MANY EMPTY LINES
@@ -783,11 +949,9 @@ function cleanAIResponse(text) {
             "\n\n"
         );
 
-
     return cleanText.trim();
 
 }
-
 
 /* =====================================================
    FORMAT AI RESPONSE
@@ -801,19 +965,15 @@ function formatAIResponse(text) {
 
     }
 
-
     const fragment =
         document.createDocumentFragment();
-
 
     const lines =
         String(text)
             .replace(/\r/g, "")
             .split("\n");
 
-
     let currentList = null;
-
 
     /*
     ==========================================
@@ -835,7 +995,6 @@ function formatAIResponse(text) {
 
     }
 
-
     /*
     ==========================================
     CHECK IF TABLE SEPARATOR
@@ -852,7 +1011,6 @@ function formatAIResponse(text) {
             .test(line);
 
     }
-
 
     /*
     ==========================================
@@ -885,7 +1043,6 @@ function formatAIResponse(text) {
 
     }
 
-
     /*
     ==========================================
     LOOP THROUGH RESPONSE
@@ -901,10 +1058,8 @@ function formatAIResponse(text) {
         const line =
             lines[i];
 
-
         const trimmed =
             line.trim();
-
 
         /*
         ======================================
@@ -919,7 +1074,6 @@ function formatAIResponse(text) {
             continue;
 
         }
-
 
         /*
         ======================================
@@ -947,7 +1101,6 @@ function formatAIResponse(text) {
 
             closeList();
 
-
             /*
             TABLE WRAPPER
             */
@@ -957,10 +1110,8 @@ function formatAIResponse(text) {
                     "div"
                 );
 
-
             tableWrapper.className =
                 "aiTableWrapper";
-
 
             /*
             TABLE
@@ -971,10 +1122,8 @@ function formatAIResponse(text) {
                     "table"
                 );
 
-
             table.className =
                 "aiTable";
-
 
             /*
             TABLE HEADER
@@ -985,18 +1134,15 @@ function formatAIResponse(text) {
                     "thead"
                 );
 
-
             const headerRow =
                 document.createElement(
                     "tr"
                 );
 
-
             const headers =
                 parseTableRow(
                     trimmed
                 );
-
 
             headers.forEach(
                 function (headerText) {
@@ -1006,10 +1152,8 @@ function formatAIResponse(text) {
                             "th"
                         );
 
-
                     th.textContent =
                         headerText;
-
 
                     headerRow.appendChild(
                         th
@@ -1018,16 +1162,13 @@ function formatAIResponse(text) {
                 }
             );
 
-
             thead.appendChild(
                 headerRow
             );
 
-
             table.appendChild(
                 thead
             );
-
 
             /*
             TABLE BODY
@@ -1038,13 +1179,11 @@ function formatAIResponse(text) {
                     "tbody"
                 );
 
-
             /*
             Skip separator line
             */
 
             i += 2;
-
 
             /*
             READ TABLE ROWS
@@ -1058,7 +1197,6 @@ function formatAIResponse(text) {
                 const rowText =
                     lines[i].trim();
 
-
                 /*
                 Stop if blank
                 */
@@ -1069,18 +1207,15 @@ function formatAIResponse(text) {
 
                 }
 
-
                 const row =
                     document.createElement(
                         "tr"
                     );
 
-
                 const cells =
                     parseTableRow(
                         rowText
                     );
-
 
                 cells.forEach(
                     function (cellText) {
@@ -1090,10 +1225,8 @@ function formatAIResponse(text) {
                                 "td"
                             );
 
-
                         td.textContent =
                             cellText;
-
 
                         row.appendChild(
                             td
@@ -1102,16 +1235,13 @@ function formatAIResponse(text) {
                     }
                 );
 
-
                 tbody.appendChild(
                     row
                 );
 
-
                 i++;
 
             }
-
 
             /*
             Move index back one
@@ -1120,26 +1250,21 @@ function formatAIResponse(text) {
 
             i--;
 
-
             table.appendChild(
                 tbody
             );
-
 
             tableWrapper.appendChild(
                 table
             );
 
-
             fragment.appendChild(
                 tableWrapper
             );
 
-
             continue;
 
         }
-
 
         /*
         ======================================
@@ -1159,16 +1284,13 @@ function formatAIResponse(text) {
 
             closeList();
 
-
             const heading =
                 document.createElement(
                     "div"
                 );
 
-
             heading.className =
                 "aiHeading";
-
 
             heading.textContent =
                 trimmed.replace(
@@ -1176,16 +1298,13 @@ function formatAIResponse(text) {
                     ""
                 );
 
-
             fragment.appendChild(
                 heading
             );
 
-
             continue;
 
         }
-
 
         /*
         ======================================
@@ -1210,24 +1329,20 @@ function formatAIResponse(text) {
 
                 closeList();
 
-
                 currentList =
                     document.createElement(
                         "ul"
                     );
-
 
                 currentList.className =
                     "aiList";
 
             }
 
-
             const item =
                 document.createElement(
                     "li"
                 );
-
 
             item.textContent =
                 trimmed
@@ -1244,16 +1359,13 @@ function formatAIResponse(text) {
                         "$1"
                     );
 
-
             currentList.appendChild(
                 item
             );
 
-
             continue;
 
         }
-
 
         /*
         ======================================
@@ -1277,24 +1389,20 @@ function formatAIResponse(text) {
 
                 closeList();
 
-
                 currentList =
                     document.createElement(
                         "ol"
                     );
-
 
                 currentList.className =
                     "aiList";
 
             }
 
-
             const item =
                 document.createElement(
                     "li"
                 );
-
 
             item.textContent =
                 trimmed
@@ -1311,16 +1419,13 @@ function formatAIResponse(text) {
                         "$1"
                     );
 
-
             currentList.appendChild(
                 item
             );
 
-
             continue;
 
         }
-
 
         /*
         ======================================
@@ -1330,16 +1435,13 @@ function formatAIResponse(text) {
 
         closeList();
 
-
         const paragraph =
             document.createElement(
                 "div"
             );
 
-
         paragraph.className =
             "aiParagraph";
-
 
         paragraph.textContent =
             trimmed
@@ -1352,13 +1454,11 @@ function formatAIResponse(text) {
                     "$1"
                 );
 
-
         fragment.appendChild(
             paragraph
         );
 
     }
-
 
     /*
     CLOSE REMAINING LIST
@@ -1366,11 +1466,9 @@ function formatAIResponse(text) {
 
     closeList();
 
-
     return fragment;
 
 }
-
 
 /* =====================================================
    ADD TEXT MESSAGE
@@ -1391,10 +1489,8 @@ function addLocalMessage(
 
     }
 
-
     const message =
         document.createElement("div");
-
 
     message.className =
         "message " +
@@ -1404,13 +1500,11 @@ function addLocalMessage(
                 : "ai"
         );
 
-
     const messageText =
         document.createElement("div");
 
     messageText.className =
         "messageText";
-
 
     /*
     AI MESSAGE
@@ -1427,7 +1521,6 @@ function addLocalMessage(
 
 }
 
-
     /*
     USER MESSAGE
     */
@@ -1438,7 +1531,6 @@ function addLocalMessage(
             String(text || "");
 
     }
-
 
     /*
     MESSAGE TIME
@@ -1459,7 +1551,6 @@ function addLocalMessage(
             }
         );
 
-
     message.appendChild(
         messageText
     );
@@ -1475,11 +1566,9 @@ function addLocalMessage(
     chatBox.scrollTop =
         chatBox.scrollHeight;
 
-
     return message;
 
 }
-
 
 window.addLocalMessage =
     addLocalMessage;
@@ -1498,10 +1587,8 @@ function formatAIMessage(text) {
 
     }
 
-
     let message =
         String(text);
-
 
     /* ======================================
        FIX LITERAL \n
@@ -1512,7 +1599,6 @@ function formatAIMessage(text) {
             /\\n/g,
             "\n"
         );
-
 
     /* ======================================
        ESCAPE HTML FIRST
@@ -1532,7 +1618,6 @@ function formatAIMessage(text) {
                 />/g,
                 "&gt;"
             );
-
 
     /* ======================================
        MARKDOWN HEADINGS
@@ -1556,7 +1641,6 @@ function formatAIMessage(text) {
             "<h1>$1</h1>"
         );
 
-
     /* ======================================
        BOLD
     ====================================== */
@@ -1567,7 +1651,6 @@ function formatAIMessage(text) {
             "<strong>$1</strong>"
         );
 
-
     /* ======================================
        BULLET POINTS
     ====================================== */
@@ -1577,7 +1660,6 @@ function formatAIMessage(text) {
             /^[-•] (.*)$/gm,
             "<li>$1</li>"
         );
-
 
     /*
        Wrap consecutive list items
@@ -1600,7 +1682,6 @@ function formatAIMessage(text) {
             }
         );
 
-
     /* ======================================
        NUMBERED LISTS
     ====================================== */
@@ -1611,7 +1692,6 @@ function formatAIMessage(text) {
             "<li>$1</li>"
         );
 
-
     /* ======================================
        MARKDOWN TABLES
     ====================================== */
@@ -1619,11 +1699,9 @@ function formatAIMessage(text) {
     const lines =
         message.split("\n");
 
-
     let result = [];
 
     let tableRows = [];
-
 
     function flushTable() {
 
@@ -1635,11 +1713,9 @@ function formatAIMessage(text) {
 
         }
 
-
         let table =
             "<div class='ai-table-wrapper'>" +
             "<table class='ai-table'>";
-
 
         tableRows.forEach(
             function (
@@ -1658,7 +1734,6 @@ function formatAIMessage(text) {
                             cell =>
                                 cell !== ""
                         );
-
 
                 if (
                     index === 0
@@ -1697,7 +1772,6 @@ function formatAIMessage(text) {
 
                     }
 
-
                     table += "<tr>";
 
                     cells.forEach(
@@ -1718,20 +1792,16 @@ function formatAIMessage(text) {
             }
         );
 
-
         table +=
             "</tbody></table></div>";
-
 
         result.push(
             table
         );
 
-
         tableRows = [];
 
     }
-
 
     lines.forEach(
         function (
@@ -1761,13 +1831,10 @@ function formatAIMessage(text) {
         }
     );
 
-
     flushTable();
-
 
     message =
         result.join("\n");
-
 
     /* ======================================
        LINE BREAKS
@@ -1778,7 +1845,6 @@ function formatAIMessage(text) {
             /\n/g,
             "<br>"
         );
-
 
     return message;
 
@@ -1800,10 +1866,8 @@ function addAttachmentMessage(
         return null;
     }
 
-
     const message =
         document.createElement("div");
-
 
     message.className =
         "message " +
@@ -1813,13 +1877,11 @@ function addAttachmentMessage(
                 : "ai"
         );
 
-
     const messageText =
         document.createElement("div");
 
     messageText.className =
         "messageText";
-
 
     /*
     IMAGE
@@ -1839,7 +1901,6 @@ function addAttachmentMessage(
         image.alt =
             file.name;
 
-
         image.onload =
             function () {
 
@@ -1848,11 +1909,9 @@ function addAttachmentMessage(
 
             };
 
-
         messageText.appendChild(
             image
         );
-
 
         const fileName =
             document.createElement("div");
@@ -1863,13 +1922,11 @@ function addAttachmentMessage(
         fileName.textContent =
             "🖼️ " + file.name;
 
-
         messageText.appendChild(
             fileName
         );
 
     }
-
 
     /*
     FILE
@@ -1883,7 +1940,6 @@ function addAttachmentMessage(
         fileBox.className =
             "chatFileAttachment";
 
-
         const icon =
             document.createElement("div");
 
@@ -1893,13 +1949,11 @@ function addAttachmentMessage(
         icon.textContent =
             "📄";
 
-
         const fileInfo =
             document.createElement("div");
 
         fileInfo.className =
             "chatFileInfo";
-
 
         const fileName =
             document.createElement("div");
@@ -1910,7 +1964,6 @@ function addAttachmentMessage(
         fileName.textContent =
             file.name;
 
-
         const fileType =
             document.createElement("div");
 
@@ -1920,7 +1973,6 @@ function addAttachmentMessage(
         fileType.textContent =
             file.type ||
             "File";
-
 
         fileInfo.appendChild(
             fileName
@@ -1944,7 +1996,6 @@ function addAttachmentMessage(
 
     }
 
-
     const messageTime =
         document.createElement("div");
 
@@ -1959,7 +2010,6 @@ function addAttachmentMessage(
                 minute: "2-digit"
             }
         );
-
 
     message.appendChild(
         messageText
@@ -1976,15 +2026,12 @@ function addAttachmentMessage(
     chatBox.scrollTop =
         chatBox.scrollHeight;
 
-
     return message;
 
 }
 
-
 window.addAttachmentMessage =
     addAttachmentMessage;
-
 
 /* =====================================================
    ATTACHMENT MENU
@@ -2000,17 +2047,14 @@ if (attachBtn) {
 
             event.stopPropagation();
 
-
             if (!attachmentMenu) {
                 return;
             }
-
 
             const isOpen =
                 attachmentMenu.classList.contains(
                     "show"
                 );
-
 
             if (isOpen) {
 
@@ -2032,7 +2076,6 @@ if (attachBtn) {
 
 }
 
-
 /* =====================================================
    CLOSE ATTACHMENT MENU
 ===================================================== */
@@ -2043,7 +2086,6 @@ function closeAttachmentMenu() {
         return;
     }
 
-
     attachmentMenu.classList.remove(
         "show"
     );
@@ -2052,7 +2094,6 @@ function closeAttachmentMenu() {
         "none";
 
 }
-
 
 /* =====================================================
    OPEN IMAGE PICKER
@@ -2083,7 +2124,6 @@ if (pickImageBtn) {
 
 }
 
-
 /* =====================================================
    OPEN CAMERA
 ===================================================== */
@@ -2112,7 +2152,6 @@ if (takePhotoBtn) {
     );
 
 }
-
 
 /* =====================================================
    OPEN FILE PICKER
@@ -2153,11 +2192,9 @@ async function autoAnalyzeAttachment(attachment) {
         return;
     }
 
-
     console.log(
         "🤖 Automatic attachment analysis starting..."
     );
-
 
     if (
         typeof window.smartAIReply !== "function"
@@ -2171,24 +2208,21 @@ async function autoAnalyzeAttachment(attachment) {
 
     }
 
+    /*
+    =====================================================
+    CREATE SMART PROMPT
+    =====================================================
+    */
 
-    
- 
- /* =====================================================
-   CREATE SMART PROMPT
-===================================================== */
-
-let prompt;
-
+    let prompt;
 
 if (attachment.type === "image") {
 
     prompt =
         "Describe and analyze this image clearly. " +
-        "Do not mention technical limitations unless necessary. " +
-        "Do not use Markdown tables or table formatting. " +
-        "Use simple headings and bullet points instead.";
-
+        "Do not mention technical limitations unless necessary.";
+"Do not use Markdown tables or table formatting. " +
+"Use simple headings and bullet points instead. "
 }
 
 else {
@@ -2196,11 +2230,12 @@ else {
     prompt =
         "Analyze this document and provide a concise, easy-to-understand summary. " +
         "Do not list, reproduce, or display the entire contents of the file. " +
-        "Focus only on the most important information, main topics, and key points. " +
-        "Do not use Markdown tables or table formatting. " +
-        "Use simple headings and bullet points instead.";
-
+    
+   "Focus only on the most important information, main topics, and key points.";
+ "Do not use Markdown tables or table formatting. " +
+"Use simple headings and bullet points instead. "
 }
+ 
 
     /*
     =====================================================
@@ -2216,14 +2251,12 @@ else {
                 : "📄 Reading your file..."
         );
 
-
     try {
 
         console.log(
             "📤 Sending attachment to smartAI:",
             attachment
         );
-
 
         /*
         SEND PROMPT + ATTACHMENT
@@ -2235,12 +2268,10 @@ else {
                 attachment
             );
 
-
         console.log(
             "📥 Raw AI response:",
             response
         );
-
 
         /*
         REMOVE THINKING MESSAGE
@@ -2252,7 +2283,6 @@ else {
 
         }
 
-
         /*
         CLEAN RESPONSE
         */
@@ -2260,12 +2290,10 @@ else {
         const cleanResponse =
             cleanAIResponse(response);
 
-
         console.log(
             "🧹 Clean AI response:",
             cleanResponse
         );
-
 
         /*
         DISPLAY RESPONSE
@@ -2277,7 +2305,6 @@ else {
             response ||
             "⚠️ I couldn't analyze this attachment."
         );
-
 
         console.log(
             "✅ Automatic analysis complete"
@@ -2292,13 +2319,11 @@ else {
             error
         );
 
-
         if (thinking) {
 
             thinking.remove();
 
         }
-
 
         addLocalMessage(
             "ai",
@@ -2318,12 +2343,10 @@ function saveImageAttachment(file) {
         return;
     }
 
-
     console.log(
         "🖼️ Image selected:",
         file.name
     );
-
 
     window.aiAttachment = {
 
@@ -2341,7 +2364,6 @@ function saveImageAttachment(file) {
 
     };
 
-
     window.uploadedFiles.push({
 
         name: file.name,
@@ -2356,7 +2378,6 @@ function saveImageAttachment(file) {
 
     });
 
-
     /*
     SHOW PREVIEW ONCE
     */
@@ -2365,7 +2386,6 @@ function saveImageAttachment(file) {
         file,
         "image"
     );
-
 
     /*
     SHOW IMAGE IN CHAT ONCE
@@ -2378,12 +2398,10 @@ function saveImageAttachment(file) {
         "image"
     );
 
-
 console.log(
     "🖼️ Image added:",
     attachmentMessage
 );
-
 
 /*
 AUTO ANALYZE IMAGE
@@ -2402,7 +2420,6 @@ setTimeout(
 
 }
 
-
 /* =====================================================
    SAVE FILE ATTACHMENT
 ===================================================== */
@@ -2413,12 +2430,10 @@ function saveFileAttachment(file) {
         return;
     }
 
-
     console.log(
         "📄 File selected:",
         file.name
     );
-
 
     window.aiAttachment = {
 
@@ -2433,7 +2448,6 @@ function saveFileAttachment(file) {
         file: file
 
     };
-
 
     window.uploadedFiles.push({
 
@@ -2450,19 +2464,16 @@ function saveFileAttachment(file) {
 
     });
 
-
     showAttachmentPreview(
         file,
         "file"
     );
-
 
     addAttachmentMessage(
     "user",
     file,
     "file"
 );
-
 
 /*
 AUTO ANALYZE FILE
@@ -2480,7 +2491,6 @@ setTimeout(
 );
 }
 
-
 /* =====================================================
    IMAGE PICKER
 ===================================================== */
@@ -2495,11 +2505,9 @@ if (imagePicker) {
                 this.files &&
                 this.files[0];
 
-
             if (!file) {
                 return;
             }
-
 
             saveImageAttachment(
                 file
@@ -2509,7 +2517,6 @@ if (imagePicker) {
     );
 
 }
-
 
 /* =====================================================
    CAMERA PICKER
@@ -2525,11 +2532,9 @@ if (cameraPicker) {
                 this.files &&
                 this.files[0];
 
-
             if (!file) {
                 return;
             }
-
 
             saveImageAttachment(
                 file
@@ -2539,7 +2544,6 @@ if (cameraPicker) {
     );
 
 }
-
 
 /* =====================================================
    FILE PICKER
@@ -2555,11 +2559,9 @@ if (filePicker) {
                 this.files &&
                 this.files[0];
 
-
             if (!file) {
                 return;
             }
-
 
             saveFileAttachment(
                 file
@@ -2569,7 +2571,6 @@ if (filePicker) {
     );
 
 }
-
 
 /* =====================================================
    SEND MESSAGE
@@ -2581,7 +2582,6 @@ async function sendMessage() {
         "🔥 SEND BUTTON PRESSED"
     );
 
-
     if (!userInput) {
 
         console.error(
@@ -2592,14 +2592,11 @@ async function sendMessage() {
 
     }
 
-
     let message =
         userInput.value.trim();
 
-
     const attachment =
         window.aiAttachment;
-
 
     /*
     AUTO COMMAND FOR ATTACHMENT
@@ -2626,7 +2623,6 @@ async function sendMessage() {
 
     }
 
-
     if (!message) {
 
         userInput.focus();
@@ -2634,7 +2630,6 @@ async function sendMessage() {
         return;
 
     }
-
 
     /*
     SHOW USER MESSAGE
@@ -2645,12 +2640,10 @@ async function sendMessage() {
         message
     );
 
-
     userInput.value = "";
 
     userInput.style.height =
         "auto";
-
 
     /*
     SHOW THINKING
@@ -2661,7 +2654,6 @@ async function sendMessage() {
             "ai",
             "🧠 Thinking..."
         );
-
 
     try {
 
@@ -2680,11 +2672,9 @@ async function sendMessage() {
 
         }
 
-
         console.log(
             "🧠 Sending to smartAI..."
         );
-
 
         const response =
     await window.smartAIReply(
@@ -2692,20 +2682,17 @@ async function sendMessage() {
         attachment
     );
 
-
         if (thinking) {
 
             thinking.remove();
 
         }
 
-
         addLocalMessage(
             "ai",
             response ||
             "🤖 I don't have an answer yet."
         );
-
 
         /*
         REMOVE ATTACHMENT
@@ -2723,13 +2710,11 @@ async function sendMessage() {
             error
         );
 
-
         if (thinking) {
 
             thinking.remove();
 
         }
-
 
         addLocalMessage(
             "ai",
@@ -2739,7 +2724,6 @@ async function sendMessage() {
     }
 
 }
-
 
 window.sendMessage =
     sendMessage;
@@ -2756,19 +2740,16 @@ window.addEventListener(
             event.detail?.text ||
             "";
 
-
         if (!text) {
 
             return;
 
         }
 
-
         console.log(
             "🗣️ Received voice transcript:",
             text
         );
-
 
         if (
             typeof userInput !== "undefined" &&
@@ -2777,7 +2758,6 @@ window.addEventListener(
 
             userInput.value =
                 text;
-
 
             userInput.focus();
 
@@ -2804,7 +2784,6 @@ if (sendBtn) {
         }
     );
 
-
     console.log(
         "✅ Send button connected"
     );
@@ -2816,7 +2795,6 @@ if (sendBtn) {
     );
 
 }
-
 
 /* =====================================================
    ENTER KEY
@@ -2844,7 +2822,6 @@ if (userInput) {
 
 }
 
-
 /* =====================================================
    AUTO RESIZE
 ===================================================== */
@@ -2858,7 +2835,6 @@ if (userInput) {
             this.style.height =
                 "auto";
 
-
             this.style.height =
                 Math.min(
                     this.scrollHeight,
@@ -2869,7 +2845,6 @@ if (userInput) {
     );
 
 }
-
 
 /* =====================================================
    CLOSE MENU OUTSIDE
@@ -2897,7 +2872,6 @@ document.addEventListener(
     }
 );
 
-
 /* =====================================================
    WELCOME NAME
 ===================================================== */
@@ -2907,12 +2881,10 @@ const savedName =
         "profileName"
     );
 
-
 const welcomeName =
     document.getElementById(
         "welcomeName"
     );
-
 
 if (
     welcomeName &&
@@ -2924,7 +2896,6 @@ if (
 
 }
 
-
 /* =====================================================
    GLOBAL ACCESS
 ===================================================== */
@@ -2935,7 +2906,6 @@ window.showAttachmentPreview =
 
 window.removeCurrentAttachment =
     removeCurrentAttachment;
-
 
 /* =====================================================
    FINAL STARTUP CHECK
@@ -2996,7 +2966,7 @@ console.log(
 
 console.log(
     "========================================"
-);
+)
 
 
 
