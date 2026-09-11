@@ -2188,6 +2188,10 @@ if (pickFileBtn) {
 
 async function autoAnalyzeAttachment(attachment) {
 
+    // Automatic analysis temporarily disabled.
+    // The user can send a question manually.
+    return;
+
     if (!attachment) {
         return;
     }
