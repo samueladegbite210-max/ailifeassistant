@@ -2205,48 +2205,42 @@ async function autoAnalyzeAttachment(attachment) {
         );
 
         return;
+    }
+
+    /* =====================================================
+       CREATE SMART PROMPT
+    ===================================================== */
+
+    let prompt;
+
+    if (
+        attachment.type === "image"
+    ) {
+
+        prompt =
+            "Describe and analyze this image clearly. " +
+            "Tell me what is visible in the image and identify the important details. " +
+            "Do not invent details. " +
+            "Do not mention technical limitations unless necessary. " +
+            "Do not use Markdown tables or table formatting. " +
+            "Use simple headings and bullet points instead.";
 
     }
 
-    /*
-    =====================================================
-    CREATE SMART PROMPT
-    =====================================================
-    */
+    else {
+
+        prompt =
+            "Analyze this document and provide a concise, easy-to-understand summary. " +
+            "Do not list, reproduce, or display the entire contents of the file. " +
+            "Focus only on the most important information, main topics, and key points. " +
+            "Do not use Markdown tables or table formatting. " +
+            "Use simple headings and bullet points instead.";
+
+    }
 
     /* =====================================================
-   CREATE SMART PROMPT
-===================================================== */
-
-let prompt;
-
-
-if (attachment.type === "image") {
-
-    prompt =
-        "Describe and analyze this image clearly. " +
-        "Do not mention technical limitations unless necessary. " +
-        "Do not use Markdown tables or table formatting. " +
-        "Use simple headings and bullet points instead.";
-
-}
-
-else {
-
-    prompt =
-        "Analyze this document and provide a concise, easy-to-understand summary. " +
-        "Do not list, reproduce, or display the entire contents of the file. " +
-        "Focus only on the most important information, main topics, and key points. " +
-        "Do not use Markdown tables or table formatting. " +
-        "Use simple headings and bullet points instead.";
-
-}
-
-    /*
-    =====================================================
-    SHOW THINKING MESSAGE
-    =====================================================
-    */
+       SHOW THINKING MESSAGE
+    ===================================================== */
 
     const thinking =
         addLocalMessage(
@@ -2263,9 +2257,9 @@ else {
             attachment
         );
 
-        /*
-        SEND PROMPT + ATTACHMENT
-        */
+        /* =================================================
+           SEND PROMPT + ATTACHMENT
+        ================================================= */
 
         const response =
             await window.smartAIReply(
@@ -2278,9 +2272,9 @@ else {
             response
         );
 
-        /*
-        REMOVE THINKING MESSAGE
-        */
+        /* =================================================
+           REMOVE THINKING MESSAGE
+        ================================================= */
 
         if (thinking) {
 
@@ -2288,31 +2282,37 @@ else {
 
         }
 
-        /*
-        CLEAN RESPONSE
-        */
+        /* =================================================
+           CLEAN RESPONSE
+        ================================================= */
 
         const cleanResponse =
-            cleanAIResponse(response);
+            cleanAIResponse(
+                response
+            );
 
         console.log(
             "🧹 Clean AI response:",
             cleanResponse
         );
 
-        /*
-        DISPLAY RESPONSE
-        */
+        /* =================================================
+           DISPLAY RESPONSE
+        ================================================= */
 
         addLocalMessage(
             "ai",
             cleanResponse ||
             response ||
-            "⚠️ I couldn't analyze this attachment."
+            (
+                attachment.type === "image"
+                    ? "⚠️ I couldn't analyze this image."
+                    : "⚠️ I couldn't analyze this file."
+            )
         );
 
         console.log(
-            "✅ Automatic analysis complete"
+            "✅ Automatic attachment analysis complete"
         );
 
     }
@@ -2320,7 +2320,7 @@ else {
     catch (error) {
 
         console.error(
-            "❌ Automatic analysis error:",
+            "❌ Automatic attachment analysis error:",
             error
         );
 
