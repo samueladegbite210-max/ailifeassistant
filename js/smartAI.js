@@ -370,7 +370,196 @@ function fileToBase64(file) {
 
 }
 
+/* ==========================================
+   IMAGE → ONLINE VISION AI
+========================================== */
 
+async function analyzeImageWithAI(
+    imageSource,
+    prompt = "Describe and analyze this image clearly."
+) {
+
+    try {
+
+        if (!imageSource) {
+
+            return (
+                "📷 I couldn't access the image."
+            );
+
+        }
+
+        let imageData = null;
+
+
+        /* ======================================
+           FILE / BLOB
+        ====================================== */
+
+        if (
+            imageSource instanceof Blob
+        ) {
+
+            console.log(
+                "🖼️ Converting image to Base64..."
+            );
+
+            imageData =
+                await fileToBase64(
+                    imageSource
+                );
+
+        }
+
+
+        /* ======================================
+           ALREADY BASE64 / URL
+        ====================================== */
+
+        else if (
+            typeof imageSource === "string"
+        ) {
+
+            imageData =
+                imageSource;
+
+        }
+
+
+        if (!imageData) {
+
+            return (
+                "📷 I couldn't access the image data."
+            );
+
+        }
+
+
+        console.log(
+            "👀 Sending image directly to Vision AI..."
+        );
+
+
+        const response =
+            await fetch(
+                ONLINE_AI_ENDPOINT,
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            message:
+                                String(
+                                    prompt ||
+                                    "Describe this image."
+                                ).trim(),
+
+                            image:
+                                imageData
+
+                        })
+
+                }
+            );
+
+
+        let data = {};
+
+        try {
+
+            data =
+                await response.json();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Vision backend returned invalid JSON:",
+                error
+            );
+
+        }
+
+
+        console.log(
+            "🌐 Vision AI status:",
+            response.status
+        );
+
+
+        if (!response.ok) {
+
+            console.error(
+                "❌ Vision AI error:",
+                data
+            );
+
+            return (
+                "⚠️ Online Vision AI Error\n\n" +
+                "Status: " +
+                response.status +
+                "\n\nMessage: " +
+                (
+                    data?.error ||
+                    "Unknown Vision AI error"
+                )
+            );
+
+        }
+
+
+        if (
+            data &&
+            data.success === true &&
+            data.reply
+        ) {
+
+            console.log(
+                "✅ Vision AI responded successfully"
+            );
+
+            return String(
+                data.reply
+            ).trim();
+
+        }
+
+
+        console.error(
+            "❌ Vision AI returned no reply:",
+            data
+        );
+
+
+        return (
+            "⚠️ Vision AI returned no answer."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Vision AI connection error:",
+            error
+        );
+
+        return (
+            "⚠️ Vision AI connection error.\n\n" +
+            error.message
+        );
+
+    }
+
+}
 /* ==========================================
    ONLINE AI BACKEND
    TEXT + IMAGE SUPPORT
@@ -755,7 +944,6 @@ function isImageAnalysisCommand(msg) {
 
 }
 
-
 /* ==========================================
    IMAGE HANDLER
 ========================================== */
@@ -809,7 +997,7 @@ async function handleImageCommand(
 
 
     /* ======================================
-       GET IMAGE SOURCE
+       GET IMAGE
     ====================================== */
 
     const imageSource =
@@ -832,7 +1020,6 @@ async function handleImageCommand(
             attachment
         );
 
-
         return (
             "📷 I found the image attachment, " +
             "but I couldn't access the image data."
@@ -842,7 +1029,7 @@ async function handleImageCommand(
 
 
     console.log(
-        "🖼️ Current image:",
+        "🖼️ Image:",
         attachment.name ||
         "Unnamed image"
     );
@@ -857,7 +1044,7 @@ async function handleImageCommand(
     ) {
 
         console.log(
-            "📝 Starting OCR..."
+            "📝 OCR command detected"
         );
 
 
@@ -880,14 +1067,11 @@ async function handleImageCommand(
                     String(result).trim() !== ""
                 ) {
 
-                    return String(result);
+                    return String(
+                        result
+                    ).trim();
 
                 }
-
-
-                return (
-                    "📝 I couldn't find any readable text in this image."
-                );
 
             }
 
@@ -898,36 +1082,54 @@ async function handleImageCommand(
                     error
                 );
 
-
-                return (
-                    "⚠️ Something went wrong while reading the text in this image."
-                );
-
             }
 
         }
 
 
-        return (
-            "📝 Image text reading is not connected yet."
+        /*
+           If local OCR is unavailable,
+           use Groq Vision for text reading.
+        */
+
+        return await analyzeImageWithAI(
+
+            imageSource,
+
+            `
+Read all visible text in this image.
+
+Preserve the wording as accurately as possible.
+
+If some text is unclear, say that it is unclear.
+
+Do not invent text.
+
+Return the readable text clearly.
+            `.trim()
+
         );
 
     }
 
 
     /* ======================================
-       ONLINE VISION AI
+       VISION ANALYSIS
     ====================================== */
 
     console.log(
-        "👀 Sending image to online Vision AI..."
+        "👀 Sending image to Groq Vision AI..."
     );
 
 
     const result =
-        await askOnlineAI(
-            msg,
-            attachment
+        await analyzeImageWithAI(
+
+            imageSource,
+
+            msg ||
+            "Describe and analyze this image clearly."
+
         );
 
 
@@ -936,14 +1138,15 @@ async function handleImageCommand(
         String(result).trim() !== ""
     ) {
 
-        return String(result);
+        return String(
+            result
+        ).trim();
 
     }
 
 
     return (
-        "⚠️ I couldn't analyze this image right now.\n\n" +
-        "Please check your internet connection and try again."
+        "⚠️ I couldn't analyze this image right now."
     );
 
 }
@@ -2464,7 +2667,21 @@ window.summarizeFileContent =
 
 window.handleImageCommand =
     handleImageCommand;
+window.analyzeImageWithAI =
+    analyzeImageWithAI;
 
+window.analyzeImage =
+    async function (
+        imageSource,
+        prompt
+    ) {
+
+        return await analyzeImageWithAI(
+            imageSource,
+            prompt
+        );
+
+    };
 window.handleFileCommand =
     handleFileCommand;
 
