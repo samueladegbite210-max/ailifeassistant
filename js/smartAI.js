@@ -2621,7 +2621,86 @@ if (
 
 }
 
+/* =====================================================
+   OCR — READ TEXT FROM IMAGE
+===================================================== */
 
+async function readImageText(imageSource) {
+
+    console.log("📝 OCR request starting...");
+
+    if (!imageSource) {
+        return "⚠️ No image was provided.";
+    }
+
+    try {
+
+        let imageData = imageSource;
+
+        /*
+         * If a File/Blob was supplied,
+         * convert it to a base64 data URL.
+         */
+        if (
+            typeof imageSource !== "string" &&
+            imageSource instanceof Blob
+        ) {
+            imageData =
+                await fileToBase64(imageSource);
+        }
+
+        if (
+            typeof imageData !== "string" ||
+            !imageData.startsWith("data:image/")
+        ) {
+            return "⚠️ I couldn't process this image.";
+        }
+
+        const prompt =
+            "Read all visible text in this image. " +
+            "Extract the text exactly as accurately as possible. " +
+            "Preserve the wording, numbers, names, and important punctuation. " +
+            "Do not describe the image. " +
+            "Do not summarize the text. " +
+            "Return only the text you can actually read. " +
+            "If some text is unclear, mark it as [unclear] instead of guessing.";
+
+        const response =
+            await askOnlineAI(
+                prompt,
+                {
+                    type: "image",
+                    file: imageData,
+                    data: imageData,
+                    mimeType: "image"
+                }
+            );
+
+        console.log("✅ OCR completed");
+
+        return (
+            response ||
+            "⚠️ I couldn't find readable text in this image."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ OCR error:",
+            error
+        );
+
+        return "⚠️ I couldn't read the text from this image.";
+    }
+}
+
+
+/* =====================================================
+   EXPORT OCR
+===================================================== */
+
+window.readImageText =
+    readImageText;
 /* ==========================================
    GLOBAL EXPORTS
 ========================================== */
