@@ -1094,21 +1094,28 @@ async function handleImageCommand(
 
         return await analyzeImageWithAI(
 
-            imageSource,
+    imageSource,
 
-            `
-Read all visible text in this image.
+    `
+Read the text from this image carefully.
 
-Preserve the wording as accurately as possible.
+IMPORTANT OCR RULES:
 
-If some text is unclear, say that it is unclear.
+- Extract the actual readable text from the main content of the image.
+- Ignore phone status bars, battery percentage, signal icons, timestamps, browser UI, navigation buttons, and other interface elements unless the user specifically asks for them.
+- Preserve the original wording, numbers, names, headings, and bullet points as accurately as possible.
+- Keep the original order of the text.
+- Do not describe the image.
+- Do not summarize the text.
+- Do not invent missing or unclear characters.
+- If a word or line cannot be read confidently, write [unclear].
+- Do not turn unclear characters into random letters or symbols.
+- Return only the readable text.
 
-Do not invent text.
+Read the image carefully before answering.
+    `.trim()
 
-Return the readable text clearly.
-            `.trim()
-
-        );
+);
 
     }
 
