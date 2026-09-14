@@ -1097,27 +1097,43 @@ async function handleImageCommand(
     imageSource,
 
     `
-Read the text in this image carefully and accurately.
+Extract the readable text and important text elements from this image.
 
-OCR INSTRUCTIONS:
+The goal is to give the user a clean, human-readable transcription of the image.
 
-1. Extract only text that is actually visible and readable.
-2. Preserve the original wording, spelling, numbers, names, usernames, headings, and punctuation as accurately as possible.
-3. Keep the text in the same order as it appears in the image.
-4. Do not describe the image.
-5. Do not summarize the text.
-6. Do not add explanations before or after the extracted text.
-7. Ignore phone status bars, battery percentage, signal icons, browser controls, navigation buttons, and other unrelated interface elements unless they are part of the text the user wants extracted.
-8. Do not guess characters that are unclear.
-9. If a word, number, or line cannot be read confidently, write [unclear] instead of guessing.
-10. Do not convert unclear symbols into random letters or numbers.
-11. If the image contains social-media text, preserve usernames and @mentions exactly when they are readable.
-12. Return only the readable text from the main content.
+Follow these rules:
 
-Carefully inspect the entire image before answering.
+1. Carefully inspect the entire image before answering.
+2. Read the main content accurately.
+3. Preserve names, usernames, @mentions, numbers, headings, and the original wording.
+4. Do not invent text.
+5. If a word or line is genuinely unreadable, write [unclear].
+6. Ignore phone status bars, battery percentage, signal icons, browser controls, and other device interface elements unless they are part of the content being requested.
+7. Do not include random OCR characters or symbols caused by image artifacts.
+8. Understand the layout of the image and organize the extracted information logically.
+9. If the image is a social-media post, identify useful sections such as:
+   - Platform or page
+   - Story/feed names
+   - Post author
+   - Time
+   - Shared post information
+   - Username
+   - Main post text
+10. Use simple headings and bullet points when they make the extracted text easier to understand.
+11. Preserve the actual post/message text as a continuous passage where appropriate.
+12. Do not summarize or change the meaning of the original text.
+13. Do not describe objects or people unless their text/name is part of the visible content.
+14. Return the result in a clean format beginning with:
+
+Here’s the text from the image:
+
+Then organize the extracted content clearly.
+
+Before finalizing, compare the extracted text against the image and correct obvious OCR mistakes.
     `.trim()
 
 );
+       
     }
 
 
