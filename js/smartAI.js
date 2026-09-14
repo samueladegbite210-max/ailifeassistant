@@ -31,7 +31,335 @@ const ONLINE_AI_ENDPOINT =
 
 const MAX_FILE_CONTENT_LENGTH =
     12000;
+/* ==========================================
+   CONVERSATION CONTEXT SYSTEM
+   Version 1.0
+========================================== */
 
+const CONVERSATION_MAX_MESSAGES = 30;
+
+const CONVERSATION_MAX_AGE =
+    30 * 60 * 1000; // 30 minutes
+
+
+window.conversationHistory =
+    window.conversationHistory || [];
+
+window.activeVisionContext =
+    window.activeVisionContext || null;
+
+
+/* ==========================================
+   CLEAN OLD CONVERSATION
+========================================== */
+
+function cleanConversationHistory() {
+
+    const now =
+        Date.now();
+
+    window.conversationHistory =
+        (
+            window.conversationHistory || []
+        ).filter(function (item) {
+
+            return (
+                item &&
+                item.timestamp &&
+                now - item.timestamp <
+                    CONVERSATION_MAX_AGE
+            );
+
+        });
+
+
+    /*
+       Keep only the most recent
+       conversation messages.
+    */
+
+    if (
+        window.conversationHistory.length >
+        CONVERSATION_MAX_MESSAGES
+    ) {
+
+        window.conversationHistory =
+            window.conversationHistory.slice(
+                -CONVERSATION_MAX_MESSAGES
+            );
+
+    }
+
+}
+
+
+/* ==========================================
+   ADD CONVERSATION MESSAGE
+========================================== */
+
+function addConversationMessage(
+    role,
+    content
+) {
+
+    if (
+        !content ||
+        !String(content).trim()
+    ) {
+
+        return;
+
+    }
+
+
+    cleanConversationHistory();
+
+
+    window.conversationHistory.push({
+
+        role:
+            role === "assistant"
+                ? "assistant"
+                : "user",
+
+        content:
+            String(content).trim(),
+
+        timestamp:
+            Date.now()
+
+    });
+
+
+    /*
+       Keep the history small enough
+       for normal mobile conversations.
+    */
+
+    if (
+        window.conversationHistory.length >
+        CONVERSATION_MAX_MESSAGES
+    ) {
+
+        window.conversationHistory =
+            window.conversationHistory.slice(
+                -CONVERSATION_MAX_MESSAGES
+            );
+
+    }
+
+
+    console.log(
+        "💬 Conversation message saved:",
+        role
+    );
+
+}
+
+
+/* ==========================================
+   GET CONVERSATION HISTORY
+========================================== */
+
+function getConversationHistory() {
+
+    cleanConversationHistory();
+
+
+    return (
+        window.conversationHistory || []
+    )
+    .map(function (item) {
+
+        return {
+
+            role:
+                item.role,
+
+            content:
+                item.content
+
+        };
+
+    });
+
+}
+
+
+/* ==========================================
+   CLEAR CONVERSATION
+========================================== */
+
+function clearConversationHistory() {
+
+    window.conversationHistory = [];
+
+    window.activeVisionContext = null;
+
+
+    console.log(
+        "🧹 Conversation context cleared"
+    );
+
+}
+
+
+/* ==========================================
+   SAVE ACTIVE IMAGE CONTEXT
+========================================== */
+
+async function saveActiveVisionContext(
+    attachment
+) {
+
+    if (
+        !attachment ||
+        getAttachmentType(
+            attachment
+        ) !== "image"
+    ) {
+
+        return false;
+
+    }
+
+
+    try {
+
+        const imageSource =
+
+            attachment.file ||
+
+            attachment.data ||
+
+            attachment.url ||
+
+            attachment.src ||
+
+            null;
+
+
+        if (!imageSource) {
+
+            return false;
+
+        }
+
+
+        let imageData = null;
+
+
+        if (
+            imageSource instanceof Blob
+        ) {
+
+            imageData =
+                await fileToBase64(
+                    imageSource
+                );
+
+        }
+
+        else if (
+            typeof imageSource === "string"
+        ) {
+
+            imageData =
+                imageSource;
+
+        }
+
+
+        if (!imageData) {
+
+            return false;
+
+        }
+
+
+        window.activeVisionContext = {
+
+            image:
+                imageData,
+
+            name:
+                attachment.name ||
+                "Current image",
+
+            mimeType:
+                attachment.mimeType ||
+                attachment.file?.type ||
+                "image/jpeg",
+
+            createdAt:
+                Date.now()
+
+        };
+
+
+        console.log(
+            "🖼️ Active image context saved"
+        );
+
+
+        return true;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ Could not save image context:",
+            error
+        );
+
+        return false;
+
+    }
+
+}
+
+
+/* ==========================================
+   GET ACTIVE IMAGE CONTEXT
+========================================== */
+
+function getActiveVisionContext() {
+
+    const context =
+        window.activeVisionContext;
+
+
+    if (!context) {
+
+        return null;
+
+    }
+
+
+    /*
+       Image context expires after
+       the same 30-minute conversation
+       window.
+    */
+
+    if (
+        Date.now() -
+        context.createdAt >
+        CONVERSATION_MAX_AGE
+    ) {
+
+        window.activeVisionContext =
+            null;
+
+        return null;
+
+    }
+
+
+    return context;
+
+}
 /* ==========================================
    DOCUMENT MEMORY SYSTEM
 ========================================== */
@@ -567,9 +895,9 @@ async function analyzeImageWithAI(
 
 async function askOnlineAI(
     message,
-    attachment = null
-) {
-
+    attachment = null,
+    useConversationContext = true
+){
     try {
 
         console.log(
@@ -628,7 +956,55 @@ async function askOnlineAI(
 
         }
 
+/* ======================================
+   CONVERSATION HISTORY
+====================================== */
 
+let conversationHistory = [];
+
+if (useConversationContext) {
+
+    conversationHistory =
+        getConversationHistory();
+
+}
+
+
+/* ======================================
+   ACTIVE IMAGE CONTEXT
+====================================== */
+
+if (
+    !imageData &&
+    useConversationContext
+) {
+
+    const visionContext =
+        getActiveVisionContext();
+
+    if (visionContext) {
+
+        imageData =
+            visionContext.image;
+
+        console.log(
+            "🖼️ Reusing active image context"
+        );
+
+    }
+
+}
+
+
+/* ======================================
+   SEND CONVERSATION CONTEXT
+====================================== */
+
+console.log(
+    "💬 Conversation history:",
+    conversationHistory.length,
+    "messages"
+);
         /* ======================================
            SEND REQUEST
         ====================================== */
@@ -648,17 +1024,20 @@ async function askOnlineAI(
                     },
 
                     body:
-                        JSON.stringify({
+    JSON.stringify({
 
-                            message:
-                                String(
-                                    message || ""
-                                ).trim(),
+        message:
+            String(
+                message || ""
+            ).trim(),
 
-                            image:
-                                imageData
+        image:
+            imageData,
 
-                        })
+        history:
+            conversationHistory
+
+    })
 
                 }
             );
@@ -800,7 +1179,141 @@ async function askOnlineAI(
     }
 
 }
+/* ==========================================
+   IMAGE CONTEXT FOLLOW-UP DETECTION
+========================================== */
 
+function shouldUseVisionContext(msg) {
+
+    const context =
+        getActiveVisionContext();
+
+
+    if (!context) {
+
+        return false;
+
+    }
+
+
+    const text =
+        String(msg || "")
+        .toLowerCase()
+        .trim();
+
+
+    if (!text) {
+
+        return false;
+
+    }
+
+
+    const imageWords = [
+
+        "image",
+        "picture",
+        "photo",
+        "pic",
+        "screenshot",
+        "image says",
+        "picture says",
+        "photo says",
+        "in the image",
+        "in this image",
+        "in the picture",
+        "in this picture",
+        "in the photo",
+        "in this photo",
+        "from the image",
+        "from this image",
+        "about the image",
+        "about this image",
+        "about the picture",
+        "about this picture",
+        "look at",
+        "looking at",
+        "shown",
+        "visible",
+        "see in it",
+        "see here",
+        "this post",
+        "the post",
+        "that post",
+        "this person",
+        "that person",
+        "the person",
+        "this text",
+        "that text",
+        "the text",
+        "this screenshot",
+        "that screenshot"
+
+    ];
+
+
+    if (
+        imageWords.some(
+            word =>
+                text.includes(word)
+        )
+    ) {
+
+        return true;
+
+    }
+
+
+    /*
+       Short follow-up questions often refer
+       to the image or previous answer.
+
+       Examples:
+       "what does he mean?"
+       "who is he?"
+       "what color is it?"
+       "is that true?"
+    */
+
+    const followUpWords = [
+
+        "this",
+        "that",
+        "it",
+        "he",
+        "she",
+        "they",
+        "him",
+        "her",
+        "them",
+        "here",
+        "there",
+        "this person",
+        "that person"
+
+    ];
+
+
+    const words =
+        text.split(/\s+/);
+
+
+    if (
+        words.length <= 12 &&
+        followUpWords.some(
+            word =>
+                words.includes(word)
+        )
+    ) {
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
 
 /* ==========================================
    IMAGE COMMAND DETECTION
@@ -2386,7 +2899,7 @@ function getAIModules(
    MAIN AI CONTROLLER
 ========================================== */
 
-async function smartAIReply(
+async function processSmartAIReply(
     rawMessage,
     providedAttachment = null
 ) {
@@ -2460,25 +2973,69 @@ async function smartAIReply(
     }
 
 
-    /* ======================================
-       IMAGE ATTACHMENT
-    ====================================== */
+  /* ======================================
+   IMAGE ATTACHMENT / IMAGE CONTEXT
+====================================== */
 
-    if (
-        attachmentType === "image"
-    ) {
+if (
+    attachmentType === "image"
+) {
 
-        console.log(
-            "🖼️ IMAGE ATTACHMENT FOUND"
-        );
+    console.log(
+        "🖼️ IMAGE ATTACHMENT FOUND"
+    );
 
 
-        return await handleImageCommand(
-            original,
-            attachment
+    /*
+       Save the image so it remains available
+       even after the attachment UI is removed.
+    */
+
+    await saveActiveVisionContext(
+        attachment
+    );
+
+
+    return await handleImageCommand(
+        original,
+        attachment
+    );
+
+}
+
+
+/* ======================================
+   IMAGE FOLLOW-UP
+====================================== */
+
+if (
+    shouldUseVisionContext(
+        original
+    )
+) {
+
+    console.log(
+        "🖼️ IMAGE CONTEXT FOLLOW-UP"
+    );
+
+
+    const visionContext =
+        getActiveVisionContext();
+
+
+    if (visionContext) {
+
+        return await analyzeImageWithAI(
+
+            visionContext.image,
+
+            original
+
         );
 
     }
+
+}
 
 
  /* ======================================
@@ -2645,14 +3202,107 @@ if (
 
 }
 
+/* ==========================================
+   PUBLIC CONVERSATION-AWARE AI
+========================================== */
 
+async function smartAIReply(
+    rawMessage,
+    providedAttachment = null
+) {
+
+    const message =
+        String(
+            rawMessage || ""
+        ).trim();
+
+
+    if (!message) {
+
+        return null;
+
+    }
+
+
+    /*
+       If a new image is supplied,
+       preserve it as conversation context.
+    */
+
+    if (
+        providedAttachment &&
+        getAttachmentType(
+            providedAttachment
+        ) === "image"
+    ) {
+
+        await saveActiveVisionContext(
+            providedAttachment
+        );
+
+    }
+
+
+    /*
+       Process the actual AI request.
+    */
+
+    const response =
+        await processSmartAIReply(
+            message,
+            providedAttachment
+        );
+
+
+    /*
+       Save both sides of the conversation.
+    */
+
+    addConversationMessage(
+        "user",
+        message
+    );
+
+
+    if (
+        response &&
+        String(response).trim()
+    ) {
+
+        addConversationMessage(
+            "assistant",
+            String(response).trim()
+        );
+
+    }
+
+
+    return response;
+
+}
 /* ==========================================
    GLOBAL EXPORTS
 ========================================== */
 
 window.smartAIReply =
     smartAIReply;
+window.addConversationMessage =
+    addConversationMessage;
 
+window.getConversationHistory =
+    getConversationHistory;
+
+window.clearConversationHistory =
+    clearConversationHistory;
+
+window.saveActiveVisionContext =
+    saveActiveVisionContext;
+
+window.getActiveVisionContext =
+    getActiveVisionContext;
+
+window.shouldUseVisionContext =
+    shouldUseVisionContext;
 window.askOnlineAI =
     askOnlineAI;
 
