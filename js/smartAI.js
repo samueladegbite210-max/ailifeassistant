@@ -3,13 +3,15 @@
 /* ==========================================
    AI LIFE ASSISTANT
    smartAI.js
-   Version 12.0
+   Version 13.0
 
    CENTRAL AI CONTROLLER
 
    RESPONSIBILITIES:
    - AI module routing
+   - Conversation memory
    - Image command detection
+   - Persistent image context
    - OCR routing
    - Online Vision AI
    - File reading
@@ -18,8 +20,7 @@
    - Online AI fallback
 ========================================== */
 
-console.log("🧠 smartAI.js Version 12.0 loading...");
-
+console.log("🧠 smartAI.js Version 13.0 loading...");
 
 /* ==========================================
    CONFIGURATION
@@ -28,19 +29,18 @@ console.log("🧠 smartAI.js Version 12.0 loading...");
 const ONLINE_AI_ENDPOINT =
     "https://ai-life-assistant-backend.vercel.app/api/ai";
 
-
 const MAX_FILE_CONTENT_LENGTH =
     12000;
+
+
 /* ==========================================
    CONVERSATION CONTEXT SYSTEM
-   Version 1.0
 ========================================== */
 
 const CONVERSATION_MAX_MESSAGES = 30;
 
 const CONVERSATION_MAX_AGE =
     30 * 60 * 1000; // 30 minutes
-
 
 window.conversationHistory =
     window.conversationHistory || [];
@@ -55,8 +55,7 @@ window.activeVisionContext =
 
 function cleanConversationHistory() {
 
-    const now =
-        Date.now();
+    const now = Date.now();
 
     window.conversationHistory =
         (
@@ -71,12 +70,6 @@ function cleanConversationHistory() {
             );
 
         });
-
-
-    /*
-       Keep only the most recent
-       conversation messages.
-    */
 
     if (
         window.conversationHistory.length >
@@ -111,9 +104,7 @@ function addConversationMessage(
 
     }
 
-
     cleanConversationHistory();
-
 
     window.conversationHistory.push({
 
@@ -130,12 +121,6 @@ function addConversationMessage(
 
     });
 
-
-    /*
-       Keep the history small enough
-       for normal mobile conversations.
-    */
-
     if (
         window.conversationHistory.length >
         CONVERSATION_MAX_MESSAGES
@@ -147,7 +132,6 @@ function addConversationMessage(
             );
 
     }
-
 
     console.log(
         "💬 Conversation message saved:",
@@ -164,7 +148,6 @@ function addConversationMessage(
 function getConversationHistory() {
 
     cleanConversationHistory();
-
 
     return (
         window.conversationHistory || []
@@ -196,7 +179,6 @@ function clearConversationHistory() {
 
     window.activeVisionContext = null;
 
-
     console.log(
         "🧹 Conversation context cleared"
     );
@@ -223,7 +205,6 @@ async function saveActiveVisionContext(
 
     }
 
-
     try {
 
         const imageSource =
@@ -238,16 +219,13 @@ async function saveActiveVisionContext(
 
             null;
 
-
         if (!imageSource) {
 
             return false;
 
         }
 
-
         let imageData = null;
-
 
         if (
             imageSource instanceof Blob
@@ -269,13 +247,11 @@ async function saveActiveVisionContext(
 
         }
 
-
         if (!imageData) {
 
             return false;
 
         }
-
 
         window.activeVisionContext = {
 
@@ -296,11 +272,9 @@ async function saveActiveVisionContext(
 
         };
 
-
         console.log(
             "🖼️ Active image context saved"
         );
-
 
         return true;
 
@@ -329,25 +303,21 @@ function getActiveVisionContext() {
     const context =
         window.activeVisionContext;
 
-
     if (!context) {
 
         return null;
 
     }
 
-
-    /*
-       Image context expires after
-       the same 30-minute conversation
-       window.
-    */
-
     if (
         Date.now() -
         context.createdAt >
         CONVERSATION_MAX_AGE
     ) {
+
+        console.log(
+            "🕐 Active image context expired"
+        );
 
         window.activeVisionContext =
             null;
@@ -356,10 +326,47 @@ function getActiveVisionContext() {
 
     }
 
-
     return context;
 
 }
+
+
+/* ==========================================
+   CHECK IF RECENT CONVERSATION WAS IMAGE RELATED
+========================================== */
+
+function recentConversationWasImageRelated() {
+
+    const history =
+        getConversationHistory();
+
+    if (!history.length) {
+
+        return false;
+
+    }
+
+    const recent =
+        history.slice(-6);
+
+    const imagePattern =
+        /image|picture|photo|pic|screenshot|visual|shown|visible|wearing|shirt|dress|color|colour|text from|read the image|what does.*say|look at/i;
+
+    return recent.some(function (item) {
+
+        return (
+            item &&
+            typeof item.content === "string" &&
+            imagePattern.test(
+                item.content
+            )
+        );
+
+    });
+
+}
+
+
 /* ==========================================
    DOCUMENT MEMORY SYSTEM
 ========================================== */
@@ -386,7 +393,6 @@ function saveCurrentDocument(
 
     }
 
-
     window.currentDocument = {
 
         name:
@@ -401,12 +407,10 @@ function saveCurrentDocument(
 
     };
 
-
     console.log(
         "📚 Document saved to memory:",
         window.currentDocument.name
     );
-
 
     return true;
 
@@ -457,12 +461,13 @@ function clearCurrentDocument() {
     window.currentDocument =
         null;
 
-
     console.log(
         "🗑️ Current document cleared"
     );
 
 }
+
+
 /* ==========================================
    ATTACHMENT ACCESS
 ========================================== */
@@ -478,7 +483,9 @@ function getCurrentAttachment() {
    ATTACHMENT TYPE DETECTION
 ========================================== */
 
-function getAttachmentType(attachment) {
+function getAttachmentType(
+    attachment
+) {
 
     if (!attachment) {
 
@@ -486,14 +493,12 @@ function getAttachmentType(attachment) {
 
     }
 
-
     const type =
         String(
             attachment.type || ""
         )
         .toLowerCase()
         .trim();
-
 
     const mimeType =
         String(
@@ -520,7 +525,6 @@ function getAttachmentType(attachment) {
 
     }
 
-
     if (
         mimeType.startsWith("image/")
     ) {
@@ -543,10 +547,6 @@ function getAttachmentType(attachment) {
 
     }
 
-
-    /*
-       Detect common document MIME types
-    */
 
     if (
 
@@ -574,7 +574,6 @@ function getAttachmentType(attachment) {
 
     }
 
-
     return type || null;
 
 }
@@ -599,10 +598,8 @@ async function runModule(
 
         }
 
-
         const result =
             await callback();
-
 
         if (
             result !== null &&
@@ -614,7 +611,6 @@ async function runModule(
                 "✅ AI module responded:",
                 name
             );
-
 
             return String(result);
 
@@ -631,7 +627,6 @@ async function runModule(
         );
 
     }
-
 
     return null;
 
@@ -662,10 +657,8 @@ function fileToBase64(file) {
 
             }
 
-
             const reader =
                 new FileReader();
-
 
             reader.onload =
                 function () {
@@ -675,7 +668,6 @@ function fileToBase64(file) {
                     );
 
                 };
-
 
             reader.onerror =
                 function () {
@@ -688,7 +680,6 @@ function fileToBase64(file) {
 
                 };
 
-
             reader.readAsDataURL(
                 file
             );
@@ -698,13 +689,19 @@ function fileToBase64(file) {
 
 }
 
+
 /* ==========================================
    IMAGE → ONLINE VISION AI
+
+   IMPORTANT VERSION 13 FIX:
+   Vision requests now receive the same
+   conversation history as normal AI.
 ========================================== */
 
 async function analyzeImageWithAI(
     imageSource,
-    prompt = "Describe and analyze this image clearly."
+    prompt =
+        "Describe and analyze this image clearly."
 ) {
 
     try {
@@ -762,110 +759,61 @@ async function analyzeImageWithAI(
 
         }
 
-
         console.log(
-            "👀 Sending image directly to Vision AI..."
+            "👀 Sending image + conversation history to Vision AI..."
         );
 
 
-        const response =
-            await fetch(
-                ONLINE_AI_ENDPOINT,
-                {
+        /*
+           IMPORTANT:
 
-                    method: "POST",
+           Do NOT directly fetch here.
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+           Use askOnlineAI() so the image request
+           receives the same conversation history
+           as every other online request.
+        */
 
-                    body:
-                        JSON.stringify({
+        const imageAttachment = {
 
-                            message:
-                                String(
-                                    prompt ||
-                                    "Describe this image."
-                                ).trim(),
+            type:
+                "image",
 
-                            image:
-                                imageData
+            name:
+                "Current image",
 
-                        })
+            mimeType:
+                "image/jpeg",
 
-                }
+            data:
+                imageData
+
+        };
+
+        const result =
+            await askOnlineAI(
+                String(
+                    prompt ||
+                    "Describe this image."
+                ).trim(),
+
+                imageAttachment,
+
+                true,
+
+                false
             );
-
-
-        let data = {};
-
-        try {
-
-            data =
-                await response.json();
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Vision backend returned invalid JSON:",
-                error
-            );
-
-        }
-
-
-        console.log(
-            "🌐 Vision AI status:",
-            response.status
-        );
-
-
-        if (!response.ok) {
-
-            console.error(
-                "❌ Vision AI error:",
-                data
-            );
-
-            return (
-                "⚠️ Online Vision AI Error\n\n" +
-                "Status: " +
-                response.status +
-                "\n\nMessage: " +
-                (
-                    data?.error ||
-                    "Unknown Vision AI error"
-                )
-            );
-
-        }
-
 
         if (
-            data &&
-            data.success === true &&
-            data.reply
+            result &&
+            String(result).trim()
         ) {
 
-            console.log(
-                "✅ Vision AI responded successfully"
-            );
-
             return String(
-                data.reply
+                result
             ).trim();
 
         }
-
-
-        console.error(
-            "❌ Vision AI returned no reply:",
-            data
-        );
-
 
         return (
             "⚠️ Vision AI returned no answer."
@@ -888,29 +836,40 @@ async function analyzeImageWithAI(
     }
 
 }
+
+
 /* ==========================================
    ONLINE AI BACKEND
    TEXT + IMAGE SUPPORT
+
+   VERSION 13 FIX:
+
+   useActiveImageContext controls whether
+   the saved image should be attached.
+
+   This prevents unrelated questions from
+   accidentally being sent to Vision AI.
 ========================================== */
 
 async function askOnlineAI(
     message,
     attachment = null,
-    useConversationContext = true
-){
+    useConversationContext = true,
+    useActiveImageContext = false
+) {
+
     try {
 
         console.log(
             "🌐 Sending request to online AI..."
         );
 
-
         let imageData =
             null;
 
 
         /* ======================================
-           PREPARE IMAGE
+           PREPARE EXPLICIT IMAGE
         ====================================== */
 
         if (
@@ -926,17 +885,19 @@ async function askOnlineAI(
 
                 attachment.data ||
 
-                null;
+                attachment.url ||
 
+                attachment.src ||
+
+                null;
 
             if (
                 imageFile instanceof Blob
             ) {
 
                 console.log(
-                    "🖼️ Preparing image for Vision AI..."
+                    "🖼️ Preparing explicit image for Vision AI..."
                 );
-
 
                 imageData =
                     await fileToBase64(
@@ -956,55 +917,67 @@ async function askOnlineAI(
 
         }
 
-/* ======================================
-   CONVERSATION HISTORY
-====================================== */
 
-let conversationHistory = [];
+        /* ======================================
+           CONVERSATION HISTORY
+        ====================================== */
 
-if (useConversationContext) {
+        let conversationHistory = [];
 
-    conversationHistory =
-        getConversationHistory();
+        if (
+            useConversationContext
+        ) {
 
-}
+            conversationHistory =
+                getConversationHistory();
+
+        }
 
 
-/* ======================================
-   ACTIVE IMAGE CONTEXT
-====================================== */
+        /* ======================================
+           ACTIVE IMAGE CONTEXT
 
-if (
-    !imageData &&
-    useConversationContext
-) {
+           ONLY when explicitly requested.
+        ====================================== */
 
-    const visionContext =
-        getActiveVisionContext();
+        if (
+            !imageData &&
+            useActiveImageContext
+        ) {
 
-    if (visionContext) {
+            const visionContext =
+                getActiveVisionContext();
 
-        imageData =
-            visionContext.image;
+            if (visionContext) {
+
+                imageData =
+                    visionContext.image;
+
+                console.log(
+                    "🖼️ Reusing active image context"
+                );
+
+            }
+
+        }
+
+
+        /* ======================================
+           SEND CONVERSATION CONTEXT
+        ====================================== */
 
         console.log(
-            "🖼️ Reusing active image context"
+            "💬 Conversation history:",
+            conversationHistory.length,
+            "messages"
         );
 
-    }
+        console.log(
+            "🖼️ Image included:",
+            !!imageData
+        );
 
-}
 
-
-/* ======================================
-   SEND CONVERSATION CONTEXT
-====================================== */
-
-console.log(
-    "💬 Conversation history:",
-    conversationHistory.length,
-    "messages"
-);
         /* ======================================
            SEND REQUEST
         ====================================== */
@@ -1014,7 +987,8 @@ console.log(
                 ONLINE_AI_ENDPOINT,
                 {
 
-                    method: "POST",
+                    method:
+                        "POST",
 
                     headers: {
 
@@ -1024,28 +998,26 @@ console.log(
                     },
 
                     body:
-    JSON.stringify({
+                        JSON.stringify({
 
-        message:
-            String(
-                message || ""
-            ).trim(),
+                            message:
+                                String(
+                                    message || ""
+                                ).trim(),
 
-        image:
-            imageData,
+                            image:
+                                imageData,
 
-        history:
-            conversationHistory
+                            history:
+                                conversationHistory
 
-    })
+                        })
 
                 }
             );
 
 
-        let data =
-            {};
-
+        let data = {};
 
         try {
 
@@ -1062,7 +1034,6 @@ console.log(
             );
 
         }
-
 
         console.log(
             "🌐 Online AI status:",
@@ -1115,7 +1086,6 @@ console.log(
                 data
             );
 
-
             return (
                 "⚠️ Online AI Error\n\n" +
                 "Status: " +
@@ -1145,7 +1115,6 @@ console.log(
                 "✅ Online AI responded"
             );
 
-
             return String(
                 data.reply
             ).trim();
@@ -1158,7 +1127,6 @@ console.log(
             data
         );
 
-
         return null;
 
     }
@@ -1170,7 +1138,6 @@ console.log(
             error
         );
 
-
         return (
             "⚠️ Connection Error\n\n" +
             error.message
@@ -1179,15 +1146,18 @@ console.log(
     }
 
 }
+
+
 /* ==========================================
    IMAGE CONTEXT FOLLOW-UP DETECTION
 ========================================== */
 
-function shouldUseVisionContext(msg) {
+function shouldUseVisionContext(
+    msg
+) {
 
     const context =
         getActiveVisionContext();
-
 
     if (!context) {
 
@@ -1195,12 +1165,10 @@ function shouldUseVisionContext(msg) {
 
     }
 
-
     const text =
         String(msg || "")
         .toLowerCase()
         .trim();
-
 
     if (!text) {
 
@@ -1209,6 +1177,10 @@ function shouldUseVisionContext(msg) {
     }
 
 
+    /* ======================================
+       EXPLICIT IMAGE REFERENCES
+    ====================================== */
+
     const imageWords = [
 
         "image",
@@ -1216,36 +1188,50 @@ function shouldUseVisionContext(msg) {
         "photo",
         "pic",
         "screenshot",
+
         "image says",
         "picture says",
         "photo says",
+
         "in the image",
         "in this image",
+
         "in the picture",
         "in this picture",
+
         "in the photo",
         "in this photo",
+
         "from the image",
         "from this image",
+
         "about the image",
         "about this image",
+
         "about the picture",
         "about this picture",
+
         "look at",
         "looking at",
+
         "shown",
         "visible",
+
         "see in it",
         "see here",
+
         "this post",
         "the post",
         "that post",
+
         "this person",
         "that person",
         "the person",
+
         "this text",
         "that text",
         "the text",
+
         "this screenshot",
         "that screenshot"
 
@@ -1264,16 +1250,102 @@ function shouldUseVisionContext(msg) {
     }
 
 
-    /*
-       Short follow-up questions often refer
-       to the image or previous answer.
+    /* ======================================
+       COMMON IMAGE QUESTIONS
+    ====================================== */
 
-       Examples:
-       "what does he mean?"
-       "who is he?"
-       "what color is it?"
-       "is that true?"
-    */
+    const imageQuestionPatterns = [
+
+        "what color",
+        "what colour",
+
+        "what is he wearing",
+        "what is she wearing",
+
+        "what's he wearing",
+        "what's she wearing",
+
+        "what are they wearing",
+
+        "who is he",
+        "who is she",
+        "who are they",
+
+        "where is he",
+        "where is she",
+        "where are they",
+
+        "what is he doing",
+        "what is she doing",
+        "what are they doing",
+
+        "what's he doing",
+        "what's she doing",
+
+        "how many",
+
+        "can you see",
+
+        "do you see",
+
+        "does he",
+        "does she",
+
+        "is he",
+        "is she",
+
+        "what does he",
+        "what does she",
+        "what do they",
+
+        "main point",
+        "main idea",
+
+        "what does it say",
+
+        "what did it say",
+
+        "read it",
+
+        "read this",
+
+        "explain the image",
+
+        "explain the picture",
+
+        "describe the picture",
+
+        "describe the photo",
+
+        "describe the image"
+
+    ];
+
+
+    if (
+        imageQuestionPatterns.some(
+            pattern =>
+                text.includes(pattern)
+        )
+    ) {
+
+        return true;
+
+    }
+
+
+    /* ======================================
+       SHORT PRONOUN FOLLOW-UPS
+
+       IMPORTANT VERSION 13 FIX:
+
+       We no longer assume that every
+       "it", "this", "that", "he", etc.
+       means the image.
+
+       It must also be connected to a
+       recent image-related conversation.
+    ====================================== */
 
     const followUpWords = [
 
@@ -1287,12 +1359,9 @@ function shouldUseVisionContext(msg) {
         "her",
         "them",
         "here",
-        "there",
-        "this person",
-        "that person"
+        "there"
 
     ];
-
 
     const words =
         text.split(/\s+/);
@@ -1300,10 +1369,14 @@ function shouldUseVisionContext(msg) {
 
     if (
         words.length <= 12 &&
+
         followUpWords.some(
             word =>
                 words.includes(word)
-        )
+        ) &&
+
+        recentConversationWasImageRelated()
+
     ) {
 
         return true;
@@ -1315,21 +1388,24 @@ function shouldUseVisionContext(msg) {
 
 }
 
+
 /* ==========================================
    IMAGE COMMAND DETECTION
 ========================================== */
 
-function isImageCommand(msg) {
+function isImageCommand(
+    msg,
+    providedAttachment = null
+) {
 
     const attachment =
+        providedAttachment ||
         getCurrentAttachment();
-
 
     const attachmentType =
         getAttachmentType(
             attachment
         );
-
 
     if (
         attachmentType !== "image"
@@ -1339,26 +1415,108 @@ function isImageCommand(msg) {
 
     }
 
-
     if (!msg) {
 
         return true;
 
     }
 
-
     const text =
         String(msg)
         .toLowerCase()
         .trim();
 
-
     return (
 
         isOCRCommand(text) ||
 
-        isImageAnalysisCommand(text)
+        isImageAnalysisCommand(text) ||
 
+        isImageQuestion(text)
+
+    );
+
+}
+
+
+/* ==========================================
+   GENERAL IMAGE QUESTION DETECTION
+========================================== */
+
+function isImageQuestion(
+    msg
+) {
+
+    const text =
+        String(msg || "")
+        .toLowerCase()
+        .trim();
+
+    if (!text) {
+
+        return false;
+
+    }
+
+    const patterns = [
+
+        "what color",
+        "what colour",
+
+        "wearing",
+        "shirt",
+        "dress",
+        "clothes",
+        "clothing",
+
+        "who is this",
+        "who is that",
+
+        "what is this",
+        "what's this",
+
+        "what is that",
+        "what's that",
+
+        "what is it",
+        "what's it",
+
+        "what is he",
+        "what is she",
+
+        "what's he",
+        "what's she",
+
+        "what are they",
+
+        "where is he",
+        "where is she",
+
+        "what is he doing",
+        "what is she doing",
+
+        "what are they doing",
+
+        "how many",
+
+        "can you see",
+        "do you see",
+
+        "what does he",
+        "what does she",
+        "what do they",
+
+        "does he",
+        "does she",
+
+        "is he",
+        "is she"
+
+    ];
+
+    return patterns.some(
+        pattern =>
+            text.includes(pattern)
     );
 
 }
@@ -1368,13 +1526,14 @@ function isImageCommand(msg) {
    OCR COMMAND DETECTION
 ========================================== */
 
-function isOCRCommand(msg) {
+function isOCRCommand(
+    msg
+) {
 
     const text =
         String(msg || "")
         .toLowerCase()
         .trim();
-
 
     return (
 
@@ -1396,7 +1555,15 @@ function isOCRCommand(msg) {
 
         text.includes("what does this say") ||
 
-        text.includes("read this image")
+        text.includes("what does it say") ||
+
+        text.includes("what did it say") ||
+
+        text.includes("read this image") ||
+
+        text.includes("read the image") ||
+
+        text === "read it"
 
     );
 
@@ -1407,13 +1574,14 @@ function isOCRCommand(msg) {
    IMAGE ANALYSIS DETECTION
 ========================================== */
 
-function isImageAnalysisCommand(msg) {
+function isImageAnalysisCommand(
+    msg
+) {
 
     const text =
         String(msg || "")
         .toLowerCase()
         .trim();
-
 
     return (
 
@@ -1451,11 +1619,18 @@ function isImageAnalysisCommand(msg) {
 
         text.includes("explain this image") ||
 
-        text.includes("tell me about the image")
+        text.includes("tell me about the image") ||
+
+        text.includes("describe the image") ||
+
+        text.includes("describe the picture") ||
+
+        text.includes("describe the photo")
 
     );
 
 }
+
 
 /* ==========================================
    IMAGE HANDLER
@@ -1470,7 +1645,6 @@ async function handleImageCommand(
         "🖼️ IMAGE COMMAND DETECTED:",
         msg
     );
-
 
     const attachment =
         providedAttachment ||
@@ -1525,7 +1699,6 @@ async function handleImageCommand(
 
         null;
 
-
     if (!imageSource) {
 
         console.error(
@@ -1539,7 +1712,6 @@ async function handleImageCommand(
         );
 
     }
-
 
     console.log(
         "🖼️ Image:",
@@ -1573,7 +1745,6 @@ async function handleImageCommand(
                         imageSource
                     );
 
-
                 if (
                     result !== null &&
                     result !== undefined &&
@@ -1600,16 +1771,15 @@ async function handleImageCommand(
         }
 
 
-        /*
-           If local OCR is unavailable,
-           use Groq Vision for text reading.
-        */
+        /* ==================================
+           GROQ VISION OCR FALLBACK
+        ================================== */
 
         return await analyzeImageWithAI(
 
-    imageSource,
+            imageSource,
 
-    `
+            `
 Extract the readable text and important text elements from this image.
 
 The goal is to give the user a clean, human-readable transcription of the image.
@@ -1643,10 +1813,10 @@ Here’s the text from the image:
 Then organize the extracted content clearly.
 
 Before finalizing, compare the extracted text against the image and correct obvious OCR mistakes.
-    `.trim()
+            `.trim()
 
-);
-       
+        );
+
     }
 
 
@@ -1658,7 +1828,6 @@ Before finalizing, compare the extracted text against the image and correct obvi
         "👀 Sending image to Groq Vision AI..."
     );
 
-
     const result =
         await analyzeImageWithAI(
 
@@ -1668,7 +1837,6 @@ Before finalizing, compare the extracted text against the image and correct obvi
             "Describe and analyze this image clearly."
 
         );
-
 
     if (
         result &&
@@ -1681,7 +1849,6 @@ Before finalizing, compare the extracted text against the image and correct obvi
 
     }
 
-
     return (
         "⚠️ I couldn't analyze this image right now."
     );
@@ -1693,21 +1860,17 @@ Before finalizing, compare the extracted text against the image and correct obvi
    FILE COMMAND DETECTION
 ========================================== */
 
-function isFileCommand(msg) {
+function isFileCommand(
+    msg
+) {
 
     const attachment =
         getCurrentAttachment();
-
 
     const attachmentType =
         getAttachmentType(
             attachment
         );
-
-
-    /*
-       No file attached
-    */
 
     if (
         attachmentType !== "file"
@@ -1717,52 +1880,33 @@ function isFileCommand(msg) {
 
     }
 
-
-    /*
-       If a file is attached,
-       almost any user message can
-       potentially be about that file.
-    */
-
     if (!msg) {
 
         return true;
 
     }
 
-
     const text =
         String(msg)
         .toLowerCase()
         .trim();
 
-
     return (
-
-        /* Summary */
 
         text.includes("summarize") ||
         text.includes("summary") ||
-
-        /* Reading */
 
         text.includes("read the file") ||
         text.includes("read this file") ||
         text.includes("read document") ||
 
-        /* Explanation */
-
         text.includes("explain") ||
         text.includes("analyze") ||
         text.includes("analyse") ||
 
-        /* Important information */
-
         text.includes("important") ||
         text.includes("key points") ||
         text.includes("main points") ||
-
-        /* Questions */
 
         text.includes("what does") ||
         text.includes("what is") ||
@@ -1772,17 +1916,18 @@ function isFileCommand(msg) {
         text.includes("why") ||
         text.includes("how") ||
 
-        /* Generic */
-
         text.includes("file") ||
         text.includes("document") ||
+
         text.includes("this")
 
     );
 
 }
+
+
 /* ==========================================
-   DETECT FILE QUESTION
+   DETECT FILE CONTENT
 ========================================== */
 
 function hasFileContent() {
@@ -1801,7 +1946,9 @@ function hasFileContent() {
    FILE QUESTION HANDLER
 ========================================== */
 
-async function answerFileQuestion(msg) {
+async function answerFileQuestion(
+    msg
+) {
 
     if (!hasFileContent()) {
 
@@ -1809,21 +1956,17 @@ async function answerFileQuestion(msg) {
 
     }
 
-
     const fileContent =
         window.currentFileContent;
-
 
     const fileName =
         window.currentFileName ||
         "the uploaded file";
 
-
     console.log(
         "📄 Answering question about:",
         fileName
     );
-
 
     const contentForAI =
         fileContent.length >
@@ -1835,7 +1978,6 @@ async function answerFileQuestion(msg) {
             )
 
             : fileContent;
-
 
     const prompt =
         `
@@ -1857,12 +1999,13 @@ IMPORTANT:
 - Do not reproduce the entire document.
         `.trim();
 
-
     return await askOnlineAI(
         prompt
     );
 
 }
+
+
 /* ==========================================
    FILE CONTENT SUMMARIZER
 ========================================== */
@@ -1883,19 +2026,11 @@ async function summarizeFileContent(
 
     }
 
-
     let text =
         String(content).trim();
 
-
-    /*
-       Prevent extremely large files
-       from overwhelming the AI request.
-    */
-
     const maxLength =
         12000;
-
 
     if (
         text.length > maxLength
@@ -1909,11 +2044,9 @@ async function summarizeFileContent(
 
     }
 
-
     console.log(
         "🧠 Sending extracted file content for summarization..."
     );
-
 
     const prompt =
         `You are analyzing a file named "${fileName || "Unknown file"}".
@@ -1935,12 +2068,10 @@ FILE CONTENT:
 
 ${text}`;
 
-
     const response =
         await askOnlineAI(
             prompt
         );
-
 
     if (
         response &&
@@ -1953,11 +2084,6 @@ ${text}`;
 
     }
 
-
-    /*
-       FALLBACK SUMMARY
-    */
-
     const lines =
         text
         .split("\n")
@@ -1965,7 +2091,6 @@ ${text}`;
             line =>
                 line.trim() !== ""
         );
-
 
     return (
         `📄 **${fileName || "File"}**\n\n` +
@@ -1980,6 +2105,8 @@ ${text}`;
     );
 
 }
+
+
 /* ==========================================
    FILE TEXT LIMITER
 ========================================== */
@@ -1995,10 +2122,8 @@ function limitFileText(
 
     }
 
-
     const cleanText =
         String(text).trim();
-
 
     if (
         cleanText.length <= maxLength
@@ -2008,11 +2133,9 @@ function limitFileText(
 
     }
 
-
     console.warn(
         "⚠️ File is very large. Truncating text for AI."
     );
-
 
     return (
         cleanText.slice(
@@ -2024,6 +2147,7 @@ function limitFileText(
     );
 
 }
+
 
 /* ==========================================
    FILE HANDLER
@@ -2037,7 +2161,6 @@ async function handleFileCommand(
         "📄 FILE COMMAND DETECTED:",
         msg
     );
-
 
     const attachment =
         getCurrentAttachment();
@@ -2096,7 +2219,6 @@ async function handleFileCommand(
             "❌ extractFileText not available"
         );
 
-
         return (
             "📄 The file-reading engine is not connected yet."
         );
@@ -2110,10 +2232,6 @@ async function handleFileCommand(
             "📖 Extracting document text..."
         );
 
-
-        /* ==================================
-           EXTRACT FILE CONTENT
-        ================================== */
 
         const extractedText =
             await window.extractFileText(
@@ -2140,20 +2258,22 @@ async function handleFileCommand(
             "characters"
         );
 
-/* ==================================
-   SAVE DOCUMENT TO MEMORY
-================================== */
 
-const currentFileName =
-    attachment.name ||
-    attachment.file?.name ||
-    "Uploaded document";
+        /* ==================================
+           SAVE DOCUMENT TO MEMORY
+        ================================== */
+
+        const currentFileName =
+            attachment.name ||
+            attachment.file?.name ||
+            "Uploaded document";
+
+        saveCurrentDocument(
+            currentFileName,
+            extractedText
+        );
 
 
-saveCurrentDocument(
-    currentFileName,
-    extractedText
-);
         /* ==================================
            LIMIT LARGE DOCUMENTS
         ================================== */
@@ -2163,10 +2283,8 @@ saveCurrentDocument(
                 extractedText
             );
 
-
         const userRequest =
             String(msg || "").trim();
-
 
         const fileName =
             attachment.name ||
@@ -2213,10 +2331,6 @@ saveCurrentDocument(
         );
 
 
-        /* ==================================
-           SEND TO ONLINE AI
-        ================================== */
-
         const result =
             await askOnlineAI(
                 aiPrompt
@@ -2231,7 +2345,6 @@ saveCurrentDocument(
             console.log(
                 "✅ Document AI analysis complete"
             );
-
 
             return String(
                 result
@@ -2254,7 +2367,6 @@ saveCurrentDocument(
             error
         );
 
-
         return (
             "⚠️ Something went wrong while analyzing the file."
         );
@@ -2262,6 +2374,8 @@ saveCurrentDocument(
     }
 
 }
+
+
 /* ==========================================
    UPLOAD LIST
 ========================================== */
@@ -2271,7 +2385,6 @@ function getUploadList() {
     const files =
         window.uploadedFiles || [];
 
-
     if (!files.length) {
 
         return (
@@ -2280,10 +2393,8 @@ function getUploadList() {
 
     }
 
-
     let reply =
         "📂 Uploaded files:\n\n";
-
 
     files.forEach(
         function (
@@ -2295,18 +2406,15 @@ function getUploadList() {
                 file.name ||
                 "Unnamed file";
 
-
             const type =
                 file.type ||
                 "Unknown type";
-
 
             reply +=
                 `${index + 1}. ${name} (${type})\n`;
 
         }
     );
-
 
     return reply;
 
@@ -2317,13 +2425,14 @@ function getUploadList() {
    UPLOAD LIST DETECTION
 ========================================== */
 
-function isUploadListCommand(msg) {
+function isUploadListCommand(
+    msg
+) {
 
     const text =
         String(msg || "")
         .toLowerCase()
         .trim();
-
 
     return (
 
@@ -2341,18 +2450,20 @@ function isUploadListCommand(msg) {
 
 }
 
+
 /* ==========================================
    DOCUMENT QUESTION DETECTION
 ========================================== */
 
-function isDocumentQuestion(msg) {
+function isDocumentQuestion(
+    msg
+) {
 
     if (!msg) {
 
         return false;
 
     }
-
 
     if (
         typeof window.hasCurrentDocument !==
@@ -2363,7 +2474,6 @@ function isDocumentQuestion(msg) {
 
     }
 
-
     if (
         !window.hasCurrentDocument()
     ) {
@@ -2372,16 +2482,11 @@ function isDocumentQuestion(msg) {
 
     }
 
-
     const text =
         String(msg)
         .toLowerCase()
         .trim();
 
-
-    /*
-       Explicit document references
-    */
 
     const documentWords = [
 
@@ -2397,11 +2502,6 @@ function isDocumentQuestion(msg) {
 
     ];
 
-
-    /*
-       Question patterns that should
-       use the current document.
-    */
 
     const questionPatterns = [
 
@@ -2451,11 +2551,15 @@ function isDocumentQuestion(msg) {
     );
 
 }
+
+
 /* ==========================================
    DOCUMENT QUESTION HANDLER
 ========================================== */
 
-async function handleDocumentQuestion(msg) {
+async function handleDocumentQuestion(
+    msg
+) {
 
     try {
 
@@ -2468,10 +2572,8 @@ async function handleDocumentQuestion(msg) {
 
         }
 
-
         const document =
             window.getCurrentDocument();
-
 
         if (!document) {
 
@@ -2479,11 +2581,9 @@ async function handleDocumentQuestion(msg) {
 
         }
 
-
         console.log(
             "📚 Document question detected"
         );
-
 
         console.log(
             "📄 Document:",
@@ -2491,21 +2591,13 @@ async function handleDocumentQuestion(msg) {
         );
 
 
-        /*
-           Limit document size sent
-           to the backend if necessary.
-
-           We keep the first 30,000 characters
-           for now.
-        */
-
         const documentText =
-    String(
-        document.text || ""
-    ).slice(
-        0,
-        12000
-    );
+            String(
+                document.text || ""
+            ).slice(
+                0,
+                12000
+            );
 
 
         if (!documentText.trim()) {
@@ -2516,26 +2608,28 @@ async function handleDocumentQuestion(msg) {
 
 
         const prompt =
-    "Answer the user's question using the uploaded document below.\n\n" +
+            "Answer the user's question using the uploaded document below.\n\n" +
 
-    "Document: " +
-    document.name +
+            "Document: " +
+            document.name +
 
-    "\n\nDOCUMENT CONTENT:\n" +
+            "\n\nDOCUMENT CONTENT:\n" +
 
-    documentText +
+            documentText +
 
-    "\n\nUSER QUESTION:\n" +
+            "\n\nUSER QUESTION:\n" +
 
-    msg +
+            msg +
 
-    "\n\nINSTRUCTIONS:\n" +
-    "- Answer based only on the uploaded document.\n" +
-    "- Do not invent information.\n" +
-    "- Give a clear and helpful answer.\n" +
-    "- Keep the answer concise.\n" +
-    "- Do not reproduce the entire document unless specifically asked.";
-       
+            "\n\nINSTRUCTIONS:\n" +
+
+            "- Answer based only on the uploaded document.\n" +
+            "- Do not invent information.\n" +
+            "- Give a clear and helpful answer.\n" +
+            "- Keep the answer concise.\n" +
+            "- Do not reproduce the entire document unless specifically asked.";
+
+
         console.log(
             "🧠 Sending document question to Online AI..."
         );
@@ -2558,7 +2652,6 @@ async function handleDocumentQuestion(msg) {
 
         }
 
-
         return null;
 
     }
@@ -2570,12 +2663,13 @@ async function handleDocumentQuestion(msg) {
             error
         );
 
-
         return null;
 
     }
 
 }
+
+
 /* ==========================================
    AI MODULE LIST
 ========================================== */
@@ -2602,7 +2696,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "memoryReply",
 
@@ -2617,7 +2710,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "knowledgeReply",
@@ -2634,7 +2726,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "profileReply",
 
@@ -2649,7 +2740,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "learnUserReply",
@@ -2666,7 +2756,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "teacherReply",
 
@@ -2681,7 +2770,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "quizReply",
@@ -2698,7 +2786,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "calculatorReply",
 
@@ -2713,7 +2800,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "dateTimeReply",
@@ -2730,7 +2816,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "taskReply",
 
@@ -2745,7 +2830,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "goalReply",
@@ -2762,7 +2846,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "noteReply",
 
@@ -2777,7 +2860,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "eventReply",
@@ -2794,7 +2876,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "naturalReply",
 
@@ -2809,7 +2890,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "foodReply",
@@ -2826,7 +2906,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "weatherReply",
 
@@ -2841,7 +2920,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "adviceReply",
@@ -2858,7 +2936,6 @@ function getAIModules(
                     : null
         ],
 
-
         [
             "internetReply",
 
@@ -2873,7 +2950,6 @@ function getAIModules(
 
                     : null
         ],
-
 
         [
             "aiBrainReply",
@@ -2909,13 +2985,11 @@ async function processSmartAIReply(
             rawMessage || ""
         ).trim();
 
-
     if (!original) {
 
         return null;
 
     }
-
 
     const msg =
         original
@@ -2941,7 +3015,6 @@ async function processSmartAIReply(
         providedAttachment ||
         getCurrentAttachment();
 
-
     const attachmentType =
         getAttachmentType(
             attachment
@@ -2952,7 +3025,6 @@ async function processSmartAIReply(
         "📎 ATTACHMENT:",
         attachment
     );
-
 
     console.log(
         "📎 NORMALIZED TYPE:",
@@ -2973,127 +3045,180 @@ async function processSmartAIReply(
     }
 
 
-  /* ======================================
-   IMAGE ATTACHMENT / IMAGE CONTEXT
-====================================== */
+    /* ======================================
+       IMAGE ATTACHMENT
+       
+       VERSION 13 FIX:
 
-if (
-    attachmentType === "image"
-) {
+       Save the image context, but DO NOT
+       automatically force every message
+       into Vision AI.
+    ====================================== */
 
-    console.log(
-        "🖼️ IMAGE ATTACHMENT FOUND"
-    );
+    if (
+        attachmentType === "image"
+    ) {
 
-
-    /*
-       Save the image so it remains available
-       even after the attachment UI is removed.
-    */
-
-    await saveActiveVisionContext(
-        attachment
-    );
+        console.log(
+            "🖼️ IMAGE ATTACHMENT FOUND"
+        );
 
 
-    return await handleImageCommand(
-        original,
-        attachment
-    );
-
-}
+        await saveActiveVisionContext(
+            attachment
+        );
 
 
-/* ======================================
-   IMAGE FOLLOW-UP
-====================================== */
+        /*
+           Only use Vision immediately if
+           the user's message is actually
+           about the image.
+        */
 
-if (
-    shouldUseVisionContext(
-        original
-    )
-) {
+        if (
+            isImageCommand(
+                original,
+                attachment
+            )
+        ) {
 
-    console.log(
-        "🖼️ IMAGE CONTEXT FOLLOW-UP"
-    );
+            console.log(
+                "🖼️ User request is image-related"
+            );
+
+            return await handleImageCommand(
+                original,
+                attachment
+            );
+
+        }
 
 
-    const visionContext =
-        getActiveVisionContext();
+        /*
+           IMPORTANT:
 
+           If the user says something unrelated
+           while an image is attached, continue
+           through the normal AI modules.
 
-    if (visionContext) {
+           Example:
 
-        return await analyzeImageWithAI(
+           Image attached
+           User: "What's the weather today?"
 
-            visionContext.image,
+           This will NOT automatically become
+           a Vision request.
+        */
 
-            original
-
+        console.log(
+            "💬 Image attached but request is not image-related."
         );
 
     }
 
-}
 
+    /* ======================================
+       IMAGE FOLLOW-UP FROM SAVED CONTEXT
+    ====================================== */
 
- /* ======================================
-   FILE ATTACHMENT
-====================================== */
-
-if (
-    attachmentType === "file"
-) {
-
-    console.log(
-        "📄 FILE ATTACHMENT FOUND"
-    );
-
-
-    const fileReply =
-        await handleFileCommand(
+    if (
+        shouldUseVisionContext(
             original
+        )
+    ) {
+
+        console.log(
+            "🖼️ IMAGE CONTEXT FOLLOW-UP"
         );
 
-
-    return fileReply;
-
-}
-
-/* ======================================
-   DOCUMENT MEMORY QUESTIONS
-===================================== */
-
-if (
-    isDocumentQuestion(
-        original
-    )
-) {
-
-    console.log(
-        "📚 CURRENT DOCUMENT QUESTION FOUND"
-    );
+        const visionContext =
+            getActiveVisionContext();
 
 
-    const documentReply =
-        await handleDocumentQuestion(
-            original
-        );
+        if (visionContext) {
+
+            const visionAttachment = {
+
+                type:
+                    "image",
+
+                name:
+                    visionContext.name,
+
+                mimeType:
+                    visionContext.mimeType,
+
+                data:
+                    visionContext.image
+
+            };
 
 
-    if (documentReply) {
+            return await handleImageCommand(
 
-        return documentReply;
+                original,
+
+                visionAttachment
+
+            );
+
+        }
 
     }
 
-}
+
+    /* ======================================
+       FILE ATTACHMENT
+    ====================================== */
+
+    if (
+        attachmentType === "file"
+    ) {
+
+        console.log(
+            "📄 FILE ATTACHMENT FOUND"
+        );
+
+        const fileReply =
+            await handleFileCommand(
+                original
+            );
+
+        return fileReply;
+
+    }
+
+
+    /* ======================================
+       DOCUMENT MEMORY QUESTIONS
+    ====================================== */
+
+    if (
+        isDocumentQuestion(
+            original
+        )
+    ) {
+
+        console.log(
+            "📚 CURRENT DOCUMENT QUESTION FOUND"
+        );
+
+        const documentReply =
+            await handleDocumentQuestion(
+                original
+            );
+
+        if (documentReply) {
+
+            return documentReply;
+
+        }
+
+    }
+
+
     /* ======================================
        FILE QUESTION MODE
-
-       If a file has already been read,
-       allow normal questions about it.
     ====================================== */
 
     if (
@@ -3105,12 +3230,10 @@ if (
             "📄 FILE QUESTION MODE"
         );
 
-
         const fileAnswer =
             await answerFileQuestion(
                 original
             );
-
 
         if (
             fileAnswer &&
@@ -3151,7 +3274,6 @@ if (
                 callback
             );
 
-
         if (response) {
 
             return response;
@@ -3163,12 +3285,19 @@ if (
 
     /* ======================================
        ONLINE AI FALLBACK
+
+       IMPORTANT:
+
+       No active image is automatically
+       attached here.
+
+       Normal questions remain normal
+       text conversations.
     ====================================== */
 
     console.log(
         "🌐 No local AI module answered."
     );
-
 
     console.log(
         "🌐 Trying online AI..."
@@ -3177,7 +3306,10 @@ if (
 
     const onlineReply =
         await askOnlineAI(
-            original
+            original,
+            null,
+            true,
+            false
         );
 
 
@@ -3202,6 +3334,7 @@ if (
 
 }
 
+
 /* ==========================================
    PUBLIC CONVERSATION-AWARE AI
 ========================================== */
@@ -3216,7 +3349,6 @@ async function smartAIReply(
             rawMessage || ""
         ).trim();
 
-
     if (!message) {
 
         return null;
@@ -3224,10 +3356,9 @@ async function smartAIReply(
     }
 
 
-    /*
-       If a new image is supplied,
-       preserve it as conversation context.
-    */
+    /* ======================================
+       SAVE NEW IMAGE CONTEXT
+    ====================================== */
 
     if (
         providedAttachment &&
@@ -3243,9 +3374,9 @@ async function smartAIReply(
     }
 
 
-    /*
-       Process the actual AI request.
-    */
+    /* ======================================
+       PROCESS AI REQUEST
+    ====================================== */
 
     const response =
         await processSmartAIReply(
@@ -3254,9 +3385,9 @@ async function smartAIReply(
         );
 
 
-    /*
-       Save both sides of the conversation.
-    */
+    /* ======================================
+       SAVE CONVERSATION
+    ====================================== */
 
     addConversationMessage(
         "user",
@@ -3280,12 +3411,15 @@ async function smartAIReply(
     return response;
 
 }
+
+
 /* ==========================================
    GLOBAL EXPORTS
 ========================================== */
 
 window.smartAIReply =
     smartAIReply;
+
 window.addConversationMessage =
     addConversationMessage;
 
@@ -3303,6 +3437,10 @@ window.getActiveVisionContext =
 
 window.shouldUseVisionContext =
     shouldUseVisionContext;
+
+window.recentConversationWasImageRelated =
+    recentConversationWasImageRelated;
+
 window.askOnlineAI =
     askOnlineAI;
 
@@ -3320,6 +3458,9 @@ window.getAttachmentType =
 
 window.isImageCommand =
     isImageCommand;
+
+window.isImageQuestion =
+    isImageQuestion;
 
 window.isOCRCommand =
     isOCRCommand;
@@ -3341,6 +3482,7 @@ window.summarizeFileContent =
 
 window.handleImageCommand =
     handleImageCommand;
+
 window.analyzeImageWithAI =
     analyzeImageWithAI;
 
@@ -3356,6 +3498,7 @@ window.analyzeImage =
         );
 
     };
+
 window.handleFileCommand =
     handleFileCommand;
 
@@ -3383,15 +3526,17 @@ window.hasCurrentDocument =
 window.clearCurrentDocument =
     clearCurrentDocument;
 
+
 /* ==========================================
    READY CHECK
 ========================================== */
+
 console.log(
     "========================================"
 );
 
 console.log(
-    "✅ smartAI.js Version 12.0 ready"
+    "✅ smartAI.js Version 13.0 ready"
 );
 
 console.log(
@@ -3422,6 +3567,18 @@ console.log(
 console.log(
     "🔎 analyzeFile:",
     typeof window.analyzeFile
+);
+
+console.log(
+    "🔎 Active vision context:",
+    !!window.activeVisionContext
+);
+
+console.log(
+    "🔎 Conversation messages:",
+    (
+        window.conversationHistory || []
+    ).length
 );
 
 console.log(
