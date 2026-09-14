@@ -1097,26 +1097,27 @@ async function handleImageCommand(
     imageSource,
 
     `
-Read the text from this image carefully.
+Read the text in this image carefully and accurately.
 
-IMPORTANT OCR RULES:
+OCR INSTRUCTIONS:
 
-- Extract the actual readable text from the main content of the image.
-- Ignore phone status bars, battery percentage, signal icons, timestamps, browser UI, navigation buttons, and other interface elements unless the user specifically asks for them.
-- Preserve the original wording, numbers, names, headings, and bullet points as accurately as possible.
-- Keep the original order of the text.
-- Do not describe the image.
-- Do not summarize the text.
-- Do not invent missing or unclear characters.
-- If a word or line cannot be read confidently, write [unclear].
-- Do not turn unclear characters into random letters or symbols.
-- Return only the readable text.
+1. Extract only text that is actually visible and readable.
+2. Preserve the original wording, spelling, numbers, names, usernames, headings, and punctuation as accurately as possible.
+3. Keep the text in the same order as it appears in the image.
+4. Do not describe the image.
+5. Do not summarize the text.
+6. Do not add explanations before or after the extracted text.
+7. Ignore phone status bars, battery percentage, signal icons, browser controls, navigation buttons, and other unrelated interface elements unless they are part of the text the user wants extracted.
+8. Do not guess characters that are unclear.
+9. If a word, number, or line cannot be read confidently, write [unclear] instead of guessing.
+10. Do not convert unclear symbols into random letters or numbers.
+11. If the image contains social-media text, preserve usernames and @mentions exactly when they are readable.
+12. Return only the readable text from the main content.
 
-Read the image carefully before answering.
+Carefully inspect the entire image before answering.
     `.trim()
 
 );
-
     }
 
 
