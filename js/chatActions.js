@@ -546,9 +546,12 @@ console.log("🚀 Phase 9A chat actions loading...");
             ============================================ */
 
             const newResponse =
-                await window.smartAIReply(
-                    userText
-                );
+    await window.askOnlineAI(
+        userText,
+        null,
+        true,
+        true
+    );
 
 
             if (
