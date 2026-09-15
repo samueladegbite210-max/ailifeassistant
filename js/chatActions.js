@@ -4,12 +4,14 @@ console.log("🚀 Phase 9A chat actions loading...");
 
 (function () {
 
-    const chatBox = document.getElementById("chatBox");
+    const chatBox =
+        document.getElementById("chatBox");
 
     if (!chatBox) {
         console.error("❌ chatBox not found");
         return;
     }
+
 
     /* =====================================================
        COPY TEXT
@@ -25,246 +27,918 @@ console.log("🚀 Phase 9A chat actions loading...");
                 navigator.clipboard &&
                 typeof navigator.clipboard.writeText === "function"
             ) {
+
                 await navigator.clipboard.writeText(text);
+
                 return true;
             }
 
-        } catch (error) {
-            console.warn("⚠️ Clipboard API failed:", error);
         }
 
-        /* iPhone / fallback */
+        catch (error) {
+
+            console.warn(
+                "⚠️ Clipboard API failed:",
+                error
+            );
+
+        }
+
+
+        /* ================================================
+           iPHONE / FALLBACK COPY
+        ================================================= */
 
         try {
 
-            const textarea = document.createElement("textarea");
+            const textarea =
+                document.createElement("textarea");
 
             textarea.value = text;
+
             textarea.style.position = "fixed";
             textarea.style.left = "-9999px";
             textarea.style.top = "0";
 
-            document.body.appendChild(textarea);
+            document.body.appendChild(
+                textarea
+            );
 
             textarea.focus();
             textarea.select();
 
-            const success = document.execCommand("copy");
+            const success =
+                document.execCommand("copy");
 
             textarea.remove();
 
             return success;
 
-        } catch (error) {
+        }
 
-            console.error("❌ Copy failed:", error);
+        catch (error) {
+
+            console.error(
+                "❌ Copy failed:",
+                error
+            );
 
             return false;
+
         }
+
     }
 
 
     /* =====================================================
-       CREATE ACTION BUTTON
+       GET MESSAGE TEXT
     ===================================================== */
 
-    function createCopyButton(messageElement) {
+    function getMessageText(
+        messageElement
+    ) {
 
-        if (!messageElement) return;
-
-        if (
-            messageElement.dataset &&
-            messageElement.dataset.actionsAdded === "true"
-        ) {
-            return;
+        if (!messageElement) {
+            return "";
         }
 
         const messageText =
-            messageElement.querySelector(".messageText");
+            messageElement.querySelector(
+                ".messageText"
+            );
 
-        if (!messageText) return;
+        if (!messageText) {
+            return "";
+        }
+
+        return (
+            messageText.innerText ||
+            messageText.textContent ||
+            ""
+        )
+        .replace(/\u00a0/g, " ")
+        .trim();
+
+    }
 
 
-        /* Action bar */
+    /* =====================================================
+       FIND PREVIOUS USER MESSAGE
+    ===================================================== */
 
-        const actions = document.createElement("div");
+    function getPreviousUserMessage(
+        aiMessage
+    ) {
 
-        actions.className = "messageActions";
+        if (!aiMessage) {
+            return null;
+        }
+
+        let node =
+            aiMessage.previousElementSibling;
+
+        while (node) {
+
+            if (
+                node.classList &&
+                node.classList.contains("message") &&
+                node.classList.contains("user")
+            ) {
+
+                return node;
+
+            }
+
+            node =
+                node.previousElementSibling;
+
+        }
+
+        return null;
+
+    }
 
 
-        /* Copy button */
+    /* =====================================================
+       GET LATEST AI MESSAGE
+    ===================================================== */
 
-        const copyButton = document.createElement("button");
+    function getLatestAIMessage() {
 
-        copyButton.type = "button";
-        copyButton.className = "messageActionButton";
-        copyButton.textContent = "📋 Copy";
-        copyButton.setAttribute(
+        const messages =
+            chatBox.querySelectorAll(
+                ".message.ai"
+            );
+
+        if (!messages.length) {
+            return null;
+        }
+
+        return messages[
+            messages.length - 1
+        ];
+
+    }
+
+
+    /* =====================================================
+       IS LATEST AI MESSAGE?
+    ===================================================== */
+
+    function isLatestAIMessage(
+        messageElement
+    ) {
+
+        return (
+            getLatestAIMessage() ===
+            messageElement
+        );
+
+    }
+
+
+    /* =====================================================
+       COPY BUTTON
+    ===================================================== */
+
+    function createCopyButton(
+        messageElement
+    ) {
+
+        const button =
+            document.createElement("button");
+
+        button.type = "button";
+
+        button.className =
+            "messageActionButton";
+
+        button.textContent =
+            "📋 Copy";
+
+        button.setAttribute(
             "aria-label",
             "Copy AI response"
         );
 
 
-        copyButton.addEventListener("click", async function () {
+        button.addEventListener(
+            "click",
+            async function () {
 
-            const text =
-                messageText.innerText ||
-                messageText.textContent ||
-                "";
+                const text =
+                    getMessageText(
+                        messageElement
+                    );
 
-            const cleanText =
-                text
-                    .replace(/\u00a0/g, " ")
-                    .trim();
+                if (!text) {
+                    return;
+                }
 
-            if (!cleanText) return;
+                const originalText =
+                    button.textContent;
 
+                button.disabled = true;
 
-            copyButton.disabled = true;
-
-            const originalText =
-                copyButton.textContent;
-
-            const success =
-                await copyText(cleanText);
+                const success =
+                    await copyText(text);
 
 
-            if (success) {
+                if (success) {
 
-                copyButton.textContent = "✓ Copied";
+                    button.textContent =
+                        "✓ Copied";
 
-                setTimeout(function () {
+                    setTimeout(
+                        function () {
 
-                    copyButton.textContent =
-                        originalText;
+                            button.textContent =
+                                originalText;
 
-                    copyButton.disabled = false;
+                            button.disabled =
+                                false;
 
-                }, 1500);
+                        },
+                        1500
+                    );
 
-            } else {
+                }
 
-                copyButton.textContent =
-                    "❌ Failed";
+                else {
 
-                setTimeout(function () {
+                    button.textContent =
+                        "❌ Failed";
 
-                    copyButton.textContent =
-                        originalText;
+                    setTimeout(
+                        function () {
 
-                    copyButton.disabled = false;
+                            button.textContent =
+                                originalText;
 
-                }, 1500);
+                            button.disabled =
+                                false;
+
+                        },
+                        1500
+                    );
+
+                }
+
             }
+        );
 
-        });
 
+        return button;
 
-        actions.appendChild(copyButton);
-
-        messageElement.appendChild(actions);
-
-        messageElement.dataset.actionsAdded = "true";
     }
 
 
     /* =====================================================
-       CHECK MESSAGE
+       REGENERATE BUTTON
     ===================================================== */
 
-    function enhanceMessage(messageElement) {
+    function createRegenerateButton(
+        messageElement
+    ) {
 
-        if (!messageElement) return;
+        const button =
+            document.createElement("button");
 
-        /*
-         * Only add Copy to AI messages.
-         */
+        button.type = "button";
+
+        button.className =
+            "messageActionButton";
+
+        button.textContent =
+            "🔄 Regenerate";
+
+        button.setAttribute(
+            "aria-label",
+            "Regenerate AI response"
+        );
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+                await regenerateResponse(
+                    messageElement,
+                    button
+                );
+
+            }
+        );
+
+
+        return button;
+
+    }
+
+
+    /* =====================================================
+       REGENERATE RESPONSE
+    ===================================================== */
+
+    async function regenerateResponse(
+        aiMessage,
+        button
+    ) {
+
+        /* ================================================
+           ONLY LATEST RESPONSE
+        ================================================= */
 
         if (
-            !messageElement.classList.contains("ai")
+            !isLatestAIMessage(
+                aiMessage
+            )
         ) {
+
+            alert(
+                "Regenerate is available for the latest AI response."
+            );
+
             return;
+
         }
 
-        createCopyButton(messageElement);
-    }
+
+        /* ================================================
+           PREVIOUS USER MESSAGE
+        ================================================= */
+
+        const userMessage =
+            getPreviousUserMessage(
+                aiMessage
+            );
+
+        if (!userMessage) {
+
+            alert(
+                "I couldn't find the user message for this response."
+            );
+
+            return;
+
+        }
 
 
-    /* =====================================================
-       EXISTING MESSAGES
-    ===================================================== */
+        const userText =
+            getMessageText(
+                userMessage
+            );
 
-    chatBox
-        .querySelectorAll(".message.ai")
-        .forEach(enhanceMessage);
+        if (!userText) {
 
+            alert(
+                "I couldn't recover the original question."
+            );
 
-    /* =====================================================
-       WATCH FOR NEW AI MESSAGES
-    ===================================================== */
+            return;
 
-    const observer =
-        new MutationObserver(function (mutations) {
-
-            mutations.forEach(function (mutation) {
-
-                mutation.addedNodes.forEach(function (node) {
-
-                    if (
-                        node.nodeType !== Node.ELEMENT_NODE
-                    ) {
-                        return;
-                    }
+        }
 
 
-                    /* Direct AI message */
+        /* ================================================
+           CHECK AI SYSTEM
+        ================================================= */
 
-                    if (
-                        node.classList &&
-                        node.classList.contains("message") &&
-                        node.classList.contains("ai")
-                    ) {
-                        enhanceMessage(node);
-                    }
+        if (
+            typeof window.smartAIReply !==
+            "function"
+        ) {
+
+            alert(
+                "AI system is not ready yet."
+            );
+
+            return;
+
+        }
 
 
-                    /* AI message inside another element */
+        console.log(
+            "🔄 Regenerating response for:",
+            userText
+        );
 
-                    if (
-                        node.querySelectorAll
-                    ) {
 
-                        node
-                            .querySelectorAll(".message.ai")
-                            .forEach(enhanceMessage);
-                    }
+        /* ================================================
+           SAVE ORIGINAL BUTTON TEXT
+        ================================================= */
+
+        const originalButtonText =
+            button.textContent;
+
+        button.disabled = true;
+
+        button.textContent =
+            "⏳ Regenerating...";
+
+
+        /* ================================================
+           PREVENT DUPLICATE HISTORY
+
+           Current smartAIReply() automatically adds:
+
+           user
+           assistant
+
+           Therefore remove the existing latest
+           user + assistant pair first.
+
+           The new smartAIReply() will then add
+           the fresh pair.
+        ================================================= */
+
+        const history =
+            window.conversationHistory;
+
+        if (
+            Array.isArray(history) &&
+            history.length >= 2
+        ) {
+
+            const last =
+                history[
+                    history.length - 1
+                ];
+
+            const secondLast =
+                history[
+                    history.length - 2
+                ];
+
+
+            /*
+             * Only remove them if the latest
+             * conversation pair matches the
+             * message we're regenerating.
+             */
+
+            const lastIsAssistant =
+                last &&
+                last.role === "assistant";
+
+            const previousIsUser =
+                secondLast &&
+                secondLast.role === "user";
+
+            const sameQuestion =
+                previousIsUser &&
+                String(
+                    secondLast.content || ""
+                ).trim() ===
+                userText.trim();
+
+
+            if (
+                lastIsAssistant &&
+                previousIsUser &&
+                sameQuestion
+            ) {
+
+                history.pop();
+                history.pop();
+
+                console.log(
+                    "🧹 Removed old conversation pair before regeneration"
+                );
+
+            }
+
+            else {
+
+                console.warn(
+                    "⚠️ Conversation history did not match the visible message."
+                );
+
+            }
+
+        }
+
+
+        /* ================================================
+           SHOW THINKING STATE
+        ================================================= */
+
+        const messageText =
+            aiMessage.querySelector(
+                ".messageText"
+            );
+
+        if (messageText) {
+
+            messageText.innerHTML =
+                "🧠 <em>Regenerating...</em>";
+
+        }
+
+
+        try {
+
+            /* ============================================
+               CALL EXISTING AI SYSTEM
+
+               IMPORTANT:
+
+               We do NOT call the backend directly.
+
+               We use smartAIReply() so all existing
+               modules, memory, vision, files and
+               conversation handling remain intact.
+            ============================================ */
+
+            const newResponse =
+                await window.smartAIReply(
+                    userText
+                );
+
+
+            if (
+                !newResponse ||
+                !String(
+                    newResponse
+                ).trim()
+            ) {
+
+                throw new Error(
+                    "AI returned an empty response."
+                );
+
+            }
+
+
+            /* ============================================
+               RENDER NEW RESPONSE
+
+               Use existing formatter if available.
+            ============================================ */
+
+            if (
+                typeof window.formatAIResponse ===
+                "function"
+            ) {
+
+                messageText.innerHTML =
+                    window.formatAIResponse(
+                        String(newResponse)
+                    );
+
+            }
+
+            else {
+
+                messageText.textContent =
+                    String(newResponse);
+
+            }
+
+
+            console.log(
+                "✅ Response regenerated successfully"
+            );
+
+
+            /* ============================================
+               RESTORE BUTTON
+            ============================================ */
+
+            button.textContent =
+                "✓ Regenerated";
+
+            setTimeout(
+                function () {
+
+                    button.textContent =
+                        originalButtonText;
+
+                    button.disabled =
+                        false;
+
+                },
+                1500
+            );
+
+
+            /* ============================================
+               SCROLL
+            ============================================ */
+
+            if (
+                typeof window.scrollChatToBottom ===
+                "function"
+            ) {
+
+                window.scrollChatToBottom();
+
+            }
+
+            else {
+
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Regenerate failed:",
+                error
+            );
+
+
+            if (messageText) {
+
+                messageText.innerHTML =
+                    "⚠️ I couldn't regenerate the response. Please try again.";
+
+            }
+
+
+            /*
+             * If regeneration failed after removing
+             * the old pair, restore the old conversation
+             * pair so memory is not damaged.
+             */
+
+            if (
+                Array.isArray(
+                    window.conversationHistory
+                )
+            ) {
+
+                window.conversationHistory.push({
+
+                    role:
+                        "user",
+
+                    content:
+                        userText,
+
+                    timestamp:
+                        Date.now()
 
                 });
 
-            });
+                /*
+                 * We don't have the original AI response
+                 * here anymore, so the visible response
+                 * remains the source of truth.
+                 *
+                 * The next successful request will rebuild
+                 * the conversation naturally.
+                 */
 
-        });
+            }
 
 
-    observer.observe(chatBox, {
-        childList: true,
-        subtree: true
-    });
+            button.textContent =
+                "🔄 Regenerate";
+
+            button.disabled =
+                false;
+
+        }
+
+    }
 
 
     /* =====================================================
-       GLOBAL
+       CREATE ACTION BAR
+    ===================================================== */
+
+    function createActionBar(
+        messageElement
+    ) {
+
+        if (!messageElement) {
+            return;
+        }
+
+
+        if (
+            messageElement.dataset &&
+            messageElement.dataset.actionsAdded ===
+                "true"
+        ) {
+
+            return;
+
+        }
+
+
+        const messageText =
+            messageElement.querySelector(
+                ".messageText"
+            );
+
+        if (!messageText) {
+            return;
+        }
+
+
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "messageActions";
+
+
+        /* ================================================
+           COPY
+        ================================================= */
+
+        const copyButton =
+            createCopyButton(
+                messageElement
+            );
+
+        actions.appendChild(
+            copyButton
+        );
+
+
+        /* ================================================
+           REGENERATE
+        ================================================= */
+
+        const regenerateButton =
+            createRegenerateButton(
+                messageElement
+            );
+
+        actions.appendChild(
+            regenerateButton
+        );
+
+
+        messageElement.appendChild(
+            actions
+        );
+
+
+        messageElement.dataset.actionsAdded =
+            "true";
+
+    }
+
+
+    /* =====================================================
+       ENHANCE AI MESSAGE
+    ===================================================== */
+
+    function enhanceMessage(
+        messageElement
+    ) {
+
+        if (!messageElement) {
+            return;
+        }
+
+
+        if (
+            !messageElement.classList.contains(
+                "ai"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        createActionBar(
+            messageElement
+        );
+
+    }
+
+
+    /* =====================================================
+       EXISTING AI MESSAGES
+    ===================================================== */
+
+    chatBox
+        .querySelectorAll(
+            ".message.ai"
+        )
+        .forEach(
+            enhanceMessage
+        );
+
+
+    /* =====================================================
+       WATCH FOR NEW MESSAGES
+    ===================================================== */
+
+    const observer =
+        new MutationObserver(
+            function (mutations) {
+
+                mutations.forEach(
+                    function (mutation) {
+
+                        mutation.addedNodes
+                            .forEach(
+                                function (node) {
+
+                                    if (
+                                        node.nodeType !==
+                                        Node.ELEMENT_NODE
+                                    ) {
+
+                                        return;
+
+                                    }
+
+
+                                    /* ==================================
+                                       DIRECT AI MESSAGE
+                                    ================================== */
+
+                                    if (
+
+                                        node.classList &&
+
+                                        node.classList.contains(
+                                            "message"
+                                        ) &&
+
+                                        node.classList.contains(
+                                            "ai"
+                                        )
+
+                                    ) {
+
+                                        enhanceMessage(
+                                            node
+                                        );
+
+                                    }
+
+
+                                    /* ==================================
+                                       AI MESSAGE INSIDE ELEMENT
+                                    ================================== */
+
+                                    if (
+                                        node.querySelectorAll
+                                    ) {
+
+                                        node
+                                            .querySelectorAll(
+                                                ".message.ai"
+                                            )
+                                            .forEach(
+                                                enhanceMessage
+                                            );
+
+                                    }
+
+                                }
+                            );
+
+                    }
+                );
+
+            }
+        );
+
+
+    observer.observe(
+        chatBox,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
+
+
+    /* =====================================================
+       GLOBAL API
     ===================================================== */
 
     window.chatActions = {
 
-        copyText: copyText,
+        copyText:
+            copyText,
 
-        enhanceMessage: enhanceMessage
+        enhanceMessage:
+            enhanceMessage,
+
+        regenerateResponse:
+            regenerateResponse
 
     };
 
 
-    console.log("✅ Phase 9A Copy action ready");
+    console.log(
+        "✅ Phase 9A Copy + Regenerate ready"
+    );
 
 })();
