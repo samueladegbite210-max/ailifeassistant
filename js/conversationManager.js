@@ -13,7 +13,9 @@ console.log("🚀 Conversation Manager loading...");
 
     const CURRENT_CHAT_KEY =
         "aiLifeAssistantCurrentConversationId";
-
+    
+const DRAFT_PREFIX =
+    "aiLifeAssistantDraft_";
 
     let conversations = [];
 
@@ -180,7 +182,180 @@ console.log("🚀 Conversation Manager loading...");
 
     }
 
+/* =====================================================
+   COMPOSER DRAFT
+===================================================== */
 
+function getDraftKey() {
+
+    if (!currentConversationId) {
+
+        return null;
+
+    }
+
+    return (
+        DRAFT_PREFIX +
+        currentConversationId
+    );
+
+}
+
+
+function saveComposerDraft() {
+
+    const input =
+        document.getElementById(
+            "userInput"
+        );
+
+    const key =
+        getDraftKey();
+
+
+    if (!input || !key) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const value =
+            input.value || "";
+
+
+        if (value.trim()) {
+
+            localStorage.setItem(
+                key,
+                value
+            );
+
+        }
+
+        else {
+
+            localStorage.removeItem(
+                key
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "⚠️ Could not save composer draft:",
+            error
+        );
+
+    }
+
+}
+
+
+function restoreComposerDraft() {
+
+    const input =
+        document.getElementById(
+            "userInput"
+        );
+
+    const key =
+        getDraftKey();
+
+
+    if (!input || !key) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const draft =
+            localStorage.getItem(
+                key
+            );
+
+
+        if (draft) {
+
+            input.value =
+                draft;
+
+
+            /*
+             * Let the existing composer
+             * resize itself if it has an
+             * auto-resize handler.
+             */
+
+            input.dispatchEvent(
+                new Event(
+                    "input",
+                    {
+                        bubbles: true
+                    }
+                )
+            );
+
+
+            console.log(
+                "📝 Composer draft restored"
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "⚠️ Could not restore composer draft:",
+            error
+        );
+
+    }
+
+}
+
+
+function clearComposerDraft() {
+
+    const key =
+        getDraftKey();
+
+
+    if (!key) {
+
+        return;
+
+    }
+
+
+    try {
+
+        localStorage.removeItem(
+            key
+        );
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "⚠️ Could not clear composer draft:",
+            error
+        );
+
+    }
+
+}
     /* =====================================================
        ID
     ===================================================== */
@@ -1883,7 +2058,8 @@ openButton.appendChild(
                 : ""
         );
 
-
+restoreComposerDraft();
+        
         console.log(
             "📂 Opened:",
             conversation.title
@@ -2077,8 +2253,9 @@ openButton.appendChild(
         /*
          * Forget old conversation ID.
          */
-
+clearComposerDraft();
         setCurrentConversationId(
+           
             null
         );
 
@@ -2750,7 +2927,44 @@ openButton.appendChild(
         }
     );
 
+/* =====================================================
+   SAVE COMPOSER DRAFT WHILE TYPING
+===================================================== */
 
+const composerInput =
+    document.getElementById(
+        "userInput"
+    );
+
+
+if (composerInput) {
+
+    let draftTimer = null;
+
+
+    composerInput.addEventListener(
+        "input",
+        function () {
+
+            clearTimeout(
+                draftTimer
+            );
+
+
+            draftTimer =
+                setTimeout(
+                    function () {
+
+                        saveComposerDraft();
+
+                    },
+                    300
+                );
+
+        }
+    );
+
+}
     /* =====================================================
        INITIAL LOAD
     ===================================================== */
