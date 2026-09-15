@@ -188,15 +188,28 @@ const DRAFT_PREFIX =
 
 function getDraftKey() {
 
-    if (!currentConversationId) {
+    if (currentConversationId) {
 
-        return null;
+        return (
+            DRAFT_PREFIX +
+            currentConversationId
+        );
 
     }
 
+
+    /*
+     * A brand-new chat does not have a
+     * conversation ID yet.
+     *
+     * Give it a temporary draft location
+     * so unfinished messages can still survive
+     * a refresh.
+     */
+
     return (
         DRAFT_PREFIX +
-        currentConversationId
+        "new"
     );
 
 }
@@ -331,17 +344,25 @@ function clearComposerDraft() {
         getDraftKey();
 
 
-    if (!key) {
-
-        return;
-
-    }
-
-
     try {
 
+        if (key) {
+
+            localStorage.removeItem(
+                key
+            );
+
+        }
+
+        /*
+         * Also remove the temporary new-chat
+         * draft in case the current conversation
+         * has already received an ID.
+         */
+
         localStorage.removeItem(
-            key
+            DRAFT_PREFIX +
+            "new"
         );
 
     }
@@ -2253,13 +2274,51 @@ restoreComposerDraft();
         /*
          * Forget old conversation ID.
          */
-clearComposerDraft();
+
         setCurrentConversationId(
            
             null
         );
 
+clearComposerDraft();
+        /*
+ * Move any unfinished new-chat draft
+ * to this newly created conversation.
+ */
 
+try {
+
+    const newChatDraft =
+        localStorage.getItem(
+            DRAFT_PREFIX +
+            "new"
+        );
+
+
+    if (newChatDraft) {
+
+        localStorage.setItem(
+            DRAFT_PREFIX + id,
+            newChatDraft
+        );
+
+        localStorage.removeItem(
+            DRAFT_PREFIX +
+            "new"
+        );
+
+    }
+
+}
+
+catch (error) {
+
+    console.warn(
+        "⚠️ Could not migrate composer draft:",
+        error
+    );
+
+}
         /*
          * Clear AI conversation memory.
          *
