@@ -25,12 +25,122 @@
 
 <header class="chatHeader">
 
+    <button
+        type="button"
+        id="menuBtn"
+        class="menuButton"
+        aria-label="Open menu"
+    >
+        ☰
+    </button>
+
     <h1>
         🤖 AI Life Assistant
     </h1>
 
 </header>
+    <!-- =====================================================
+     SIDE MENU
+===================================================== -->
 
+<div
+    id="sideMenuOverlay"
+    class="sideMenuOverlay"
+>
+</div>
+
+<aside
+    id="sideMenu"
+    class="sideMenu"
+    aria-label="Conversation menu"
+>
+
+    <!-- MENU HEADER -->
+
+    <div class="sideMenuHeader">
+
+        <div class="sideMenuTitle">
+            <span>🤖</span>
+            <strong>AI Life Assistant</strong>
+        </div>
+
+        <button
+            type="button"
+            id="closeMenuBtn"
+            class="closeMenuButton"
+            aria-label="Close menu"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <!-- NEW CHAT -->
+
+    <button
+        type="button"
+        id="newChatBtn"
+        class="newChatButton"
+    >
+        <span>＋</span>
+        <span>New Chat</span>
+    </button>
+
+
+    <!-- SEARCH -->
+
+    <div class="conversationSearch">
+
+        <span>🔍</span>
+
+        <input
+            type="search"
+            id="conversationSearchInput"
+            placeholder="Search conversations..."
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <!-- CONVERSATIONS -->
+
+    <div class="conversationSection">
+
+        <div class="conversationSectionTitle">
+            Conversations
+        </div>
+
+        <div
+            id="conversationList"
+            class="conversationList"
+        >
+
+            <div class="emptyConversations">
+                No conversations yet
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MENU FOOTER -->
+
+    <div class="sideMenuFooter">
+
+        <button
+            type="button"
+            id="clearAllConversationsBtn"
+            class="sideMenuFooterButton"
+        >
+            🗑️ Clear conversations
+        </button>
+
+    </div>
+
+</aside>
 <!-- =====================================================
      CHAT
 ===================================================== -->
