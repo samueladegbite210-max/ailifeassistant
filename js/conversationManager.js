@@ -790,132 +790,131 @@ console.log("🚀 Conversation Manager loading...");
        CONVERSATION ITEM
     ===================================================== */
 
-    function createConversationItem(
-        conversation
+    function createConversationItem(conversation) {
+
+    const item =
+        document.createElement("div");
+
+    item.className =
+        "conversationItem";
+
+    item.dataset.id =
+        conversation.id;
+
+
+    if (
+        conversation.id ===
+        currentConversationId
     ) {
 
-        const item =
-            document.createElement(
-                "div"
-            );
+        item.classList.add("active");
 
-        item.className =
-            "conversationItem";
+    }
 
 
-        if (
-            conversation.id ===
-            currentConversationId
-        ) {
+    /* =========================================
+       OPEN CONVERSATION BUTTON
+    ========================================= */
 
-            item.classList.add(
-                "active"
+    const openButton =
+        document.createElement("button");
+
+    openButton.type = "button";
+
+    openButton.className =
+        "conversationOpenButton";
+
+
+    const icon =
+        document.createElement("span");
+
+    icon.className =
+        "conversationIcon";
+
+    icon.textContent = "💬";
+
+
+    const title =
+        document.createElement("span");
+
+    title.className =
+        "conversationTitle";
+
+    title.textContent =
+        conversation.title ||
+        "New Chat";
+
+
+    openButton.appendChild(icon);
+
+    openButton.appendChild(title);
+
+
+    openButton.addEventListener(
+        "click",
+        function () {
+
+            openConversation(
+                conversation.id
             );
 
         }
-
-
-        const openButton =
-            document.createElement(
-                "button"
-            );
-
-        openButton.type = "button";
-
-        openButton.className =
-            "conversationOpenButton";
-
-
-        const icon =
-            document.createElement(
-                "span"
-            );
-
-        icon.className =
-            "conversationIcon";
-
-        icon.textContent =
-            "💬";
-
-
-        const title =
-            document.createElement(
-                "span"
-            );
-
-        title.className =
-            "conversationTitle";
-
-        title.textContent =
-            conversation.title ||
-            "New Chat";
-
-
-        openButton.appendChild(
-            icon
-        );
-
-        openButton.appendChild(
-            title
-        );
-
-
-        openButton.addEventListener(
-            "click",
-            function () {
-
-                openConversation(
-                    conversation.id
-                );
-
-            }
-        );
-
-
-        const optionsButton =
-    document.createElement(
-        "button"
     );
 
-optionsButton.type = "button";
 
-optionsButton.className =
-    "conversationDeleteButton";
+    /* =========================================
+       OPTIONS BUTTON
+    ========================================= */
 
-optionsButton.textContent =
-    "⋯";
+    const optionsButton =
+        document.createElement("button");
 
-optionsButton.setAttribute(
-    "aria-label",
-    "Conversation options"
-);
+    optionsButton.type = "button";
 
+    optionsButton.className =
+        "conversationDeleteButton";
 
-optionsButton.addEventListener(
-    "click",
-    function (event) {
+    optionsButton.textContent = "⋯";
 
-        event.stopPropagation();
-
-        showConversationOptions(
-            conversation
-        );
-
-    }
-);
-        item.appendChild(
-            openButton
-        );
-
-        item.appendChild(
-    optionsButton
-);
+    optionsButton.setAttribute(
+        "aria-label",
+        "Conversation options"
+    );
 
 
-        return item;
+    optionsButton.addEventListener(
+        "click",
+        function (event) {
 
-    }
+            event.preventDefault();
 
+            event.stopPropagation();
+
+            showConversationOptions(
+                conversation,
+                item
+            );
+
+        }
+    );
+
+
+    /* =========================================
+       ADD ELEMENTS
+    ========================================= */
+
+    item.appendChild(
+        openButton
+    );
+
+    item.appendChild(
+        optionsButton
+    );
+
+
+    return item;
+
+}
 
     /* =====================================================
        OPEN CONVERSATION
@@ -1380,56 +1379,42 @@ optionsButton.addEventListener(
    CONVERSATION OPTIONS
 ===================================================== */
 
-function showConversationOptions(conversation) {
+function showConversationOptions(
+    conversation,
+    conversationItem
+) {
 
-    /* Remove any existing menu */
+    /* Remove existing menu */
 
-    const oldMenu =
+    const existingMenu =
         document.querySelector(
             ".conversationOptionsMenu"
         );
 
-    if (oldMenu) {
+    if (existingMenu) {
 
-        oldMenu.remove();
-
-    }
-
-
-    /* Find the conversation item */
-
-    const item =
-        document.querySelector(
-            '.conversationItem[data-id="' +
-            conversation.id +
-            '"]'
-        );
-
-
-    if (!item) {
-
-        return;
+        existingMenu.remove();
 
     }
 
 
-    /* Create menu */
+    /* =========================================
+       CREATE MENU
+    ========================================= */
 
     const menu =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
     menu.className =
         "conversationOptionsMenu";
 
 
-    /* Rename */
+    /* =========================================
+       RENAME BUTTON
+    ========================================= */
 
     const renameButton =
-        document.createElement(
-            "button"
-        );
+        document.createElement("button");
 
     renameButton.type = "button";
 
@@ -1442,7 +1427,11 @@ function showConversationOptions(conversation) {
 
     renameButton.addEventListener(
         "click",
-        function () {
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
 
             menu.remove();
 
@@ -1454,12 +1443,12 @@ function showConversationOptions(conversation) {
     );
 
 
-    /* Delete */
+    /* =========================================
+       DELETE BUTTON
+    ========================================= */
 
     const deleteButton =
-        document.createElement(
-            "button"
-        );
+        document.createElement("button");
 
     deleteButton.type = "button";
 
@@ -1472,7 +1461,11 @@ function showConversationOptions(conversation) {
 
     deleteButton.addEventListener(
         "click",
-        function () {
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
 
             menu.remove();
 
@@ -1493,19 +1486,23 @@ function showConversationOptions(conversation) {
     );
 
 
-    item.appendChild(
+    /* =========================================
+       PUT MENU INSIDE CONVERSATION ITEM
+    ========================================= */
+
+    conversationItem.appendChild(
         menu
     );
 
 
-    /*
-     * Close menu when tapping elsewhere
-     */
+    /* =========================================
+       CLOSE WHEN CLICKING OUTSIDE
+    ========================================= */
 
     setTimeout(
         function () {
 
-            function closeMenu(
+            function outsideClick(
                 event
             ) {
 
@@ -1513,7 +1510,7 @@ function showConversationOptions(conversation) {
                     !menu.contains(
                         event.target
                     ) &&
-                    !item.contains(
+                    !conversationItem.contains(
                         event.target
                     )
                 ) {
@@ -1522,7 +1519,7 @@ function showConversationOptions(conversation) {
 
                     document.removeEventListener(
                         "click",
-                        closeMenu
+                        outsideClick
                     );
 
                 }
@@ -1532,11 +1529,16 @@ function showConversationOptions(conversation) {
 
             document.addEventListener(
                 "click",
-                closeMenu
+                outsideClick
             );
 
         },
         0
+    );
+
+
+    console.log(
+        "✅ Conversation options opened"
     );
 
 }
