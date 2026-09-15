@@ -508,120 +508,282 @@ console.log("🚀 Conversation Manager loading...");
        RENDER LIST
     ===================================================== */
 
-    function renderConversationList(
-        searchTerm = ""
-    ) {
+    function renderConversationList(searchTerm = "") {
 
-        conversationList.innerHTML =
-            "";
+    conversationList.innerHTML = "";
 
+    const term =
+        String(searchTerm)
+            .toLowerCase()
+            .trim();
 
-        const term =
-            String(searchTerm)
-                .toLowerCase()
-                .trim();
+    const now = new Date();
 
+    const startOfToday =
+        new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+        );
 
-        const filtered =
-            conversations
-                .slice()
-                .sort(
-                    function (a, b) {
+    const startOfYesterday =
+        new Date(
+            startOfToday.getTime() -
+            24 * 60 * 60 * 1000
+        );
 
-                        return (
-                            new Date(
-                                b.updatedAt
-                            ) -
-                            new Date(
-                                a.updatedAt
-                            )
-                        );
-
-                    }
-                )
-                .filter(
-                    function (conversation) {
-
-                        if (!term) {
-
-                            return true;
-
-                        }
+    const startOfSevenDays =
+        new Date(
+            startOfToday.getTime() -
+            7 * 24 * 60 * 60 * 1000
+        );
 
 
-                        const title =
-                            String(
-                                conversation.title ||
-                                ""
-                            ).toLowerCase();
+    /*
+     * Sort newest first
+     */
 
+    const sorted =
+        conversations
+            .slice()
+            .sort(
+                function (a, b) {
 
-                        const messages =
-                            Array.isArray(
-                                conversation.messages
-                            )
-                                ? conversation.messages
-                                    .map(
-                                        function (message) {
+                    return (
+                        new Date(
+                            b.updatedAt
+                        ) -
+                        new Date(
+                            a.updatedAt
+                        )
+                    );
 
-                                            return String(
-                                                message.content ||
-                                                ""
-                                            );
-
-                                        }
-                                    )
-                                    .join(" ")
-                                    .toLowerCase()
-                                : "";
-
-
-                        return (
-                            title.includes(term) ||
-                            messages.includes(term)
-                        );
-
-                    }
-                );
-
-
-        if (!filtered.length) {
-
-            const empty =
-                document.createElement(
-                    "div"
-                );
-
-            empty.className =
-                "emptyConversations";
-
-            empty.textContent =
-                term
-                    ? "No matching conversations"
-                    : "No conversations yet";
-
-            conversationList.appendChild(
-                empty
+                }
             );
 
-            return;
 
-        }
+    /*
+     * Search
+     */
 
-
-        filtered.forEach(
+    const filtered =
+        sorted.filter(
             function (conversation) {
 
-                conversationList.appendChild(
-                    createConversationItem(
-                        conversation
+                if (!term) {
+
+                    return true;
+
+                }
+
+
+                const title =
+                    String(
+                        conversation.title || ""
+                    ).toLowerCase();
+
+
+                const messages =
+                    Array.isArray(
+                        conversation.messages
                     )
+                        ? conversation.messages
+                            .map(
+                                function (message) {
+
+                                    return String(
+                                        message.content ||
+                                        ""
+                                    );
+
+                                }
+                            )
+                            .join(" ")
+                            .toLowerCase()
+                        : "";
+
+
+                return (
+                    title.includes(term) ||
+                    messages.includes(term)
                 );
 
             }
         );
 
+
+    if (!filtered.length) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.className =
+            "emptyConversations";
+
+        empty.textContent =
+            term
+                ? "No matching conversations"
+                : "No conversations yet";
+
+        conversationList.appendChild(
+            empty
+        );
+
+        return;
+
     }
+
+
+    /*
+     * Group conversations
+     */
+
+    const groups = {
+
+        today: [],
+
+        yesterday: [],
+
+        previous7Days: [],
+
+        older: []
+
+    };
+
+
+    filtered.forEach(
+        function (conversation) {
+
+            const date =
+                new Date(
+                    conversation.updatedAt
+                );
+
+
+            if (date >= startOfToday) {
+
+                groups.today.push(
+                    conversation
+                );
+
+            }
+
+            else if (
+                date >= startOfYesterday
+            ) {
+
+                groups.yesterday.push(
+                    conversation
+                );
+
+            }
+
+            else if (
+                date >= startOfSevenDays
+            ) {
+
+                groups.previous7Days.push(
+                    conversation
+                );
+
+            }
+
+            else {
+
+                groups.older.push(
+                    conversation
+                );
+
+            }
+
+        }
+    );
+
+
+    /*
+     * Render groups
+     */
+
+    renderConversationGroup(
+        "Today",
+        groups.today
+    );
+
+    renderConversationGroup(
+        "Yesterday",
+        groups.yesterday
+    );
+
+    renderConversationGroup(
+        "Previous 7 Days",
+        groups.previous7Days
+    );
+
+    renderConversationGroup(
+        "Older",
+        groups.older
+    );
+
+}
+
+   function renderConversationGroup(
+    title,
+    items
+) {
+
+    if (!items.length) {
+
+        return;
+
+    }
+
+
+    const section =
+        document.createElement(
+            "div"
+        );
+
+    section.className =
+        "conversationGroup";
+
+
+    const heading =
+        document.createElement(
+            "div"
+        );
+
+    heading.className =
+        "conversationGroupTitle";
+
+    heading.textContent =
+        title;
+
+
+    section.appendChild(
+        heading
+    );
+
+
+    items.forEach(
+        function (conversation) {
+
+            section.appendChild(
+                createConversationItem(
+                    conversation
+                )
+            );
+
+        }
+    );
+
+
+    conversationList.appendChild(
+        section
+    );
+
+} 
 
 
     /* =====================================================
