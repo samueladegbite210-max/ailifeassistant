@@ -129,6 +129,25 @@ console.log("🚀 Conversation Manager loading...");
                 error
             );
 
+            /*
+             * localStorage can become full when
+             * conversations contain images.
+             */
+
+            if (
+                error &&
+                (
+                    error.name ===
+                    "QuotaExceededError"
+                )
+            ) {
+
+                console.warn(
+                    "⚠️ Conversation storage is full."
+                );
+
+            }
+
         }
 
     }
@@ -220,6 +239,446 @@ console.log("🚀 Conversation Manager loading...");
 
 
         return title;
+
+    }
+
+
+    /* =====================================================
+       IMAGE STORAGE
+    ===================================================== */
+
+    /*
+     * Images can be much larger than the amount of
+     * localStorage available in a browser.
+     *
+     * We therefore create a smaller copy before
+     * storing it with the conversation.
+     */
+
+    async function compressImageForStorage(
+        imageSource
+    ) {
+
+        if (!imageSource) {
+
+            return null;
+
+        }
+
+
+        try {
+
+            let blob = null;
+
+
+            /*
+             * If the source is already a Blob,
+             * use it directly.
+             */
+
+            if (
+                imageSource instanceof Blob
+            ) {
+
+                blob = imageSource;
+
+            }
+
+
+            /*
+             * If the source is a data URL,
+             * convert it to a Blob.
+             */
+
+            else if (
+                typeof imageSource ===
+                "string" &&
+                imageSource.startsWith(
+                    "data:image/"
+                )
+            ) {
+
+                const response =
+                    await fetch(
+                        imageSource
+                    );
+
+                blob =
+                    await response.blob();
+
+            }
+
+
+            if (!blob) {
+
+                return null;
+
+            }
+
+
+            const objectURL =
+                URL.createObjectURL(
+                    blob
+                );
+
+
+            const image =
+                new Image();
+
+
+            const loaded =
+                new Promise(
+                    function (
+                        resolve,
+                        reject
+                    ) {
+
+                        image.onload =
+                            resolve;
+
+                        image.onerror =
+                            reject;
+
+                    }
+                );
+
+
+            image.src =
+                objectURL;
+
+
+            await loaded;
+
+
+            /*
+             * Maximum stored image size.
+             */
+
+            const MAX_WIDTH = 1280;
+
+            const MAX_HEIGHT = 1280;
+
+
+            let width =
+                image.naturalWidth ||
+                image.width;
+
+            let height =
+                image.naturalHeight ||
+                image.height;
+
+
+            if (
+                !width ||
+                !height
+            ) {
+
+                URL.revokeObjectURL(
+                    objectURL
+                );
+
+                return null;
+
+            }
+
+
+            const scale =
+                Math.min(
+                    1,
+                    MAX_WIDTH / width,
+                    MAX_HEIGHT / height
+                );
+
+
+            width =
+                Math.round(
+                    width * scale
+                );
+
+            height =
+                Math.round(
+                    height * scale
+                );
+
+
+            const canvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            canvas.width =
+                width;
+
+            canvas.height =
+                height;
+
+
+            const context =
+                canvas.getContext(
+                    "2d"
+                );
+
+
+            if (!context) {
+
+                URL.revokeObjectURL(
+                    objectURL
+                );
+
+                return null;
+
+            }
+
+
+            context.drawImage(
+                image,
+                0,
+                0,
+                width,
+                height
+            );
+
+
+            const compressedData =
+                canvas.toDataURL(
+                    "image/jpeg",
+                    0.75
+                );
+
+
+            URL.revokeObjectURL(
+                objectURL
+            );
+
+
+            return compressedData;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Failed to compress image:",
+                error
+            );
+
+            return null;
+
+        }
+
+    }
+
+
+    /*
+     * Get the currently active vision image.
+     */
+
+    async function getVisionContextForStorage() {
+
+        try {
+
+            if (
+                typeof window.getActiveVisionContext !==
+                "function"
+            ) {
+
+                /*
+                 * Fallback for the current global
+                 * implementation.
+                 */
+
+                if (
+                    window.activeVisionContext &&
+                    window.activeVisionContext.image
+                ) {
+
+                    return {
+                        image:
+                            window.activeVisionContext.image,
+
+                        name:
+                            window.activeVisionContext.name ||
+                            "conversation-image.jpg",
+
+                        mimeType:
+                            window.activeVisionContext.mimeType ||
+                            "image/jpeg",
+
+                        createdAt:
+                            window.activeVisionContext.createdAt ||
+                            Date.now()
+                    };
+
+                }
+
+                return null;
+
+            }
+
+
+            const activeContext =
+                window.getActiveVisionContext();
+
+
+            if (
+                !activeContext ||
+                !activeContext.image
+            ) {
+
+                return null;
+
+            }
+
+
+            let imageData =
+                activeContext.image;
+
+
+            /*
+             * Compress only if needed.
+             */
+
+            if (
+                typeof imageData ===
+                "string" &&
+                imageData.startsWith(
+                    "data:image/"
+                )
+            ) {
+
+                /*
+                 * Already a data URL.
+                 * Compress it anyway so saved
+                 * conversations don't become huge.
+                 */
+
+                imageData =
+                    await compressImageForStorage(
+                        imageData
+                    );
+
+            }
+
+            else {
+
+                imageData =
+                    await compressImageForStorage(
+                        imageData
+                    );
+
+            }
+
+
+            if (!imageData) {
+
+                console.warn(
+                    "⚠️ Image could not be stored."
+                );
+
+                return null;
+
+            }
+
+
+            return {
+
+                image:
+                    imageData,
+
+                name:
+                    activeContext.name ||
+                    "conversation-image.jpg",
+
+                mimeType:
+                    "image/jpeg",
+
+                createdAt:
+                    Date.now()
+
+            };
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Failed to get vision context:",
+                error
+            );
+
+            return null;
+
+        }
+
+    }
+
+
+    /*
+     * Restore saved image context into the
+     * AI Life Assistant vision system.
+     */
+
+    function restoreVisionContext(
+        visionContext
+    ) {
+
+        if (
+            !visionContext ||
+            !visionContext.image
+        ) {
+
+            return false;
+
+        }
+
+
+        try {
+
+            /*
+             * The current smartAI.js exposes the
+             * active vision context globally.
+             */
+
+            window.activeVisionContext = {
+
+                image:
+                    visionContext.image,
+
+                name:
+                    visionContext.name ||
+                    "conversation-image.jpg",
+
+                mimeType:
+                    visionContext.mimeType ||
+                    "image/jpeg",
+
+                createdAt:
+                    Date.now()
+
+            };
+
+
+            console.log(
+                "🖼️ Saved image context restored:",
+                window.activeVisionContext.name
+            );
+
+
+            return true;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Failed to restore vision context:",
+                error
+            );
+
+            return false;
+
+        }
 
     }
 
@@ -324,9 +783,11 @@ console.log("🚀 Conversation Manager loading...");
 
                 messages.push({
 
-                    role: role,
+                    role:
+                        role,
 
-                    content: content,
+                    content:
+                        content,
 
                     timestamp:
                         new Date().toISOString()
@@ -373,7 +834,7 @@ console.log("🚀 Conversation Manager loading...");
        SAVE CURRENT CHAT
     ===================================================== */
 
-    function saveCurrentConversation() {
+    async function saveCurrentConversation() {
 
         const messages =
             getCurrentMessages();
@@ -409,6 +870,30 @@ console.log("🚀 Conversation Manager loading...");
             getCurrentConversation();
 
 
+        /*
+         * Get active image context.
+         */
+
+        let visionContext = null;
+
+
+        try {
+
+            visionContext =
+                await getVisionContextForStorage();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Vision context storage failed:",
+                error
+            );
+
+        }
+
+
         /* =================================================
            CREATE NEW CONVERSATION
         ================================================= */
@@ -421,7 +906,8 @@ console.log("🚀 Conversation Manager loading...");
 
             conversation = {
 
-                id: id,
+                id:
+                    id,
 
                 title:
                     createConversationTitle(
@@ -434,7 +920,15 @@ console.log("🚀 Conversation Manager loading...");
                 updatedAt:
                     new Date().toISOString(),
 
-                messages: messages
+                messages:
+                    messages,
+
+                /*
+                 * Persistent image context.
+                 */
+
+                visionContext:
+                    visionContext
 
             };
 
@@ -462,6 +956,23 @@ console.log("🚀 Conversation Manager loading...");
 
             conversation.updatedAt =
                 new Date().toISOString();
+
+
+            /*
+             * Only replace the stored image
+             * when an active image exists.
+             *
+             * This prevents a normal follow-up
+             * message from accidentally deleting
+             * the conversation's image context.
+             */
+
+            if (visionContext) {
+
+                conversation.visionContext =
+                    visionContext;
+
+            }
 
 
             /*
@@ -499,6 +1010,17 @@ console.log("🚀 Conversation Manager loading...");
         );
 
 
+        if (
+            conversation.visionContext
+        ) {
+
+            console.log(
+                "🖼️ Image context saved with conversation"
+            );
+
+        }
+
+
         return conversation;
 
     }
@@ -508,413 +1030,451 @@ console.log("🚀 Conversation Manager loading...");
        RENDER LIST
     ===================================================== */
 
-    function renderConversationList(searchTerm = "") {
+    function renderConversationList(
+        searchTerm = ""
+    ) {
 
-    conversationList.innerHTML = "";
+        conversationList.innerHTML =
+            "";
 
-    const term =
-        String(searchTerm)
-            .toLowerCase()
-            .trim();
+        const term =
+            String(searchTerm)
+                .toLowerCase()
+                .trim();
 
-    const now = new Date();
+        const now =
+            new Date();
 
-    const startOfToday =
-        new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate()
-        );
+        const startOfToday =
+            new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate()
+            );
 
-    const startOfYesterday =
-        new Date(
-            startOfToday.getTime() -
-            24 * 60 * 60 * 1000
-        );
+        const startOfYesterday =
+            new Date(
+                startOfToday.getTime() -
+                24 * 60 * 60 * 1000
+            );
 
-    const startOfSevenDays =
-        new Date(
-            startOfToday.getTime() -
-            7 * 24 * 60 * 60 * 1000
-        );
+        const startOfSevenDays =
+            new Date(
+                startOfToday.getTime() -
+                7 * 24 * 60 * 60 * 1000
+            );
 
 
-    /*
-     * Sort newest first
-     */
+        /*
+         * Sort newest first.
+         */
 
-    const sorted =
-        conversations
-            .slice()
-            .sort(
-                function (a, b) {
+        const sorted =
+            conversations
+                .slice()
+                .sort(
+                    function (a, b) {
+
+                        return (
+                            new Date(
+                                b.updatedAt
+                            ) -
+                            new Date(
+                                a.updatedAt
+                            )
+                        );
+
+                    }
+                );
+
+
+        /*
+         * Search.
+         */
+
+        const filtered =
+            sorted.filter(
+                function (conversation) {
+
+                    if (!term) {
+
+                        return true;
+
+                    }
+
+
+                    const title =
+                        String(
+                            conversation.title ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    const messages =
+                        Array.isArray(
+                            conversation.messages
+                        )
+                            ? conversation.messages
+                                .map(
+                                    function (
+                                        message
+                                    ) {
+
+                                        return String(
+                                            message.content ||
+                                            ""
+                                        );
+
+                                    }
+                                )
+                                .join(" ")
+                                .toLowerCase()
+                            : "";
+
 
                     return (
-                        new Date(
-                            b.updatedAt
-                        ) -
-                        new Date(
-                            a.updatedAt
-                        )
+                        title.includes(term) ||
+                        messages.includes(term)
                     );
 
                 }
             );
 
 
-    /*
-     * Search
-     */
+        if (!filtered.length) {
 
-    const filtered =
-        sorted.filter(
+            const empty =
+                document.createElement(
+                    "div"
+                );
+
+            empty.className =
+                "emptyConversations";
+
+            empty.textContent =
+                term
+                    ? "No matching conversations"
+                    : "No conversations yet";
+
+            conversationList.appendChild(
+                empty
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Group conversations.
+         */
+
+        const groups = {
+
+            today: [],
+
+            yesterday: [],
+
+            previous7Days: [],
+
+            older: []
+
+        };
+
+
+        filtered.forEach(
             function (conversation) {
 
-                if (!term) {
+                const date =
+                    new Date(
+                        conversation.updatedAt
+                    );
 
-                    return true;
+
+                if (date >= startOfToday) {
+
+                    groups.today.push(
+                        conversation
+                    );
 
                 }
 
+                else if (
+                    date >= startOfYesterday
+                ) {
 
-                const title =
-                    String(
-                        conversation.title || ""
-                    ).toLowerCase();
+                    groups.yesterday.push(
+                        conversation
+                    );
 
+                }
 
-                const messages =
-                    Array.isArray(
-                        conversation.messages
-                    )
-                        ? conversation.messages
-                            .map(
-                                function (message) {
+                else if (
+                    date >= startOfSevenDays
+                ) {
 
-                                    return String(
-                                        message.content ||
-                                        ""
-                                    );
+                    groups.previous7Days.push(
+                        conversation
+                    );
 
-                                }
-                            )
-                            .join(" ")
-                            .toLowerCase()
-                        : "";
+                }
 
+                else {
 
-                return (
-                    title.includes(term) ||
-                    messages.includes(term)
-                );
+                    groups.older.push(
+                        conversation
+                    );
+
+                }
 
             }
         );
 
 
-    if (!filtered.length) {
+        /*
+         * Render groups.
+         */
 
-        const empty =
+        renderConversationGroup(
+            "Today",
+            groups.today
+        );
+
+        renderConversationGroup(
+            "Yesterday",
+            groups.yesterday
+        );
+
+        renderConversationGroup(
+            "Previous 7 Days",
+            groups.previous7Days
+        );
+
+        renderConversationGroup(
+            "Older",
+            groups.older
+        );
+
+    }
+
+
+    /* =====================================================
+       RENDER GROUP
+    ===================================================== */
+
+    function renderConversationGroup(
+        title,
+        items
+    ) {
+
+        if (!items.length) {
+
+            return;
+
+        }
+
+
+        const section =
             document.createElement(
                 "div"
             );
 
-        empty.className =
-            "emptyConversations";
-
-        empty.textContent =
-            term
-                ? "No matching conversations"
-                : "No conversations yet";
-
-        conversationList.appendChild(
-            empty
-        );
-
-        return;
-
-    }
+        section.className =
+            "conversationGroup";
 
 
-    /*
-     * Group conversations
-     */
-
-    const groups = {
-
-        today: [],
-
-        yesterday: [],
-
-        previous7Days: [],
-
-        older: []
-
-    };
-
-
-    filtered.forEach(
-        function (conversation) {
-
-            const date =
-                new Date(
-                    conversation.updatedAt
-                );
-
-
-            if (date >= startOfToday) {
-
-                groups.today.push(
-                    conversation
-                );
-
-            }
-
-            else if (
-                date >= startOfYesterday
-            ) {
-
-                groups.yesterday.push(
-                    conversation
-                );
-
-            }
-
-            else if (
-                date >= startOfSevenDays
-            ) {
-
-                groups.previous7Days.push(
-                    conversation
-                );
-
-            }
-
-            else {
-
-                groups.older.push(
-                    conversation
-                );
-
-            }
-
-        }
-    );
-
-
-    /*
-     * Render groups
-     */
-
-    renderConversationGroup(
-        "Today",
-        groups.today
-    );
-
-    renderConversationGroup(
-        "Yesterday",
-        groups.yesterday
-    );
-
-    renderConversationGroup(
-        "Previous 7 Days",
-        groups.previous7Days
-    );
-
-    renderConversationGroup(
-        "Older",
-        groups.older
-    );
-
-}
-
-   function renderConversationGroup(
-    title,
-    items
-) {
-
-    if (!items.length) {
-
-        return;
-
-    }
-
-
-    const section =
-        document.createElement(
-            "div"
-        );
-
-    section.className =
-        "conversationGroup";
-
-
-    const heading =
-        document.createElement(
-            "div"
-        );
-
-    heading.className =
-        "conversationGroupTitle";
-
-    heading.textContent =
-        title;
-
-
-    section.appendChild(
-        heading
-    );
-
-
-    items.forEach(
-        function (conversation) {
-
-            section.appendChild(
-                createConversationItem(
-                    conversation
-                )
+        const heading =
+            document.createElement(
+                "div"
             );
 
-        }
-    );
+        heading.className =
+            "conversationGroupTitle";
+
+        heading.textContent =
+            title;
 
 
-    conversationList.appendChild(
-        section
-    );
+        section.appendChild(
+            heading
+        );
 
-} 
+
+        items.forEach(
+            function (conversation) {
+
+                section.appendChild(
+                    createConversationItem(
+                        conversation
+                    )
+                );
+
+            }
+        );
+
+
+        conversationList.appendChild(
+            section
+        );
+
+    }
 
 
     /* =====================================================
        CONVERSATION ITEM
     ===================================================== */
 
-    function createConversationItem(conversation) {
-
-    const item =
-        document.createElement("div");
-
-    item.className =
-        "conversationItem";
-
-    item.dataset.id =
-        conversation.id;
-
-
-    if (
-        conversation.id ===
-        currentConversationId
+    function createConversationItem(
+        conversation
     ) {
 
-        item.classList.add("active");
+        const item =
+            document.createElement(
+                "div"
+            );
+
+        item.className =
+            "conversationItem";
+
+        item.dataset.id =
+            conversation.id;
+
+
+        if (
+            conversation.id ===
+            currentConversationId
+        ) {
+
+            item.classList.add(
+                "active"
+            );
+
+        }
+
+
+        /* =========================================
+           OPEN CONVERSATION BUTTON
+        ========================================= */
+
+        const openButton =
+            document.createElement(
+                "button"
+            );
+
+        openButton.type =
+            "button";
+
+        openButton.className =
+            "conversationOpenButton";
+
+
+        const icon =
+            document.createElement(
+                "span"
+            );
+
+        icon.className =
+            "conversationIcon";
+
+        icon.textContent =
+            conversation.visionContext
+                ? "🖼️"
+                : "💬";
+
+
+        const title =
+            document.createElement(
+                "span"
+            );
+
+        title.className =
+            "conversationTitle";
+
+        title.textContent =
+            conversation.title ||
+            "New Chat";
+
+
+        openButton.appendChild(
+            icon
+        );
+
+        openButton.appendChild(
+            title
+        );
+
+
+        openButton.addEventListener(
+            "click",
+            function () {
+
+                openConversation(
+                    conversation.id
+                );
+
+            }
+        );
+
+
+        /* =========================================
+           OPTIONS BUTTON
+        ========================================= */
+
+        const optionsButton =
+            document.createElement(
+                "button"
+            );
+
+        optionsButton.type =
+            "button";
+
+        optionsButton.className =
+            "conversationDeleteButton";
+
+        optionsButton.textContent =
+            "⋯";
+
+        optionsButton.setAttribute(
+            "aria-label",
+            "Conversation options"
+        );
+
+
+        optionsButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                showConversationOptions(
+                    conversation,
+                    item
+                );
+
+            }
+        );
+
+
+        /* =========================================
+           ADD ELEMENTS
+        ========================================= */
+
+        item.appendChild(
+            openButton
+        );
+
+        item.appendChild(
+            optionsButton
+        );
+
+
+        return item;
 
     }
 
-
-    /* =========================================
-       OPEN CONVERSATION BUTTON
-    ========================================= */
-
-    const openButton =
-        document.createElement("button");
-
-    openButton.type = "button";
-
-    openButton.className =
-        "conversationOpenButton";
-
-
-    const icon =
-        document.createElement("span");
-
-    icon.className =
-        "conversationIcon";
-
-    icon.textContent = "💬";
-
-
-    const title =
-        document.createElement("span");
-
-    title.className =
-        "conversationTitle";
-
-    title.textContent =
-        conversation.title ||
-        "New Chat";
-
-
-    openButton.appendChild(icon);
-
-    openButton.appendChild(title);
-
-
-    openButton.addEventListener(
-        "click",
-        function () {
-
-            openConversation(
-                conversation.id
-            );
-
-        }
-    );
-
-
-    /* =========================================
-       OPTIONS BUTTON
-    ========================================= */
-
-    const optionsButton =
-        document.createElement("button");
-
-    optionsButton.type = "button";
-
-    optionsButton.className =
-        "conversationDeleteButton";
-
-    optionsButton.textContent = "⋯";
-
-    optionsButton.setAttribute(
-        "aria-label",
-        "Conversation options"
-    );
-
-
-    optionsButton.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-            showConversationOptions(
-                conversation,
-                item
-            );
-
-        }
-    );
-
-
-    /* =========================================
-       ADD ELEMENTS
-    ========================================= */
-
-    item.appendChild(
-        openButton
-    );
-
-    item.appendChild(
-        optionsButton
-    );
-
-
-    return item;
-
-}
 
     /* =====================================================
        OPEN CONVERSATION
@@ -958,9 +1518,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         /*
-         * Clear AI context.
-         * The actual uploaded image is
-         * intentionally not stored.
+         * Clear current AI context.
          */
 
         if (
@@ -975,11 +1533,6 @@ console.log("🚀 Conversation Manager loading...");
 
         /*
          * Restore conversation history.
-         *
-         * We give loaded messages fresh
-         * timestamps so the existing
-         * 30-minute AI context system
-         * can use the restored conversation.
          */
 
         if (
@@ -989,7 +1542,14 @@ console.log("🚀 Conversation Manager loading...");
         ) {
 
             window.conversationHistory =
-                conversation.messages.map(
+                (
+                    Array.isArray(
+                        conversation.messages
+                    )
+                        ? conversation.messages
+                        : []
+                )
+                .map(
                     function (message) {
 
                         return {
@@ -1012,6 +1572,43 @@ console.log("🚀 Conversation Manager loading...");
 
 
         /*
+         * Restore saved image context.
+         */
+
+        if (
+            conversation.visionContext
+        ) {
+
+            restoreVisionContext(
+                conversation.visionContext
+            );
+
+        }
+
+        else {
+
+            /*
+             * Make sure an old image from
+             * another chat cannot leak into
+             * this conversation.
+             */
+
+            if (
+                typeof window.clearConversationHistory ===
+                "function"
+            ) {
+
+                /*
+                 * clearConversationHistory already
+                 * clears active vision context.
+                 */
+
+            }
+
+        }
+
+
+        /*
          * Clear visible chat.
          */
 
@@ -1023,7 +1620,14 @@ console.log("🚀 Conversation Manager loading...");
          * Render saved messages.
          */
 
-        conversation.messages.forEach(
+        (
+            Array.isArray(
+                conversation.messages
+            )
+                ? conversation.messages
+                : []
+        )
+        .forEach(
             function (message) {
 
                 addMessageToChat(
@@ -1069,6 +1673,17 @@ console.log("🚀 Conversation Manager loading...");
             "📂 Opened:",
             conversation.title
         );
+
+
+        if (
+            conversation.visionContext
+        ) {
+
+            console.log(
+                "🖼️ Vision context restored for conversation"
+            );
+
+        }
 
     }
 
@@ -1135,7 +1750,8 @@ console.log("🚀 Conversation Manager loading...");
             }
 
             else if (
-                formatted instanceof Node
+                formatted instanceof
+                Node
             ) {
 
                 messageText.appendChild(
@@ -1236,7 +1852,7 @@ console.log("🚀 Conversation Manager loading...");
     function startNewChat() {
 
         /*
-         * Save the current conversation
+         * Save current conversation
          * before leaving it.
          */
 
@@ -1244,8 +1860,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         /*
-         * IMPORTANT:
-         * Forget the old ID.
+         * Forget old conversation ID.
          */
 
         setCurrentConversationId(
@@ -1255,6 +1870,9 @@ console.log("🚀 Conversation Manager loading...");
 
         /*
          * Clear AI conversation memory.
+         *
+         * This also clears active vision
+         * context in the current smartAI.js.
          */
 
         if (
@@ -1270,6 +1888,9 @@ console.log("🚀 Conversation Manager loading...");
 
             window.conversationHistory =
                 [];
+
+            window.activeVisionContext =
+                null;
 
         }
 
@@ -1375,257 +1996,260 @@ console.log("🚀 Conversation Manager loading...");
 
     }
 
-/* =====================================================
-   CONVERSATION OPTIONS
-===================================================== */
 
-function showConversationOptions(
-    conversation,
-    conversationItem
-) {
+    /* =====================================================
+       CONVERSATION OPTIONS
+    ===================================================== */
 
-    /* Remove existing menu */
+    function showConversationOptions(
+        conversation,
+        conversationItem
+    ) {
 
-    const existingMenu =
-        document.querySelector(
-            ".conversationOptionsMenu"
-        );
-
-    if (existingMenu) {
-
-        existingMenu.remove();
-
-    }
-
-
-    /* =========================================
-       CREATE MENU
-    ========================================= */
-
-    const menu =
-        document.createElement("div");
-
-    menu.className =
-        "conversationOptionsMenu";
-
-
-    /* =========================================
-       RENAME BUTTON
-    ========================================= */
-
-    const renameButton =
-        document.createElement("button");
-
-    renameButton.type = "button";
-
-    renameButton.className =
-        "conversationOptionButton";
-
-    renameButton.innerHTML =
-        "✏️ <span>Rename</span>";
-
-
-    renameButton.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-            menu.remove();
-
-            renameConversation(
-                conversation.id
+        const existingMenu =
+            document.querySelector(
+                ".conversationOptionsMenu"
             );
+
+        if (existingMenu) {
+
+            existingMenu.remove();
 
         }
-    );
 
 
-    /* =========================================
-       DELETE BUTTON
-    ========================================= */
-
-    const deleteButton =
-        document.createElement("button");
-
-    deleteButton.type = "button";
-
-    deleteButton.className =
-        "conversationOptionButton deleteOption";
-
-    deleteButton.innerHTML =
-        "🗑️ <span>Delete</span>";
-
-
-    deleteButton.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-
-            event.stopPropagation();
-
-            menu.remove();
-
-            deleteConversation(
-                conversation.id
+        const menu =
+            document.createElement(
+                "div"
             );
 
-        }
-    );
+        menu.className =
+            "conversationOptionsMenu";
 
 
-    menu.appendChild(
-        renameButton
-    );
+        /* =========================================
+           RENAME
+        ========================================= */
 
-    menu.appendChild(
-        deleteButton
-    );
-
-
-    /* =========================================
-       PUT MENU INSIDE CONVERSATION ITEM
-    ========================================= */
-
-    conversationItem.appendChild(
-        menu
-    );
-
-
-    /* =========================================
-       CLOSE WHEN CLICKING OUTSIDE
-    ========================================= */
-
-    setTimeout(
-        function () {
-
-            function outsideClick(
-                event
-            ) {
-
-                if (
-                    !menu.contains(
-                        event.target
-                    ) &&
-                    !conversationItem.contains(
-                        event.target
-                    )
-                ) {
-
-                    menu.remove();
-
-                    document.removeEventListener(
-                        "click",
-                        outsideClick
-                    );
-
-                }
-
-            }
-
-
-            document.addEventListener(
-                "click",
-                outsideClick
+        const renameButton =
+            document.createElement(
+                "button"
             );
 
-        },
-        0
-    );
+        renameButton.type =
+            "button";
+
+        renameButton.className =
+            "conversationOptionButton";
+
+        renameButton.innerHTML =
+            "✏️ <span>Rename</span>";
 
 
-    console.log(
-        "✅ Conversation options opened"
-    );
+        renameButton.addEventListener(
+            "click",
+            function (event) {
 
-}
-/* =====================================================
-   RENAME CONVERSATION
-===================================================== */
+                event.preventDefault();
 
-function renameConversation(
-    conversationId
-) {
+                event.stopPropagation();
 
-    const conversation =
-        conversations.find(
-            function (item) {
+                menu.remove();
 
-                return (
-                    item.id ===
-                    conversationId
+                renameConversation(
+                    conversation.id
                 );
 
             }
         );
 
 
-    if (!conversation) {
+        /* =========================================
+           DELETE
+        ========================================= */
 
-        return;
+        const deleteButton =
+            document.createElement(
+                "button"
+            );
 
-    }
+        deleteButton.type =
+            "button";
+
+        deleteButton.className =
+            "conversationOptionButton deleteOption";
+
+        deleteButton.innerHTML =
+            "🗑️ <span>Delete</span>";
 
 
-    const newTitle =
-        prompt(
-            "Rename conversation:",
-            conversation.title ||
-            "New Chat"
+        deleteButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                menu.remove();
+
+                deleteConversation(
+                    conversation.id
+                );
+
+            }
         );
 
 
-    if (newTitle === null) {
+        menu.appendChild(
+            renameButton
+        );
 
-        return;
+        menu.appendChild(
+            deleteButton
+        );
+
+
+        conversationItem.appendChild(
+            menu
+        );
+
+
+        /*
+         * Close when clicking outside.
+         */
+
+        setTimeout(
+            function () {
+
+                function outsideClick(
+                    event
+                ) {
+
+                    if (
+                        !menu.contains(
+                            event.target
+                        ) &&
+                        !conversationItem.contains(
+                            event.target
+                        )
+                    ) {
+
+                        menu.remove();
+
+                        document.removeEventListener(
+                            "click",
+                            outsideClick
+                        );
+
+                    }
+
+                }
+
+
+                document.addEventListener(
+                    "click",
+                    outsideClick
+                );
+
+            },
+            0
+        );
+
+
+        console.log(
+            "✅ Conversation options opened"
+        );
 
     }
 
 
-    const cleanedTitle =
-        newTitle
-            .replace(/\s+/g, " ")
-            .trim();
+    /* =====================================================
+       RENAME CONVERSATION
+    ===================================================== */
+
+    function renameConversation(
+        conversationId
+    ) {
+
+        const conversation =
+            conversations.find(
+                function (item) {
+
+                    return (
+                        item.id ===
+                        conversationId
+                    );
+
+                }
+            );
 
 
-    if (!cleanedTitle) {
+        if (!conversation) {
 
-        return;
+            return;
+
+        }
+
+
+        const newTitle =
+            prompt(
+                "Rename conversation:",
+                conversation.title ||
+                "New Chat"
+            );
+
+
+        if (newTitle === null) {
+
+            return;
+
+        }
+
+
+        const cleanedTitle =
+            newTitle
+                .replace(/\s+/g, " ")
+                .trim();
+
+
+        if (!cleanedTitle) {
+
+            return;
+
+        }
+
+
+        conversation.title =
+            cleanedTitle.length > 60
+                ? cleanedTitle
+                    .substring(0, 60)
+                    .trim() + "…"
+                : cleanedTitle;
+
+
+        conversation.updatedAt =
+            new Date().toISOString();
+
+
+        saveConversations();
+
+
+        renderConversationList(
+            searchInput
+                ? searchInput.value
+                : ""
+        );
+
+
+        console.log(
+            "✏️ Conversation renamed:",
+            conversation.title
+        );
 
     }
 
 
-    conversation.title =
-        cleanedTitle.length > 60
-            ? cleanedTitle
-                .substring(0, 60)
-                .trim() + "…"
-            : cleanedTitle;
-
-
-    conversation.updatedAt =
-        new Date().toISOString();
-
-
-    saveConversations();
-
-
-    renderConversationList(
-        searchInput
-            ? searchInput.value
-            : ""
-    );
-
-
-    console.log(
-        "✏️ Conversation renamed:",
-        conversation.title
-    );
-
-}
     /* =====================================================
        DELETE
     ===================================================== */
@@ -1687,8 +2311,8 @@ function renameConversation(
 
         /*
          * If deleting the currently
-         * open conversation, start
-         * a fresh chat.
+         * open conversation, clear
+         * the active AI context.
          */
 
         if (
@@ -1707,6 +2331,16 @@ function renameConversation(
             ) {
 
                 window.clearConversationHistory();
+
+            }
+
+            else {
+
+                window.conversationHistory =
+                    [];
+
+                window.activeVisionContext =
+                    null;
 
             }
 
@@ -1769,6 +2403,16 @@ function renameConversation(
         ) {
 
             window.clearConversationHistory();
+
+        }
+
+        else {
+
+            window.conversationHistory =
+                [];
+
+            window.activeVisionContext =
+                null;
 
         }
 
@@ -1898,9 +2542,9 @@ function renameConversation(
 
     loadConversations();
 
+
     /*
-     * If a previous active conversation
-     * exists, restore it.
+     * Restore previous active conversation.
      */
 
     if (currentConversationId) {
@@ -1953,31 +2597,32 @@ function renameConversation(
 
     window.conversationManager = {
 
-    saveCurrentConversation:
-        saveCurrentConversation,
+        saveCurrentConversation:
+            saveCurrentConversation,
 
-    renderConversationList:
-        renderConversationList,
+        renderConversationList:
+            renderConversationList,
 
-    openConversation:
-        openConversation,
+        openConversation:
+            openConversation,
 
-    startNewChat:
-        startNewChat,
+        startNewChat:
+            startNewChat,
 
-    renameConversation:
-        renameConversation,
+        renameConversation:
+            renameConversation,
 
-    deleteConversation:
-        deleteConversation,
+        deleteConversation:
+            deleteConversation,
 
-    clearAllConversations:
-        clearAllConversations,
+        clearAllConversations:
+            clearAllConversations,
 
-    getCurrentConversation:
-        getCurrentConversation
+        getCurrentConversation:
+            getCurrentConversation
 
-};
+    };
+
 
     console.log(
         "✅ Conversation Manager ready"
