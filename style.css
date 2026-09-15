@@ -2705,7 +2705,6 @@ ChatGPT Typing Animation
     margin-bottom: 6px;
     padding-left: 2px;
 }
-
 /* =====================================================
    PHASE 9A — MESSAGE ACTIONS
 ===================================================== */
@@ -2713,7 +2712,8 @@ ChatGPT Typing Animation
 .messageActions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
     margin-top: 8px;
     padding-top: 2px;
 }
@@ -2726,7 +2726,10 @@ ChatGPT Typing Animation
     padding: 5px 8px;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.1s ease;
 }
 
 .messageActionButton:hover {
@@ -2739,7 +2742,7 @@ ChatGPT Typing Animation
 }
 
 .messageActionButton:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: default;
 }
 /*==================================================
