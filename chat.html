@@ -499,7 +499,128 @@ console.log(
 ></script>
 
 <script src="js/chatActions.js?v=2"></script>
- 
+
+    <script>
+/* =====================================================
+   PHASE 9B — SIDE MENU CONTROLLER
+===================================================== */
+
+(function () {
+
+    const menuBtn =
+        document.getElementById("menuBtn");
+
+    const closeMenuBtn =
+        document.getElementById("closeMenuBtn");
+
+    const sideMenu =
+        document.getElementById("sideMenu");
+
+    const sideMenuOverlay =
+        document.getElementById("sideMenuOverlay");
+
+    const newChatBtn =
+        document.getElementById("newChatBtn");
+
+
+    if (
+        !menuBtn ||
+        !closeMenuBtn ||
+        !sideMenu ||
+        !sideMenuOverlay
+    ) {
+
+        console.error(
+            "❌ Side menu elements not found"
+        );
+
+        return;
+
+    }
+
+
+    function openSideMenu() {
+
+        sideMenu.classList.add("open");
+
+        sideMenuOverlay.classList.add("open");
+
+        document.body.style.overflow =
+            "hidden";
+
+    }
+
+
+    function closeSideMenu() {
+
+        sideMenu.classList.remove("open");
+
+        sideMenuOverlay.classList.remove("open");
+
+        document.body.style.overflow =
+            "";
+
+    }
+
+
+    menuBtn.addEventListener(
+        "click",
+        openSideMenu
+    );
+
+
+    closeMenuBtn.addEventListener(
+        "click",
+        closeSideMenu
+    );
+
+
+    sideMenuOverlay.addEventListener(
+        "click",
+        closeSideMenu
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeSideMenu();
+
+            }
+
+        }
+    );
+
+
+    if (newChatBtn) {
+
+        newChatBtn.addEventListener(
+            "click",
+            function () {
+
+                closeSideMenu();
+
+                console.log(
+                    "🆕 New Chat clicked"
+                );
+
+            }
+        );
+
+    }
+
+
+    console.log(
+        "✅ Phase 9B Side Menu UI ready"
+    );
+
+})();
+</script>
 <!-- =====================================================
      CHAT CONTROLLER
 
