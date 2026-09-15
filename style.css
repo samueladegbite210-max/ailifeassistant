@@ -3309,41 +3309,78 @@ ChatGPT Typing Animation
 
 .conversationOptionsMenu {
     position: absolute;
-    right: 8px;
-    top: 42px;
+    right: 42px;
+    top: 38px;
+
     width: 150px;
+
     background: #1D232D;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border: 1px solid rgba(
+        255,
+        255,
+        255,
+        0.10
+    );
+
     border-radius: 10px;
+
     padding: 5px;
-    z-index: 10001;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+    z-index: 10050;
+
+    box-shadow:
+        0 12px 30px
+        rgba(0, 0, 0, 0.45);
 }
 
 
 .conversationOptionButton {
     width: 100%;
+
     display: flex;
+
     align-items: center;
+
     gap: 9px;
+
     border: none;
+
     background: transparent;
+
     color: #E5E7EB;
-    padding: 10px 11px;
+
+    padding: 11px;
+
     border-radius: 7px;
+
     font-size: 13px;
+
     text-align: left;
+
     cursor: pointer;
 }
 
 
 .conversationOptionButton:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
 }
 
 
 .conversationOptionButton:active {
-    background: rgba(255, 255, 255, 0.12);
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.12
+        );
 }
 
 
@@ -3353,7 +3390,13 @@ ChatGPT Typing Animation
 
 
 .conversationOptionButton.deleteOption:hover {
-    background: rgba(239, 68, 68, 0.12);
+    background:
+        rgba(
+            239,
+            68,
+            68,
+            0.12
+        );
 }
 /*==================================================
 THE END
