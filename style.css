@@ -3204,6 +3204,69 @@ ChatGPT Typing Animation
     }
 
 }
+/* =====================================================
+   CONVERSATION ITEMS
+===================================================== */
+
+.conversationItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+    border-radius: 9px;
+}
+
+.conversationItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.conversationOpenButton {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: #E5E7EB;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    text-align: left;
+    padding: 11px 8px;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.conversationOpenButton:hover {
+    color: #FFFFFF;
+}
+
+.conversationIcon {
+    flex-shrink: 0;
+    font-size: 15px;
+}
+
+.conversationTitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+.conversationDeleteButton {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: #6B7280;
+    border-radius: 7px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.conversationDeleteButton:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+}
 /*==================================================
 THE END
 ==================================================*/
