@@ -1516,17 +1516,47 @@ function createConversationTitle(
 
 
         const icon =
-            document.createElement(
-                "span"
-            );
+    document.createElement(
+        "span"
+    );
 
-        icon.className =
-            "conversationIcon";
+icon.className =
+    "conversationIcon";
 
-        icon.textContent =
-            conversation.visionContext
-                ? "🖼️"
-                : "💬";
+const hasImage =
+    !!(
+        conversation.visionContext &&
+        conversation.visionContext.image
+    );
+
+icon.textContent =
+    hasImage
+        ? "🖼️"
+        : "💬";
+
+if (hasImage) {
+
+    icon.title =
+        "This conversation contains an image";
+
+    icon.setAttribute(
+        "aria-label",
+        "Image conversation"
+    );
+
+}
+
+else {
+
+    icon.title =
+        "Text conversation";
+
+    icon.setAttribute(
+        "aria-label",
+        "Text conversation"
+    );
+
+}
 
 
         const title =
@@ -1542,13 +1572,52 @@ function createConversationTitle(
             "New Chat";
 
 
-        openButton.appendChild(
-            icon
+        const titleWrapper =
+    document.createElement(
+        "span"
+    );
+
+titleWrapper.className =
+    "conversationTitleWrapper";
+
+
+titleWrapper.appendChild(
+    title
+);
+
+
+if (hasImage) {
+
+    const imageBadge =
+        document.createElement(
+            "span"
         );
 
-        openButton.appendChild(
-            title
-        );
+    imageBadge.className =
+        "conversationImageBadge";
+
+    imageBadge.textContent =
+        "Image";
+
+    imageBadge.setAttribute(
+        "aria-label",
+        "Contains image"
+    );
+
+    titleWrapper.appendChild(
+        imageBadge
+    );
+
+}
+
+
+openButton.appendChild(
+    icon
+);
+
+openButton.appendChild(
+    titleWrapper
+);
 
 
         openButton.addEventListener(
