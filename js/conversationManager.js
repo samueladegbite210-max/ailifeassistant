@@ -5,21 +5,27 @@ console.log("🚀 Conversation Manager loading...");
 (function () {
 
     /* =====================================================
-       SETTINGS
+       STORAGE
     ===================================================== */
 
     const STORAGE_KEY =
         "aiLifeAssistantConversations";
 
+    const CURRENT_CHAT_KEY =
+        "aiLifeAssistantCurrentConversationId";
+
+
     let conversations = [];
+
+    let currentConversationId =
+        localStorage.getItem(
+            CURRENT_CHAT_KEY
+        ) || null;
 
 
     /* =====================================================
        ELEMENTS
     ===================================================== */
-
-    const sideMenu =
-        document.getElementById("sideMenu");
 
     const conversationList =
         document.getElementById(
@@ -42,13 +48,15 @@ console.log("🚀 Conversation Manager loading...");
         );
 
     const chatBox =
-        document.getElementById("chatBox");
+        document.getElementById(
+            "chatBox"
+        );
 
 
     if (!conversationList || !chatBox) {
 
         console.error(
-            "❌ Conversation Manager: required elements not found"
+            "❌ Conversation Manager elements not found"
         );
 
         return;
@@ -57,7 +65,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       LOAD CONVERSATIONS
+       STORAGE HELPERS
     ===================================================== */
 
     function loadConversations() {
@@ -80,24 +88,17 @@ console.log("🚀 Conversation Manager loading...");
             const parsed =
                 JSON.parse(saved);
 
-            if (Array.isArray(parsed)) {
-
-                conversations = parsed;
-
-            }
-
-            else {
-
-                conversations = [];
-
-            }
+            conversations =
+                Array.isArray(parsed)
+                    ? parsed
+                    : [];
 
         }
 
         catch (error) {
 
             console.error(
-                "❌ Could not load conversations:",
+                "❌ Failed to load conversations:",
                 error
             );
 
@@ -107,10 +108,6 @@ console.log("🚀 Conversation Manager loading...");
 
     }
 
-
-    /* =====================================================
-       SAVE CONVERSATIONS
-    ===================================================== */
 
     function saveConversations() {
 
@@ -128,7 +125,7 @@ console.log("🚀 Conversation Manager loading...");
         catch (error) {
 
             console.error(
-                "❌ Could not save conversations:",
+                "❌ Failed to save conversations:",
                 error
             );
 
@@ -137,11 +134,39 @@ console.log("🚀 Conversation Manager loading...");
     }
 
 
+    function setCurrentConversationId(
+        id
+    ) {
+
+        currentConversationId =
+            id || null;
+
+
+        if (currentConversationId) {
+
+            localStorage.setItem(
+                CURRENT_CHAT_KEY,
+                currentConversationId
+            );
+
+        }
+
+        else {
+
+            localStorage.removeItem(
+                CURRENT_CHAT_KEY
+            );
+
+        }
+
+    }
+
+
     /* =====================================================
-       CREATE ID
+       ID
     ===================================================== */
 
-    function createId() {
+    function createConversationId() {
 
         return (
             "chat_" +
@@ -149,23 +174,26 @@ console.log("🚀 Conversation Manager loading...");
             "_" +
             Math.random()
                 .toString(36)
-                .substring(2, 9)
+                .substring(2, 10)
         );
 
     }
 
 
     /* =====================================================
-       CREATE TITLE
+       TITLE
     ===================================================== */
 
-    function createTitle(text) {
+    function createConversationTitle(
+        text
+    ) {
 
         if (!text) {
 
             return "New Chat";
 
         }
+
 
         let title =
             String(text)
@@ -179,32 +207,6 @@ console.log("🚀 Conversation Manager loading...");
 
         }
 
-
-        /*
-         * Remove common attachment prefixes
-         */
-
-        title =
-            title
-                .replace(
-                    /^(what is this|describe this image|analyze this image)\s*/i,
-                    ""
-                )
-                .trim();
-
-
-        if (!title) {
-
-            title = String(text)
-                .replace(/\s+/g, " ")
-                .trim();
-
-        }
-
-
-        /*
-         * Keep titles short
-         */
 
         if (title.length > 45) {
 
@@ -223,7 +225,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       GET CURRENT CHAT MESSAGES
+       GET CURRENT DOM MESSAGES
     ===================================================== */
 
     function getCurrentMessages() {
@@ -231,20 +233,13 @@ console.log("🚀 Conversation Manager loading...");
         const messages = [];
 
 
-        if (!chatBox) {
-
-            return messages;
-
-        }
-
-
-        const messageElements =
+        const elements =
             chatBox.querySelectorAll(
                 ".message"
             );
 
 
-        messageElements.forEach(
+        elements.forEach(
             function (element) {
 
                 const textElement =
@@ -260,7 +255,7 @@ console.log("🚀 Conversation Manager loading...");
                 }
 
 
-                const content =
+                let content =
                     (
                         textElement.innerText ||
                         textElement.textContent ||
@@ -312,15 +307,11 @@ console.log("🚀 Conversation Manager loading...");
 
 
                 /*
-                 * Ignore the initial welcome
-                 * message.
+                 * Ignore the default welcome message.
                  */
 
                 if (
                     role === "assistant" &&
-                    /^👋 Hello\s+/i.test(
-                        content
-                    ) &&
                     content.includes(
                         "How can I help you today?"
                     )
@@ -352,6 +343,33 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
+       FIND CURRENT CONVERSATION
+    ===================================================== */
+
+    function getCurrentConversation() {
+
+        if (!currentConversationId) {
+
+            return null;
+
+        }
+
+
+        return conversations.find(
+            function (conversation) {
+
+                return (
+                    conversation.id ===
+                    currentConversationId
+                );
+
+            }
+        ) || null;
+
+    }
+
+
+    /* =====================================================
        SAVE CURRENT CHAT
     ===================================================== */
 
@@ -362,7 +380,9 @@ console.log("🚀 Conversation Manager loading...");
 
 
         /*
-         * Need at least one user message
+         * Don't create a conversation
+         * until the user actually sends
+         * something.
          */
 
         const firstUserMessage =
@@ -385,31 +405,26 @@ console.log("🚀 Conversation Manager loading...");
         }
 
 
-        /*
-         * If the conversation already exists,
-         * update it.
-         */
-
         let conversation =
-            conversations[0];
+            getCurrentConversation();
 
 
-        /*
-         * For now the newest conversation
-         * is treated as the current one.
-         */
+        /* =================================================
+           CREATE NEW CONVERSATION
+        ================================================= */
 
-        if (
-            !conversation ||
-            conversation.messages.length === 0
-        ) {
+        if (!conversation) {
+
+            const id =
+                createConversationId();
+
 
             conversation = {
 
-                id: createId(),
+                id: id,
 
                 title:
-                    createTitle(
+                    createConversationTitle(
                         firstUserMessage.content
                     ),
 
@@ -428,22 +443,61 @@ console.log("🚀 Conversation Manager loading...");
                 conversation
             );
 
+
+            setCurrentConversationId(
+                id
+            );
+
         }
+
+        /* =================================================
+           UPDATE EXISTING CONVERSATION
+        ================================================= */
 
         else {
 
             conversation.messages =
                 messages;
 
+
             conversation.updatedAt =
                 new Date().toISOString();
+
+
+            /*
+             * Make sure title exists.
+             */
+
+            if (
+                !conversation.title ||
+                conversation.title ===
+                "New Chat"
+            ) {
+
+                conversation.title =
+                    createConversationTitle(
+                        firstUserMessage.content
+                    );
+
+            }
 
         }
 
 
         saveConversations();
 
-        renderConversationList();
+        renderConversationList(
+            searchInput
+                ? searchInput.value
+                : ""
+        );
+
+
+        console.log(
+            "💾 Conversation saved:",
+            conversation.title
+        );
+
 
         return conversation;
 
@@ -451,7 +505,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       RENDER CONVERSATION LIST
+       RENDER LIST
     ===================================================== */
 
     function renderConversationList(
@@ -469,43 +523,66 @@ console.log("🚀 Conversation Manager loading...");
 
 
         const filtered =
-            conversations.filter(
-                function (conversation) {
+            conversations
+                .slice()
+                .sort(
+                    function (a, b) {
 
-                    if (!term) {
-
-                        return true;
+                        return (
+                            new Date(
+                                b.updatedAt
+                            ) -
+                            new Date(
+                                a.updatedAt
+                            )
+                        );
 
                     }
+                )
+                .filter(
+                    function (conversation) {
+
+                        if (!term) {
+
+                            return true;
+
+                        }
 
 
-                    const title =
-                        String(
-                            conversation.title ||
-                            ""
-                        )
-                        .toLowerCase();
-
-
-                    const firstMessage =
-                        conversation.messages &&
-                        conversation.messages.length
-                            ? String(
-                                conversation
-                                    .messages[0]
-                                    .content ||
+                        const title =
+                            String(
+                                conversation.title ||
                                 ""
-                            ).toLowerCase()
-                            : "";
+                            ).toLowerCase();
 
 
-                    return (
-                        title.includes(term) ||
-                        firstMessage.includes(term)
-                    );
+                        const messages =
+                            Array.isArray(
+                                conversation.messages
+                            )
+                                ? conversation.messages
+                                    .map(
+                                        function (message) {
 
-                }
-            );
+                                            return String(
+                                                message.content ||
+                                                ""
+                                            );
+
+                                        }
+                                    )
+                                    .join(" ")
+                                    .toLowerCase()
+                                : "";
+
+
+                        return (
+                            title.includes(term) ||
+                            messages.includes(term)
+                        );
+
+                    }
+                );
 
 
         if (!filtered.length) {
@@ -535,13 +612,10 @@ console.log("🚀 Conversation Manager loading...");
         filtered.forEach(
             function (conversation) {
 
-                const item =
+                conversationList.appendChild(
                     createConversationItem(
                         conversation
-                    );
-
-                conversationList.appendChild(
-                    item
+                    )
                 );
 
             }
@@ -551,7 +625,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       CREATE CONVERSATION ITEM
+       CONVERSATION ITEM
     ===================================================== */
 
     function createConversationItem(
@@ -567,18 +641,26 @@ console.log("🚀 Conversation Manager loading...");
             "conversationItem";
 
 
-        item.dataset.id =
-            conversation.id;
+        if (
+            conversation.id ===
+            currentConversationId
+        ) {
+
+            item.classList.add(
+                "active"
+            );
+
+        }
 
 
-        const main =
+        const openButton =
             document.createElement(
                 "button"
             );
 
-        main.type = "button";
+        openButton.type = "button";
 
-        main.className =
+        openButton.className =
             "conversationOpenButton";
 
 
@@ -607,12 +689,16 @@ console.log("🚀 Conversation Manager loading...");
             "New Chat";
 
 
-        main.appendChild(icon);
+        openButton.appendChild(
+            icon
+        );
 
-        main.appendChild(title);
+        openButton.appendChild(
+            title
+        );
 
 
-        main.addEventListener(
+        openButton.addEventListener(
             "click",
             function () {
 
@@ -639,7 +725,7 @@ console.log("🚀 Conversation Manager loading...");
 
         deleteButton.setAttribute(
             "aria-label",
-            "Conversation options"
+            "Delete conversation"
         );
 
 
@@ -657,7 +743,9 @@ console.log("🚀 Conversation Manager loading...");
         );
 
 
-        item.appendChild(main);
+        item.appendChild(
+            openButton
+        );
 
         item.appendChild(
             deleteButton
@@ -692,38 +780,47 @@ console.log("🚀 Conversation Manager loading...");
 
         if (!conversation) {
 
+            console.error(
+                "❌ Conversation not found"
+            );
+
             return;
 
         }
 
 
         /*
-         * Clear visible chat
+         * Set active conversation FIRST.
          */
 
-        chatBox.innerHTML =
-            "";
-
-
-        /*
-         * Restore messages
-         */
-
-        conversation.messages.forEach(
-            function (message) {
-
-                addMessageToChat(
-                    message.role,
-                    message.content,
-                    message.timestamp
-                );
-
-            }
+        setCurrentConversationId(
+            conversation.id
         );
 
 
         /*
-         * Restore AI conversation history
+         * Clear AI context.
+         * The actual uploaded image is
+         * intentionally not stored.
+         */
+
+        if (
+            typeof window.clearConversationHistory ===
+            "function"
+        ) {
+
+            window.clearConversationHistory();
+
+        }
+
+
+        /*
+         * Restore conversation history.
+         *
+         * We give loaded messages fresh
+         * timestamps so the existing
+         * 30-minute AI context system
+         * can use the restored conversation.
          */
 
         if (
@@ -745,7 +842,6 @@ console.log("🚀 Conversation Manager loading...");
                                 message.content,
 
                             timestamp:
-                                message.timestamp ||
                                 Date.now()
 
                         };
@@ -757,42 +853,61 @@ console.log("🚀 Conversation Manager loading...");
 
 
         /*
-         * Close menu
+         * Clear visible chat.
+         */
+
+        chatBox.innerHTML =
+            "";
+
+
+        /*
+         * Render saved messages.
+         */
+
+        conversation.messages.forEach(
+            function (message) {
+
+                addMessageToChat(
+                    message.role,
+                    message.content,
+                    message.timestamp
+                );
+
+            }
+        );
+
+
+        /*
+         * Close drawer.
          */
 
         closeSideMenu();
 
 
         /*
-         * Scroll down
+         * Scroll to bottom.
          */
 
         setTimeout(
             function () {
 
-                if (
-                    typeof window.scrollChatToBottom ===
-                    "function"
-                ) {
-
-                    window.scrollChatToBottom();
-
-                }
-
-                else {
-
-                    chatBox.scrollTop =
-                        chatBox.scrollHeight;
-
-                }
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
 
             },
             50
         );
 
 
+        renderConversationList(
+            searchInput
+                ? searchInput.value
+                : ""
+        );
+
+
         console.log(
-            "📂 Conversation opened:",
+            "📂 Opened:",
             conversation.title
         );
 
@@ -800,7 +915,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       ADD MESSAGE TO CHAT
+       ADD SAVED MESSAGE TO CHAT
     ===================================================== */
 
     function addMessageToChat(
@@ -833,7 +948,8 @@ console.log("🚀 Conversation Manager loading...");
 
 
         /*
-         * Use existing formatter for AI
+         * Restore AI formatting if
+         * formatter is available.
          */
 
         if (
@@ -913,25 +1029,6 @@ console.log("🚀 Conversation Manager loading...");
             message
         );
 
-
-        /*
-         * Let chatActions add Copy +
-         * Regenerate to AI messages.
-         */
-
-        if (
-            role === "assistant" &&
-            window.chatActions &&
-            typeof window.chatActions.enhanceMessage ===
-            "function"
-        ) {
-
-            window.chatActions.enhanceMessage(
-                message
-            );
-
-        }
-
     }
 
 
@@ -974,7 +1071,154 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       DELETE CONVERSATION
+       NEW CHAT
+    ===================================================== */
+
+    function startNewChat() {
+
+        /*
+         * Save the current conversation
+         * before leaving it.
+         */
+
+        saveCurrentConversation();
+
+
+        /*
+         * IMPORTANT:
+         * Forget the old ID.
+         */
+
+        setCurrentConversationId(
+            null
+        );
+
+
+        /*
+         * Clear AI conversation memory.
+         */
+
+        if (
+            typeof window.clearConversationHistory ===
+            "function"
+        ) {
+
+            window.clearConversationHistory();
+
+        }
+
+        else {
+
+            window.conversationHistory =
+                [];
+
+        }
+
+
+        /*
+         * Clear current chat.
+         */
+
+        chatBox.innerHTML =
+            "";
+
+
+        /*
+         * Clear composer.
+         */
+
+        const input =
+            document.getElementById(
+                "userInput"
+            );
+
+        if (input) {
+
+            input.value =
+                "";
+
+        }
+
+
+        /*
+         * Restore welcome screen.
+         */
+
+        const welcome =
+            document.createElement(
+                "div"
+            );
+
+        welcome.className =
+            "message ai";
+
+
+        const welcomeText =
+            document.createElement(
+                "div"
+            );
+
+        welcomeText.className =
+            "messageText";
+
+
+        const name =
+            document.getElementById(
+                "welcomeName"
+            );
+
+
+        welcomeText.textContent =
+            "👋 Hello " +
+            (
+                name
+                    ? name.textContent.trim()
+                    : "Samuel"
+            ) +
+            "!\n\nHow can I help you today?";
+
+
+        const welcomeTime =
+            document.createElement(
+                "div"
+            );
+
+        welcomeTime.className =
+            "messageTime";
+
+        welcomeTime.textContent =
+            "Now";
+
+
+        welcome.appendChild(
+            welcomeText
+        );
+
+        welcome.appendChild(
+            welcomeTime
+        );
+
+
+        chatBox.appendChild(
+            welcome
+        );
+
+
+        closeSideMenu();
+
+
+        renderConversationList();
+
+
+        console.log(
+            "🆕 New independent conversation started"
+        );
+
+    }
+
+
+    /* =====================================================
+       DELETE
     ===================================================== */
 
     function deleteConversation(
@@ -1032,6 +1276,38 @@ console.log("🚀 Conversation Manager loading...");
             );
 
 
+        /*
+         * If deleting the currently
+         * open conversation, start
+         * a fresh chat.
+         */
+
+        if (
+            currentConversationId ===
+            conversationId
+        ) {
+
+            setCurrentConversationId(
+                null
+            );
+
+
+            if (
+                typeof window.clearConversationHistory ===
+                "function"
+            ) {
+
+                window.clearConversationHistory();
+
+            }
+
+
+            chatBox.innerHTML =
+                "";
+
+        }
+
+
         saveConversations();
 
         renderConversationList();
@@ -1039,94 +1315,6 @@ console.log("🚀 Conversation Manager loading...");
 
         console.log(
             "🗑️ Conversation deleted"
-        );
-
-    }
-
-
-    /* =====================================================
-       NEW CHAT
-    ===================================================== */
-
-    function startNewChat() {
-
-        /*
-         * Save current conversation first
-         */
-
-        saveCurrentConversation();
-
-
-        /*
-         * Clear visible chat
-         */
-
-        chatBox.innerHTML =
-            "";
-
-
-        /*
-         * Clear AI history
-         */
-
-        if (
-            typeof window.clearConversationHistory ===
-            "function"
-        ) {
-
-            window.clearConversationHistory();
-
-        }
-
-        else if (
-            Array.isArray(
-                window.conversationHistory
-            )
-        ) {
-
-            window.conversationHistory =
-                [];
-
-        }
-
-
-        /*
-         * Clear input
-         */
-
-        const input =
-            document.getElementById(
-                "userInput"
-            );
-
-        if (input) {
-
-            input.value =
-                "";
-
-        }
-
-
-        /*
-         * Add welcome message
-         */
-
-        addMessageToChat(
-            "assistant",
-            "👋 Hello Samuel!\n\nHow can I help you today?",
-            new Date().toISOString()
-        );
-
-
-        /*
-         * Close menu
-         */
-
-        closeSideMenu();
-
-
-        console.log(
-            "🆕 New chat started"
         );
 
     }
@@ -1161,6 +1349,25 @@ console.log("🚀 Conversation Manager loading...");
         conversations = [];
 
 
+        setCurrentConversationId(
+            null
+        );
+
+
+        if (
+            typeof window.clearConversationHistory ===
+            "function"
+        ) {
+
+            window.clearConversationHistory();
+
+        }
+
+
+        chatBox.innerHTML =
+            "";
+
+
         saveConversations();
 
         renderConversationList();
@@ -1169,47 +1376,6 @@ console.log("🚀 Conversation Manager loading...");
         console.log(
             "🗑️ All conversations cleared"
         );
-
-    }
-
-
-    /* =====================================================
-       CLOSE SIDE MENU
-    ===================================================== */
-
-    function closeSideMenu() {
-
-        const menu =
-            document.getElementById(
-                "sideMenu"
-            );
-
-        const overlay =
-            document.getElementById(
-                "sideMenuOverlay"
-            );
-
-
-        if (menu) {
-
-            menu.classList.remove(
-                "open"
-            );
-
-        }
-
-
-        if (overlay) {
-
-            overlay.classList.remove(
-                "open"
-            );
-
-        }
-
-
-        document.body.style.overflow =
-            "";
 
     }
 
@@ -1271,39 +1437,115 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       LOAD
+       AUTO SAVE CHAT CHANGES
     ===================================================== */
 
-    loadConversations();
-
-    renderConversationList();
+    let saveTimer = null;
 
 
-    /* =====================================================
-       AUTO-SAVE
-    ===================================================== */
+    function scheduleAutoSave() {
 
-    window.addEventListener(
-        "beforeunload",
-        function () {
+        clearTimeout(
+            saveTimer
+        );
 
-            saveCurrentConversation();
 
+        saveTimer =
+            setTimeout(
+                function () {
+
+                    saveCurrentConversation();
+
+                },
+                700
+            );
+
+    }
+
+
+    const chatObserver =
+        new MutationObserver(
+            function () {
+
+                scheduleAutoSave();
+
+            }
+        );
+
+
+    chatObserver.observe(
+        chatBox,
+        {
+            childList: true,
+            subtree: true,
+            characterData: true
         }
     );
 
 
     /* =====================================================
-       GLOBAL API
+       INITIAL LOAD
+    ===================================================== */
+
+    loadConversations();
+
+    /*
+     * If a previous active conversation
+     * exists, restore it.
+     */
+
+    if (currentConversationId) {
+
+        const existing =
+            conversations.find(
+                function (conversation) {
+
+                    return (
+                        conversation.id ===
+                        currentConversationId
+                    );
+
+                }
+            );
+
+
+        if (existing) {
+
+            setTimeout(
+                function () {
+
+                    openConversation(
+                        existing.id
+                    );
+
+                },
+                50
+            );
+
+        }
+
+        else {
+
+            setCurrentConversationId(
+                null
+            );
+
+        }
+
+    }
+
+
+    renderConversationList();
+
+
+    /* =====================================================
+       PUBLIC API
     ===================================================== */
 
     window.conversationManager = {
 
         saveCurrentConversation:
             saveCurrentConversation,
-
-        loadConversations:
-            loadConversations,
 
         renderConversationList:
             renderConversationList,
@@ -1318,7 +1560,10 @@ console.log("🚀 Conversation Manager loading...");
             deleteConversation,
 
         clearAllConversations:
-            clearAllConversations
+            clearAllConversations,
+
+        getCurrentConversation:
+            getCurrentConversation
 
     };
 
