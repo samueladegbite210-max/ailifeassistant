@@ -1380,38 +1380,166 @@ optionsButton.addEventListener(
    CONVERSATION OPTIONS
 ===================================================== */
 
-function showConversationOptions(
-    conversation
-) {
+function showConversationOptions(conversation) {
 
-    const choice =
-        prompt(
-            "Conversation options:\n\n" +
-            "1. Rename\n" +
-            "2. Delete\n\n" +
-            "Enter 1 or 2:"
+    /* Remove any existing menu */
+
+    const oldMenu =
+        document.querySelector(
+            ".conversationOptionsMenu"
         );
 
+    if (oldMenu) {
 
-    if (choice === "1") {
-
-        renameConversation(
-            conversation.id
-        );
+        oldMenu.remove();
 
     }
 
-    else if (choice === "2") {
 
-        deleteConversation(
-            conversation.id
+    /* Find the conversation item */
+
+    const item =
+        document.querySelector(
+            '.conversationItem[data-id="' +
+            conversation.id +
+            '"]'
         );
 
+
+    if (!item) {
+
+        return;
+
     }
+
+
+    /* Create menu */
+
+    const menu =
+        document.createElement(
+            "div"
+        );
+
+    menu.className =
+        "conversationOptionsMenu";
+
+
+    /* Rename */
+
+    const renameButton =
+        document.createElement(
+            "button"
+        );
+
+    renameButton.type = "button";
+
+    renameButton.className =
+        "conversationOptionButton";
+
+    renameButton.innerHTML =
+        "✏️ <span>Rename</span>";
+
+
+    renameButton.addEventListener(
+        "click",
+        function () {
+
+            menu.remove();
+
+            renameConversation(
+                conversation.id
+            );
+
+        }
+    );
+
+
+    /* Delete */
+
+    const deleteButton =
+        document.createElement(
+            "button"
+        );
+
+    deleteButton.type = "button";
+
+    deleteButton.className =
+        "conversationOptionButton deleteOption";
+
+    deleteButton.innerHTML =
+        "🗑️ <span>Delete</span>";
+
+
+    deleteButton.addEventListener(
+        "click",
+        function () {
+
+            menu.remove();
+
+            deleteConversation(
+                conversation.id
+            );
+
+        }
+    );
+
+
+    menu.appendChild(
+        renameButton
+    );
+
+    menu.appendChild(
+        deleteButton
+    );
+
+
+    item.appendChild(
+        menu
+    );
+
+
+    /*
+     * Close menu when tapping elsewhere
+     */
+
+    setTimeout(
+        function () {
+
+            function closeMenu(
+                event
+            ) {
+
+                if (
+                    !menu.contains(
+                        event.target
+                    ) &&
+                    !item.contains(
+                        event.target
+                    )
+                ) {
+
+                    menu.remove();
+
+                    document.removeEventListener(
+                        "click",
+                        closeMenu
+                    );
+
+                }
+
+            }
+
+
+            document.addEventListener(
+                "click",
+                closeMenu
+            );
+
+        },
+        0
+    );
 
 }
-
-
 /* =====================================================
    RENAME CONVERSATION
 ===================================================== */
