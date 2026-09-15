@@ -872,46 +872,44 @@ console.log("🚀 Conversation Manager loading...");
         );
 
 
-        const deleteButton =
-            document.createElement(
-                "button"
-            );
+        const optionsButton =
+    document.createElement(
+        "button"
+    );
 
-        deleteButton.type = "button";
+optionsButton.type = "button";
 
-        deleteButton.className =
-            "conversationDeleteButton";
+optionsButton.className =
+    "conversationDeleteButton";
 
-        deleteButton.textContent =
-            "⋯";
+optionsButton.textContent =
+    "⋯";
 
-        deleteButton.setAttribute(
-            "aria-label",
-            "Delete conversation"
+optionsButton.setAttribute(
+    "aria-label",
+    "Conversation options"
+);
+
+
+optionsButton.addEventListener(
+    "click",
+    function (event) {
+
+        event.stopPropagation();
+
+        showConversationOptions(
+            conversation
         );
 
-
-        deleteButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.stopPropagation();
-
-                deleteConversation(
-                    conversation.id
-                );
-
-            }
-        );
-
-
+    }
+);
         item.appendChild(
             openButton
         );
 
         item.appendChild(
-            deleteButton
-        );
+    optionsButton
+);
 
 
         return item;
@@ -1378,7 +1376,126 @@ console.log("🚀 Conversation Manager loading...");
 
     }
 
+/* =====================================================
+   CONVERSATION OPTIONS
+===================================================== */
 
+function showConversationOptions(
+    conversation
+) {
+
+    const choice =
+        prompt(
+            "Conversation options:\n\n" +
+            "1. Rename\n" +
+            "2. Delete\n\n" +
+            "Enter 1 or 2:"
+        );
+
+
+    if (choice === "1") {
+
+        renameConversation(
+            conversation.id
+        );
+
+    }
+
+    else if (choice === "2") {
+
+        deleteConversation(
+            conversation.id
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   RENAME CONVERSATION
+===================================================== */
+
+function renameConversation(
+    conversationId
+) {
+
+    const conversation =
+        conversations.find(
+            function (item) {
+
+                return (
+                    item.id ===
+                    conversationId
+                );
+
+            }
+        );
+
+
+    if (!conversation) {
+
+        return;
+
+    }
+
+
+    const newTitle =
+        prompt(
+            "Rename conversation:",
+            conversation.title ||
+            "New Chat"
+        );
+
+
+    if (newTitle === null) {
+
+        return;
+
+    }
+
+
+    const cleanedTitle =
+        newTitle
+            .replace(/\s+/g, " ")
+            .trim();
+
+
+    if (!cleanedTitle) {
+
+        return;
+
+    }
+
+
+    conversation.title =
+        cleanedTitle.length > 60
+            ? cleanedTitle
+                .substring(0, 60)
+                .trim() + "…"
+            : cleanedTitle;
+
+
+    conversation.updatedAt =
+        new Date().toISOString();
+
+
+    saveConversations();
+
+
+    renderConversationList(
+        searchInput
+            ? searchInput.value
+            : ""
+    );
+
+
+    console.log(
+        "✏️ Conversation renamed:",
+        conversation.title
+    );
+
+}
     /* =====================================================
        DELETE
     ===================================================== */
@@ -1706,29 +1823,31 @@ console.log("🚀 Conversation Manager loading...");
 
     window.conversationManager = {
 
-        saveCurrentConversation:
-            saveCurrentConversation,
+    saveCurrentConversation:
+        saveCurrentConversation,
 
-        renderConversationList:
-            renderConversationList,
+    renderConversationList:
+        renderConversationList,
 
-        openConversation:
-            openConversation,
+    openConversation:
+        openConversation,
 
-        startNewChat:
-            startNewChat,
+    startNewChat:
+        startNewChat,
 
-        deleteConversation:
-            deleteConversation,
+    renameConversation:
+        renameConversation,
 
-        clearAllConversations:
-            clearAllConversations,
+    deleteConversation:
+        deleteConversation,
 
-        getCurrentConversation:
-            getCurrentConversation
+    clearAllConversations:
+        clearAllConversations,
 
-    };
+    getCurrentConversation:
+        getCurrentConversation
 
+};
 
     console.log(
         "✅ Conversation Manager ready"
