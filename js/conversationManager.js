@@ -199,49 +199,195 @@ console.log("🚀 Conversation Manager loading...");
     }
 
 
-    /* =====================================================
-       TITLE
-    ===================================================== */
+/* =====================================================
+   SMART CONVERSATION TITLE
+===================================================== */
 
-    function createConversationTitle(
-        text
-    ) {
+function createConversationTitle(
+    text
+) {
 
-        if (!text) {
+    if (!text) {
 
-            return "New Chat";
+        return "New Chat";
 
-        }
+    }
 
 
-        let title =
+    let title =
+        String(text)
+            .replace(/\s+/g, " ")
+            .trim();
+
+
+    if (!title) {
+
+        return "New Chat";
+
+    }
+
+
+    /*
+     * Remove common unnecessary opening phrases.
+     *
+     * Example:
+     *
+     * "Please can you help me plan my day?"
+     *
+     * becomes:
+     *
+     * "Help me plan my day?"
+     */
+
+    title =
+        title.replace(
+            /^(please\s+)?(can\s+you|could\s+you|would\s+you)\s+/i,
+            ""
+        );
+
+
+    title =
+        title.replace(
+            /^(please\s+)?(help\s+me)\s+(with\s+)?/i,
+            "Help me "
+        );
+
+
+    title =
+        title.replace(
+            /^i\s+want\s+you\s+to\s+/i,
+            ""
+        );
+
+
+    title =
+        title.replace(
+            /^i\s+need\s+you\s+to\s+/i,
+            ""
+        );
+
+
+    title =
+        title.replace(
+            /^i\s+would\s+like\s+you\s+to\s+/i,
+            ""
+        );
+
+
+    title =
+        title.trim();
+
+
+    /*
+     * If removing the opening phrase made the
+     * title empty, fall back to the original text.
+     */
+
+    if (!title) {
+
+        title =
             String(text)
                 .replace(/\s+/g, " ")
                 .trim();
 
-
-        if (!title) {
-
-            return "New Chat";
-
-        }
+    }
 
 
-        if (title.length > 45) {
+    /*
+     * Prefer the first complete sentence/question
+     * when the user sends a long message.
+     */
+
+    const sentenceMatch =
+        title.match(
+            /^(.+?[.!?])(?:\s|$)/
+        );
+
+
+    if (
+        sentenceMatch &&
+        sentenceMatch[1]
+    ) {
+
+        title =
+            sentenceMatch[1].trim();
+
+    }
+
+
+    /*
+     * Remove accidental line breaks.
+     */
+
+    title =
+        title.replace(
+            /\s+/g,
+            " "
+        ).trim();
+
+
+    /*
+     * Keep conversation titles short enough
+     * for the mobile side menu.
+     */
+
+    const MAX_TITLE_LENGTH = 55;
+
+
+    if (
+        title.length >
+        MAX_TITLE_LENGTH
+    ) {
+
+        title =
+            title
+                .substring(
+                    0,
+                    MAX_TITLE_LENGTH
+                )
+                .trim();
+
+
+        /*
+         * Avoid ending in the middle of a word.
+         */
+
+        const lastSpace =
+            title.lastIndexOf(" ");
+
+
+        if (
+            lastSpace > 25
+        ) {
 
             title =
                 title.substring(
                     0,
-                    45
-                ).trim() + "…";
+                    lastSpace
+                ).trim();
 
         }
 
 
-        return title;
+        title += "…";
 
     }
 
+
+    /*
+     * Final fallback.
+     */
+
+    if (!title) {
+
+        return "New Chat";
+
+    }
+
+
+    return title;
+
+}
 
     /* =====================================================
        IMAGE STORAGE
