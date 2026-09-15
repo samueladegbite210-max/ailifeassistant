@@ -59,6 +59,7 @@ console.log("🚀 Phase 9A chat actions loading...");
             textarea.style.position = "fixed";
             textarea.style.left = "-9999px";
             textarea.style.top = "0";
+            textarea.style.opacity = "0";
 
             document.body.appendChild(
                 textarea
@@ -425,8 +426,14 @@ console.log("🚀 Phase 9A chat actions loading...");
 
 
         /* ================================================
-           SAVE ORIGINAL BUTTON TEXT
+           SAVE ORIGINAL RESPONSE
         ================================================= */
+
+        const originalResponse =
+            getMessageText(
+                aiMessage
+            );
+
 
         const originalButtonText =
             button.textContent;
@@ -438,22 +445,18 @@ console.log("🚀 Phase 9A chat actions loading...");
 
 
         /* ================================================
-           PREVENT DUPLICATE HISTORY
-
-           Current smartAIReply() automatically adds:
-
-           user
-           assistant
-
-           Therefore remove the existing latest
-           user + assistant pair first.
-
-           The new smartAIReply() will then add
-           the fresh pair.
+           REMOVE OLD HISTORY PAIR
         ================================================= */
 
         const history =
             window.conversationHistory;
+
+        let removedUser =
+            null;
+
+        let removedAssistant =
+            null;
+
 
         if (
             Array.isArray(history) &&
@@ -471,19 +474,15 @@ console.log("🚀 Phase 9A chat actions loading...");
                 ];
 
 
-            /*
-             * Only remove them if the latest
-             * conversation pair matches the
-             * message we're regenerating.
-             */
-
             const lastIsAssistant =
                 last &&
                 last.role === "assistant";
 
+
             const previousIsUser =
                 secondLast &&
                 secondLast.role === "user";
+
 
             const sameQuestion =
                 previousIsUser &&
@@ -499,8 +498,12 @@ console.log("🚀 Phase 9A chat actions loading...");
                 sameQuestion
             ) {
 
-                history.pop();
-                history.pop();
+                removedAssistant =
+                    history.pop();
+
+                removedUser =
+                    history.pop();
+
 
                 console.log(
                     "🧹 Removed old conversation pair before regeneration"
@@ -540,14 +543,6 @@ console.log("🚀 Phase 9A chat actions loading...");
 
             /* ============================================
                CALL EXISTING AI SYSTEM
-
-               IMPORTANT:
-
-               We do NOT call the backend directly.
-
-               We use smartAIReply() so all existing
-               modules, memory, vision, files and
-               conversation handling remain intact.
             ============================================ */
 
             const newResponse =
@@ -572,59 +567,64 @@ console.log("🚀 Phase 9A chat actions loading...");
 
             /* ============================================
                RENDER NEW RESPONSE
-
-               Use existing formatter if available.
             ============================================ */
 
             if (
-    typeof window.formatAIResponse ===
-    "function"
-) {
+                messageText &&
+                typeof window.formatAIResponse ===
+                "function"
+            ) {
 
-    const formatted =
-        window.formatAIResponse(
-            String(newResponse)
-        );
+                const formatted =
+                    window.formatAIResponse(
+                        String(newResponse)
+                    );
 
-    messageText.innerHTML = "";
 
-    if (
-        formatted instanceof DocumentFragment
-    ) {
+                messageText.innerHTML =
+                    "";
 
-        messageText.appendChild(
-            formatted
-        );
 
-    }
+                /*
+                 * IMPORTANT:
+                 *
+                 * formatAIResponse() returns a
+                 * DocumentFragment.
+                 *
+                 * Do NOT put it inside innerHTML.
+                 */
 
-    else if (
-        formatted instanceof Node
-    ) {
+                if (
+                    formatted instanceof
+                    DocumentFragment
+                ) {
 
-        messageText.appendChild(
-            formatted
-        );
+                    messageText.appendChild(
+                        formatted
+                    );
 
-    }
+                }
 
-    else {
+                else if (
+                    formatted instanceof Node
+                ) {
 
-        messageText.innerHTML =
-            String(formatted);
+                    messageText.appendChild(
+                        formatted
+                    );
 
-    }
+                }
 
-}
+                else {
 
-else {
+                    messageText.innerHTML =
+                        String(formatted);
 
-    messageText.textContent =
-        String(newResponse);
+                }
 
-}
+            }
 
-            else {
+            else if (messageText) {
 
                 messageText.textContent =
                     String(newResponse);
@@ -643,6 +643,7 @@ else {
 
             button.textContent =
                 "✓ Regenerated";
+
 
             setTimeout(
                 function () {
@@ -688,19 +689,70 @@ else {
             );
 
 
+            /* ============================================
+               RESTORE VISIBLE OLD RESPONSE
+            ============================================ */
+
             if (messageText) {
 
-                messageText.innerHTML =
-                    "⚠️ I couldn't regenerate the response. Please try again.";
+                if (
+                    typeof window.formatAIResponse ===
+                    "function"
+                ) {
+
+                    const restored =
+                        window.formatAIResponse(
+                            originalResponse
+                        );
+
+
+                    messageText.innerHTML =
+                        "";
+
+
+                    if (
+                        restored instanceof
+                        DocumentFragment
+                    ) {
+
+                        messageText.appendChild(
+                            restored
+                        );
+
+                    }
+
+                    else if (
+                        restored instanceof Node
+                    ) {
+
+                        messageText.appendChild(
+                            restored
+                        );
+
+                    }
+
+                    else {
+
+                        messageText.innerHTML =
+                            String(restored);
+
+                    }
+
+                }
+
+                else {
+
+                    messageText.textContent =
+                        originalResponse;
+
+                }
 
             }
 
 
-            /*
-             * If regeneration failed after removing
-             * the old pair, restore the old conversation
-             * pair so memory is not damaged.
-             */
+            /* ============================================
+               RESTORE ORIGINAL HISTORY
+            ============================================ */
 
             if (
                 Array.isArray(
@@ -708,27 +760,21 @@ else {
                 )
             ) {
 
-                window.conversationHistory.push({
+                if (removedUser) {
 
-                    role:
-                        "user",
+                    window.conversationHistory.push(
+                        removedUser
+                    );
 
-                    content:
-                        userText,
+                }
 
-                    timestamp:
-                        Date.now()
+                if (removedAssistant) {
 
-                });
+                    window.conversationHistory.push(
+                        removedAssistant
+                    );
 
-                /*
-                 * We don't have the original AI response
-                 * here anymore, so the visible response
-                 * remains the source of truth.
-                 *
-                 * The next successful request will rebuild
-                 * the conversation naturally.
-                 */
+                }
 
             }
 
@@ -738,6 +784,11 @@ else {
 
             button.disabled =
                 false;
+
+
+            alert(
+                "I couldn't regenerate the response. Please try again."
+            );
 
         }
 
@@ -757,10 +808,14 @@ else {
         }
 
 
+        /* ================================================
+           DON'T ADD TWICE
+        ================================================= */
+
         if (
             messageElement.dataset &&
             messageElement.dataset.actionsAdded ===
-                "true"
+            "true"
         ) {
 
             return;
@@ -898,17 +953,13 @@ else {
                                     ================================== */
 
                                     if (
-
                                         node.classList &&
-
                                         node.classList.contains(
                                             "message"
                                         ) &&
-
                                         node.classList.contains(
                                             "ai"
                                         )
-
                                     ) {
 
                                         enhanceMessage(
