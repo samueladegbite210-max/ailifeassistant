@@ -577,16 +577,52 @@ console.log("🚀 Phase 9A chat actions loading...");
             ============================================ */
 
             if (
-                typeof window.formatAIResponse ===
-                "function"
-            ) {
+    typeof window.formatAIResponse ===
+    "function"
+) {
 
-                messageText.innerHTML =
-                    window.formatAIResponse(
-                        String(newResponse)
-                    );
+    const formatted =
+        window.formatAIResponse(
+            String(newResponse)
+        );
 
-            }
+    messageText.innerHTML = "";
+
+    if (
+        formatted instanceof DocumentFragment
+    ) {
+
+        messageText.appendChild(
+            formatted
+        );
+
+    }
+
+    else if (
+        formatted instanceof Node
+    ) {
+
+        messageText.appendChild(
+            formatted
+        );
+
+    }
+
+    else {
+
+        messageText.innerHTML =
+            String(formatted);
+
+    }
+
+}
+
+else {
+
+    messageText.textContent =
+        String(newResponse);
+
+}
 
             else {
 
