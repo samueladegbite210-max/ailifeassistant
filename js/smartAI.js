@@ -154,55 +154,94 @@ function addConversationMessage(
 ========================================== */
 
 function getConversationHistory() {
-
     cleanConversationHistory();
 
     const history =
         window.conversationHistory || [];
 
     if (!history.length) {
-
         return [];
-
     }
-
-    /*
-       SMART CONTEXT SELECTION
-
-       Keep the most recent conversation,
-       while giving the AI enough previous
-       context to understand follow-up questions.
-
-       We store up to 40 messages, but send
-       only the most useful recent 24 messages
-       to reduce unnecessary Groq usage.
-    */
 
     const MAX_CONTEXT_MESSAGES = 24;
 
-    const selectedHistory =
-        history.slice(
-            -MAX_CONTEXT_MESSAGES
-        );
+    /*
+     * =====================================================
+     * SMART CONTEXT PRIORITIZATION
+     * =====================================================
+     */
 
-    return selectedHistory.map(
-        function (item) {
+    const recentHistory =
+        history.slice(-MAX_CONTEXT_MESSAGES);
+
+    const imageKeywords =
+        /\b(image|photo|picture|pictured|shown|see|look|this|that|it|attachment|uploaded|camera|visual)\b/i;
+
+    const importantKeywords =
+        /\b(my name|my name is|i am|i'm|i live|i work|my job|my goal|my project|remember|important|prefer|preference|birthday|family|friend|school|business)\b/i;
+
+    const scoredHistory =
+        recentHistory.map(function (item, index) {
+
+            let score = index;
+
+            const text =
+                String(item.content || "");
+
+            /*
+             * Give extra priority to image-related
+             * conversation.
+             */
+            if (imageKeywords.test(text)) {
+                score += 20;
+            }
+
+            /*
+             * Give extra priority to information that
+             * may be useful later in the conversation.
+             */
+            if (importantKeywords.test(text)) {
+                score += 15;
+            }
+
+            /*
+             * User messages are slightly more important
+             * than assistant messages.
+             */
+            if (item.role === "user") {
+                score += 5;
+            }
 
             return {
-
-                role:
-                    item.role,
-
-                content:
-                    item.content
-
+                item: item,
+                score: score,
+                originalIndex: index
             };
+        });
 
+    /*
+     * Select the highest-value messages.
+     */
+    scoredHistory.sort(function (a, b) {
+        return b.score - a.score;
+    });
+
+    const selectedHistory =
+        scoredHistory
+            .slice(0, MAX_CONTEXT_MESSAGES)
+            .sort(function (a, b) {
+                return a.originalIndex - b.originalIndex;
+            });
+
+    return selectedHistory.map(
+        function (entry) {
+            return {
+                role: entry.item.role,
+                content: entry.item.content
+            };
         }
     );
-
 }
-
 /* ==========================================
    CLEAR CONVERSATION
 ========================================== */
