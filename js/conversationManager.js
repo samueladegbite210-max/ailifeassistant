@@ -13,9 +13,12 @@ console.log("🚀 Conversation Manager loading...");
 
     const CURRENT_CHAT_KEY =
         "aiLifeAssistantCurrentConversationId";
-    
-const DRAFT_PREFIX =
-    "aiLifeAssistantDraft_";
+
+    const DRAFT_PREFIX =
+        "aiLifeAssistantDraft_";
+
+    const NEW_DRAFT_KEY =
+        DRAFT_PREFIX + "new";
 
     let conversations = [];
 
@@ -131,17 +134,10 @@ const DRAFT_PREFIX =
                 error
             );
 
-            /*
-             * localStorage can become full when
-             * conversations contain images.
-             */
-
             if (
                 error &&
-                (
-                    error.name ===
-                    "QuotaExceededError"
-                )
+                error.name ===
+                "QuotaExceededError"
             ) {
 
                 console.warn(
@@ -182,201 +178,252 @@ const DRAFT_PREFIX =
 
     }
 
-/* =====================================================
-   COMPOSER DRAFT
-===================================================== */
 
-function getDraftKey() {
+    /* =====================================================
+       COMPOSER DRAFT
+    ===================================================== */
 
-    if (currentConversationId) {
+    function getDraftKey(
+        conversationId = currentConversationId
+    ) {
 
-        return (
-            DRAFT_PREFIX +
-            currentConversationId
-        );
+        if (conversationId) {
 
-    }
-
-
-    /*
-     * A brand-new chat does not have a
-     * conversation ID yet.
-     *
-     * Give it a temporary draft location
-     * so unfinished messages can still survive
-     * a refresh.
-     */
-
-    return (
-        DRAFT_PREFIX +
-        "new"
-    );
-
-}
-
-
-function saveComposerDraft() {
-
-    const input =
-        document.getElementById(
-            "userInput"
-        );
-
-    const key =
-        getDraftKey();
-
-
-    if (!input || !key) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const value =
-            input.value || "";
-
-
-        if (value.trim()) {
-
-            localStorage.setItem(
-                key,
-                value
-            );
-
-        }
-
-        else {
-
-            localStorage.removeItem(
-                key
-            );
-
-        }
-
-    }
-
-    catch (error) {
-
-        console.warn(
-            "⚠️ Could not save composer draft:",
-            error
-        );
-
-    }
-
-}
-
-
-function restoreComposerDraft() {
-
-    const input =
-        document.getElementById(
-            "userInput"
-        );
-
-    const key =
-        getDraftKey();
-
-
-    if (!input || !key) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const draft =
-            localStorage.getItem(
-                key
-            );
-
-
-        if (draft) {
-
-            input.value =
-                draft;
-
-
-            /*
-             * Let the existing composer
-             * resize itself if it has an
-             * auto-resize handler.
-             */
-
-            input.dispatchEvent(
-                new Event(
-                    "input",
-                    {
-                        bubbles: true
-                    }
-                )
-            );
-
-
-            console.log(
-                "📝 Composer draft restored"
-            );
-
-        }
-
-    }
-
-    catch (error) {
-
-        console.warn(
-            "⚠️ Could not restore composer draft:",
-            error
-        );
-
-    }
-
-}
-
-
-function clearComposerDraft() {
-
-    const key =
-        getDraftKey();
-
-
-    try {
-
-        if (key) {
-
-            localStorage.removeItem(
-                key
+            return (
+                DRAFT_PREFIX +
+                conversationId
             );
 
         }
 
         /*
-         * Also remove the temporary new-chat
-         * draft in case the current conversation
-         * has already received an ID.
+         * Brand-new chat has no ID yet.
          */
 
-        localStorage.removeItem(
-            DRAFT_PREFIX +
-            "new"
-        );
+        return NEW_DRAFT_KEY;
 
     }
 
-    catch (error) {
 
-        console.warn(
-            "⚠️ Could not clear composer draft:",
-            error
-        );
+    function saveComposerDraft() {
+
+        const input =
+            document.getElementById(
+                "userInput"
+            );
+
+        if (!input) {
+
+            return;
+
+        }
+
+
+        const key =
+            getDraftKey();
+
+
+        try {
+
+            const value =
+                input.value || "";
+
+
+            if (value.trim()) {
+
+                localStorage.setItem(
+                    key,
+                    value
+                );
+
+                console.log(
+                    "📝 Draft saved:",
+                    key
+                );
+
+            }
+
+            else {
+
+                localStorage.removeItem(
+                    key
+                );
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ Could not save composer draft:",
+                error
+            );
+
+        }
 
     }
 
-}
+
+    function restoreComposerDraft(
+        conversationId = currentConversationId
+    ) {
+
+        const input =
+            document.getElementById(
+                "userInput"
+            );
+
+        if (!input) {
+
+            return;
+
+        }
+
+
+        const key =
+            getDraftKey(
+                conversationId
+            );
+
+
+        try {
+
+            const draft =
+                localStorage.getItem(
+                    key
+                );
+
+
+            if (draft) {
+
+                input.value =
+                    draft;
+
+
+                input.dispatchEvent(
+                    new Event(
+                        "input",
+                        {
+                            bubbles: true
+                        }
+                    )
+                );
+
+
+                console.log(
+                    "📝 Composer draft restored:",
+                    key
+                );
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ Could not restore composer draft:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function clearComposerDraft(
+        conversationId = currentConversationId
+    ) {
+
+        try {
+
+            const key =
+                getDraftKey(
+                    conversationId
+                );
+
+
+            if (key) {
+
+                localStorage.removeItem(
+                    key
+                );
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ Could not clear composer draft:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function migrateNewChatDraft(
+        conversationId
+    ) {
+
+        if (!conversationId) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const draft =
+                localStorage.getItem(
+                    NEW_DRAFT_KEY
+                );
+
+
+            if (!draft) {
+
+                return;
+
+            }
+
+
+            localStorage.setItem(
+                getDraftKey(
+                    conversationId
+                ),
+                draft
+            );
+
+
+            localStorage.removeItem(
+                NEW_DRAFT_KEY
+            );
+
+
+            console.log(
+                "📝 New-chat draft migrated:",
+                conversationId
+            );
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ Could not migrate composer draft:",
+                error
+            );
+
+        }
+
+    }
+
+
     /* =====================================================
        ID
     ===================================================== */
@@ -395,207 +442,158 @@ function clearComposerDraft() {
     }
 
 
-/* =====================================================
-   SMART CONVERSATION TITLE
-===================================================== */
+    /* =====================================================
+       SMART CONVERSATION TITLE
+    ===================================================== */
 
-function createConversationTitle(
-    text
-) {
-
-    if (!text) {
-
-        return "New Chat";
-
-    }
-
-
-    let title =
-        String(text)
-            .replace(/\s+/g, " ")
-            .trim();
-
-
-    if (!title) {
-
-        return "New Chat";
-
-    }
-
-
-    /*
-     * Remove common unnecessary opening phrases.
-     *
-     * Example:
-     *
-     * "Please can you help me plan my day?"
-     *
-     * becomes:
-     *
-     * "Help me plan my day?"
-     */
-
-    title =
-        title.replace(
-            /^(please\s+)?(can\s+you|could\s+you|would\s+you)\s+/i,
-            ""
-        );
-
-
-    title =
-        title.replace(
-            /^(please\s+)?(help\s+me)\s+(with\s+)?/i,
-            "Help me "
-        );
-
-
-    title =
-        title.replace(
-            /^i\s+want\s+you\s+to\s+/i,
-            ""
-        );
-
-
-    title =
-        title.replace(
-            /^i\s+need\s+you\s+to\s+/i,
-            ""
-        );
-
-
-    title =
-        title.replace(
-            /^i\s+would\s+like\s+you\s+to\s+/i,
-            ""
-        );
-
-
-    title =
-        title.trim();
-
-
-    /*
-     * If removing the opening phrase made the
-     * title empty, fall back to the original text.
-     */
-
-    if (!title) {
-
-        title =
-            String(text)
-                .replace(/\s+/g, " ")
-                .trim();
-
-    }
-
-
-    /*
-     * Prefer the first complete sentence/question
-     * when the user sends a long message.
-     */
-
-    const sentenceMatch =
-        title.match(
-            /^(.+?[.!?])(?:\s|$)/
-        );
-
-
-    if (
-        sentenceMatch &&
-        sentenceMatch[1]
+    function createConversationTitle(
+        text
     ) {
 
-        title =
-            sentenceMatch[1].trim();
+        if (!text) {
 
-    }
-
-
-    /*
-     * Remove accidental line breaks.
-     */
-
-    title =
-        title.replace(
-            /\s+/g,
-            " "
-        ).trim();
-
-
-    /*
-     * Keep conversation titles short enough
-     * for the mobile side menu.
-     */
-
-    const MAX_TITLE_LENGTH = 55;
-
-
-    if (
-        title.length >
-        MAX_TITLE_LENGTH
-    ) {
-
-        title =
-            title
-                .substring(
-                    0,
-                    MAX_TITLE_LENGTH
-                )
-                .trim();
-
-
-        /*
-         * Avoid ending in the middle of a word.
-         */
-
-        const lastSpace =
-            title.lastIndexOf(" ");
-
-
-        if (
-            lastSpace > 25
-        ) {
-
-            title =
-                title.substring(
-                    0,
-                    lastSpace
-                ).trim();
+            return "New Chat";
 
         }
 
 
-        title += "…";
+        let title =
+            String(text)
+                .replace(/\s+/g, " ")
+                .trim();
+
+
+        if (!title) {
+
+            return "New Chat";
+
+        }
+
+
+        title =
+            title.replace(
+                /^(please\s+)?(can\s+you|could\s+you|would\s+you)\s+/i,
+                ""
+            );
+
+
+        title =
+            title.replace(
+                /^(please\s+)?(help\s+me)\s+(with\s+)?/i,
+                "Help me "
+            );
+
+
+        title =
+            title.replace(
+                /^i\s+want\s+you\s+to\s+/i,
+                ""
+            );
+
+
+        title =
+            title.replace(
+                /^i\s+need\s+you\s+to\s+/i,
+                ""
+            );
+
+
+        title =
+            title.replace(
+                /^i\s+would\s+like\s+you\s+to\s+/i,
+                ""
+            );
+
+
+        title =
+            title.trim();
+
+
+        if (!title) {
+
+            title =
+                String(text)
+                    .replace(/\s+/g, " ")
+                    .trim();
+
+        }
+
+
+        const sentenceMatch =
+            title.match(
+                /^(.+?[.!?])(?:\s|$)/
+            );
+
+
+        if (
+            sentenceMatch &&
+            sentenceMatch[1]
+        ) {
+
+            title =
+                sentenceMatch[1].trim();
+
+        }
+
+
+        title =
+            title
+                .replace(/\s+/g, " ")
+                .trim();
+
+
+        const MAX_TITLE_LENGTH = 55;
+
+
+        if (
+            title.length >
+            MAX_TITLE_LENGTH
+        ) {
+
+            title =
+                title
+                    .substring(
+                        0,
+                        MAX_TITLE_LENGTH
+                    )
+                    .trim();
+
+
+            const lastSpace =
+                title.lastIndexOf(" ");
+
+
+            if (
+                lastSpace > 25
+            ) {
+
+                title =
+                    title
+                        .substring(
+                            0,
+                            lastSpace
+                        )
+                        .trim();
+
+            }
+
+
+            title += "…";
+
+        }
+
+
+        return (
+            title ||
+            "New Chat"
+        );
 
     }
 
-
-    /*
-     * Final fallback.
-     */
-
-    if (!title) {
-
-        return "New Chat";
-
-    }
-
-
-    return title;
-
-}
 
     /* =====================================================
        IMAGE STORAGE
     ===================================================== */
-
-    /*
-     * Images can be much larger than the amount of
-     * localStorage available in a browser.
-     *
-     * We therefore create a smaller copy before
-     * storing it with the conversation.
-     */
 
     async function compressImageForStorage(
         imageSource
@@ -613,24 +611,14 @@ function createConversationTitle(
             let blob = null;
 
 
-            /*
-             * If the source is already a Blob,
-             * use it directly.
-             */
-
             if (
                 imageSource instanceof Blob
             ) {
 
-                blob = imageSource;
+                blob =
+                    imageSource;
 
             }
-
-
-            /*
-             * If the source is a data URL,
-             * convert it to a Blob.
-             */
 
             else if (
                 typeof imageSource ===
@@ -692,13 +680,11 @@ function createConversationTitle(
             await loaded;
 
 
-            /*
-             * Maximum stored image size.
-             */
+            const MAX_WIDTH =
+                1280;
 
-            const MAX_WIDTH = 1280;
-
-            const MAX_HEIGHT = 1280;
+            const MAX_HEIGHT =
+                1280;
 
 
             let width =
@@ -812,10 +798,6 @@ function createConversationTitle(
     }
 
 
-    /*
-     * Get the currently active vision image.
-     */
-
     async function getVisionContextForStorage() {
 
         try {
@@ -825,17 +807,13 @@ function createConversationTitle(
                 "function"
             ) {
 
-                /*
-                 * Fallback for the current global
-                 * implementation.
-                 */
-
                 if (
                     window.activeVisionContext &&
                     window.activeVisionContext.image
                 ) {
 
                     return {
+
                         image:
                             window.activeVisionContext.image,
 
@@ -850,6 +828,7 @@ function createConversationTitle(
                         createdAt:
                             window.activeVisionContext.createdAt ||
                             Date.now()
+
                     };
 
                 }
@@ -873,43 +852,10 @@ function createConversationTitle(
             }
 
 
-            let imageData =
-                activeContext.image;
-
-
-            /*
-             * Compress only if needed.
-             */
-
-            if (
-                typeof imageData ===
-                "string" &&
-                imageData.startsWith(
-                    "data:image/"
-                )
-            ) {
-
-                /*
-                 * Already a data URL.
-                 * Compress it anyway so saved
-                 * conversations don't become huge.
-                 */
-
-                imageData =
-                    await compressImageForStorage(
-                        imageData
-                    );
-
-            }
-
-            else {
-
-                imageData =
-                    await compressImageForStorage(
-                        imageData
-                    );
-
-            }
+            const imageData =
+                await compressImageForStorage(
+                    activeContext.image
+                );
 
 
             if (!imageData) {
@@ -956,11 +902,6 @@ function createConversationTitle(
     }
 
 
-    /*
-     * Restore saved image context into the
-     * AI Life Assistant vision system.
-     */
-
     function restoreVisionContext(
         visionContext
     ) {
@@ -976,11 +917,6 @@ function createConversationTitle(
 
 
         try {
-
-            /*
-             * The current smartAI.js exposes the
-             * active vision context globally.
-             */
 
             window.activeVisionContext = {
 
@@ -1085,7 +1021,8 @@ function createConversationTitle(
                     )
                 ) {
 
-                    role = "user";
+                    role =
+                        "user";
 
                 }
 
@@ -1095,7 +1032,8 @@ function createConversationTitle(
                     )
                 ) {
 
-                    role = "assistant";
+                    role =
+                        "assistant";
 
                 }
 
@@ -1106,10 +1044,6 @@ function createConversationTitle(
 
                 }
 
-
-                /*
-                 * Ignore the default welcome message.
-                 */
 
                 if (
                     role === "assistant" &&
@@ -1182,12 +1116,6 @@ function createConversationTitle(
             getCurrentMessages();
 
 
-        /*
-         * Don't create a conversation
-         * until the user actually sends
-         * something.
-         */
-
         const firstUserMessage =
             messages.find(
                 function (message) {
@@ -1208,13 +1136,20 @@ function createConversationTitle(
         }
 
 
+        /*
+         * Capture the new-chat draft BEFORE
+         * any async operation happens.
+         */
+
+        const newChatDraft =
+            localStorage.getItem(
+                NEW_DRAFT_KEY
+            );
+
+
         let conversation =
             getCurrentConversation();
 
-
-        /*
-         * Get active image context.
-         */
 
         let visionContext = null;
 
@@ -1265,10 +1200,6 @@ function createConversationTitle(
                 messages:
                     messages,
 
-                /*
-                 * Persistent image context.
-                 */
-
                 visionContext:
                     visionContext
 
@@ -1283,6 +1214,43 @@ function createConversationTitle(
             setCurrentConversationId(
                 id
             );
+
+
+            /*
+             * Move any unfinished draft from
+             * the temporary new-chat location
+             * to this conversation.
+             */
+
+            if (newChatDraft) {
+
+                try {
+
+                    localStorage.setItem(
+                        getDraftKey(id),
+                        newChatDraft
+                    );
+
+                    localStorage.removeItem(
+                        NEW_DRAFT_KEY
+                    );
+
+                    console.log(
+                        "📝 Draft attached to new conversation"
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.warn(
+                        "⚠️ Could not migrate draft:",
+                        error
+                    );
+
+                }
+
+            }
 
         }
 
@@ -1300,15 +1268,6 @@ function createConversationTitle(
                 new Date().toISOString();
 
 
-            /*
-             * Only replace the stored image
-             * when an active image exists.
-             *
-             * This prevents a normal follow-up
-             * message from accidentally deleting
-             * the conversation's image context.
-             */
-
             if (visionContext) {
 
                 conversation.visionContext =
@@ -1316,10 +1275,6 @@ function createConversationTitle(
 
             }
 
-
-            /*
-             * Make sure title exists.
-             */
 
             if (
                 !conversation.title ||
@@ -1339,6 +1294,7 @@ function createConversationTitle(
 
         saveConversations();
 
+
         renderConversationList(
             searchInput
                 ? searchInput.value
@@ -1350,17 +1306,6 @@ function createConversationTitle(
             "💾 Conversation saved:",
             conversation.title
         );
-
-
-        if (
-            conversation.visionContext
-        ) {
-
-            console.log(
-                "🖼️ Image context saved with conversation"
-            );
-
-        }
 
 
         return conversation;
@@ -1379,13 +1324,16 @@ function createConversationTitle(
         conversationList.innerHTML =
             "";
 
+
         const term =
             String(searchTerm)
                 .toLowerCase()
                 .trim();
 
+
         const now =
             new Date();
+
 
         const startOfToday =
             new Date(
@@ -1394,11 +1342,13 @@ function createConversationTitle(
                 now.getDate()
             );
 
+
         const startOfYesterday =
             new Date(
                 startOfToday.getTime() -
                 24 * 60 * 60 * 1000
             );
+
 
         const startOfSevenDays =
             new Date(
@@ -1406,10 +1356,6 @@ function createConversationTitle(
                 7 * 24 * 60 * 60 * 1000
             );
 
-
-        /*
-         * Sort newest first.
-         */
 
         const sorted =
             conversations
@@ -1429,10 +1375,6 @@ function createConversationTitle(
                     }
                 );
 
-
-        /*
-         * Search.
-         */
 
         const filtered =
             sorted.filter(
@@ -1491,26 +1433,26 @@ function createConversationTitle(
                     "div"
                 );
 
+
             empty.className =
                 "emptyConversations";
+
 
             empty.textContent =
                 term
                     ? "No matching conversations"
                     : "No conversations yet";
 
+
             conversationList.appendChild(
                 empty
             );
+
 
             return;
 
         }
 
-
-        /*
-         * Group conversations.
-         */
 
         const groups = {
 
@@ -1574,24 +1516,23 @@ function createConversationTitle(
         );
 
 
-        /*
-         * Render groups.
-         */
-
         renderConversationGroup(
             "Today",
             groups.today
         );
+
 
         renderConversationGroup(
             "Yesterday",
             groups.yesterday
         );
 
+
         renderConversationGroup(
             "Previous 7 Days",
             groups.previous7Days
         );
+
 
         renderConversationGroup(
             "Older",
@@ -1622,6 +1563,7 @@ function createConversationTitle(
                 "div"
             );
 
+
         section.className =
             "conversationGroup";
 
@@ -1631,8 +1573,10 @@ function createConversationTitle(
                 "div"
             );
 
+
         heading.className =
             "conversationGroupTitle";
+
 
         heading.textContent =
             title;
@@ -1676,8 +1620,10 @@ function createConversationTitle(
                 "div"
             );
 
+
         item.className =
             "conversationItem";
+
 
         item.dataset.id =
             conversation.id;
@@ -1695,64 +1641,55 @@ function createConversationTitle(
         }
 
 
-        /* =========================================
-           OPEN CONVERSATION BUTTON
-        ========================================= */
-
         const openButton =
             document.createElement(
                 "button"
             );
 
+
         openButton.type =
             "button";
+
 
         openButton.className =
             "conversationOpenButton";
 
 
         const icon =
-    document.createElement(
-        "span"
-    );
+            document.createElement(
+                "span"
+            );
 
-icon.className =
-    "conversationIcon";
 
-const hasImage =
-    !!(
-        conversation.visionContext &&
-        conversation.visionContext.image
-    );
+        icon.className =
+            "conversationIcon";
 
-icon.textContent =
-    hasImage
-        ? "🖼️"
-        : "💬";
 
-if (hasImage) {
+        const hasImage =
+            !!(
+                conversation.visionContext &&
+                conversation.visionContext.image
+            );
 
-    icon.title =
-        "This conversation contains an image";
 
-    icon.setAttribute(
-        "aria-label",
-        "Image conversation"
-    );
+        icon.textContent =
+            hasImage
+                ? "🖼️"
+                : "💬";
 
-}
 
-else {
+        icon.title =
+            hasImage
+                ? "This conversation contains an image"
+                : "Text conversation";
 
-    icon.title =
-        "Text conversation";
 
-    icon.setAttribute(
-        "aria-label",
-        "Text conversation"
-    );
-
-}
+        icon.setAttribute(
+            "aria-label",
+            hasImage
+                ? "Image conversation"
+                : "Text conversation"
+        );
 
 
         const title =
@@ -1760,8 +1697,10 @@ else {
                 "span"
             );
 
+
         title.className =
             "conversationTitle";
+
 
         title.textContent =
             conversation.title ||
@@ -1769,51 +1708,57 @@ else {
 
 
         const titleWrapper =
-    document.createElement(
-        "span"
-    );
-
-titleWrapper.className =
-    "conversationTitleWrapper";
+            document.createElement(
+                "span"
+            );
 
 
-titleWrapper.appendChild(
-    title
-);
+        titleWrapper.className =
+            "conversationTitleWrapper";
 
 
-if (hasImage) {
-
-    const imageBadge =
-        document.createElement(
-            "span"
+        titleWrapper.appendChild(
+            title
         );
 
-    imageBadge.className =
-        "conversationImageBadge";
 
-    imageBadge.textContent =
-        "Image";
+        if (hasImage) {
 
-    imageBadge.setAttribute(
-        "aria-label",
-        "Contains image"
-    );
-
-    titleWrapper.appendChild(
-        imageBadge
-    );
-
-}
+            const imageBadge =
+                document.createElement(
+                    "span"
+                );
 
 
-openButton.appendChild(
-    icon
-);
+            imageBadge.className =
+                "conversationImageBadge";
 
-openButton.appendChild(
-    titleWrapper
-);
+
+            imageBadge.textContent =
+                "Image";
+
+
+            imageBadge.setAttribute(
+                "aria-label",
+                "Contains image"
+            );
+
+
+            titleWrapper.appendChild(
+                imageBadge
+            );
+
+        }
+
+
+        openButton.appendChild(
+            icon
+        );
+
+
+        openButton.appendChild(
+            titleWrapper
+        );
 
 
         openButton.addEventListener(
@@ -1828,23 +1773,23 @@ openButton.appendChild(
         );
 
 
-        /* =========================================
-           OPTIONS BUTTON
-        ========================================= */
-
         const optionsButton =
             document.createElement(
                 "button"
             );
 
+
         optionsButton.type =
             "button";
+
 
         optionsButton.className =
             "conversationDeleteButton";
 
+
         optionsButton.textContent =
             "⋯";
+
 
         optionsButton.setAttribute(
             "aria-label",
@@ -1860,6 +1805,7 @@ openButton.appendChild(
 
                 event.stopPropagation();
 
+
                 showConversationOptions(
                     conversation,
                     item
@@ -1869,13 +1815,10 @@ openButton.appendChild(
         );
 
 
-        /* =========================================
-           ADD ELEMENTS
-        ========================================= */
-
         item.appendChild(
             openButton
         );
+
 
         item.appendChild(
             optionsButton
@@ -1920,17 +1863,17 @@ openButton.appendChild(
 
 
         /*
-         * Set active conversation FIRST.
+         * Save whatever the user was typing
+         * before switching away.
          */
+
+        saveComposerDraft();
+
 
         setCurrentConversationId(
             conversation.id
         );
 
-
-        /*
-         * Clear current AI context.
-         */
 
         if (
             typeof window.clearConversationHistory ===
@@ -1941,10 +1884,6 @@ openButton.appendChild(
 
         }
 
-
-        /*
-         * Restore conversation history.
-         */
 
         if (
             Array.isArray(
@@ -1982,10 +1921,6 @@ openButton.appendChild(
         }
 
 
-        /*
-         * Restore saved image context.
-         */
-
         if (
             conversation.visionContext
         ) {
@@ -1996,40 +1931,10 @@ openButton.appendChild(
 
         }
 
-        else {
-
-            /*
-             * Make sure an old image from
-             * another chat cannot leak into
-             * this conversation.
-             */
-
-            if (
-                typeof window.clearConversationHistory ===
-                "function"
-            ) {
-
-                /*
-                 * clearConversationHistory already
-                 * clears active vision context.
-                 */
-
-            }
-
-        }
-
-
-        /*
-         * Clear visible chat.
-         */
 
         chatBox.innerHTML =
             "";
 
-
-        /*
-         * Render saved messages.
-         */
 
         (
             Array.isArray(
@@ -2051,16 +1956,8 @@ openButton.appendChild(
         );
 
 
-        /*
-         * Close drawer.
-         */
-
         closeSideMenu();
 
-
-        /*
-         * Scroll to bottom.
-         */
 
         setTimeout(
             function () {
@@ -2079,29 +1976,27 @@ openButton.appendChild(
                 : ""
         );
 
-restoreComposerDraft();
-        
+
+        /*
+         * Restore the draft belonging to
+         * THIS conversation.
+         */
+
+        restoreComposerDraft(
+            conversation.id
+        );
+
+
         console.log(
             "📂 Opened:",
             conversation.title
         );
 
-
-        if (
-            conversation.visionContext
-        ) {
-
-            console.log(
-                "🖼️ Vision context restored for conversation"
-            );
-
-        }
-
     }
 
 
     /* =====================================================
-       ADD SAVED MESSAGE TO CHAT
+       ADD SAVED MESSAGE
     ===================================================== */
 
     function addMessageToChat(
@@ -2114,6 +2009,7 @@ restoreComposerDraft();
             document.createElement(
                 "div"
             );
+
 
         message.className =
             "message " +
@@ -2129,14 +2025,10 @@ restoreComposerDraft();
                 "div"
             );
 
+
         messageText.className =
             "messageText";
 
-
-        /*
-         * Restore AI formatting if
-         * formatter is available.
-         */
 
         if (
             role === "assistant" &&
@@ -2194,8 +2086,10 @@ restoreComposerDraft();
                 "div"
             );
 
+
         time.className =
             "messageTime";
+
 
         time.textContent =
             formatTime(
@@ -2206,6 +2100,7 @@ restoreComposerDraft();
         message.appendChild(
             messageText
         );
+
 
         message.appendChild(
             time
@@ -2261,69 +2156,47 @@ restoreComposerDraft();
        NEW CHAT
     ===================================================== */
 
-    function startNewChat() {
+    async function startNewChat() {
 
         /*
-         * Save current conversation
-         * before leaving it.
+         * Save the unfinished text first.
          */
 
-        saveCurrentConversation();
+        saveComposerDraft();
 
 
         /*
-         * Forget old conversation ID.
+         * Save the current conversation.
+         *
+         * IMPORTANT:
+         * Await it so it cannot race with
+         * changing currentConversationId.
+         */
+
+        await saveCurrentConversation();
+
+
+        /*
+         * Leave the old conversation.
          */
 
         setCurrentConversationId(
-           
             null
         );
 
-clearComposerDraft();
+
         /*
- * Move any unfinished new-chat draft
- * to this newly created conversation.
- */
+         * A new chat should start with
+         * an empty composer.
+         */
 
-try {
-
-    const newChatDraft =
-        localStorage.getItem(
-            DRAFT_PREFIX +
-            "new"
+        clearComposerDraft(
+            null
         );
 
 
-    if (newChatDraft) {
-
-        localStorage.setItem(
-            DRAFT_PREFIX + id,
-            newChatDraft
-        );
-
-        localStorage.removeItem(
-            DRAFT_PREFIX +
-            "new"
-        );
-
-    }
-
-}
-
-catch (error) {
-
-    console.warn(
-        "⚠️ Could not migrate composer draft:",
-        error
-    );
-
-}
         /*
-         * Clear AI conversation memory.
-         *
-         * This also clears active vision
-         * context in the current smartAI.js.
+         * Clear AI memory and image context.
          */
 
         if (
@@ -2347,7 +2220,7 @@ catch (error) {
 
 
         /*
-         * Clear current chat.
+         * Clear visible chat.
          */
 
         chatBox.innerHTML =
@@ -2363,10 +2236,20 @@ catch (error) {
                 "userInput"
             );
 
+
         if (input) {
 
             input.value =
                 "";
+
+            input.dispatchEvent(
+                new Event(
+                    "input",
+                    {
+                        bubbles: true
+                    }
+                )
+            );
 
         }
 
@@ -2380,6 +2263,7 @@ catch (error) {
                 "div"
             );
 
+
         welcome.className =
             "message ai";
 
@@ -2388,6 +2272,7 @@ catch (error) {
             document.createElement(
                 "div"
             );
+
 
         welcomeText.className =
             "messageText";
@@ -2414,8 +2299,10 @@ catch (error) {
                 "div"
             );
 
+
         welcomeTime.className =
             "messageTime";
+
 
         welcomeTime.textContent =
             "Now";
@@ -2424,6 +2311,7 @@ catch (error) {
         welcome.appendChild(
             welcomeText
         );
+
 
         welcome.appendChild(
             welcomeTime
@@ -2462,6 +2350,7 @@ catch (error) {
                 ".conversationOptionsMenu"
             );
 
+
         if (existingMenu) {
 
             existingMenu.remove();
@@ -2474,24 +2363,24 @@ catch (error) {
                 "div"
             );
 
+
         menu.className =
             "conversationOptionsMenu";
 
-
-        /* =========================================
-           RENAME
-        ========================================= */
 
         const renameButton =
             document.createElement(
                 "button"
             );
 
+
         renameButton.type =
             "button";
 
+
         renameButton.className =
             "conversationOptionButton";
+
 
         renameButton.innerHTML =
             "✏️ <span>Rename</span>";
@@ -2507,6 +2396,7 @@ catch (error) {
 
                 menu.remove();
 
+
                 renameConversation(
                     conversation.id
                 );
@@ -2515,20 +2405,19 @@ catch (error) {
         );
 
 
-        /* =========================================
-           DELETE
-        ========================================= */
-
         const deleteButton =
             document.createElement(
                 "button"
             );
 
+
         deleteButton.type =
             "button";
 
+
         deleteButton.className =
             "conversationOptionButton deleteOption";
+
 
         deleteButton.innerHTML =
             "🗑️ <span>Delete</span>";
@@ -2544,6 +2433,7 @@ catch (error) {
 
                 menu.remove();
 
+
                 deleteConversation(
                     conversation.id
                 );
@@ -2556,6 +2446,7 @@ catch (error) {
             renameButton
         );
 
+
         menu.appendChild(
             deleteButton
         );
@@ -2565,10 +2456,6 @@ catch (error) {
             menu
         );
 
-
-        /*
-         * Close when clicking outside.
-         */
 
         setTimeout(
             function () {
@@ -2616,7 +2503,7 @@ catch (error) {
 
 
     /* =====================================================
-       RENAME CONVERSATION
+       RENAME
     ===================================================== */
 
     function renameConversation(
@@ -2674,7 +2561,10 @@ catch (error) {
         conversation.title =
             cleanedTitle.length > 60
                 ? cleanedTitle
-                    .substring(0, 60)
+                    .substring(
+                        0,
+                        60
+                    )
                     .trim() + "…"
                 : cleanedTitle;
 
@@ -2761,10 +2651,29 @@ catch (error) {
 
 
         /*
-         * If deleting the currently
-         * open conversation, clear
-         * the active AI context.
+         * Remove that conversation's
+         * saved draft too.
          */
+
+        try {
+
+            localStorage.removeItem(
+                getDraftKey(
+                    conversationId
+                )
+            );
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ Could not remove conversation draft:",
+                error
+            );
+
+        }
+
 
         if (
             currentConversationId ===
@@ -2803,6 +2712,7 @@ catch (error) {
 
 
         saveConversations();
+
 
         renderConversationList();
 
@@ -2848,6 +2758,45 @@ catch (error) {
         );
 
 
+        /*
+         * Remove all conversation drafts.
+         */
+
+        try {
+
+            Object.keys(
+                localStorage
+            )
+            .forEach(
+                function (key) {
+
+                    if (
+                        key.startsWith(
+                            DRAFT_PREFIX
+                        )
+                    ) {
+
+                        localStorage.removeItem(
+                            key
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "⚠️ Could not clear drafts:",
+                error
+            );
+
+        }
+
+
         if (
             typeof window.clearConversationHistory ===
             "function"
@@ -2873,6 +2822,7 @@ catch (error) {
 
 
         saveConversations();
+
 
         renderConversationList();
 
@@ -2986,49 +2936,74 @@ catch (error) {
         }
     );
 
-/* =====================================================
-   SAVE COMPOSER DRAFT WHILE TYPING
-===================================================== */
 
-const composerInput =
-    document.getElementById(
-        "userInput"
-    );
+    /* =====================================================
+       SAVE COMPOSER DRAFT WHILE TYPING
+    ===================================================== */
 
-
-if (composerInput) {
-
-    let draftTimer = null;
+    const composerInput =
+        document.getElementById(
+            "userInput"
+        );
 
 
-    composerInput.addEventListener(
-        "input",
-        function () {
+    if (composerInput) {
 
-            clearTimeout(
-                draftTimer
-            );
+        let draftTimer = null;
 
 
-            draftTimer =
-                setTimeout(
-                    function () {
+        composerInput.addEventListener(
+            "input",
+            function () {
 
-                        saveComposerDraft();
-
-                    },
-                    300
+                clearTimeout(
+                    draftTimer
                 );
 
-        }
-    );
 
-}
+                draftTimer =
+                    setTimeout(
+                        function () {
+
+                            saveComposerDraft();
+
+                        },
+                        300
+                    );
+
+            }
+        );
+
+
+        /*
+         * Extra protection for page refresh/
+         * navigation.
+         */
+
+        window.addEventListener(
+            "beforeunload",
+            function () {
+
+                saveComposerDraft();
+
+            }
+        );
+
+    }
+
+
     /* =====================================================
        INITIAL LOAD
     ===================================================== */
 
     loadConversations();
+
+
+    /*
+     * Render list immediately.
+     */
+
+    renderConversationList();
 
 
     /*
@@ -3067,16 +3042,60 @@ if (composerInput) {
 
         else {
 
+            /*
+             * Saved ID no longer exists.
+             */
+
             setCurrentConversationId(
                 null
+            );
+
+
+            /*
+             * Since there is no active
+             * conversation, restore any
+             * unfinished new-chat draft.
+             */
+
+            setTimeout(
+                function () {
+
+                    restoreComposerDraft(
+                        null
+                    );
+
+                },
+                100
             );
 
         }
 
     }
 
+    else {
 
-    renderConversationList();
+        /*
+         * IMPORTANT:
+         *
+         * This was missing before.
+         *
+         * If the user was typing in a brand-new
+         * chat and refreshed the page, restore
+         * the temporary "new" draft.
+         */
+
+        setTimeout(
+            function () {
+
+                restoreComposerDraft(
+                    null
+                );
+
+            },
+            100
+        );
+
+    }
 
 
     /* =====================================================
@@ -3107,7 +3126,16 @@ if (composerInput) {
             clearAllConversations,
 
         getCurrentConversation:
-            getCurrentConversation
+            getCurrentConversation,
+
+        saveComposerDraft:
+            saveComposerDraft,
+
+        restoreComposerDraft:
+            restoreComposerDraft,
+
+        clearComposerDraft:
+            clearComposerDraft
 
     };
 
