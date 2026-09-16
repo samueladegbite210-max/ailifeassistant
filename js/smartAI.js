@@ -167,7 +167,8 @@ function getConversationHistory() {
 
     /*
      * =====================================================
-     * SMART CONTEXT PRIORITIZATION
+     * PHASE 9C.7
+     * SMART CONTEXT COMPRESSION
      * =====================================================
      */
 
@@ -180,6 +181,9 @@ function getConversationHistory() {
     const importantKeywords =
         /\b(my name|my name is|i am|i'm|i live|i work|my job|my goal|my project|remember|important|prefer|preference|birthday|family|friend|school|business)\b/i;
 
+    /*
+     * First score the recent messages.
+     */
     const scoredHistory =
         recentHistory.map(function (item, index) {
 
@@ -188,26 +192,14 @@ function getConversationHistory() {
             const text =
                 String(item.content || "");
 
-            /*
-             * Give extra priority to image-related
-             * conversation.
-             */
             if (imageKeywords.test(text)) {
                 score += 20;
             }
 
-            /*
-             * Give extra priority to information that
-             * may be useful later in the conversation.
-             */
             if (importantKeywords.test(text)) {
                 score += 15;
             }
 
-            /*
-             * User messages are slightly more important
-             * than assistant messages.
-             */
             if (item.role === "user") {
                 score += 5;
             }
@@ -220,7 +212,7 @@ function getConversationHistory() {
         });
 
     /*
-     * Select the highest-value messages.
+     * Select the strongest context.
      */
     scoredHistory.sort(function (a, b) {
         return b.score - a.score;
@@ -233,14 +225,44 @@ function getConversationHistory() {
                 return a.originalIndex - b.originalIndex;
             });
 
-    return selectedHistory.map(
-        function (entry) {
-            return {
-                role: entry.item.role,
-                content: entry.item.content
-            };
+    /*
+     * =====================================================
+     * COMPRESS REPEATED SAME-ROLE MESSAGES
+     * =====================================================
+     */
+
+    const compressedHistory = [];
+
+    selectedHistory.forEach(function (entry) {
+
+        const item = entry.item;
+
+        const last =
+            compressedHistory[
+                compressedHistory.length - 1
+            ];
+
+        /*
+         * If two consecutive messages have the same
+         * role, combine them instead of sending them
+         * as separate messages.
+         */
+        if (
+            last &&
+            last.role === item.role
+        ) {
+            last.content +=
+                "\n" +
+                String(item.content || "");
+        } else {
+            compressedHistory.push({
+                role: item.role,
+                content: String(item.content || "")
+            });
         }
-    );
+    });
+
+    return compressedHistory;
 }
 /* ==========================================
    CLEAR CONVERSATION
