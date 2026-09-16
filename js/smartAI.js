@@ -37,10 +37,18 @@ const MAX_FILE_CONTENT_LENGTH =
    CONVERSATION CONTEXT SYSTEM
 ========================================== */
 
-const CONVERSATION_MAX_MESSAGES = 30;
+const CONVERSATION_MAX_MESSAGES = 40;
 
+/*
+   Keep conversation context available for
+   longer conversations.
+
+   We are no longer expiring the conversation
+   after only 30 minutes. The conversation
+   manager is responsible for persistence.
+*/
 const CONVERSATION_MAX_AGE =
-    30 * 60 * 1000; // 30 minutes
+    24 * 60 * 60 * 1000; // 24 hours
 
 window.conversationHistory =
     window.conversationHistory || [];
