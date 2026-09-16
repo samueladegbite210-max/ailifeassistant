@@ -157,25 +157,51 @@ function getConversationHistory() {
 
     cleanConversationHistory();
 
-    return (
-        window.conversationHistory || []
-    )
-    .map(function (item) {
+    const history =
+        window.conversationHistory || [];
 
-        return {
+    if (!history.length) {
 
-            role:
-                item.role,
+        return [];
 
-            content:
-                item.content
+    }
 
-        };
+    /*
+       SMART CONTEXT SELECTION
 
-    });
+       Keep the most recent conversation,
+       while giving the AI enough previous
+       context to understand follow-up questions.
+
+       We store up to 40 messages, but send
+       only the most useful recent 24 messages
+       to reduce unnecessary Groq usage.
+    */
+
+    const MAX_CONTEXT_MESSAGES = 24;
+
+    const selectedHistory =
+        history.slice(
+            -MAX_CONTEXT_MESSAGES
+        );
+
+    return selectedHistory.map(
+        function (item) {
+
+            return {
+
+                role:
+                    item.role,
+
+                content:
+                    item.content
+
+            };
+
+        }
+    );
 
 }
-
 
 /* ==========================================
    CLEAR CONVERSATION
