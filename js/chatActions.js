@@ -1,6 +1,6 @@
 "use strict";
 
-console.log("🚀 Phase 9A chat actions loading...");
+console.log("🚀 Phase 9C.9 chat actions loading...");
 
 (function () {
 
@@ -44,10 +44,6 @@ console.log("🚀 Phase 9A chat actions loading...");
 
         }
 
-
-        /* ================================================
-           iPHONE / FALLBACK COPY
-        ================================================= */
 
         try {
 
@@ -346,10 +342,6 @@ console.log("🚀 Phase 9A chat actions loading...");
         button
     ) {
 
-        /* ================================================
-           ONLY LATEST RESPONSE
-        ================================================= */
-
         if (
             !isLatestAIMessage(
                 aiMessage
@@ -364,10 +356,6 @@ console.log("🚀 Phase 9A chat actions loading...");
 
         }
 
-
-        /* ================================================
-           PREVIOUS USER MESSAGE
-        ================================================= */
 
         const userMessage =
             getPreviousUserMessage(
@@ -401,10 +389,6 @@ console.log("🚀 Phase 9A chat actions loading...");
         }
 
 
-        /* ================================================
-           CHECK AI SYSTEM
-        ================================================= */
-
         if (
             typeof window.smartAIReply !==
             "function"
@@ -425,10 +409,6 @@ console.log("🚀 Phase 9A chat actions loading...");
         );
 
 
-        /* ================================================
-           SAVE ORIGINAL RESPONSE
-        ================================================= */
-
         const originalResponse =
             getMessageText(
                 aiMessage
@@ -443,10 +423,6 @@ console.log("🚀 Phase 9A chat actions loading...");
         button.textContent =
             "⏳ Regenerating...";
 
-
-        /* ================================================
-           REMOVE OLD HISTORY PAIR
-        ================================================= */
 
         const history =
             window.conversationHistory;
@@ -504,27 +480,10 @@ console.log("🚀 Phase 9A chat actions loading...");
                 removedUser =
                     history.pop();
 
-
-                console.log(
-                    "🧹 Removed old conversation pair before regeneration"
-                );
-
-            }
-
-            else {
-
-                console.warn(
-                    "⚠️ Conversation history did not match the visible message."
-                );
-
             }
 
         }
 
-
-        /* ================================================
-           SHOW THINKING STATE
-        ================================================= */
 
         const messageText =
             aiMessage.querySelector(
@@ -541,17 +500,13 @@ console.log("🚀 Phase 9A chat actions loading...");
 
         try {
 
-            /* ============================================
-               CALL EXISTING AI SYSTEM
-            ============================================ */
-
             const newResponse =
-    await window.askOnlineAI(
-        userText,
-        null,
-        true,
-        true
-    );
+                await window.askOnlineAI(
+                    userText,
+                    null,
+                    true,
+                    true
+                );
 
 
             if (
@@ -568,10 +523,6 @@ console.log("🚀 Phase 9A chat actions loading...");
             }
 
 
-            /* ============================================
-               RENDER NEW RESPONSE
-            ============================================ */
-
             if (
                 messageText &&
                 typeof window.formatAIResponse ===
@@ -583,19 +534,7 @@ console.log("🚀 Phase 9A chat actions loading...");
                         String(newResponse)
                     );
 
-
-                messageText.innerHTML =
-                    "";
-
-
-                /*
-                 * IMPORTANT:
-                 *
-                 * formatAIResponse() returns a
-                 * DocumentFragment.
-                 *
-                 * Do NOT put it inside innerHTML.
-                 */
+                messageText.innerHTML = "";
 
                 if (
                     formatted instanceof
@@ -635,15 +574,6 @@ console.log("🚀 Phase 9A chat actions loading...");
             }
 
 
-            console.log(
-                "✅ Response regenerated successfully"
-            );
-
-
-            /* ============================================
-               RESTORE BUTTON
-            ============================================ */
-
             button.textContent =
                 "✓ Regenerated";
 
@@ -661,10 +591,6 @@ console.log("🚀 Phase 9A chat actions loading...");
                 1500
             );
 
-
-            /* ============================================
-               SCROLL
-            ============================================ */
 
             if (
                 typeof window.scrollChatToBottom ===
@@ -692,10 +618,6 @@ console.log("🚀 Phase 9A chat actions loading...");
             );
 
 
-            /* ============================================
-               RESTORE VISIBLE OLD RESPONSE
-            ============================================ */
-
             if (messageText) {
 
                 if (
@@ -708,10 +630,7 @@ console.log("🚀 Phase 9A chat actions loading...");
                             originalResponse
                         );
 
-
-                    messageText.innerHTML =
-                        "";
-
+                    messageText.innerHTML = "";
 
                     if (
                         restored instanceof
@@ -752,10 +671,6 @@ console.log("🚀 Phase 9A chat actions loading...");
 
             }
 
-
-            /* ============================================
-               RESTORE ORIGINAL HISTORY
-            ============================================ */
 
             if (
                 Array.isArray(
@@ -799,10 +714,375 @@ console.log("🚀 Phase 9A chat actions loading...");
 
 
     /* =====================================================
-       CREATE ACTION BAR
+       FIND CHAT COMPOSER
     ===================================================== */
 
-    function createActionBar(
+    function getChatComposer() {
+
+        const selectors = [
+            "#messageInput",
+            "#userInput",
+            "#chatInput",
+            "#promptInput",
+            "textarea[name='message']",
+            "textarea"
+        ];
+
+        for (
+            let i = 0;
+            i < selectors.length;
+            i++
+        ) {
+
+            const element =
+                document.querySelector(
+                    selectors[i]
+                );
+
+            if (element) {
+                return element;
+            }
+
+        }
+
+        return null;
+
+    }
+
+
+    /* =====================================================
+       EDIT MESSAGE
+    ===================================================== */
+
+    async function editMessage(
+        userMessage
+    ) {
+
+        if (!userMessage) {
+            return;
+        }
+
+
+        const originalText =
+            getMessageText(
+                userMessage
+            );
+
+        if (!originalText) {
+
+            alert(
+                "I couldn't recover this message."
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "✏️ Editing message:",
+            originalText
+        );
+
+
+        const composer =
+            getChatComposer();
+
+
+        /*
+         * Put the message into the existing composer.
+         */
+        if (composer) {
+
+            composer.value =
+                originalText;
+
+            composer.dispatchEvent(
+                new Event(
+                    "input",
+                    {
+                        bubbles: true
+                    }
+                )
+            );
+
+            composer.focus();
+
+        }
+
+        else {
+
+            /*
+             * Safe fallback if the composer ID
+             * is different.
+             */
+            const editedText =
+                window.prompt(
+                    "Edit your message:",
+                    originalText
+                );
+
+            if (
+                editedText === null ||
+                !editedText.trim()
+            ) {
+
+                return;
+
+            }
+
+            const fallbackComposer =
+                getChatComposer();
+
+            if (fallbackComposer) {
+
+                fallbackComposer.value =
+                    editedText.trim();
+
+            }
+
+        }
+
+
+        /*
+         * Find this user message's position
+         * among visible user messages.
+         */
+        const userMessages =
+            Array.from(
+                chatBox.querySelectorAll(
+                    ".message.user"
+                )
+            );
+
+        const visibleIndex =
+            userMessages.indexOf(
+                userMessage
+            );
+
+
+        if (visibleIndex === -1) {
+
+            console.warn(
+                "⚠️ Could not determine message position."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Remove this message and everything
+         * after it from the visible chat.
+         */
+        const allMessages =
+            Array.from(
+                chatBox.querySelectorAll(
+                    ".message"
+                )
+            );
+
+
+        const messagePosition =
+            allMessages.indexOf(
+                userMessage
+            );
+
+
+        if (messagePosition !== -1) {
+
+            for (
+                let i =
+                    allMessages.length - 1;
+                i >= messagePosition;
+                i--
+            ) {
+
+                const node =
+                    allMessages[i];
+
+                if (
+                    node &&
+                    node.parentNode
+                ) {
+
+                    node.parentNode.removeChild(
+                        node
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        /*
+         * Remove the edited message and every
+         * later conversation entry from memory.
+         */
+        if (
+            Array.isArray(
+                window.conversationHistory
+            )
+        ) {
+
+            let userCount = 0;
+
+            let historyIndex = -1;
+
+
+            for (
+                let i = 0;
+                i <
+                window.conversationHistory.length;
+                i++
+            ) {
+
+                const item =
+                    window.conversationHistory[i];
+
+                if (
+                    !item ||
+                    item.role !== "user"
+                ) {
+
+                    continue;
+
+                }
+
+
+                if (
+                    userCount === visibleIndex
+                ) {
+
+                    historyIndex = i;
+
+                    break;
+
+                }
+
+
+                userCount++;
+
+            }
+
+
+            if (historyIndex !== -1) {
+
+                window.conversationHistory =
+                    window.conversationHistory.slice(
+                        0,
+                        historyIndex
+                    );
+
+                console.log(
+                    "🧹 Conversation history branched from edited message"
+                );
+
+            }
+
+        }
+
+
+        /*
+         * Focus composer and let the user
+         * review/edit before sending.
+         */
+        if (composer) {
+
+            composer.focus();
+
+            try {
+
+                const length =
+                    composer.value.length;
+
+                composer.setSelectionRange(
+                    length,
+                    length
+                );
+
+            }
+
+            catch (error) {
+                console.warn(
+                    "⚠️ Could not position cursor:",
+                    error
+                );
+            }
+
+        }
+
+
+        console.log(
+            "✏️ Message loaded into composer."
+        );
+
+    }
+
+
+    /* =====================================================
+       CREATE EDIT BUTTON
+    ===================================================== */
+
+    function createEditButton(
+        messageElement
+    ) {
+
+        const button =
+            document.createElement("button");
+
+        button.type = "button";
+
+        button.className =
+            "messageActionButton";
+
+        button.textContent =
+            "✏️ Edit";
+
+        button.setAttribute(
+            "aria-label",
+            "Edit message"
+        );
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+                button.disabled = true;
+
+                try {
+
+                    await editMessage(
+                        messageElement
+                    );
+
+                }
+
+                finally {
+
+                    button.disabled =
+                        false;
+
+                }
+
+            }
+        );
+
+
+        return button;
+
+    }
+
+
+    /* =====================================================
+       CREATE AI ACTION BAR
+    ===================================================== */
+
+    function createAIActionBar(
         messageElement
     ) {
 
@@ -810,10 +1090,6 @@ console.log("🚀 Phase 9A chat actions loading...");
             return;
         }
 
-
-        /* ================================================
-           DON'T ADD TWICE
-        ================================================= */
 
         if (
             messageElement.dataset &&
@@ -843,10 +1119,6 @@ console.log("🚀 Phase 9A chat actions loading...");
             "messageActions";
 
 
-        /* ================================================
-           COPY
-        ================================================= */
-
         const copyButton =
             createCopyButton(
                 messageElement
@@ -856,10 +1128,6 @@ console.log("🚀 Phase 9A chat actions loading...");
             copyButton
         );
 
-
-        /* ================================================
-           REGENERATE
-        ================================================= */
 
         const regenerateButton =
             createRegenerateButton(
@@ -883,7 +1151,69 @@ console.log("🚀 Phase 9A chat actions loading...");
 
 
     /* =====================================================
-       ENHANCE AI MESSAGE
+       CREATE USER ACTION BAR
+    ===================================================== */
+
+    function createUserActionBar(
+        messageElement
+    ) {
+
+        if (!messageElement) {
+            return;
+        }
+
+
+        if (
+            messageElement.dataset &&
+            messageElement.dataset.actionsAdded ===
+            "true"
+        ) {
+
+            return;
+
+        }
+
+
+        const messageText =
+            messageElement.querySelector(
+                ".messageText"
+            );
+
+        if (!messageText) {
+            return;
+        }
+
+
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "messageActions";
+
+
+        const editButton =
+            createEditButton(
+                messageElement
+            );
+
+        actions.appendChild(
+            editButton
+        );
+
+
+        messageElement.appendChild(
+            actions
+        );
+
+
+        messageElement.dataset.actionsAdded =
+            "true";
+
+    }
+
+
+    /* =====================================================
+       ENHANCE MESSAGE
     ===================================================== */
 
     function enhanceMessage(
@@ -896,30 +1226,40 @@ console.log("🚀 Phase 9A chat actions loading...");
 
 
         if (
-            !messageElement.classList.contains(
+            messageElement.classList.contains(
                 "ai"
             )
         ) {
 
-            return;
+            createAIActionBar(
+                messageElement
+            );
 
         }
 
 
-        createActionBar(
-            messageElement
-        );
+        if (
+            messageElement.classList.contains(
+                "user"
+            )
+        ) {
+
+            createUserActionBar(
+                messageElement
+            );
+
+        }
 
     }
 
 
     /* =====================================================
-       EXISTING AI MESSAGES
+       EXISTING MESSAGES
     ===================================================== */
 
     chatBox
         .querySelectorAll(
-            ".message.ai"
+            ".message.ai, .message.user"
         )
         .forEach(
             enhanceMessage
@@ -951,17 +1291,10 @@ console.log("🚀 Phase 9A chat actions loading...");
                                     }
 
 
-                                    /* ==================================
-                                       DIRECT AI MESSAGE
-                                    ================================== */
-
                                     if (
                                         node.classList &&
                                         node.classList.contains(
                                             "message"
-                                        ) &&
-                                        node.classList.contains(
-                                            "ai"
                                         )
                                     ) {
 
@@ -972,17 +1305,13 @@ console.log("🚀 Phase 9A chat actions loading...");
                                     }
 
 
-                                    /* ==================================
-                                       AI MESSAGE INSIDE ELEMENT
-                                    ================================== */
-
                                     if (
                                         node.querySelectorAll
                                     ) {
 
                                         node
                                             .querySelectorAll(
-                                                ".message.ai"
+                                                ".message.ai, .message.user"
                                             )
                                             .forEach(
                                                 enhanceMessage
@@ -1022,13 +1351,16 @@ console.log("🚀 Phase 9A chat actions loading...");
             enhanceMessage,
 
         regenerateResponse:
-            regenerateResponse
+            regenerateResponse,
+
+        editMessage:
+            editMessage
 
     };
 
 
     console.log(
-        "✅ Phase 9A Copy + Regenerate ready"
+        "✅ Phase 9C.9 Copy + Regenerate + Edit ready"
     );
 
 })();
