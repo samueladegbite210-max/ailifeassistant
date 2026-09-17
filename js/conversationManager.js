@@ -98,6 +98,30 @@ console.log("🚀 Conversation Manager loading...");
                     ? parsed
                     : [];
 
+
+            /*
+             * Make sure old conversations that were
+             * created before branching existed remain
+             * compatible.
+             */
+
+            conversations.forEach(
+                function (conversation) {
+
+                    if (
+                        !Array.isArray(
+                            conversation.branches
+                        )
+                    ) {
+
+                        conversation.branches =
+                            [];
+
+                    }
+
+                }
+            );
+
         }
 
         catch (error) {
@@ -196,10 +220,6 @@ console.log("🚀 Conversation Manager loading...");
 
         }
 
-        /*
-         * Brand-new chat has no ID yet.
-         */
-
         return NEW_DRAFT_KEY;
 
     }
@@ -213,9 +233,7 @@ console.log("🚀 Conversation Manager loading...");
             );
 
         if (!input) {
-
             return;
-
         }
 
 
@@ -234,11 +252,6 @@ console.log("🚀 Conversation Manager loading...");
                 localStorage.setItem(
                     key,
                     value
-                );
-
-                console.log(
-                    "📝 Draft saved:",
-                    key
                 );
 
             }
@@ -275,9 +288,7 @@ console.log("🚀 Conversation Manager loading...");
             );
 
         if (!input) {
-
             return;
-
         }
 
 
@@ -308,12 +319,6 @@ console.log("🚀 Conversation Manager loading...");
                             bubbles: true
                         }
                     )
-                );
-
-
-                console.log(
-                    "📝 Composer draft restored:",
-                    key
                 );
 
             }
@@ -366,64 +371,6 @@ console.log("🚀 Conversation Manager loading...");
     }
 
 
-    function migrateNewChatDraft(
-        conversationId
-    ) {
-
-        if (!conversationId) {
-
-            return;
-
-        }
-
-
-        try {
-
-            const draft =
-                localStorage.getItem(
-                    NEW_DRAFT_KEY
-                );
-
-
-            if (!draft) {
-
-                return;
-
-            }
-
-
-            localStorage.setItem(
-                getDraftKey(
-                    conversationId
-                ),
-                draft
-            );
-
-
-            localStorage.removeItem(
-                NEW_DRAFT_KEY
-            );
-
-
-            console.log(
-                "📝 New-chat draft migrated:",
-                conversationId
-            );
-
-        }
-
-        catch (error) {
-
-            console.warn(
-                "⚠️ Could not migrate composer draft:",
-                error
-            );
-
-        }
-
-    }
-
-
     /* =====================================================
        ID
     ===================================================== */
@@ -442,8 +389,22 @@ console.log("🚀 Conversation Manager loading...");
     }
 
 
+    function createBranchId() {
+
+        return (
+            "branch_" +
+            Date.now() +
+            "_" +
+            Math.random()
+                .toString(36)
+                .substring(2, 10)
+        );
+
+    }
+
+
     /* =====================================================
-       SMART CONVERSATION TITLE
+       SMART TITLE
     ===================================================== */
 
     function createConversationTitle(
@@ -451,9 +412,7 @@ console.log("🚀 Conversation Manager loading...");
     ) {
 
         if (!text) {
-
             return "New Chat";
-
         }
 
 
@@ -464,9 +423,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (!title) {
-
             return "New Chat";
-
         }
 
 
@@ -509,16 +466,6 @@ console.log("🚀 Conversation Manager loading...");
             title.trim();
 
 
-        if (!title) {
-
-            title =
-                String(text)
-                    .replace(/\s+/g, " ")
-                    .trim();
-
-        }
-
-
         const sentenceMatch =
             title.match(
                 /^(.+?[.!?])(?:\s|$)/
@@ -534,12 +481,6 @@ console.log("🚀 Conversation Manager loading...");
                 sentenceMatch[1].trim();
 
         }
-
-
-        title =
-            title
-                .replace(/\s+/g, " ")
-                .trim();
 
 
         const MAX_TITLE_LENGTH = 55;
@@ -568,12 +509,10 @@ console.log("🚀 Conversation Manager loading...");
             ) {
 
                 title =
-                    title
-                        .substring(
-                            0,
-                            lastSpace
-                        )
-                        .trim();
+                    title.substring(
+                        0,
+                        lastSpace
+                    ).trim();
 
             }
 
@@ -600,9 +539,7 @@ console.log("🚀 Conversation Manager loading...");
     ) {
 
         if (!imageSource) {
-
             return null;
-
         }
 
 
@@ -640,9 +577,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
             if (!blob) {
-
                 return null;
-
             }
 
 
@@ -680,11 +615,8 @@ console.log("🚀 Conversation Manager loading...");
             await loaded;
 
 
-            const MAX_WIDTH =
-                1280;
-
-            const MAX_HEIGHT =
-                1280;
+            const MAX_WIDTH = 1280;
+            const MAX_HEIGHT = 1280;
 
 
             let width =
@@ -860,10 +792,6 @@ console.log("🚀 Conversation Manager loading...");
 
             if (!imageData) {
 
-                console.warn(
-                    "⚠️ Image could not be stored."
-                );
-
                 return null;
 
             }
@@ -937,12 +865,6 @@ console.log("🚀 Conversation Manager loading...");
             };
 
 
-            console.log(
-                "🖼️ Saved image context restored:",
-                window.activeVisionContext.name
-            );
-
-
             return true;
 
         }
@@ -986,9 +908,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
                 if (!textElement) {
-
                     return;
-
                 }
 
 
@@ -1006,9 +926,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
                 if (!content) {
-
                     return;
-
                 }
 
 
@@ -1039,9 +957,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
                 if (!role) {
-
                     return;
-
                 }
 
 
@@ -1080,15 +996,285 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
+       MESSAGE COMPARISON
+    ===================================================== */
+
+    function messagesMatch(
+        first,
+        second
+    ) {
+
+        if (
+            !first ||
+            !second
+        ) {
+
+            return false;
+
+        }
+
+
+        return (
+            first.role ===
+            second.role &&
+            String(
+                first.content || ""
+            ).trim() ===
+            String(
+                second.content || ""
+            ).trim()
+        );
+
+    }
+
+
+    function isStrictPrefix(
+        shorter,
+        longer
+    ) {
+
+        if (
+            !Array.isArray(shorter) ||
+            !Array.isArray(longer)
+        ) {
+
+            return false;
+
+        }
+
+
+        if (
+            shorter.length >=
+            longer.length
+        ) {
+
+            return false;
+
+        }
+
+
+        for (
+            let i = 0;
+            i < shorter.length;
+            i++
+        ) {
+
+            if (
+                !messagesMatch(
+                    shorter[i],
+                    longer[i]
+                )
+            ) {
+
+                return false;
+
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+
+    /* =====================================================
+       PRESERVE EDITED BRANCH
+    ===================================================== */
+
+    function preserveConversationBranch(
+        conversation,
+        currentMessages
+    ) {
+
+        if (
+            !conversation ||
+            !Array.isArray(
+                conversation.messages
+            ) ||
+            !Array.isArray(
+                currentMessages
+            )
+        ) {
+
+            return false;
+
+        }
+
+
+        /*
+         * If the current visible conversation is a
+         * strict prefix of the previously saved
+         * conversation, something was removed from
+         * the end.
+         *
+         * Our Edit feature intentionally does exactly
+         * this when creating a new branch.
+         */
+
+        if (
+            !isStrictPrefix(
+                currentMessages,
+                conversation.messages
+            )
+        ) {
+
+            return false;
+
+        }
+
+
+        const previousMessages =
+            conversation.messages.map(
+                function (message) {
+
+                    return {
+
+                        role:
+                            message.role,
+
+                        content:
+                            message.content,
+
+                        timestamp:
+                            message.timestamp ||
+                            null
+
+                    };
+
+                }
+            );
+
+
+        if (!previousMessages.length) {
+            return false;
+        }
+
+
+        if (
+            !Array.isArray(
+                conversation.branches
+            )
+        ) {
+
+            conversation.branches =
+                [];
+
+        }
+
+
+        /*
+         * Prevent duplicate branch snapshots.
+         */
+
+        const alreadySaved =
+            conversation.branches.some(
+                function (branch) {
+
+                    if (
+                        !Array.isArray(
+                            branch.messages
+                        )
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        branch.messages.length !==
+                        previousMessages.length
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    return (
+                        branch.messages.every(
+                            function (
+                                message,
+                                index
+                            ) {
+
+                                return messagesMatch(
+                                    message,
+                                    previousMessages[index]
+                                );
+
+                            }
+                        )
+                    );
+
+                }
+            );
+
+
+        if (alreadySaved) {
+
+            return false;
+
+        }
+
+
+        conversation.branches.push({
+
+            id:
+                createBranchId(),
+
+            createdAt:
+                new Date().toISOString(),
+
+            messages:
+                previousMessages
+
+        });
+
+
+        /*
+         * Keep branch storage controlled.
+         *
+         * Five previous branches per conversation
+         * is enough for now and prevents localStorage
+         * from growing forever.
+         */
+
+        const MAX_BRANCHES = 5;
+
+
+        if (
+            conversation.branches.length >
+            MAX_BRANCHES
+        ) {
+
+            conversation.branches =
+                conversation.branches.slice(
+                    -MAX_BRANCHES
+                );
+
+        }
+
+
+        console.log(
+            "🌿 Previous conversation branch preserved"
+        );
+
+
+        return true;
+
+    }
+
+
+    /* =====================================================
        FIND CURRENT CONVERSATION
     ===================================================== */
 
     function getCurrentConversation() {
 
         if (!currentConversationId) {
-
             return null;
-
         }
 
 
@@ -1136,11 +1322,6 @@ console.log("🚀 Conversation Manager loading...");
         }
 
 
-        /*
-         * Capture the new-chat draft BEFORE
-         * any async operation happens.
-         */
-
         const newChatDraft =
             localStorage.getItem(
                 NEW_DRAFT_KEY
@@ -1149,6 +1330,34 @@ console.log("🚀 Conversation Manager loading...");
 
         let conversation =
             getCurrentConversation();
+
+
+        /*
+         * =================================================
+         * PHASE 9C.10 BRANCH DETECTION
+         * =================================================
+         *
+         * Before replacing the saved messages, check
+         * whether the visible conversation became a
+         * shorter version of the saved conversation.
+         */
+
+        if (conversation) {
+
+            if (
+                preserveConversationBranch(
+                    conversation,
+                    messages
+                )
+            ) {
+
+                console.log(
+                    "🌿 Edit detected — old branch preserved"
+                );
+
+            }
+
+        }
 
 
         let visionContext = null;
@@ -1201,7 +1410,10 @@ console.log("🚀 Conversation Manager loading...");
                     messages,
 
                 visionContext:
-                    visionContext
+                    visionContext,
+
+                branches:
+                    []
 
             };
 
@@ -1216,12 +1428,6 @@ console.log("🚀 Conversation Manager loading...");
             );
 
 
-            /*
-             * Move any unfinished draft from
-             * the temporary new-chat location
-             * to this conversation.
-             */
-
             if (newChatDraft) {
 
                 try {
@@ -1233,10 +1439,6 @@ console.log("🚀 Conversation Manager loading...");
 
                     localStorage.removeItem(
                         NEW_DRAFT_KEY
-                    );
-
-                    console.log(
-                        "📝 Draft attached to new conversation"
                     );
 
                 }
@@ -1277,6 +1479,18 @@ console.log("🚀 Conversation Manager loading...");
 
 
             if (
+                !Array.isArray(
+                    conversation.branches
+                )
+            ) {
+
+                conversation.branches =
+                    [];
+
+            }
+
+
+            if (
                 !conversation.title ||
                 conversation.title ===
                 "New Chat"
@@ -1299,12 +1513,6 @@ console.log("🚀 Conversation Manager loading...");
             searchInput
                 ? searchInput.value
                 : ""
-        );
-
-
-        console.log(
-            "💾 Conversation saved:",
-            conversation.title
         );
 
 
@@ -1381,9 +1589,7 @@ console.log("🚀 Conversation Manager loading...");
                 function (conversation) {
 
                     if (!term) {
-
                         return true;
-
                     }
 
 
@@ -1521,18 +1727,15 @@ console.log("🚀 Conversation Manager loading...");
             groups.today
         );
 
-
         renderConversationGroup(
             "Yesterday",
             groups.yesterday
         );
 
-
         renderConversationGroup(
             "Previous 7 Days",
             groups.previous7Days
         );
-
 
         renderConversationGroup(
             "Older",
@@ -1552,9 +1755,7 @@ console.log("🚀 Conversation Manager loading...");
     ) {
 
         if (!items.length) {
-
             return;
-
         }
 
 
@@ -1650,7 +1851,6 @@ console.log("🚀 Conversation Manager loading...");
         openButton.type =
             "button";
 
-
         openButton.className =
             "conversationOpenButton";
 
@@ -1682,14 +1882,6 @@ console.log("🚀 Conversation Manager loading...");
             hasImage
                 ? "This conversation contains an image"
                 : "Text conversation";
-
-
-        icon.setAttribute(
-            "aria-label",
-            hasImage
-                ? "Image conversation"
-                : "Text conversation"
-        );
 
 
         const title =
@@ -1738,12 +1930,6 @@ console.log("🚀 Conversation Manager loading...");
                 "Image";
 
 
-            imageBadge.setAttribute(
-                "aria-label",
-                "Contains image"
-            );
-
-
             titleWrapper.appendChild(
                 imageBadge
             );
@@ -1754,7 +1940,6 @@ console.log("🚀 Conversation Manager loading...");
         openButton.appendChild(
             icon
         );
-
 
         openButton.appendChild(
             titleWrapper
@@ -1782,10 +1967,8 @@ console.log("🚀 Conversation Manager loading...");
         optionsButton.type =
             "button";
 
-
         optionsButton.className =
             "conversationDeleteButton";
-
 
         optionsButton.textContent =
             "⋯";
@@ -1818,7 +2001,6 @@ console.log("🚀 Conversation Manager loading...");
         item.appendChild(
             openButton
         );
-
 
         item.appendChild(
             optionsButton
@@ -1861,11 +2043,6 @@ console.log("🚀 Conversation Manager loading...");
 
         }
 
-
-        /*
-         * Save whatever the user was typing
-         * before switching away.
-         */
 
         saveComposerDraft();
 
@@ -1931,6 +2108,13 @@ console.log("🚀 Conversation Manager loading...");
 
         }
 
+        else {
+
+            window.activeVisionContext =
+                null;
+
+        }
+
 
         chatBox.innerHTML =
             "";
@@ -1977,19 +2161,8 @@ console.log("🚀 Conversation Manager loading...");
         );
 
 
-        /*
-         * Restore the draft belonging to
-         * THIS conversation.
-         */
-
         restoreComposerDraft(
             conversation.id
-        );
-
-
-        console.log(
-            "📂 Opened:",
-            conversation.title
         );
 
     }
@@ -2101,7 +2274,6 @@ console.log("🚀 Conversation Manager loading...");
             messageText
         );
 
-
         message.appendChild(
             time
         );
@@ -2123,9 +2295,7 @@ console.log("🚀 Conversation Manager loading...");
     ) {
 
         if (!timestamp) {
-
             return "";
-
         }
 
 
@@ -2158,46 +2328,21 @@ console.log("🚀 Conversation Manager loading...");
 
     async function startNewChat() {
 
-        /*
-         * Save the unfinished text first.
-         */
-
         saveComposerDraft();
 
 
-        /*
-         * Save the current conversation.
-         *
-         * IMPORTANT:
-         * Await it so it cannot race with
-         * changing currentConversationId.
-         */
-
         await saveCurrentConversation();
 
-
-        /*
-         * Leave the old conversation.
-         */
 
         setCurrentConversationId(
             null
         );
 
 
-        /*
-         * A new chat should start with
-         * an empty composer.
-         */
-
         clearComposerDraft(
             null
         );
 
-
-        /*
-         * Clear AI memory and image context.
-         */
 
         if (
             typeof window.clearConversationHistory ===
@@ -2219,17 +2364,9 @@ console.log("🚀 Conversation Manager loading...");
         }
 
 
-        /*
-         * Clear visible chat.
-         */
-
         chatBox.innerHTML =
             "";
 
-
-        /*
-         * Clear composer.
-         */
 
         const input =
             document.getElementById(
@@ -2253,10 +2390,6 @@ console.log("🚀 Conversation Manager loading...");
 
         }
 
-
-        /*
-         * Restore welcome screen.
-         */
 
         const welcome =
             document.createElement(
@@ -2312,7 +2445,6 @@ console.log("🚀 Conversation Manager loading...");
             welcomeText
         );
 
-
         welcome.appendChild(
             welcomeTime
         );
@@ -2327,11 +2459,6 @@ console.log("🚀 Conversation Manager loading...");
 
 
         renderConversationList();
-
-
-        console.log(
-            "🆕 New independent conversation started"
-        );
 
     }
 
@@ -2352,9 +2479,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (existingMenu) {
-
             existingMenu.remove();
-
         }
 
 
@@ -2376,7 +2501,6 @@ console.log("🚀 Conversation Manager loading...");
 
         renameButton.type =
             "button";
-
 
         renameButton.className =
             "conversationOptionButton";
@@ -2414,7 +2538,6 @@ console.log("🚀 Conversation Manager loading...");
         deleteButton.type =
             "button";
 
-
         deleteButton.className =
             "conversationOptionButton deleteOption";
 
@@ -2445,7 +2568,6 @@ console.log("🚀 Conversation Manager loading...");
         menu.appendChild(
             renameButton
         );
-
 
         menu.appendChild(
             deleteButton
@@ -2494,11 +2616,6 @@ console.log("🚀 Conversation Manager loading...");
             0
         );
 
-
-        console.log(
-            "✅ Conversation options opened"
-        );
-
     }
 
 
@@ -2524,9 +2641,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (!conversation) {
-
             return;
-
         }
 
 
@@ -2539,9 +2654,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (newTitle === null) {
-
             return;
-
         }
 
 
@@ -2552,9 +2665,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (!cleanedTitle) {
-
             return;
-
         }
 
 
@@ -2582,12 +2693,6 @@ console.log("🚀 Conversation Manager loading...");
                 : ""
         );
 
-
-        console.log(
-            "✏️ Conversation renamed:",
-            conversation.title
-        );
-
     }
 
 
@@ -2613,9 +2718,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (!conversation) {
-
             return;
-
         }
 
 
@@ -2631,9 +2734,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (!confirmed) {
-
             return;
-
         }
 
 
@@ -2649,11 +2750,6 @@ console.log("🚀 Conversation Manager loading...");
                 }
             );
 
-
-        /*
-         * Remove that conversation's
-         * saved draft too.
-         */
 
         try {
 
@@ -2713,13 +2809,7 @@ console.log("🚀 Conversation Manager loading...");
 
         saveConversations();
 
-
         renderConversationList();
-
-
-        console.log(
-            "🗑️ Conversation deleted"
-        );
 
     }
 
@@ -2731,9 +2821,7 @@ console.log("🚀 Conversation Manager loading...");
     function clearAllConversations() {
 
         if (!conversations.length) {
-
             return;
-
         }
 
 
@@ -2744,9 +2832,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
         if (!confirmed) {
-
             return;
-
         }
 
 
@@ -2757,10 +2843,6 @@ console.log("🚀 Conversation Manager loading...");
             null
         );
 
-
-        /*
-         * Remove all conversation drafts.
-         */
 
         try {
 
@@ -2823,13 +2905,7 @@ console.log("🚀 Conversation Manager loading...");
 
         saveConversations();
 
-
         renderConversationList();
-
-
-        console.log(
-            "🗑️ All conversations cleared"
-        );
 
     }
 
@@ -2891,7 +2967,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       AUTO SAVE CHAT CHANGES
+       AUTO SAVE
     ===================================================== */
 
     let saveTimer = null;
@@ -2938,7 +3014,7 @@ console.log("🚀 Conversation Manager loading...");
 
 
     /* =====================================================
-       SAVE COMPOSER DRAFT WHILE TYPING
+       DRAFT SAVING
     ===================================================== */
 
     const composerInput =
@@ -2975,11 +3051,6 @@ console.log("🚀 Conversation Manager loading...");
         );
 
 
-        /*
-         * Extra protection for page refresh/
-         * navigation.
-         */
-
         window.addEventListener(
             "beforeunload",
             function () {
@@ -2998,17 +3069,8 @@ console.log("🚀 Conversation Manager loading...");
 
     loadConversations();
 
-
-    /*
-     * Render list immediately.
-     */
-
     renderConversationList();
 
-
-    /*
-     * Restore previous active conversation.
-     */
 
     if (currentConversationId) {
 
@@ -3042,20 +3104,10 @@ console.log("🚀 Conversation Manager loading...");
 
         else {
 
-            /*
-             * Saved ID no longer exists.
-             */
-
             setCurrentConversationId(
                 null
             );
 
-
-            /*
-             * Since there is no active
-             * conversation, restore any
-             * unfinished new-chat draft.
-             */
 
             setTimeout(
                 function () {
@@ -3073,16 +3125,6 @@ console.log("🚀 Conversation Manager loading...");
     }
 
     else {
-
-        /*
-         * IMPORTANT:
-         *
-         * This was missing before.
-         *
-         * If the user was typing in a brand-new
-         * chat and refreshed the page, restore
-         * the temporary "new" draft.
-         */
 
         setTimeout(
             function () {
@@ -3135,13 +3177,19 @@ console.log("🚀 Conversation Manager loading...");
             restoreComposerDraft,
 
         clearComposerDraft:
-            clearComposerDraft
+            clearComposerDraft,
+
+        /*
+         * New Phase 9C.10 API
+         */
+        preserveConversationBranch:
+            preserveConversationBranch
 
     };
 
 
     console.log(
-        "✅ Conversation Manager ready"
+        "✅ Conversation Manager ready — Phase 9C.10 Branching"
     );
 
 })();
