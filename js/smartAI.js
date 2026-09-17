@@ -159,12 +159,52 @@ function getConversationHistory() {
     const history =
         window.conversationHistory || [];
 
-    if (!history.length) {
+    
+    /*
+     * =====================================================
+     * PHASE 9C.8
+     * CONTEXT SAFETY VALIDATION
+     * =====================================================
+     */
+
+    if (!Array.isArray(history)) {
+        window.conversationHistory = [];
+        return [];
+    }
+
+    const validHistory =
+        history.filter(function (item) {
+
+            if (!item || typeof item !== "object") {
+                return false;
+            }
+
+            if (
+                item.role !== "user" &&
+                item.role !== "assistant"
+            ) {
+                return false;
+            }
+
+            if (
+                typeof item.content !== "string"
+            ) {
+                return false;
+            }
+
+            if (
+                !item.content.trim()
+            ) {
+                return false;
+            }
+
+            return true;
+        });
+   if (!history.length) {
         return [];
     }
 
     const MAX_CONTEXT_MESSAGES = 24;
-
     /*
      * =====================================================
      * PHASE 9C.7
@@ -173,8 +213,7 @@ function getConversationHistory() {
      */
 
     const recentHistory =
-        history.slice(-MAX_CONTEXT_MESSAGES);
-
+    validHistory.slice(-MAX_CONTEXT_MESSAGES);
     const imageKeywords =
         /\b(image|photo|picture|pictured|shown|see|look|this|that|it|attachment|uploaded|camera|visual)\b/i;
 
