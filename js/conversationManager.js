@@ -1,3195 +1,726 @@
 "use strict";
 
-console.log("🚀 Conversation Manager loading...");
+console.log("✏️ Conversation Editor loading...");
 
-(function () {
 
-    /* =====================================================
-       STORAGE
-    ===================================================== */
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
-    const STORAGE_KEY =
-        "aiLifeAssistantConversations";
+const editChatBox =
+    document.getElementById("chatBox");
 
-    const CURRENT_CHAT_KEY =
-        "aiLifeAssistantCurrentConversationId";
 
-    const DRAFT_PREFIX =
-        "aiLifeAssistantDraft_";
+/* =====================================================
+   CREATE EDIT BUTTON
+===================================================== */
 
-    const NEW_DRAFT_KEY =
-        DRAFT_PREFIX + "new";
+function createEditButton(messageElement) {
 
-    let conversations = [];
+    if (!messageElement) return;
 
-    let currentConversationId =
-        localStorage.getItem(
-            CURRENT_CHAT_KEY
-        ) || null;
-
-
-    /* =====================================================
-       ELEMENTS
-    ===================================================== */
-
-    const conversationList =
-        document.getElementById(
-            "conversationList"
-        );
-
-    const searchInput =
-        document.getElementById(
-            "conversationSearchInput"
-        );
-
-    const newChatBtn =
-        document.getElementById(
-            "newChatBtn"
-        );
-
-    const clearAllBtn =
-        document.getElementById(
-            "clearAllConversationsBtn"
-        );
-
-    const chatBox =
-        document.getElementById(
-            "chatBox"
-        );
-
-
-    if (!conversationList || !chatBox) {
-
-        console.error(
-            "❌ Conversation Manager elements not found"
-        );
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       STORAGE HELPERS
-    ===================================================== */
-
-    function loadConversations() {
-
-        try {
-
-            const saved =
-                localStorage.getItem(
-                    STORAGE_KEY
-                );
-
-            if (!saved) {
-
-                conversations = [];
-
-                return;
-
-            }
-
-            const parsed =
-                JSON.parse(saved);
-
-            conversations =
-                Array.isArray(parsed)
-                    ? parsed
-                    : [];
-
-
-            /*
-             * Make sure old conversations that were
-             * created before branching existed remain
-             * compatible.
-             */
-
-            conversations.forEach(
-                function (conversation) {
-
-                    if (
-                        !Array.isArray(
-                            conversation.branches
-                        )
-                    ) {
-
-                        conversation.branches =
-                            [];
-
-                    }
-
-                }
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Failed to load conversations:",
-                error
-            );
-
-            conversations = [];
-
-        }
-
-    }
-
-
-    function saveConversations() {
-
-        try {
-
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(
-                    conversations
-                )
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Failed to save conversations:",
-                error
-            );
-
-            if (
-                error &&
-                error.name ===
-                "QuotaExceededError"
-            ) {
-
-                console.warn(
-                    "⚠️ Conversation storage is full."
-                );
-
-            }
-
-        }
-
-    }
-
-
-    function setCurrentConversationId(
-        id
-    ) {
-
-        currentConversationId =
-            id || null;
-
-
-        if (currentConversationId) {
-
-            localStorage.setItem(
-                CURRENT_CHAT_KEY,
-                currentConversationId
-            );
-
-        }
-
-        else {
-
-            localStorage.removeItem(
-                CURRENT_CHAT_KEY
-            );
-
-        }
-
-    }
-
-
-    /* =====================================================
-       COMPOSER DRAFT
-    ===================================================== */
-
-    function getDraftKey(
-        conversationId = currentConversationId
-    ) {
-
-        if (conversationId) {
-
-            return (
-                DRAFT_PREFIX +
-                conversationId
-            );
-
-        }
-
-        return NEW_DRAFT_KEY;
-
-    }
-
-
-    function saveComposerDraft() {
-
-        const input =
-            document.getElementById(
-                "userInput"
-            );
-
-        if (!input) {
-            return;
-        }
-
-
-        const key =
-            getDraftKey();
-
-
-        try {
-
-            const value =
-                input.value || "";
-
-
-            if (value.trim()) {
-
-                localStorage.setItem(
-                    key,
-                    value
-                );
-
-            }
-
-            else {
-
-                localStorage.removeItem(
-                    key
-                );
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.warn(
-                "⚠️ Could not save composer draft:",
-                error
-            );
-
-        }
-
-    }
-
-
-    function restoreComposerDraft(
-        conversationId = currentConversationId
-    ) {
-
-        const input =
-            document.getElementById(
-                "userInput"
-            );
-
-        if (!input) {
-            return;
-        }
-
-
-        const key =
-            getDraftKey(
-                conversationId
-            );
-
-
-        try {
-
-            const draft =
-                localStorage.getItem(
-                    key
-                );
-
-
-            if (draft) {
-
-                input.value =
-                    draft;
-
-
-                input.dispatchEvent(
-                    new Event(
-                        "input",
-                        {
-                            bubbles: true
-                        }
-                    )
-                );
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.warn(
-                "⚠️ Could not restore composer draft:",
-                error
-            );
-
-        }
-
-    }
-
-
-    function clearComposerDraft(
-        conversationId = currentConversationId
-    ) {
-
-        try {
-
-            const key =
-                getDraftKey(
-                    conversationId
-                );
-
-
-            if (key) {
-
-                localStorage.removeItem(
-                    key
-                );
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.warn(
-                "⚠️ Could not clear composer draft:",
-                error
-            );
-
-        }
-
-    }
-
-
-    /* =====================================================
-       ID
-    ===================================================== */
-
-    function createConversationId() {
-
-        return (
-            "chat_" +
-            Date.now() +
-            "_" +
-            Math.random()
-                .toString(36)
-                .substring(2, 10)
-        );
-
-    }
-
-
-    function createBranchId() {
-
-        return (
-            "branch_" +
-            Date.now() +
-            "_" +
-            Math.random()
-                .toString(36)
-                .substring(2, 10)
-        );
-
-    }
-
-
-    /* =====================================================
-       SMART TITLE
-    ===================================================== */
-
-    function createConversationTitle(
-        text
-    ) {
-
-        if (!text) {
-            return "New Chat";
-        }
-
-
-        let title =
-            String(text)
-                .replace(/\s+/g, " ")
-                .trim();
-
-
-        if (!title) {
-            return "New Chat";
-        }
-
-
-        title =
-            title.replace(
-                /^(please\s+)?(can\s+you|could\s+you|would\s+you)\s+/i,
-                ""
-            );
-
-
-        title =
-            title.replace(
-                /^(please\s+)?(help\s+me)\s+(with\s+)?/i,
-                "Help me "
-            );
-
-
-        title =
-            title.replace(
-                /^i\s+want\s+you\s+to\s+/i,
-                ""
-            );
-
-
-        title =
-            title.replace(
-                /^i\s+need\s+you\s+to\s+/i,
-                ""
-            );
-
-
-        title =
-            title.replace(
-                /^i\s+would\s+like\s+you\s+to\s+/i,
-                ""
-            );
-
-
-        title =
-            title.trim();
-
-
-        const sentenceMatch =
-            title.match(
-                /^(.+?[.!?])(?:\s|$)/
-            );
-
-
-        if (
-            sentenceMatch &&
-            sentenceMatch[1]
-        ) {
-
-            title =
-                sentenceMatch[1].trim();
-
-        }
-
-
-        const MAX_TITLE_LENGTH = 55;
-
-
-        if (
-            title.length >
-            MAX_TITLE_LENGTH
-        ) {
-
-            title =
-                title
-                    .substring(
-                        0,
-                        MAX_TITLE_LENGTH
-                    )
-                    .trim();
-
-
-            const lastSpace =
-                title.lastIndexOf(" ");
-
-
-            if (
-                lastSpace > 25
-            ) {
-
-                title =
-                    title.substring(
-                        0,
-                        lastSpace
-                    ).trim();
-
-            }
-
-
-            title += "…";
-
-        }
-
-
-        return (
-            title ||
-            "New Chat"
-        );
-
-    }
-
-
-    /* =====================================================
-       IMAGE STORAGE
-    ===================================================== */
-
-    async function compressImageForStorage(
-        imageSource
-    ) {
-
-        if (!imageSource) {
-            return null;
-        }
-
-
-        try {
-
-            let blob = null;
-
-
-            if (
-                imageSource instanceof Blob
-            ) {
-
-                blob =
-                    imageSource;
-
-            }
-
-            else if (
-                typeof imageSource ===
-                "string" &&
-                imageSource.startsWith(
-                    "data:image/"
-                )
-            ) {
-
-                const response =
-                    await fetch(
-                        imageSource
-                    );
-
-                blob =
-                    await response.blob();
-
-            }
-
-
-            if (!blob) {
-                return null;
-            }
-
-
-            const objectURL =
-                URL.createObjectURL(
-                    blob
-                );
-
-
-            const image =
-                new Image();
-
-
-            const loaded =
-                new Promise(
-                    function (
-                        resolve,
-                        reject
-                    ) {
-
-                        image.onload =
-                            resolve;
-
-                        image.onerror =
-                            reject;
-
-                    }
-                );
-
-
-            image.src =
-                objectURL;
-
-
-            await loaded;
-
-
-            const MAX_WIDTH = 1280;
-            const MAX_HEIGHT = 1280;
-
-
-            let width =
-                image.naturalWidth ||
-                image.width;
-
-            let height =
-                image.naturalHeight ||
-                image.height;
-
-
-            if (
-                !width ||
-                !height
-            ) {
-
-                URL.revokeObjectURL(
-                    objectURL
-                );
-
-                return null;
-
-            }
-
-
-            const scale =
-                Math.min(
-                    1,
-                    MAX_WIDTH / width,
-                    MAX_HEIGHT / height
-                );
-
-
-            width =
-                Math.round(
-                    width * scale
-                );
-
-            height =
-                Math.round(
-                    height * scale
-                );
-
-
-            const canvas =
-                document.createElement(
-                    "canvas"
-                );
-
-
-            canvas.width =
-                width;
-
-            canvas.height =
-                height;
-
-
-            const context =
-                canvas.getContext(
-                    "2d"
-                );
-
-
-            if (!context) {
-
-                URL.revokeObjectURL(
-                    objectURL
-                );
-
-                return null;
-
-            }
-
-
-            context.drawImage(
-                image,
-                0,
-                0,
-                width,
-                height
-            );
-
-
-            const compressedData =
-                canvas.toDataURL(
-                    "image/jpeg",
-                    0.75
-                );
-
-
-            URL.revokeObjectURL(
-                objectURL
-            );
-
-
-            return compressedData;
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Failed to compress image:",
-                error
-            );
-
-            return null;
-
-        }
-
-    }
-
-
-    async function getVisionContextForStorage() {
-
-        try {
-
-            if (
-                typeof window.getActiveVisionContext !==
-                "function"
-            ) {
-
-                if (
-                    window.activeVisionContext &&
-                    window.activeVisionContext.image
-                ) {
-
-                    return {
-
-                        image:
-                            window.activeVisionContext.image,
-
-                        name:
-                            window.activeVisionContext.name ||
-                            "conversation-image.jpg",
-
-                        mimeType:
-                            window.activeVisionContext.mimeType ||
-                            "image/jpeg",
-
-                        createdAt:
-                            window.activeVisionContext.createdAt ||
-                            Date.now()
-
-                    };
-
-                }
-
-                return null;
-
-            }
-
-
-            const activeContext =
-                window.getActiveVisionContext();
-
-
-            if (
-                !activeContext ||
-                !activeContext.image
-            ) {
-
-                return null;
-
-            }
-
-
-            const imageData =
-                await compressImageForStorage(
-                    activeContext.image
-                );
-
-
-            if (!imageData) {
-
-                return null;
-
-            }
-
-
-            return {
-
-                image:
-                    imageData,
-
-                name:
-                    activeContext.name ||
-                    "conversation-image.jpg",
-
-                mimeType:
-                    "image/jpeg",
-
-                createdAt:
-                    Date.now()
-
-            };
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Failed to get vision context:",
-                error
-            );
-
-            return null;
-
-        }
-
-    }
-
-
-    function restoreVisionContext(
-        visionContext
-    ) {
-
-        if (
-            !visionContext ||
-            !visionContext.image
-        ) {
-
-            return false;
-
-        }
-
-
-        try {
-
-            window.activeVisionContext = {
-
-                image:
-                    visionContext.image,
-
-                name:
-                    visionContext.name ||
-                    "conversation-image.jpg",
-
-                mimeType:
-                    visionContext.mimeType ||
-                    "image/jpeg",
-
-                createdAt:
-                    Date.now()
-
-            };
-
-
-            return true;
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Failed to restore vision context:",
-                error
-            );
-
-            return false;
-
-        }
-
-    }
-
-
-    /* =====================================================
-       GET CURRENT DOM MESSAGES
-    ===================================================== */
-
-    function getCurrentMessages() {
-
-        const messages = [];
-
-
-        const elements =
-            chatBox.querySelectorAll(
-                ".message"
-            );
-
-
-        elements.forEach(
-            function (element) {
-
-                const textElement =
-                    element.querySelector(
-                        ".messageText"
-                    );
-
-
-                if (!textElement) {
-                    return;
-                }
-
-
-                let content =
-                    (
-                        textElement.innerText ||
-                        textElement.textContent ||
-                        ""
-                    )
-                    .replace(
-                        /\u00a0/g,
-                        " "
-                    )
-                    .trim();
-
-
-                if (!content) {
-                    return;
-                }
-
-
-                let role = null;
-
-
-                if (
-                    element.classList.contains(
-                        "user"
-                    )
-                ) {
-
-                    role =
-                        "user";
-
-                }
-
-                else if (
-                    element.classList.contains(
-                        "ai"
-                    )
-                ) {
-
-                    role =
-                        "assistant";
-
-                }
-
-
-                if (!role) {
-                    return;
-                }
-
-
-                if (
-                    role === "assistant" &&
-                    content.includes(
-                        "How can I help you today?"
-                    )
-                ) {
-
-                    return;
-
-                }
-
-
-                messages.push({
-
-                    role:
-                        role,
-
-                    content:
-                        content,
-
-                    timestamp:
-                        new Date().toISOString()
-
-                });
-
-            }
-        );
-
-
-        return messages;
-
-    }
-
-
-    /* =====================================================
-       MESSAGE COMPARISON
-    ===================================================== */
-
-    function messagesMatch(
-        first,
-        second
-    ) {
-
-        if (
-            !first ||
-            !second
-        ) {
-
-            return false;
-
-        }
-
-
-        return (
-            first.role ===
-            second.role &&
-            String(
-                first.content || ""
-            ).trim() ===
-            String(
-                second.content || ""
-            ).trim()
-        );
-
-    }
-
-
-    function isStrictPrefix(
-        shorter,
-        longer
-    ) {
-
-        if (
-            !Array.isArray(shorter) ||
-            !Array.isArray(longer)
-        ) {
-
-            return false;
-
-        }
-
-
-        if (
-            shorter.length >=
-            longer.length
-        ) {
-
-            return false;
-
-        }
-
-
-        for (
-            let i = 0;
-            i < shorter.length;
-            i++
-        ) {
-
-            if (
-                !messagesMatch(
-                    shorter[i],
-                    longer[i]
-                )
-            ) {
-
-                return false;
-
-            }
-
-        }
-
-
-        return true;
-
-    }
-
-
-    /* =====================================================
-       PRESERVE EDITED BRANCH
-    ===================================================== */
-
-    function preserveConversationBranch(
-        conversation,
-        currentMessages
-    ) {
-
-        if (
-            !conversation ||
-            !Array.isArray(
-                conversation.messages
-            ) ||
-            !Array.isArray(
-                currentMessages
-            )
-        ) {
-
-            return false;
-
-        }
-
-
-        /*
-         * If the current visible conversation is a
-         * strict prefix of the previously saved
-         * conversation, something was removed from
-         * the end.
-         *
-         * Our Edit feature intentionally does exactly
-         * this when creating a new branch.
-         */
-
-        if (
-            !isStrictPrefix(
-                currentMessages,
-                conversation.messages
-            )
-        ) {
-
-            return false;
-
-        }
-
-
-        const previousMessages =
-            conversation.messages.map(
-                function (message) {
-
-                    return {
-
-                        role:
-                            message.role,
-
-                        content:
-                            message.content,
-
-                        timestamp:
-                            message.timestamp ||
-                            null
-
-                    };
-
-                }
-            );
-
-
-        if (!previousMessages.length) {
-            return false;
-        }
-
-
-        if (
-            !Array.isArray(
-                conversation.branches
-            )
-        ) {
-
-            conversation.branches =
-                [];
-
-        }
-
-
-        /*
-         * Prevent duplicate branch snapshots.
-         */
-
-        const alreadySaved =
-            conversation.branches.some(
-                function (branch) {
-
-                    if (
-                        !Array.isArray(
-                            branch.messages
-                        )
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    if (
-                        branch.messages.length !==
-                        previousMessages.length
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    return (
-                        branch.messages.every(
-                            function (
-                                message,
-                                index
-                            ) {
-
-                                return messagesMatch(
-                                    message,
-                                    previousMessages[index]
-                                );
-
-                            }
-                        )
-                    );
-
-                }
-            );
-
-
-        if (alreadySaved) {
-
-            return false;
-
-        }
-
-
-        conversation.branches.push({
-
-            id:
-                createBranchId(),
-
-            createdAt:
-                new Date().toISOString(),
-
-            messages:
-                previousMessages
-
-        });
-
-
-        /*
-         * Keep branch storage controlled.
-         *
-         * Five previous branches per conversation
-         * is enough for now and prevents localStorage
-         * from growing forever.
-         */
-
-        const MAX_BRANCHES = 5;
-
-
-        if (
-            conversation.branches.length >
-            MAX_BRANCHES
-        ) {
-
-            conversation.branches =
-                conversation.branches.slice(
-                    -MAX_BRANCHES
-                );
-
-        }
-
-
-        console.log(
-            "🌿 Previous conversation branch preserved"
-        );
-
-
-        return true;
-
-    }
-
-
-    /* =====================================================
-       FIND CURRENT CONVERSATION
-    ===================================================== */
-
-    function getCurrentConversation() {
-
-        if (!currentConversationId) {
-            return null;
-        }
-
-
-        return conversations.find(
-            function (conversation) {
-
-                return (
-                    conversation.id ===
-                    currentConversationId
-                );
-
-            }
-        ) || null;
-
-    }
-
-
-    /* =====================================================
-       SAVE CURRENT CHAT
-    ===================================================== */
-
-    async function saveCurrentConversation() {
-
-        const messages =
-            getCurrentMessages();
-
-
-        const firstUserMessage =
-            messages.find(
-                function (message) {
-
-                    return (
-                        message.role ===
-                        "user"
-                    );
-
-                }
-            );
-
-
-        if (!firstUserMessage) {
-
-            return null;
-
-        }
-
-
-        const newChatDraft =
-            localStorage.getItem(
-                NEW_DRAFT_KEY
-            );
-
-
-        let conversation =
-            getCurrentConversation();
-
-
-        /*
-         * =================================================
-         * PHASE 9C.10 BRANCH DETECTION
-         * =================================================
-         *
-         * Before replacing the saved messages, check
-         * whether the visible conversation became a
-         * shorter version of the saved conversation.
-         */
-
-        if (conversation) {
-
-            if (
-                preserveConversationBranch(
-                    conversation,
-                    messages
-                )
-            ) {
-
-                console.log(
-                    "🌿 Edit detected — old branch preserved"
-                );
-
-            }
-
-        }
-
-
-        let visionContext = null;
-
-
-        try {
-
-            visionContext =
-                await getVisionContextForStorage();
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "❌ Vision context storage failed:",
-                error
-            );
-
-        }
-
-
-        /* =================================================
-           CREATE NEW CONVERSATION
-        ================================================= */
-
-        if (!conversation) {
-
-            const id =
-                createConversationId();
-
-
-            conversation = {
-
-                id:
-                    id,
-
-                title:
-                    createConversationTitle(
-                        firstUserMessage.content
-                    ),
-
-                createdAt:
-                    new Date().toISOString(),
-
-                updatedAt:
-                    new Date().toISOString(),
-
-                messages:
-                    messages,
-
-                visionContext:
-                    visionContext,
-
-                branches:
-                    []
-
-            };
-
-
-            conversations.unshift(
-                conversation
-            );
-
-
-            setCurrentConversationId(
-                id
-            );
-
-
-            if (newChatDraft) {
-
-                try {
-
-                    localStorage.setItem(
-                        getDraftKey(id),
-                        newChatDraft
-                    );
-
-                    localStorage.removeItem(
-                        NEW_DRAFT_KEY
-                    );
-
-                }
-
-                catch (error) {
-
-                    console.warn(
-                        "⚠️ Could not migrate draft:",
-                        error
-                    );
-
-                }
-
-            }
-
-        }
-
-        /* =================================================
-           UPDATE EXISTING CONVERSATION
-        ================================================= */
-
-        else {
-
-            conversation.messages =
-                messages;
-
-
-            conversation.updatedAt =
-                new Date().toISOString();
-
-
-            if (visionContext) {
-
-                conversation.visionContext =
-                    visionContext;
-
-            }
-
-
-            if (
-                !Array.isArray(
-                    conversation.branches
-                )
-            ) {
-
-                conversation.branches =
-                    [];
-
-            }
-
-
-            if (
-                !conversation.title ||
-                conversation.title ===
-                "New Chat"
-            ) {
-
-                conversation.title =
-                    createConversationTitle(
-                        firstUserMessage.content
-                    );
-
-            }
-
-        }
-
-
-        saveConversations();
-
-
-        renderConversationList(
-            searchInput
-                ? searchInput.value
-                : ""
-        );
-
-
-        return conversation;
-
-    }
-
-
-    /* =====================================================
-       RENDER LIST
-    ===================================================== */
-
-    function renderConversationList(
-        searchTerm = ""
-    ) {
-
-        conversationList.innerHTML =
-            "";
-
-
-        const term =
-            String(searchTerm)
-                .toLowerCase()
-                .trim();
-
-
-        const now =
-            new Date();
-
-
-        const startOfToday =
-            new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate()
-            );
-
-
-        const startOfYesterday =
-            new Date(
-                startOfToday.getTime() -
-                24 * 60 * 60 * 1000
-            );
-
-
-        const startOfSevenDays =
-            new Date(
-                startOfToday.getTime() -
-                7 * 24 * 60 * 60 * 1000
-            );
-
-
-        const sorted =
-            conversations
-                .slice()
-                .sort(
-                    function (a, b) {
-
-                        return (
-                            new Date(
-                                b.updatedAt
-                            ) -
-                            new Date(
-                                a.updatedAt
-                            )
-                        );
-
-                    }
-                );
-
-
-        const filtered =
-            sorted.filter(
-                function (conversation) {
-
-                    if (!term) {
-                        return true;
-                    }
-
-
-                    const title =
-                        String(
-                            conversation.title ||
-                            ""
-                        )
-                        .toLowerCase();
-
-
-                    const messages =
-                        Array.isArray(
-                            conversation.messages
-                        )
-                            ? conversation.messages
-                                .map(
-                                    function (
-                                        message
-                                    ) {
-
-                                        return String(
-                                            message.content ||
-                                            ""
-                                        );
-
-                                    }
-                                )
-                                .join(" ")
-                                .toLowerCase()
-                            : "";
-
-
-                    return (
-                        title.includes(term) ||
-                        messages.includes(term)
-                    );
-
-                }
-            );
-
-
-        if (!filtered.length) {
-
-            const empty =
-                document.createElement(
-                    "div"
-                );
-
-
-            empty.className =
-                "emptyConversations";
-
-
-            empty.textContent =
-                term
-                    ? "No matching conversations"
-                    : "No conversations yet";
-
-
-            conversationList.appendChild(
-                empty
-            );
-
-
-            return;
-
-        }
-
-
-        const groups = {
-
-            today: [],
-
-            yesterday: [],
-
-            previous7Days: [],
-
-            older: []
-
-        };
-
-
-        filtered.forEach(
-            function (conversation) {
-
-                const date =
-                    new Date(
-                        conversation.updatedAt
-                    );
-
-
-                if (date >= startOfToday) {
-
-                    groups.today.push(
-                        conversation
-                    );
-
-                }
-
-                else if (
-                    date >= startOfYesterday
-                ) {
-
-                    groups.yesterday.push(
-                        conversation
-                    );
-
-                }
-
-                else if (
-                    date >= startOfSevenDays
-                ) {
-
-                    groups.previous7Days.push(
-                        conversation
-                    );
-
-                }
-
-                else {
-
-                    groups.older.push(
-                        conversation
-                    );
-
-                }
-
-            }
-        );
-
-
-        renderConversationGroup(
-            "Today",
-            groups.today
-        );
-
-        renderConversationGroup(
-            "Yesterday",
-            groups.yesterday
-        );
-
-        renderConversationGroup(
-            "Previous 7 Days",
-            groups.previous7Days
-        );
-
-        renderConversationGroup(
-            "Older",
-            groups.older
-        );
-
-    }
-
-
-    /* =====================================================
-       RENDER GROUP
-    ===================================================== */
-
-    function renderConversationGroup(
-        title,
-        items
-    ) {
-
-        if (!items.length) {
-            return;
-        }
-
-
-        const section =
-            document.createElement(
-                "div"
-            );
-
-
-        section.className =
-            "conversationGroup";
-
-
-        const heading =
-            document.createElement(
-                "div"
-            );
-
-
-        heading.className =
-            "conversationGroupTitle";
-
-
-        heading.textContent =
-            title;
-
-
-        section.appendChild(
-            heading
-        );
-
-
-        items.forEach(
-            function (conversation) {
-
-                section.appendChild(
-                    createConversationItem(
-                        conversation
-                    )
-                );
-
-            }
-        );
-
-
-        conversationList.appendChild(
-            section
-        );
-
-    }
-
-
-    /* =====================================================
-       CONVERSATION ITEM
-    ===================================================== */
-
-    function createConversationItem(
-        conversation
-    ) {
-
-        const item =
-            document.createElement(
-                "div"
-            );
-
-
-        item.className =
-            "conversationItem";
-
-
-        item.dataset.id =
-            conversation.id;
-
-
-        if (
-            conversation.id ===
-            currentConversationId
-        ) {
-
-            item.classList.add(
-                "active"
-            );
-
-        }
-
-
-        const openButton =
-            document.createElement(
-                "button"
-            );
-
-
-        openButton.type =
-            "button";
-
-        openButton.className =
-            "conversationOpenButton";
-
-
-        const icon =
-            document.createElement(
-                "span"
-            );
-
-
-        icon.className =
-            "conversationIcon";
-
-
-        const hasImage =
-            !!(
-                conversation.visionContext &&
-                conversation.visionContext.image
-            );
-
-
-        icon.textContent =
-            hasImage
-                ? "🖼️"
-                : "💬";
-
-
-        icon.title =
-            hasImage
-                ? "This conversation contains an image"
-                : "Text conversation";
-
-
-        const title =
-            document.createElement(
-                "span"
-            );
-
-
-        title.className =
-            "conversationTitle";
-
-
-        title.textContent =
-            conversation.title ||
-            "New Chat";
-
-
-        const titleWrapper =
-            document.createElement(
-                "span"
-            );
-
-
-        titleWrapper.className =
-            "conversationTitleWrapper";
-
-
-        titleWrapper.appendChild(
-            title
-        );
-
-
-        if (hasImage) {
-
-            const imageBadge =
-                document.createElement(
-                    "span"
-                );
-
-
-            imageBadge.className =
-                "conversationImageBadge";
-
-
-            imageBadge.textContent =
-                "Image";
-
-
-            titleWrapper.appendChild(
-                imageBadge
-            );
-
-        }
-
-
-        openButton.appendChild(
-            icon
-        );
-
-        openButton.appendChild(
-            titleWrapper
-        );
-
-
-        openButton.addEventListener(
-            "click",
-            function () {
-
-                openConversation(
-                    conversation.id
-                );
-
-            }
-        );
-
-
-        const optionsButton =
-            document.createElement(
-                "button"
-            );
-
-
-        optionsButton.type =
-            "button";
-
-        optionsButton.className =
-            "conversationDeleteButton";
-
-        optionsButton.textContent =
-            "⋯";
-
-
-        optionsButton.setAttribute(
-            "aria-label",
-            "Conversation options"
-        );
-
-
-        optionsButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-
-                showConversationOptions(
-                    conversation,
-                    item
-                );
-
-            }
-        );
-
-
-        item.appendChild(
-            openButton
-        );
-
-        item.appendChild(
-            optionsButton
-        );
-
-
-        return item;
-
-    }
-
-
-    /* =====================================================
-       OPEN CONVERSATION
-    ===================================================== */
-
-    function openConversation(
-        conversationId
-    ) {
-
-        const conversation =
-            conversations.find(
-                function (item) {
-
-                    return (
-                        item.id ===
-                        conversationId
-                    );
-
-                }
-            );
-
-
-        if (!conversation) {
-
-            console.error(
-                "❌ Conversation not found"
-            );
-
-            return;
-
-        }
-
-
-        saveComposerDraft();
-
-
-        setCurrentConversationId(
-            conversation.id
-        );
-
-
-        if (
-            typeof window.clearConversationHistory ===
-            "function"
-        ) {
-
-            window.clearConversationHistory();
-
-        }
-
-
-        if (
-            Array.isArray(
-                window.conversationHistory
-            )
-        ) {
-
-            window.conversationHistory =
-                (
-                    Array.isArray(
-                        conversation.messages
-                    )
-                        ? conversation.messages
-                        : []
-                )
-                .map(
-                    function (message) {
-
-                        return {
-
-                            role:
-                                message.role,
-
-                            content:
-                                message.content,
-
-                            timestamp:
-                                Date.now()
-
-                        };
-
-                    }
-                );
-
-        }
-
-
-        if (
-            conversation.visionContext
-        ) {
-
-            restoreVisionContext(
-                conversation.visionContext
-            );
-
-        }
-
-        else {
-
-            window.activeVisionContext =
-                null;
-
-        }
-
-
-        chatBox.innerHTML =
-            "";
-
-
-        (
-            Array.isArray(
-                conversation.messages
-            )
-                ? conversation.messages
-                : []
+    if (
+        messageElement.querySelector(
+            ".editMessageButton"
         )
-        .forEach(
-            function (message) {
+    ) {
+        return;
+    }
 
-                addMessageToChat(
-                    message.role,
-                    message.content,
-                    message.timestamp
+    let actions =
+        messageElement.querySelector(
+            ".messageActions"
+        );
+
+    if (!actions) {
+
+        actions =
+            document.createElement("div");
+
+        actions.className =
+            "messageActions editActions";
+
+        messageElement.appendChild(actions);
+    }
+
+    const editButton =
+        document.createElement("button");
+
+    editButton.type = "button";
+    editButton.className =
+        "editMessageButton";
+
+    editButton.textContent =
+        "✏️ Edit";
+
+    editButton.addEventListener(
+        "click",
+        function () {
+
+            startEditing(messageElement);
+        }
+    );
+
+    actions.appendChild(
+        editButton
+    );
+}
+
+
+/* =====================================================
+   GET MESSAGE TEXT
+===================================================== */
+
+function getMessageText(messageElement) {
+
+    const textElement =
+        messageElement.querySelector(
+            ".messageText"
+        );
+
+    if (!textElement) {
+        return "";
+    }
+
+    return textElement.textContent.trim();
+}
+
+
+/* =====================================================
+   FIND HISTORY INDEX
+===================================================== */
+
+function getUserMessageIndex(
+    messageElement
+) {
+
+    const history =
+        window.conversationHistory || [];
+
+    if (!history.length) {
+        return -1;
+    }
+
+    const userMessages =
+        Array.from(
+            document.querySelectorAll(
+                "#chatBox .message.user"
+            )
+        );
+
+    const domIndex =
+        userMessages.indexOf(
+            messageElement
+        );
+
+    if (domIndex === -1) {
+        return -1;
+    }
+
+    let userCount = 0;
+
+    for (
+        let i = 0;
+        i < history.length;
+        i++
+    ) {
+
+        if (
+            history[i].role === "user"
+        ) {
+
+            if (
+                userCount === domIndex
+            ) {
+                return i;
+            }
+
+            userCount++;
+        }
+    }
+
+    return -1;
+}
+
+
+/* =====================================================
+   START EDITING
+===================================================== */
+
+function startEditing(messageElement) {
+
+    if (!messageElement) return;
+
+    if (
+        messageElement.classList.contains(
+            "editingMessage"
+        )
+    ) {
+        return;
+    }
+
+    const textElement =
+        messageElement.querySelector(
+            ".messageText"
+        );
+
+    if (!textElement) {
+        return;
+    }
+
+    const originalText =
+        textElement.textContent;
+
+    messageElement.classList.add(
+        "editingMessage"
+    );
+
+    const textarea =
+        document.createElement("textarea");
+
+    textarea.className =
+        "conversationEditInput";
+
+    textarea.value =
+        originalText;
+
+    textarea.setAttribute(
+        "aria-label",
+        "Edit message"
+    );
+
+    const controls =
+        document.createElement("div");
+
+    controls.className =
+        "conversationEditControls";
+
+    const saveButton =
+        document.createElement("button");
+
+    saveButton.type = "button";
+    saveButton.className =
+        "editSaveButton";
+
+    saveButton.textContent =
+        "Save & Regenerate";
+
+    const cancelButton =
+        document.createElement("button");
+
+    cancelButton.type = "button";
+    cancelButton.className =
+        "editCancelButton";
+
+    cancelButton.textContent =
+        "Cancel";
+
+    controls.appendChild(
+        saveButton
+    );
+
+    controls.appendChild(
+        cancelButton
+    );
+
+    textElement.style.display =
+        "none";
+
+    messageElement.insertBefore(
+        textarea,
+        textElement.nextSibling
+    );
+
+    messageElement.insertBefore(
+        controls,
+        textarea.nextSibling
+    );
+
+    textarea.focus();
+
+    textarea.setSelectionRange(
+        textarea.value.length,
+        textarea.value.length
+    );
+
+
+    /* =================================================
+       CANCEL
+    ================================================= */
+
+    cancelButton.addEventListener(
+        "click",
+        function () {
+
+            textarea.remove();
+            controls.remove();
+
+            textElement.style.display =
+                "";
+
+            messageElement.classList.remove(
+                "editingMessage"
+            );
+        }
+    );
+
+
+    /* =================================================
+       SAVE
+    ================================================= */
+
+    saveButton.addEventListener(
+        "click",
+        async function () {
+
+            const newText =
+                textarea.value.trim();
+
+            if (!newText) {
+                textarea.focus();
+                return;
+            }
+
+            saveButton.disabled =
+                true;
+
+            cancelButton.disabled =
+                true;
+
+            saveButton.textContent =
+                "Generating...";
+
+            try {
+
+                await saveEditedMessage(
+                    messageElement,
+                    newText
                 );
 
+            } catch (error) {
+
+                console.error(
+                    "❌ Edit failed:",
+                    error
+                );
+
+                saveButton.disabled =
+                    false;
+
+                cancelButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "Save & Regenerate";
+
+                alert(
+                    "Unable to regenerate this message. Please try again."
+                );
             }
+        }
+    );
+}
+
+
+/* =====================================================
+   SAVE EDITED MESSAGE
+===================================================== */
+
+async function saveEditedMessage(
+    messageElement,
+    newText
+) {
+
+    const historyIndex =
+        getUserMessageIndex(
+            messageElement
         );
 
+    if (historyIndex === -1) {
 
-        closeSideMenu();
-
-
-        setTimeout(
-            function () {
-
-                chatBox.scrollTop =
-                    chatBox.scrollHeight;
-
-            },
-            50
+        throw new Error(
+            "Message was not found in conversation history."
         );
-
-
-        renderConversationList(
-            searchInput
-                ? searchInput.value
-                : ""
-        );
-
-
-        restoreComposerDraft(
-            conversation.id
-        );
-
     }
 
 
-    /* =====================================================
-       ADD SAVED MESSAGE
-    ===================================================== */
+    /* =================================================
+       UPDATE VISIBLE USER MESSAGE
+    ================================================= */
 
-    function addMessageToChat(
-        role,
-        content,
-        timestamp
+    const textElement =
+        messageElement.querySelector(
+            ".messageText"
+        );
+
+    if (textElement) {
+
+        textElement.textContent =
+            newText;
+
+        textElement.style.display =
+            "";
+    }
+
+
+    const textarea =
+        messageElement.querySelector(
+            ".conversationEditInput"
+        );
+
+    const controls =
+        messageElement.querySelector(
+            ".conversationEditControls"
+        );
+
+    if (textarea) {
+        textarea.remove();
+    }
+
+    if (controls) {
+        controls.remove();
+    }
+
+    messageElement.classList.remove(
+        "editingMessage"
+    );
+
+
+    /* =================================================
+       REMOVE EVERYTHING AFTER EDITED MESSAGE
+    ================================================= */
+
+    let next =
+        messageElement.nextElementSibling;
+
+    while (next) {
+
+        const removeThis =
+            next;
+
+        next =
+            next.nextElementSibling;
+
+        removeThis.remove();
+    }
+
+
+    /* =================================================
+       REBUILD HISTORY
+       Keep everything BEFORE edited message.
+    ================================================= */
+
+    const oldHistory =
+        window.conversationHistory || [];
+
+    const rebuiltHistory =
+        oldHistory.slice(
+            0,
+            historyIndex
+        );
+
+    rebuiltHistory.push({
+        role: "user",
+        content: newText,
+        timestamp: Date.now()
+    });
+
+    window.conversationHistory =
+        rebuiltHistory;
+
+
+    /* =================================================
+       ONLINE AI
+    ================================================= */
+
+    if (
+        typeof window.askOnlineAI !==
+        "function"
     ) {
 
-        const message =
-            document.createElement(
-                "div"
+        throw new Error(
+            "Online AI function is unavailable."
+        );
+    }
+
+
+    /* =================================================
+       ACTIVE IMAGE CONTEXT
+    ================================================= */
+
+    let useImageContext = false;
+
+    if (
+        typeof window.getActiveVisionContext ===
+        "function"
+    ) {
+
+        try {
+
+            useImageContext =
+                !!window.getActiveVisionContext();
+
+        } catch (error) {
+
+            console.warn(
+                "⚠️ Could not check image context:",
+                error
             );
+        }
+    }
 
 
-        message.className =
-            "message " +
-            (
-                role === "user"
-                    ? "user"
-                    : "ai"
-            );
+    /* =================================================
+       GENERATE NEW RESPONSE
+    ================================================= */
+
+    const newResponse =
+        await window.askOnlineAI(
+            newText,
+            null,
+            true,
+            useImageContext
+        );
 
 
-        const messageText =
-            document.createElement(
-                "div"
-            );
+    /* =================================================
+       CREATE AI MESSAGE
+    ================================================= */
+
+    const aiMessage =
+        document.createElement("div");
+
+    aiMessage.className =
+        "message ai";
+
+    const aiText =
+        document.createElement("div");
+
+    aiText.className =
+        "messageText";
 
 
-        messageText.className =
-            "messageText";
+    /* =================================================
+       FORMAT RESPONSE
+    ================================================= */
 
+    if (
+        typeof window.formatAIResponse ===
+        "function"
+    ) {
 
-        if (
-            role === "assistant" &&
-            typeof window.formatAIResponse ===
-            "function"
-        ) {
+        try {
 
             const formatted =
                 window.formatAIResponse(
-                    String(content)
+                    newResponse
                 );
-
 
             if (
                 formatted instanceof
                 DocumentFragment
             ) {
 
-                messageText.appendChild(
+                aiText.appendChild(
                     formatted
                 );
 
-            }
-
-            else if (
+            } else if (
                 formatted instanceof
-                Node
+                HTMLElement
             ) {
 
-                messageText.appendChild(
+                aiText.appendChild(
                     formatted
                 );
 
+            } else {
+
+                aiText.innerHTML =
+                    formatted;
             }
 
-            else {
-
-                messageText.innerHTML =
-                    String(formatted);
-
-            }
-
-        }
-
-        else {
-
-            messageText.textContent =
-                String(content);
-
-        }
-
-
-        const time =
-            document.createElement(
-                "div"
-            );
-
-
-        time.className =
-            "messageTime";
-
-
-        time.textContent =
-            formatTime(
-                timestamp
-            );
-
-
-        message.appendChild(
-            messageText
-        );
-
-        message.appendChild(
-            time
-        );
-
-
-        chatBox.appendChild(
-            message
-        );
-
-    }
-
-
-    /* =====================================================
-       FORMAT TIME
-    ===================================================== */
-
-    function formatTime(
-        timestamp
-    ) {
-
-        if (!timestamp) {
-            return "";
-        }
-
-
-        try {
-
-            return new Date(
-                timestamp
-            ).toLocaleTimeString(
-                [],
-                {
-                    hour: "numeric",
-                    minute: "2-digit"
-                }
-            );
-
-        }
-
-        catch (error) {
-
-            return "";
-
-        }
-
-    }
-
-
-    /* =====================================================
-       NEW CHAT
-    ===================================================== */
-
-    async function startNewChat() {
-
-        saveComposerDraft();
-
-
-        await saveCurrentConversation();
-
-
-        setCurrentConversationId(
-            null
-        );
-
-
-        clearComposerDraft(
-            null
-        );
-
-
-        if (
-            typeof window.clearConversationHistory ===
-            "function"
-        ) {
-
-            window.clearConversationHistory();
-
-        }
-
-        else {
-
-            window.conversationHistory =
-                [];
-
-            window.activeVisionContext =
-                null;
-
-        }
-
-
-        chatBox.innerHTML =
-            "";
-
-
-        const input =
-            document.getElementById(
-                "userInput"
-            );
-
-
-        if (input) {
-
-            input.value =
-                "";
-
-            input.dispatchEvent(
-                new Event(
-                    "input",
-                    {
-                        bubbles: true
-                    }
-                )
-            );
-
-        }
-
-
-        const welcome =
-            document.createElement(
-                "div"
-            );
-
-
-        welcome.className =
-            "message ai";
-
-
-        const welcomeText =
-            document.createElement(
-                "div"
-            );
-
-
-        welcomeText.className =
-            "messageText";
-
-
-        const name =
-            document.getElementById(
-                "welcomeName"
-            );
-
-
-        welcomeText.textContent =
-            "👋 Hello " +
-            (
-                name
-                    ? name.textContent.trim()
-                    : "Samuel"
-            ) +
-            "!\n\nHow can I help you today?";
-
-
-        const welcomeTime =
-            document.createElement(
-                "div"
-            );
-
-
-        welcomeTime.className =
-            "messageTime";
-
-
-        welcomeTime.textContent =
-            "Now";
-
-
-        welcome.appendChild(
-            welcomeText
-        );
-
-        welcome.appendChild(
-            welcomeTime
-        );
-
-
-        chatBox.appendChild(
-            welcome
-        );
-
-
-        closeSideMenu();
-
-
-        renderConversationList();
-
-    }
-
-
-    /* =====================================================
-       CONVERSATION OPTIONS
-    ===================================================== */
-
-    function showConversationOptions(
-        conversation,
-        conversationItem
-    ) {
-
-        const existingMenu =
-            document.querySelector(
-                ".conversationOptionsMenu"
-            );
-
-
-        if (existingMenu) {
-            existingMenu.remove();
-        }
-
-
-        const menu =
-            document.createElement(
-                "div"
-            );
-
-
-        menu.className =
-            "conversationOptionsMenu";
-
-
-        const renameButton =
-            document.createElement(
-                "button"
-            );
-
-
-        renameButton.type =
-            "button";
-
-        renameButton.className =
-            "conversationOptionButton";
-
-
-        renameButton.innerHTML =
-            "✏️ <span>Rename</span>";
-
-
-        renameButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-                menu.remove();
-
-
-                renameConversation(
-                    conversation.id
-                );
-
-            }
-        );
-
-
-        const deleteButton =
-            document.createElement(
-                "button"
-            );
-
-
-        deleteButton.type =
-            "button";
-
-        deleteButton.className =
-            "conversationOptionButton deleteOption";
-
-
-        deleteButton.innerHTML =
-            "🗑️ <span>Delete</span>";
-
-
-        deleteButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-                menu.remove();
-
-
-                deleteConversation(
-                    conversation.id
-                );
-
-            }
-        );
-
-
-        menu.appendChild(
-            renameButton
-        );
-
-        menu.appendChild(
-            deleteButton
-        );
-
-
-        conversationItem.appendChild(
-            menu
-        );
-
-
-        setTimeout(
-            function () {
-
-                function outsideClick(
-                    event
-                ) {
-
-                    if (
-                        !menu.contains(
-                            event.target
-                        ) &&
-                        !conversationItem.contains(
-                            event.target
-                        )
-                    ) {
-
-                        menu.remove();
-
-                        document.removeEventListener(
-                            "click",
-                            outsideClick
-                        );
-
-                    }
-
-                }
-
-
-                document.addEventListener(
-                    "click",
-                    outsideClick
-                );
-
-            },
-            0
-        );
-
-    }
-
-
-    /* =====================================================
-       RENAME
-    ===================================================== */
-
-    function renameConversation(
-        conversationId
-    ) {
-
-        const conversation =
-            conversations.find(
-                function (item) {
-
-                    return (
-                        item.id ===
-                        conversationId
-                    );
-
-                }
-            );
-
-
-        if (!conversation) {
-            return;
-        }
-
-
-        const newTitle =
-            prompt(
-                "Rename conversation:",
-                conversation.title ||
-                "New Chat"
-            );
-
-
-        if (newTitle === null) {
-            return;
-        }
-
-
-        const cleanedTitle =
-            newTitle
-                .replace(/\s+/g, " ")
-                .trim();
-
-
-        if (!cleanedTitle) {
-            return;
-        }
-
-
-        conversation.title =
-            cleanedTitle.length > 60
-                ? cleanedTitle
-                    .substring(
-                        0,
-                        60
-                    )
-                    .trim() + "…"
-                : cleanedTitle;
-
-
-        conversation.updatedAt =
-            new Date().toISOString();
-
-
-        saveConversations();
-
-
-        renderConversationList(
-            searchInput
-                ? searchInput.value
-                : ""
-        );
-
-    }
-
-
-    /* =====================================================
-       DELETE
-    ===================================================== */
-
-    function deleteConversation(
-        conversationId
-    ) {
-
-        const conversation =
-            conversations.find(
-                function (item) {
-
-                    return (
-                        item.id ===
-                        conversationId
-                    );
-
-                }
-            );
-
-
-        if (!conversation) {
-            return;
-        }
-
-
-        const confirmed =
-            confirm(
-                "Delete \"" +
-                (
-                    conversation.title ||
-                    "this conversation"
-                ) +
-                "\"?"
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-
-
-        conversations =
-            conversations.filter(
-                function (item) {
-
-                    return (
-                        item.id !==
-                        conversationId
-                    );
-
-                }
-            );
-
-
-        try {
-
-            localStorage.removeItem(
-                getDraftKey(
-                    conversationId
-                )
-            );
-
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.warn(
-                "⚠️ Could not remove conversation draft:",
+                "⚠️ Formatting failed:",
                 error
             );
 
+            aiText.textContent =
+                newResponse;
         }
 
+    } else {
 
-        if (
-            currentConversationId ===
-            conversationId
-        ) {
-
-            setCurrentConversationId(
-                null
-            );
-
-
-            if (
-                typeof window.clearConversationHistory ===
-                "function"
-            ) {
-
-                window.clearConversationHistory();
-
-            }
-
-            else {
-
-                window.conversationHistory =
-                    [];
-
-                window.activeVisionContext =
-                    null;
-
-            }
-
-
-            chatBox.innerHTML =
-                "";
-
-        }
-
-
-        saveConversations();
-
-        renderConversationList();
-
+        aiText.textContent =
+            newResponse;
     }
 
 
-    /* =====================================================
-       CLEAR ALL
-    ===================================================== */
-
-    function clearAllConversations() {
-
-        if (!conversations.length) {
-            return;
-        }
-
-
-        const confirmed =
-            confirm(
-                "Delete all saved conversations?"
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-
-
-        conversations = [];
-
-
-        setCurrentConversationId(
-            null
-        );
-
-
-        try {
-
-            Object.keys(
-                localStorage
-            )
-            .forEach(
-                function (key) {
-
-                    if (
-                        key.startsWith(
-                            DRAFT_PREFIX
-                        )
-                    ) {
-
-                        localStorage.removeItem(
-                            key
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-
-        catch (error) {
-
-            console.warn(
-                "⚠️ Could not clear drafts:",
-                error
-            );
-
-        }
-
-
-        if (
-            typeof window.clearConversationHistory ===
-            "function"
-        ) {
-
-            window.clearConversationHistory();
-
-        }
-
-        else {
-
-            window.conversationHistory =
-                [];
-
-            window.activeVisionContext =
-                null;
-
-        }
-
-
-        chatBox.innerHTML =
-            "";
-
-
-        saveConversations();
-
-        renderConversationList();
-
-    }
-
-
-    /* =====================================================
-       SEARCH
-    ===================================================== */
-
-    if (searchInput) {
-
-        searchInput.addEventListener(
-            "input",
-            function () {
-
-                renderConversationList(
-                    searchInput.value
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       NEW CHAT BUTTON
-    ===================================================== */
-
-    if (newChatBtn) {
-
-        newChatBtn.addEventListener(
-            "click",
-            function () {
-
-                startNewChat();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       CLEAR ALL BUTTON
-    ===================================================== */
-
-    if (clearAllBtn) {
-
-        clearAllBtn.addEventListener(
-            "click",
-            function () {
-
-                clearAllConversations();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       AUTO SAVE
-    ===================================================== */
-
-    let saveTimer = null;
-
-
-    function scheduleAutoSave() {
-
-        clearTimeout(
-            saveTimer
-        );
-
-
-        saveTimer =
-            setTimeout(
-                function () {
-
-                    saveCurrentConversation();
-
-                },
-                700
-            );
-
-    }
-
-
-    const chatObserver =
-        new MutationObserver(
-            function () {
-
-                scheduleAutoSave();
-
-            }
-        );
-
-
-    chatObserver.observe(
-        chatBox,
-        {
-            childList: true,
-            subtree: true,
-            characterData: true
-        }
+    aiMessage.appendChild(
+        aiText
     );
 
 
-    /* =====================================================
-       DRAFT SAVING
-    ===================================================== */
+    /* =================================================
+       INSERT NEW AI RESPONSE
+    ================================================= */
 
-    const composerInput =
-        document.getElementById(
-            "userInput"
-        );
-
-
-    if (composerInput) {
-
-        let draftTimer = null;
+    messageElement.after(
+        aiMessage
+    );
 
 
-        composerInput.addEventListener(
-            "input",
-            function () {
+    /* =================================================
+       ADD AI RESPONSE TO HISTORY
+    ================================================= */
 
-                clearTimeout(
-                    draftTimer
-                );
-
-
-                draftTimer =
-                    setTimeout(
-                        function () {
-
-                            saveComposerDraft();
-
-                        },
-                        300
-                    );
-
-            }
-        );
+    window.conversationHistory.push({
+        role: "assistant",
+        content: newResponse,
+        timestamp: Date.now()
+    });
 
 
-        window.addEventListener(
-            "beforeunload",
-            function () {
+    /* =================================================
+       SAVE CONVERSATION
+    ================================================= */
 
-                saveComposerDraft();
+    if (
+        typeof window.saveCurrentConversation ===
+        "function"
+    ) {
 
-            }
-        );
+        try {
 
-    }
+            await window.saveCurrentConversation();
 
+        } catch (error) {
 
-    /* =====================================================
-       INITIAL LOAD
-    ===================================================== */
-
-    loadConversations();
-
-    renderConversationList();
-
-
-    if (currentConversationId) {
-
-        const existing =
-            conversations.find(
-                function (conversation) {
-
-                    return (
-                        conversation.id ===
-                        currentConversationId
-                    );
-
-                }
+            console.warn(
+                "⚠️ Conversation save failed:",
+                error
             );
-
-
-        if (existing) {
-
-            setTimeout(
-                function () {
-
-                    openConversation(
-                        existing.id
-                    );
-
-                },
-                50
-            );
-
         }
-
-        else {
-
-            setCurrentConversationId(
-                null
-            );
-
-
-            setTimeout(
-                function () {
-
-                    restoreComposerDraft(
-                        null
-                    );
-
-                },
-                100
-            );
-
-        }
-
-    }
-
-    else {
-
-        setTimeout(
-            function () {
-
-                restoreComposerDraft(
-                    null
-                );
-
-            },
-            100
-        );
-
     }
 
 
-    /* =====================================================
-       PUBLIC API
-    ===================================================== */
+    /* =================================================
+       SCROLL
+    ================================================= */
 
-    window.conversationManager = {
+    setTimeout(
+        function () {
 
-        saveCurrentConversation:
-            saveCurrentConversation,
+            aiMessage.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
 
-        renderConversationList:
-            renderConversationList,
-
-        openConversation:
-            openConversation,
-
-        startNewChat:
-            startNewChat,
-
-        renameConversation:
-            renameConversation,
-
-        deleteConversation:
-            deleteConversation,
-
-        clearAllConversations:
-            clearAllConversations,
-
-        getCurrentConversation:
-            getCurrentConversation,
-
-        saveComposerDraft:
-            saveComposerDraft,
-
-        restoreComposerDraft:
-            restoreComposerDraft,
-
-        clearComposerDraft:
-            clearComposerDraft,
-
-        /*
-         * New Phase 9C.10 API
-         */
-        preserveConversationBranch:
-            preserveConversationBranch
-
-    };
+        },
+        50
+    );
 
 
     console.log(
-        "✅ Conversation Manager ready — Phase 9C.10 Branching"
+        "✅ Older message edited and regenerated."
+    );
+}
+
+
+/* =====================================================
+   OBSERVE CHAT
+===================================================== */
+
+function observeMessages() {
+
+    if (!editChatBox) {
+
+        console.warn(
+            "⚠️ chatBox not found."
+        );
+
+        return;
+    }
+
+
+    function processUserMessages() {
+
+        const userMessages =
+            editChatBox.querySelectorAll(
+                ".message.user"
+            );
+
+        userMessages.forEach(
+            function (message) {
+
+                createEditButton(
+                    message
+                );
+            }
+        );
+    }
+
+
+    processUserMessages();
+
+
+    const observer =
+        new MutationObserver(
+            function () {
+
+                processUserMessages();
+            }
+        );
+
+    observer.observe(
+        editChatBox,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
+}
+
+
+/* =====================================================
+   PUBLIC API
+===================================================== */
+
+window.conversationEditor = {
+
+    startEditing:
+        startEditing,
+
+    createEditButton:
+        createEditButton,
+
+    saveEditedMessage:
+        saveEditedMessage
+};
+
+
+/* =====================================================
+   START
+===================================================== */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        observeMessages
     );
 
-})();
+} else {
+
+    observeMessages();
+}
+
+
+console.log(
+    "✅ Conversation Editor ready."
+);
