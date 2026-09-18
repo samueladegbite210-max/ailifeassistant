@@ -1,455 +1,703 @@
 "use strict";
 
-console.log("🚀 Conversation Edit loading...");
+console.log("✏️ Conversation Editor loading...");
 
-(function () {
 
-    const chatBox =
-        document.getElementById("chatBox");
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
-    if (!chatBox) {
-        console.error("❌ chatBox not found");
+const editChatBox =
+    document.getElementById("chatBox");
+
+
+/* =====================================================
+   CREATE EDIT BUTTON
+===================================================== */
+
+function createEditButton(messageElement) {
+
+    if (!messageElement) return;
+
+    if (
+        messageElement.querySelector(
+            ".editMessageButton"
+        )
+    ) {
         return;
     }
 
+    const messageActions =
+        messageElement.querySelector(
+            ".messageActions"
+        );
 
-    /* =====================================================
-       CREATE EDIT BUTTON
-    ===================================================== */
+    let actions =
+        messageActions;
 
-    function createEditButton(messageElement) {
+    if (!actions) {
 
-        if (!messageElement) {
-            return;
-        }
-
-        if (
-            messageElement.dataset &&
-            messageElement.dataset.editAdded === "true"
-        ) {
-            return;
-        }
-
-
-        const messageText =
-            messageElement.querySelector(".messageText");
-
-        if (!messageText) {
-            return;
-        }
-
-
-        const actions =
+        actions =
             document.createElement("div");
 
         actions.className =
             "messageActions editActions";
 
-
-        const editButton =
-            document.createElement("button");
-
-        editButton.type = "button";
-
-        editButton.className =
-            "messageActionButton";
-
-        editButton.textContent =
-            "✏️ Edit";
-
-        editButton.setAttribute(
-            "aria-label",
-            "Edit message"
-        );
-
-
-        editButton.addEventListener(
-            "click",
-            function () {
-
-                startEditing(
-                    messageElement,
-                    messageText,
-                    editButton
-                );
-
-            }
-        );
-
-
-        actions.appendChild(
-            editButton
-        );
-
-
-        messageElement.appendChild(
-            actions
-        );
-
-
-        messageElement.dataset.editAdded =
-            "true";
-
+        messageElement.appendChild(actions);
     }
 
+    const editButton =
+        document.createElement("button");
 
-    /* =====================================================
-       START EDITING
-    ===================================================== */
+    editButton.type = "button";
+    editButton.className =
+        "editMessageButton";
 
-    function startEditing(
-        messageElement,
-        messageText,
-        editButton
-    ) {
+    editButton.textContent = "✏️ Edit";
 
-        if (
-            messageElement.dataset.editing === "true"
-        ) {
-            return;
+    editButton.addEventListener(
+        "click",
+        function () {
+
+            startEditing(messageElement);
         }
+    );
+
+    actions.appendChild(editButton);
+}
 
 
-        const originalText =
-            (
-                messageText.innerText ||
-                messageText.textContent ||
-                ""
-            )
-            .replace(/\u00a0/g, " ")
-            .trim();
+/* =====================================================
+   GET MESSAGE TEXT
+===================================================== */
 
+function getMessageText(messageElement) {
 
-        if (!originalText) {
-            return;
-        }
-
-
-        messageElement.dataset.editing =
-            "true";
-
-
-        /*
-         * Save original content so we can
-         * restore it if Cancel is pressed.
-         */
-
-        const originalHTML =
-            messageText.innerHTML;
-
-
-        /* =================================================
-           EDIT AREA
-        ================================================= */
-
-        const editor =
-            document.createElement("textarea");
-
-        editor.className =
-            "conversationEditInput";
-
-        editor.value =
-            originalText;
-
-        editor.rows =
-            Math.max(
-                3,
-                Math.min(
-                    8,
-                    originalText.split("\n").length + 1
-                )
-            );
-
-
-        /* =================================================
-           EDIT CONTROLS
-        ================================================= */
-
-        const controls =
-            document.createElement("div");
-
-        controls.className =
-            "conversationEditControls";
-
-
-        const saveButton =
-            document.createElement("button");
-
-        saveButton.type =
-            "button";
-
-        saveButton.className =
-            "messageActionButton editSaveButton";
-
-        saveButton.textContent =
-            "✓ Save";
-
-
-        const cancelButton =
-            document.createElement("button");
-
-        cancelButton.type =
-            "button";
-
-        cancelButton.className =
-            "messageActionButton editCancelButton";
-
-        cancelButton.textContent =
-            "✕ Cancel";
-
-
-        controls.appendChild(
-            saveButton
+    const textElement =
+        messageElement.querySelector(
+            ".messageText"
         );
 
-        controls.appendChild(
-            cancelButton
-        );
-
-
-        /* =================================================
-           REPLACE MESSAGE
-        ================================================= */
-
-        messageText.innerHTML =
-            "";
-
-        messageText.appendChild(
-            editor
-        );
-
-        messageText.appendChild(
-            controls
-        );
-
-
-        editButton.style.display =
-            "none";
-
-
-        editor.focus();
-
-
-        /*
-         * Put cursor at the end.
-         */
-
-        editor.setSelectionRange(
-            editor.value.length,
-            editor.value.length
-        );
-
-
-        /* =================================================
-           CANCEL
-        ================================================= */
-
-        cancelButton.addEventListener(
-            "click",
-            function () {
-
-                messageText.innerHTML =
-                    originalHTML;
-
-                editButton.style.display =
-                    "";
-
-                delete messageElement.dataset.editing;
-
-            }
-        );
-
-
-        /* =================================================
-           SAVE
-        ================================================= */
-
-        saveButton.addEventListener(
-            "click",
-            function () {
-
-                const newText =
-                    editor.value
-                        .replace(/\u00a0/g, " ")
-                        .trim();
-
-
-                if (!newText) {
-
-                    alert(
-                        "Message cannot be empty."
-                    );
-
-                    editor.focus();
-
-                    return;
-
-                }
-
-
-                messageText.textContent =
-                    newText;
-
-
-                editButton.style.display =
-                    "";
-
-
-                delete messageElement.dataset.editing;
-
-
-                console.log(
-                    "✏️ Message edited:",
-                    newText
-                );
-
-            }
-        );
-
+    if (!textElement) {
+        return "";
     }
 
-
-    /* =====================================================
-       ENHANCE USER MESSAGE
-    ===================================================== */
-
-    function enhanceUserMessage(
-        messageElement
-    ) {
-
-        if (!messageElement) {
-            return;
-        }
+    return textElement.textContent.trim();
+}
 
 
-        if (
-            !messageElement.classList.contains(
-                "message"
+/* =====================================================
+   FIND USER MESSAGE INDEX
+===================================================== */
+
+function getUserMessageIndex(messageElement) {
+
+    if (!window.conversationHistory) {
+        return -1;
+    }
+
+    const userMessages =
+        Array.from(
+            document.querySelectorAll(
+                "#chatBox .message.user"
             )
-        ) {
-            return;
-        }
+        );
 
-
-        if (
-            !messageElement.classList.contains(
-                "user"
-            )
-        ) {
-            return;
-        }
-
-
-        createEditButton(
+    const domIndex =
+        userMessages.indexOf(
             messageElement
         );
 
+    if (domIndex === -1) {
+        return -1;
+    }
+
+    let userCount = 0;
+
+    for (
+        let i = 0;
+        i < window.conversationHistory.length;
+        i++
+    ) {
+
+        if (
+            window.conversationHistory[i]
+                .role === "user"
+        ) {
+
+            if (userCount === domIndex) {
+                return i;
+            }
+
+            userCount++;
+        }
+    }
+
+    return -1;
+}
+
+
+/* =====================================================
+   START EDITING
+===================================================== */
+
+function startEditing(messageElement) {
+
+    if (!messageElement) return;
+
+    if (
+        messageElement.classList.contains(
+            "editingMessage"
+        )
+    ) {
+        return;
+    }
+
+    const textElement =
+        messageElement.querySelector(
+            ".messageText"
+        );
+
+    if (!textElement) {
+        return;
+    }
+
+    const originalText =
+        textElement.textContent;
+
+    messageElement.classList.add(
+        "editingMessage"
+    );
+
+    const textarea =
+        document.createElement("textarea");
+
+    textarea.className =
+        "conversationEditInput";
+
+    textarea.value =
+        originalText;
+
+    textarea.setAttribute(
+        "aria-label",
+        "Edit message"
+    );
+
+    const controls =
+        document.createElement("div");
+
+    controls.className =
+        "conversationEditControls";
+
+    const saveButton =
+        document.createElement("button");
+
+    saveButton.type = "button";
+    saveButton.className =
+        "editSaveButton";
+
+    saveButton.textContent =
+        "Save & Regenerate";
+
+    const cancelButton =
+        document.createElement("button");
+
+    cancelButton.type = "button";
+    cancelButton.className =
+        "editCancelButton";
+
+    cancelButton.textContent =
+        "Cancel";
+
+    controls.appendChild(
+        saveButton
+    );
+
+    controls.appendChild(
+        cancelButton
+    );
+
+    textElement.style.display =
+        "none";
+
+    messageElement.insertBefore(
+        textarea,
+        textElement.nextSibling
+    );
+
+    messageElement.insertBefore(
+        controls,
+        textarea.nextSibling
+    );
+
+    textarea.focus();
+
+    textarea.setSelectionRange(
+        textarea.value.length,
+        textarea.value.length
+    );
+
+
+    /* =================================================
+       CANCEL
+    ================================================= */
+
+    cancelButton.addEventListener(
+        "click",
+        function () {
+
+            textarea.remove();
+            controls.remove();
+
+            textElement.style.display =
+                "";
+
+            messageElement.classList.remove(
+                "editingMessage"
+            );
+        }
+    );
+
+
+    /* =================================================
+       SAVE
+    ================================================= */
+
+    saveButton.addEventListener(
+        "click",
+        async function () {
+
+            const newText =
+                textarea.value.trim();
+
+            if (!newText) {
+
+                textarea.focus();
+
+                return;
+            }
+
+            saveButton.disabled = true;
+            cancelButton.disabled = true;
+
+            saveButton.textContent =
+                "Generating...";
+
+            try {
+
+                await saveEditedMessage(
+                    messageElement,
+                    newText
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "❌ Edit failed:",
+                    error
+                );
+
+                saveButton.disabled =
+                    false;
+
+                cancelButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "Save & Regenerate";
+
+                return;
+            }
+        }
+    );
+}
+
+
+/* =====================================================
+   SAVE EDITED MESSAGE
+===================================================== */
+
+async function saveEditedMessage(
+    messageElement,
+    newText
+) {
+
+    const historyIndex =
+        getUserMessageIndex(
+            messageElement
+        );
+
+    if (historyIndex === -1) {
+
+        throw new Error(
+            "Could not find this message in conversation history."
+        );
     }
 
 
-    /* =====================================================
-       EXISTING USER MESSAGES
-    ===================================================== */
+    /* =================================================
+       UPDATE VISIBLE USER MESSAGE
+    ================================================= */
 
-    chatBox
-        .querySelectorAll(
-            ".message.user"
-        )
-        .forEach(
-            enhanceUserMessage
+    const textElement =
+        messageElement.querySelector(
+            ".messageText"
         );
 
+    if (textElement) {
 
-    /* =====================================================
-       WATCH FOR NEW USER MESSAGES
-    ===================================================== */
+        textElement.textContent =
+            newText;
+
+        textElement.style.display =
+            "";
+    }
+
+
+    const textarea =
+        messageElement.querySelector(
+            ".conversationEditInput"
+        );
+
+    const controls =
+        messageElement.querySelector(
+            ".conversationEditControls"
+        );
+
+    if (textarea) {
+        textarea.remove();
+    }
+
+    if (controls) {
+        controls.remove();
+    }
+
+    messageElement.classList.remove(
+        "editingMessage"
+    );
+
+
+    /* =================================================
+       REMOVE OLD AI RESPONSE + LATER MESSAGES
+    ================================================= */
+
+    let nextElement =
+        messageElement.nextElementSibling;
+
+    while (nextElement) {
+
+        const elementToRemove =
+            nextElement;
+
+        nextElement =
+            nextElement.nextElementSibling;
+
+        elementToRemove.remove();
+    }
+
+
+    /* =================================================
+       UPDATE CONVERSATION HISTORY
+    ================================================= */
+
+    const history =
+        window.conversationHistory ||
+        [];
+
+    const updatedHistory =
+        history.slice(
+            0,
+            historyIndex
+        );
+
+    updatedHistory.push({
+        role: "user",
+        content: newText,
+        timestamp: Date.now()
+    });
+
+    window.conversationHistory =
+        updatedHistory;
+
+
+    /* =================================================
+       GENERATE NEW AI RESPONSE
+    ================================================= */
+
+    if (
+        typeof window.askOnlineAI !==
+        "function"
+    ) {
+
+        throw new Error(
+            "Online AI function is not available."
+        );
+    }
+
+
+    const useImageContext =
+        typeof window.getActiveVisionContext ===
+        "function"
+            ? !!window.getActiveVisionContext()
+            : false;
+
+
+    let newResponse;
+
+    try {
+
+        newResponse =
+            await window.askOnlineAI(
+                newText,
+                null,
+                true,
+                useImageContext
+            );
+
+    } catch (error) {
+
+        console.error(
+            "❌ AI regeneration failed:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    /* =================================================
+       CREATE NEW AI MESSAGE
+    ================================================= */
+
+    const aiMessage =
+        document.createElement("div");
+
+    aiMessage.className =
+        "message ai";
+
+    const aiText =
+        document.createElement("div");
+
+    aiText.className =
+        "messageText";
+
+
+    /* =================================================
+       FORMAT AI RESPONSE
+    ================================================= */
+
+    if (
+        typeof window.formatAIResponse ===
+        "function"
+    ) {
+
+        try {
+
+            const formatted =
+                window.formatAIResponse(
+                    newResponse
+                );
+
+            if (
+                formatted instanceof
+                DocumentFragment
+            ) {
+
+                aiText.appendChild(
+                    formatted
+                );
+
+            } else if (
+                formatted instanceof
+                HTMLElement
+            ) {
+
+                aiText.appendChild(
+                    formatted
+                );
+
+            } else {
+
+                aiText.innerHTML =
+                    formatted;
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "⚠️ Response formatting failed:",
+                error
+            );
+
+            aiText.textContent =
+                newResponse;
+        }
+
+    } else {
+
+        aiText.textContent =
+            newResponse;
+    }
+
+
+    aiMessage.appendChild(
+        aiText
+    );
+
+
+    /* =================================================
+       INSERT AI RESPONSE
+    ================================================= */
+
+    messageElement.after(
+        aiMessage
+    );
+
+
+    /* =================================================
+       ADD RESPONSE TO HISTORY
+    ================================================= */
+
+    window.conversationHistory.push({
+        role: "assistant",
+        content: newResponse,
+        timestamp: Date.now()
+    });
+
+
+    /* =================================================
+       SAVE CONVERSATION
+    ================================================= */
+
+    if (
+        typeof window.saveCurrentConversation ===
+        "function"
+    ) {
+
+        try {
+
+            await window.saveCurrentConversation();
+
+        } catch (error) {
+
+            console.warn(
+                "⚠️ Conversation save failed:",
+                error
+            );
+        }
+    }
+
+
+    /* =================================================
+       SCROLL TO RESPONSE
+    ================================================= */
+
+    setTimeout(
+        function () {
+
+            aiMessage.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
+
+        },
+        50
+    );
+
+
+    console.log(
+        "✅ Message edited and regenerated."
+    );
+}
+
+
+/* =====================================================
+   OBSERVE NEW USER MESSAGES
+===================================================== */
+
+function observeMessages() {
+
+    if (!editChatBox) {
+        console.warn(
+            "⚠️ chatBox not found."
+        );
+        return;
+    }
+
+
+    function processUserMessages() {
+
+        const userMessages =
+            editChatBox.querySelectorAll(
+                ".message.user"
+            );
+
+        userMessages.forEach(
+            function (message) {
+
+                createEditButton(
+                    message
+                );
+            }
+        );
+    }
+
+
+    processUserMessages();
+
 
     const observer =
         new MutationObserver(
-            function (mutations) {
+            function () {
 
-                mutations.forEach(
-                    function (mutation) {
-
-                        mutation.addedNodes
-                            .forEach(
-                                function (node) {
-
-                                    if (
-                                        node.nodeType !==
-                                        Node.ELEMENT_NODE
-                                    ) {
-                                        return;
-                                    }
-
-
-                                    if (
-                                        node.classList &&
-                                        node.classList.contains(
-                                            "message"
-                                        ) &&
-                                        node.classList.contains(
-                                            "user"
-                                        )
-                                    ) {
-
-                                        enhanceUserMessage(
-                                            node
-                                        );
-
-                                    }
-
-
-                                    if (
-                                        node.querySelectorAll
-                                    ) {
-
-                                        node
-                                            .querySelectorAll(
-                                                ".message.user"
-                                            )
-                                            .forEach(
-                                                enhanceUserMessage
-                                            );
-
-                                    }
-
-                                }
-                            );
-
-                    }
-                );
-
+                processUserMessages();
             }
         );
 
-
     observer.observe(
-        chatBox,
+        editChatBox,
         {
             childList: true,
             subtree: true
         }
     );
+}
 
 
-    /* =====================================================
-       GLOBAL API
-    ===================================================== */
+/* =====================================================
+   PUBLIC API
+===================================================== */
 
-    window.conversationEditor = {
+window.conversationEditor = {
 
-        enhanceUserMessage:
-            enhanceUserMessage,
+    startEditing:
+        startEditing,
 
-        startEditing:
-            startEditing
+    createEditButton:
+        createEditButton,
 
-    };
+    saveEditedMessage:
+        saveEditedMessage
+};
 
 
-    console.log(
-        "✅ Conversation Edit ready"
+/* =====================================================
+   START
+===================================================== */
+
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        observeMessages
     );
 
-})();
+} else {
+
+    observeMessages();
+}
+
+
+console.log(
+    "✅ Conversation Editor ready."
+);
