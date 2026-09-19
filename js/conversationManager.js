@@ -1585,51 +1585,46 @@ console.log("🚀 Conversation Manager loading...");
 
 
         const filtered =
-            sorted.filter(
-                function (conversation) {
+    sorted.filter(
+        function (conversation) {
 
-                    if (!term) {
-                        return true;
-                    }
+            if (!term) {
+                return true;
+            }
 
+            const title =
+                String(
+                    conversation.title || ""
+                ).toLowerCase();
 
-                    const title =
-                        String(
-                            conversation.title ||
-                            ""
-                        )
-                        .toLowerCase();
+            const messages =
+                Array.isArray(
+                    conversation.messages
+                )
+                    ? conversation.messages
+                    : [];
 
+            const messageText =
+                messages
+                    .map(
+                        function (message) {
 
-                    const messages =
-                        Array.isArray(
-                            conversation.messages
-                        )
-                            ? conversation.messages
-                                .map(
-                                    function (
-                                        message
-                                    ) {
+                            return String(
+                                message.content || ""
+                            );
 
-                                        return String(
-                                            message.content ||
-                                            ""
-                                        );
+                        }
+                    )
+                    .join(" ")
+                    .toLowerCase();
 
-                                    }
-                                )
-                                .join(" ")
-                                .toLowerCase()
-                            : "";
-
-
-                    return (
-                        title.includes(term) ||
-                        messages.includes(term)
-                    );
-
-                }
+            return (
+                title.includes(term) ||
+                messageText.includes(term)
             );
+
+        }
+    );
 
 
         if (!filtered.length) {
