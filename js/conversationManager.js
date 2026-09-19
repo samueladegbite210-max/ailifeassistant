@@ -2328,140 +2328,211 @@ console.log("🚀 Conversation Manager loading...");
 
     async function startNewChat() {
 
-        saveComposerDraft();
+    console.log("🆕 Starting new chat...");
 
+    /* =================================================
+       SAVE CURRENT CHAT FIRST
+    ================================================= */
+
+    try {
 
         await saveCurrentConversation();
 
+    } catch (error) {
 
-        setCurrentConversationId(
-            null
+        console.warn(
+            "⚠️ Could not save previous conversation:",
+            error
         );
+    }
 
 
-        clearComposerDraft(
-            null
-        );
+    /* =================================================
+       CREATE A NEW CONVERSATION IMMEDIATELY
+    ================================================= */
+
+    const newConversationId =
+        createConversationId();
+
+    const now =
+        Date.now();
+
+    const newConversation = {
+
+        id: newConversationId,
+
+        title: "New Chat",
+
+        messages: [],
+
+        createdAt: now,
+
+        updatedAt: now,
+
+        hasImage: false,
+
+        visionContext: null
+    };
 
 
-        if (
-            typeof window.clearConversationHistory ===
-            "function"
-        ) {
+    /* =================================================
+       ADD NEW CHAT TO CONVERSATION LIST
+    ================================================= */
 
-            window.clearConversationHistory();
-
-        }
-
-        else {
-
-            window.conversationHistory =
-                [];
-
-            window.activeVisionContext =
-                null;
-
-        }
+    conversations.unshift(
+        newConversation
+    );
 
 
-        chatBox.innerHTML =
-            "";
+    /* =================================================
+       SET IT AS CURRENT CHAT
+    ================================================= */
+
+    currentConversationId =
+        newConversationId;
+
+    localStorage.setItem(
+        CURRENT_CHAT_KEY,
+        currentConversationId
+    );
 
 
-        const input =
-            document.getElementById(
-                "userInput"
+    /* =================================================
+       SAVE CONVERSATIONS
+    ================================================= */
+
+    saveConversations();
+
+
+    /* =================================================
+       CLEAR AI CONTEXT
+    ================================================= */
+
+    window.conversationHistory = [];
+
+    window.activeVisionContext = null;
+
+
+    if (
+        typeof window.clearActiveVisionContext ===
+        "function"
+    ) {
+
+        try {
+
+            window.clearActiveVisionContext();
+
+        } catch (error) {
+
+            console.warn(
+                "⚠️ Could not clear vision context:",
+                error
             );
-
-
-        if (input) {
-
-            input.value =
-                "";
-
-            input.dispatchEvent(
-                new Event(
-                    "input",
-                    {
-                        bubbles: true
-                    }
-                )
-            );
-
         }
+    }
 
+
+    /* =================================================
+       CLEAR CHAT WINDOW
+    ================================================= */
+
+    if (chatBox) {
+
+        chatBox.innerHTML = "";
+    }
+
+
+    /* =================================================
+       RESTORE WELCOME MESSAGE
+    ================================================= */
+
+    if (
+        typeof window.addWelcomeMessage ===
+        "function"
+    ) {
+
+        window.addWelcomeMessage();
+
+    } else if (chatBox) {
 
         const welcome =
-            document.createElement(
-                "div"
-            );
-
+            document.createElement("div");
 
         welcome.className =
             "message ai";
 
-
         const welcomeText =
-            document.createElement(
-                "div"
-            );
-
+            document.createElement("div");
 
         welcomeText.className =
             "messageText";
 
-
-        const name =
-            document.getElementById(
-                "welcomeName"
-            );
-
-
         welcomeText.textContent =
-            "👋 Hello " +
-            (
-                name
-                    ? name.textContent.trim()
-                    : "Samuel"
-            ) +
-            "!\n\nHow can I help you today?";
-
-
-        const welcomeTime =
-            document.createElement(
-                "div"
-            );
-
-
-        welcomeTime.className =
-            "messageTime";
-
-
-        welcomeTime.textContent =
-            "Now";
-
+            "How can I help you today?";
 
         welcome.appendChild(
             welcomeText
         );
 
-        welcome.appendChild(
-            welcomeTime
-        );
-
-
         chatBox.appendChild(
             welcome
         );
-
-
-        closeSideMenu();
-
-
-        renderConversationList();
-
     }
 
+
+    /* =================================================
+       CLEAR COMPOSER
+    ================================================= */
+
+    if (
+        typeof clearComposerDraft ===
+        "function"
+    ) {
+
+        clearComposerDraft();
+    }
+
+
+    /* =================================================
+       CLOSE SIDE MENU
+    ================================================= */
+
+    const sideMenu =
+        document.getElementById(
+            "sideMenu"
+        );
+
+    if (sideMenu) {
+
+        sideMenu.classList.remove(
+            "open"
+        );
+    }
+
+
+    /* =================================================
+       REFRESH CONVERSATION LIST
+    ================================================= */
+
+    renderConversationList();
+
+
+    /* =================================================
+       SCROLL
+    ================================================= */
+
+    if (chatBox) {
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+    }
+
+
+    console.log(
+        "✅ New conversation created:",
+        newConversationId
+    );
+}
 
     /* =====================================================
        CONVERSATION OPTIONS
