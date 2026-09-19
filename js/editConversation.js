@@ -27,13 +27,10 @@ function createEditButton(messageElement) {
         return;
     }
 
-    const messageActions =
+    let actions =
         messageElement.querySelector(
             ".messageActions"
         );
-
-    let actions =
-        messageActions;
 
     if (!actions) {
 
@@ -53,7 +50,8 @@ function createEditButton(messageElement) {
     editButton.className =
         "editMessageButton";
 
-    editButton.textContent = "✏️ Edit";
+    editButton.textContent =
+        "✏️ Edit";
 
     editButton.addEventListener(
         "click",
@@ -63,7 +61,9 @@ function createEditButton(messageElement) {
         }
     );
 
-    actions.appendChild(editButton);
+    actions.appendChild(
+        editButton
+    );
 }
 
 
@@ -87,12 +87,17 @@ function getMessageText(messageElement) {
 
 
 /* =====================================================
-   FIND USER MESSAGE INDEX
+   FIND HISTORY INDEX
 ===================================================== */
 
-function getUserMessageIndex(messageElement) {
+function getUserMessageIndex(
+    messageElement
+) {
 
-    if (!window.conversationHistory) {
+    const history =
+        window.conversationHistory || [];
+
+    if (!history.length) {
         return -1;
     }
 
@@ -116,16 +121,17 @@ function getUserMessageIndex(messageElement) {
 
     for (
         let i = 0;
-        i < window.conversationHistory.length;
+        i < history.length;
         i++
     ) {
 
         if (
-            window.conversationHistory[i]
-                .role === "user"
+            history[i].role === "user"
         ) {
 
-            if (userCount === domIndex) {
+            if (
+                userCount === domIndex
+            ) {
                 return i;
             }
 
@@ -271,14 +277,15 @@ function startEditing(messageElement) {
                 textarea.value.trim();
 
             if (!newText) {
-
                 textarea.focus();
-
                 return;
             }
 
-            saveButton.disabled = true;
-            cancelButton.disabled = true;
+            saveButton.disabled =
+                true;
+
+            cancelButton.disabled =
+                true;
 
             saveButton.textContent =
                 "Generating...";
@@ -306,7 +313,9 @@ function startEditing(messageElement) {
                 saveButton.textContent =
                     "Save & Regenerate";
 
-                return;
+                alert(
+                    "Unable to regenerate this message. Please try again."
+                );
             }
         }
     );
@@ -330,7 +339,7 @@ async function saveEditedMessage(
     if (historyIndex === -1) {
 
         throw new Error(
-            "Could not find this message in conversation history."
+            "Message was not found in conversation history."
         );
     }
 
@@ -378,50 +387,50 @@ async function saveEditedMessage(
 
 
     /* =================================================
-       REMOVE OLD AI RESPONSE + LATER MESSAGES
+       REMOVE EVERYTHING AFTER EDITED MESSAGE
     ================================================= */
 
-    let nextElement =
+    let next =
         messageElement.nextElementSibling;
 
-    while (nextElement) {
+    while (next) {
 
-        const elementToRemove =
-            nextElement;
+        const removeThis =
+            next;
 
-        nextElement =
-            nextElement.nextElementSibling;
+        next =
+            next.nextElementSibling;
 
-        elementToRemove.remove();
+        removeThis.remove();
     }
 
 
     /* =================================================
-       UPDATE CONVERSATION HISTORY
+       REBUILD HISTORY
+       Keep everything BEFORE edited message.
     ================================================= */
 
-    const history =
-        window.conversationHistory ||
-        [];
+    const oldHistory =
+        window.conversationHistory || [];
 
-    const updatedHistory =
-        history.slice(
+    const rebuiltHistory =
+        oldHistory.slice(
             0,
             historyIndex
         );
 
-    updatedHistory.push({
+    rebuiltHistory.push({
         role: "user",
         content: newText,
         timestamp: Date.now()
     });
 
     window.conversationHistory =
-        updatedHistory;
+        rebuiltHistory;
 
 
     /* =================================================
-       GENERATE NEW AI RESPONSE
+       ONLINE AI
     ================================================= */
 
     if (
@@ -430,43 +439,52 @@ async function saveEditedMessage(
     ) {
 
         throw new Error(
-            "Online AI function is not available."
+            "Online AI function is unavailable."
         );
-    }
-
-
-    const useImageContext =
-        typeof window.getActiveVisionContext ===
-        "function"
-            ? !!window.getActiveVisionContext()
-            : false;
-
-
-    let newResponse;
-
-    try {
-
-        newResponse =
-            await window.askOnlineAI(
-                newText,
-                null,
-                true,
-                useImageContext
-            );
-
-    } catch (error) {
-
-        console.error(
-            "❌ AI regeneration failed:",
-            error
-        );
-
-        throw error;
     }
 
 
     /* =================================================
-       CREATE NEW AI MESSAGE
+       ACTIVE IMAGE CONTEXT
+    ================================================= */
+
+    let useImageContext = false;
+
+    if (
+        typeof window.getActiveVisionContext ===
+        "function"
+    ) {
+
+        try {
+
+            useImageContext =
+                !!window.getActiveVisionContext();
+
+        } catch (error) {
+
+            console.warn(
+                "⚠️ Could not check image context:",
+                error
+            );
+        }
+    }
+
+
+    /* =================================================
+       GENERATE NEW RESPONSE
+    ================================================= */
+
+    const newResponse =
+        await window.askOnlineAI(
+            newText,
+            null,
+            true,
+            useImageContext
+        );
+
+
+    /* =================================================
+       CREATE AI MESSAGE
     ================================================= */
 
     const aiMessage =
@@ -483,7 +501,7 @@ async function saveEditedMessage(
 
 
     /* =================================================
-       FORMAT AI RESPONSE
+       FORMAT RESPONSE
     ================================================= */
 
     if (
@@ -525,7 +543,7 @@ async function saveEditedMessage(
         } catch (error) {
 
             console.warn(
-                "⚠️ Response formatting failed:",
+                "⚠️ Formatting failed:",
                 error
             );
 
@@ -546,7 +564,7 @@ async function saveEditedMessage(
 
 
     /* =================================================
-       INSERT AI RESPONSE
+       INSERT NEW AI RESPONSE
     ================================================= */
 
     messageElement.after(
@@ -555,7 +573,7 @@ async function saveEditedMessage(
 
 
     /* =================================================
-       ADD RESPONSE TO HISTORY
+       ADD AI RESPONSE TO HISTORY
     ================================================= */
 
     window.conversationHistory.push({
@@ -589,7 +607,7 @@ async function saveEditedMessage(
 
 
     /* =================================================
-       SCROLL TO RESPONSE
+       SCROLL
     ================================================= */
 
     setTimeout(
@@ -606,21 +624,23 @@ async function saveEditedMessage(
 
 
     console.log(
-        "✅ Message edited and regenerated."
+        "✅ Older message edited and regenerated."
     );
 }
 
 
 /* =====================================================
-   OBSERVE NEW USER MESSAGES
+   OBSERVE CHAT
 ===================================================== */
 
 function observeMessages() {
 
     if (!editChatBox) {
+
         console.warn(
             "⚠️ chatBox not found."
         );
+
         return;
     }
 
@@ -685,7 +705,10 @@ window.conversationEditor = {
    START
 ===================================================== */
 
-if (document.readyState === "loading") {
+if (
+    document.readyState ===
+    "loading"
+) {
 
     document.addEventListener(
         "DOMContentLoaded",
