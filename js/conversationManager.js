@@ -1521,225 +1521,321 @@ console.log("🚀 Conversation Manager loading...");
     }
 
 
-    /* =====================================================
-       RENDER LIST
-    ===================================================== */
+/* =====================================================
+   RENDER LIST
+===================================================== */
 
-    function renderConversationList(
-        searchTerm = ""
-    ) {
+function renderConversationList(
+    searchTerm = ""
+) {
 
-        conversationList.innerHTML =
-            "";
-
-
-        const term =
-            String(searchTerm)
-                .toLowerCase()
-                .trim();
+    conversationList.innerHTML =
+        "";
 
 
-        const now =
-            new Date();
+    const term =
+        String(searchTerm)
+            .toLowerCase()
+            .trim();
 
 
-        const startOfToday =
-            new Date(
-                now.getFullYear(),
-                now.getMonth(),
-                now.getDate()
-            );
+    const now =
+        new Date();
 
 
-        const startOfYesterday =
-            new Date(
-                startOfToday.getTime() -
-                24 * 60 * 60 * 1000
-            );
+    const startOfToday =
+        new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+        );
 
 
-        const startOfSevenDays =
-            new Date(
-                startOfToday.getTime() -
-                7 * 24 * 60 * 60 * 1000
-            );
+    const startOfYesterday =
+        new Date(
+            startOfToday.getTime() -
+            24 * 60 * 60 * 1000
+        );
 
 
-        const sorted =
-            conversations
-                .slice()
-                .sort(
-                    function (a, b) {
+    const startOfSevenDays =
+        new Date(
+            startOfToday.getTime() -
+            7 * 24 * 60 * 60 * 1000
+        );
 
-                        return (
-                            new Date(
-                                b.updatedAt
-                            ) -
-                            new Date(
-                                a.updatedAt
-                            )
-                        );
+
+    /* =================================================
+       SORT CONVERSATIONS
+    ================================================= */
+
+    const sorted =
+        conversations
+            .slice()
+            .sort(
+                function (a, b) {
+
+                    /*
+                     * Pinned conversations always come first.
+                     */
+
+                    if (
+                        a.pinned === true &&
+                        b.pinned !== true
+                    ) {
+
+                        return -1;
 
                     }
-                );
 
 
-        const filtered =
-    sorted.filter(
-        function (conversation) {
+                    if (
+                        a.pinned !== true &&
+                        b.pinned === true
+                    ) {
 
-            if (!term) {
-                return true;
-            }
+                        return 1;
 
-            const title =
-                String(
-                    conversation.title || ""
-                ).toLowerCase();
-
-            const messages =
-                Array.isArray(
-                    conversation.messages
-                )
-                    ? conversation.messages
-                    : [];
-
-            const messageText =
-                messages
-                    .map(
-                        function (message) {
-
-                            return String(
-                                message.content || ""
-                            );
-
-                        }
-                    )
-                    .join(" ")
-                    .toLowerCase();
-
-            return (
-                title.includes(term) ||
-                messageText.includes(term)
-            );
-
-        }
-    );
+                    }
 
 
-        if (!filtered.length) {
+                    /*
+                     * Within the same pin state,
+                     * newest conversation comes first.
+                     */
 
-            const empty =
-                document.createElement(
-                    "div"
-                );
+                    return (
+                        new Date(
+                            b.updatedAt
+                        ) -
+                        new Date(
+                            a.updatedAt
+                        )
+                    );
 
-
-            empty.className =
-                "emptyConversations";
-
-
-            empty.textContent =
-                term
-                    ? "No matching conversations"
-                    : "No conversations yet";
-
-
-            conversationList.appendChild(
-                empty
+                }
             );
 
 
-            return;
+    /* =================================================
+       SEARCH
+    ================================================= */
 
-        }
-
-
-        const groups = {
-
-            today: [],
-
-            yesterday: [],
-
-            previous7Days: [],
-
-            older: []
-
-        };
-
-
-        filtered.forEach(
+    const filtered =
+        sorted.filter(
             function (conversation) {
 
-                const date =
-                    new Date(
-                        conversation.updatedAt
-                    );
-
-
-                if (date >= startOfToday) {
-
-                    groups.today.push(
-                        conversation
-                    );
-
+                if (!term) {
+                    return true;
                 }
 
-                else if (
-                    date >= startOfYesterday
-                ) {
 
-                    groups.yesterday.push(
-                        conversation
-                    );
+                const title =
+                    String(
+                        conversation.title || ""
+                    ).toLowerCase();
 
-                }
 
-                else if (
-                    date >= startOfSevenDays
-                ) {
+                const messages =
+                    Array.isArray(
+                        conversation.messages
+                    )
+                        ? conversation.messages
+                        : [];
 
-                    groups.previous7Days.push(
-                        conversation
-                    );
 
-                }
+                const messageText =
+                    messages
+                        .map(
+                            function (message) {
 
-                else {
+                                return String(
+                                    message.content || ""
+                                );
 
-                    groups.older.push(
-                        conversation
-                    );
+                            }
+                        )
+                        .join(" ")
+                        .toLowerCase();
 
-                }
+
+                return (
+                    title.includes(term) ||
+                    messageText.includes(term)
+                );
 
             }
         );
 
 
-        renderConversationGroup(
-            "Today",
-            groups.today
+    /* =================================================
+       EMPTY STATE
+    ================================================= */
+
+    if (!filtered.length) {
+
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+
+        empty.className =
+            "emptyConversations";
+
+
+        empty.textContent =
+            term
+                ? "No matching conversations"
+                : "No conversations yet";
+
+
+        conversationList.appendChild(
+            empty
         );
 
-        renderConversationGroup(
-            "Yesterday",
-            groups.yesterday
+
+        return;
+
+    }
+
+
+    /* =================================================
+       SEPARATE PINNED
+    ================================================= */
+
+    const pinned =
+        filtered.filter(
+            function (conversation) {
+
+                return (
+                    conversation.pinned === true
+                );
+
+            }
         );
 
-        renderConversationGroup(
-            "Previous 7 Days",
-            groups.previous7Days
+
+    const unpinned =
+        filtered.filter(
+            function (conversation) {
+
+                return (
+                    conversation.pinned !== true
+                );
+
+            }
         );
 
+
+    /* =================================================
+       PINNED SECTION
+    ================================================= */
+
+    if (pinned.length) {
+
         renderConversationGroup(
-            "Older",
-            groups.older
+            "📌 Pinned",
+            pinned
         );
 
     }
 
 
+    /* =================================================
+       DATE GROUPS FOR NORMAL CONVERSATIONS
+    ================================================= */
+
+    const groups = {
+
+        today: [],
+
+        yesterday: [],
+
+        previous7Days: [],
+
+        older: []
+
+    };
+
+
+    unpinned.forEach(
+        function (conversation) {
+
+            const date =
+                new Date(
+                    conversation.updatedAt
+                );
+
+
+            if (date >= startOfToday) {
+
+                groups.today.push(
+                    conversation
+                );
+
+            }
+
+            else if (
+                date >= startOfYesterday
+            ) {
+
+                groups.yesterday.push(
+                    conversation
+                );
+
+            }
+
+            else if (
+                date >= startOfSevenDays
+            ) {
+
+                groups.previous7Days.push(
+                    conversation
+                );
+
+            }
+
+            else {
+
+                groups.older.push(
+                    conversation
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       NORMAL CONVERSATION GROUPS
+    ================================================= */
+
+    renderConversationGroup(
+        "Today",
+        groups.today
+    );
+
+
+    renderConversationGroup(
+        "Yesterday",
+        groups.yesterday
+    );
+
+
+    renderConversationGroup(
+        "Previous 7 Days",
+        groups.previous7Days
+    );
+
+
+    renderConversationGroup(
+        "Older",
+        groups.older
+    );
+
+}
     /* =====================================================
        RENDER GROUP
     ===================================================== */
