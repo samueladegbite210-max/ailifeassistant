@@ -3451,6 +3451,17 @@ ChatGPT Typing Animation
 
     font-size: 16px;
 }
+/* =====================================================
+   PINNED CONVERSATION
+===================================================== */
+
+.pinConversationButton {
+    color: #D4AF37;
+}
+
+.pinConversationButton:hover {
+    background: rgba(212, 175, 55, 0.12);
+}
 /*==================================================
 THE END
 ==================================================*/
