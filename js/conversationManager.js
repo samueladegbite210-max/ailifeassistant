@@ -2529,162 +2529,270 @@ console.log("🚀 Conversation Manager loading...");
     );
 }
 
-    /* =====================================================
-       CONVERSATION OPTIONS
-    ===================================================== */
+  /* =====================================================
+   CONVERSATION OPTIONS
+===================================================== */
 
-    function showConversationOptions(
-        conversation,
-        conversationItem
-    ) {
+function showConversationOptions(
+    conversation,
+    conversationItem
+) {
 
-        const existingMenu =
-            document.querySelector(
-                ".conversationOptionsMenu"
-            );
-
-
-        if (existingMenu) {
-            existingMenu.remove();
-        }
-
-
-        const menu =
-            document.createElement(
-                "div"
-            );
-
-
-        menu.className =
-            "conversationOptionsMenu";
-
-
-        const renameButton =
-            document.createElement(
-                "button"
-            );
-
-
-        renameButton.type =
-            "button";
-
-        renameButton.className =
-            "conversationOptionButton";
-
-
-        renameButton.innerHTML =
-            "✏️ <span>Rename</span>";
-
-
-        renameButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-                menu.remove();
-
-
-                renameConversation(
-                    conversation.id
-                );
-
-            }
+    const existingMenu =
+        document.querySelector(
+            ".conversationOptionsMenu"
         );
 
 
-        const deleteButton =
-            document.createElement(
-                "button"
-            );
-
-
-        deleteButton.type =
-            "button";
-
-        deleteButton.className =
-            "conversationOptionButton deleteOption";
-
-
-        deleteButton.innerHTML =
-            "🗑️ <span>Delete</span>";
-
-
-        deleteButton.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                event.stopPropagation();
-
-                menu.remove();
-
-
-                deleteConversation(
-                    conversation.id
-                );
-
-            }
-        );
-
-
-        menu.appendChild(
-            renameButton
-        );
-
-        menu.appendChild(
-            deleteButton
-        );
-
-
-        conversationItem.appendChild(
-            menu
-        );
-
-
-        setTimeout(
-            function () {
-
-                function outsideClick(
-                    event
-                ) {
-
-                    if (
-                        !menu.contains(
-                            event.target
-                        ) &&
-                        !conversationItem.contains(
-                            event.target
-                        )
-                    ) {
-
-                        menu.remove();
-
-                        document.removeEventListener(
-                            "click",
-                            outsideClick
-                        );
-
-                    }
-
-                }
-
-
-                document.addEventListener(
-                    "click",
-                    outsideClick
-                );
-
-            },
-            0
-        );
-
+    if (existingMenu) {
+        existingMenu.remove();
     }
 
 
+    const menu =
+        document.createElement(
+            "div"
+        );
+
+
+    menu.className =
+        "conversationOptionsMenu";
+
+
+    /* =================================================
+       PIN / UNPIN
+    ================================================= */
+
+    const pinButton =
+        document.createElement(
+            "button"
+        );
+
+
+    pinButton.type =
+        "button";
+
+
+    pinButton.className =
+        "conversationOptionButton pinConversationOption";
+
+
+    const isPinned =
+        conversation.pinned === true;
+
+
+    pinButton.innerHTML =
+        isPinned
+            ? "📌 <span>Unpin</span>"
+            : "📌 <span>Pin</span>";
+
+
+    pinButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            /*
+             * Toggle pinned state
+             */
+
+            conversation.pinned =
+                !conversation.pinned;
+
+
+            /*
+             * Save immediately
+             */
+
+            saveConversations();
+
+
+            /*
+             * Close menu
+             */
+
+            menu.remove();
+
+
+            /*
+             * Refresh conversation list
+             */
+
+            renderConversationList(
+                searchInput
+                    ? searchInput.value
+                    : ""
+            );
+
+
+            console.log(
+                conversation.pinned
+                    ? "📌 Conversation pinned"
+                    : "📌 Conversation unpinned"
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       RENAME
+    ================================================= */
+
+    const renameButton =
+        document.createElement(
+            "button"
+        );
+
+
+    renameButton.type =
+        "button";
+
+
+    renameButton.className =
+        "conversationOptionButton";
+
+
+    renameButton.innerHTML =
+        "✏️ <span>Rename</span>";
+
+
+    renameButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            menu.remove();
+
+
+            renameConversation(
+                conversation.id
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       DELETE
+    ================================================= */
+
+    const deleteButton =
+        document.createElement(
+            "button"
+        );
+
+
+    deleteButton.type =
+        "button";
+
+
+    deleteButton.className =
+        "conversationOptionButton deleteOption";
+
+
+    deleteButton.innerHTML =
+        "🗑️ <span>Delete</span>";
+
+
+    deleteButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            menu.remove();
+
+
+            deleteConversation(
+                conversation.id
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       ADD OPTIONS
+    ================================================= */
+
+    menu.appendChild(
+        pinButton
+    );
+
+
+    menu.appendChild(
+        renameButton
+    );
+
+
+    menu.appendChild(
+        deleteButton
+    );
+
+
+    /* =================================================
+       SHOW MENU
+    ================================================= */
+
+    conversationItem.appendChild(
+        menu
+    );
+
+
+    /* =================================================
+       CLOSE WHEN CLICKING OUTSIDE
+    ================================================= */
+
+    setTimeout(
+        function () {
+
+            function outsideClick(
+                event
+            ) {
+
+                if (
+                    !menu.contains(
+                        event.target
+                    ) &&
+                    !conversationItem.contains(
+                        event.target
+                    )
+                ) {
+
+                    menu.remove();
+
+                    document.removeEventListener(
+                        "click",
+                        outsideClick
+                    );
+
+                }
+
+            }
+
+
+            document.addEventListener(
+                "click",
+                outsideClick
+            );
+
+        },
+        0
+    );
+
+}
     /* =====================================================
        RENAME
     ===================================================== */
