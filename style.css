@@ -3462,6 +3462,19 @@ ChatGPT Typing Animation
 .pinConversationButton:hover {
     background: rgba(212, 175, 55, 0.12);
 }
+/* =====================================================
+   PINNED CONVERSATIONS
+===================================================== */
+
+.conversationGroupTitle {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.conversationGroup:first-child
+.conversationGroupTitle {
+    color: #D4AF37;
+}
 /*==================================================
 THE END
 ==================================================*/
