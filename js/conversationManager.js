@@ -2692,31 +2692,15 @@ function showConversationOptions(
             event.stopPropagation();
 
 
-            /*
-             * Toggle pinned state
-             */
-
             conversation.pinned =
                 !conversation.pinned;
 
 
-            /*
-             * Save immediately
-             */
-
             saveConversations();
 
 
-            /*
-             * Close menu
-             */
-
             menu.remove();
 
-
-            /*
-             * Refresh conversation list
-             */
 
             renderConversationList(
                 searchInput
@@ -2729,6 +2713,276 @@ function showConversationOptions(
                 conversation.pinned
                     ? "📌 Conversation pinned"
                     : "📌 Conversation unpinned"
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       BRANCHES
+    ================================================= */
+
+    const branchButton =
+        document.createElement(
+            "button"
+        );
+
+
+    branchButton.type =
+        "button";
+
+
+    branchButton.className =
+        "conversationOptionButton branchConversationOption";
+
+
+    branchButton.innerHTML =
+        "🌿 <span>Branches</span>";
+
+
+    branchButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            menu.remove();
+
+
+            const branches =
+                Array.isArray(
+                    conversation.branches
+                )
+                    ? conversation.branches
+                    : [];
+
+
+            /*
+             * No saved branches
+             */
+
+            if (!branches.length) {
+
+                alert(
+                    "🌿 No previous branches yet.\n\nEdit a message and save the change to create a branch."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Build branch selection text
+             */
+
+            let branchText =
+                "🌿 Previous Branches\n\n";
+
+
+            branches.forEach(
+                function (
+                    branch,
+                    index
+                ) {
+
+                    const date =
+                        branch.createdAt
+                            ? new Date(
+                                branch.createdAt
+                            ).toLocaleString()
+                            : "Unknown date";
+
+
+                    const messageCount =
+                        Array.isArray(
+                            branch.messages
+                        )
+                            ? branch.messages.length
+                            : 0;
+
+
+                    branchText +=
+                        (
+                            index + 1
+                        ) +
+                        ". " +
+                        date +
+                        " — " +
+                        messageCount +
+                        " messages\n";
+
+                }
+            );
+
+
+            branchText +=
+                "\nEnter the branch number to open it:";
+
+
+            const selected =
+                prompt(
+                    branchText
+                );
+
+
+            if (
+                selected === null
+            ) {
+
+                return;
+
+            }
+
+
+            const branchNumber =
+                Number(
+                    selected
+                );
+
+
+            if (
+                !Number.isInteger(
+                    branchNumber
+                ) ||
+                branchNumber < 1 ||
+                branchNumber > branches.length
+            ) {
+
+                alert(
+                    "Please enter a valid branch number."
+                );
+
+                return;
+
+            }
+
+
+            const selectedBranch =
+                branches[
+                    branchNumber - 1
+                ];
+
+
+            if (
+                !selectedBranch ||
+                !Array.isArray(
+                    selectedBranch.messages
+                ) ||
+                !selectedBranch.messages.length
+            ) {
+
+                alert(
+                    "This branch does not contain any messages."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Create a separate conversation
+             * from the selected branch.
+             *
+             * The original conversation remains
+             * untouched.
+             */
+
+            const now =
+                new Date().toISOString();
+
+
+            const branchConversation = {
+
+                id:
+                    createConversationId(),
+
+                title:
+                    conversation.title +
+                    " — Branch " +
+                    branchNumber,
+
+                messages:
+                    selectedBranch.messages.map(
+                        function (message) {
+
+                            return {
+
+                                role:
+                                    message.role,
+
+                                content:
+                                    message.content,
+
+                                timestamp:
+                                    message.timestamp ||
+                                    now
+
+                            };
+
+                        }
+                    ),
+
+                createdAt:
+                    now,
+
+                updatedAt:
+                    now,
+
+                hasImage:
+                    conversation.hasImage === true,
+
+                visionContext:
+                    null,
+
+                branchedFrom:
+                    conversation.id,
+
+                branchId:
+                    selectedBranch.id
+
+            };
+
+
+            /*
+             * Add the branch as a new conversation
+             */
+
+            conversations.unshift(
+                branchConversation
+            );
+
+
+            currentConversationId =
+                branchConversation.id;
+
+
+            localStorage.setItem(
+                CURRENT_CHAT_KEY,
+                currentConversationId
+            );
+
+
+            saveConversations();
+
+
+            /*
+             * Open the new branch conversation
+             */
+
+            openConversation(
+                branchConversation.id
+            );
+
+
+            console.log(
+                "🌿 Branch opened as new conversation:",
+                branchConversation.id
             );
 
         }
@@ -2829,6 +3083,11 @@ function showConversationOptions(
 
 
     menu.appendChild(
+        branchButton
+    );
+
+
+    menu.appendChild(
         renameButton
     );
 
@@ -2846,7 +3105,7 @@ function showConversationOptions(
         menu
     );
 
-
+}
     /* =================================================
        CLOSE WHEN CLICKING OUTSIDE
     ================================================= */
