@@ -2857,6 +2857,338 @@ function renderConversationList(
     menu.appendChild(
         branchesButton
     );
+      /* =====================================================
+   SHOW CONVERSATION BRANCHES
+===================================================== */
+
+function showConversationBranches(
+    conversation
+) {
+
+    const branches =
+        Array.isArray(
+            conversation.branches
+        )
+            ? conversation.branches
+            : [];
+
+
+    if (!branches.length) {
+
+        alert(
+            "🌿 No saved branches yet.\n\nEdit a previous message and save the edited conversation to create a branch."
+        );
+
+        return;
+    }
+
+
+    let branchList =
+        "🌿 SAVED BRANCHES\n\n";
+
+
+    branches.forEach(
+        function (
+            branch,
+            index
+        ) {
+
+            const branchMessages =
+                Array.isArray(
+                    branch.messages
+                )
+                    ? branch.messages
+                    : [];
+
+
+            const firstUserMessage =
+                branchMessages.find(
+                    function (message) {
+
+                        return (
+                            message.role ===
+                            "user"
+                        );
+
+                    }
+                );
+
+
+            const preview =
+                firstUserMessage &&
+                firstUserMessage.content
+                    ? firstUserMessage.content
+                    : "Untitled branch";
+
+
+            branchList +=
+                (
+                    index + 1
+                ) +
+                ". " +
+                preview.substring(
+                    0,
+                    80
+                ) +
+                "\n";
+        }
+    );
+
+
+    branchList +=
+        "\nEnter the number of the branch you want to open:";
+
+
+    const choice =
+        prompt(
+            branchList
+        );
+
+
+    if (
+        choice === null
+    ) {
+        return;
+    }
+
+
+    const branchIndex =
+        parseInt(
+            choice,
+            10
+        ) - 1;
+
+
+    if (
+        isNaN(branchIndex) ||
+        branchIndex < 0 ||
+        branchIndex >= branches.length
+    ) {
+
+        alert(
+            "Invalid branch number."
+        );
+
+        return;
+    }
+
+
+    const selectedBranch =
+        branches[
+            branchIndex
+        ];
+
+
+    if (
+        !Array.isArray(
+            selectedBranch.messages
+        ) ||
+        !selectedBranch.messages.length
+    ) {
+
+        alert(
+            "This branch has no messages."
+        );
+
+        return;
+    }
+
+
+    /* =================================================
+       CREATE NEW CONVERSATION FROM BRANCH
+    ================================================= */
+
+    const now =
+        Date.now();
+
+
+    const newConversationId =
+        createConversationId();
+
+
+    const newConversation = {
+
+        id:
+            newConversationId,
+
+        title:
+            selectedBranch.title ||
+            "Branch",
+
+        messages:
+            JSON.parse(
+                JSON.stringify(
+                    selectedBranch.messages
+                )
+            ),
+
+        createdAt:
+            now,
+
+        updatedAt:
+            now,
+
+        hasImage:
+            selectedBranch.hasImage === true,
+
+        visionContext:
+            selectedBranch.visionContext ||
+            null,
+
+        branchedFrom:
+            conversation.id,
+
+        isBranch:
+            true
+    };
+
+
+    conversations.unshift(
+        newConversation
+    );
+
+
+    currentConversationId =
+        newConversationId;
+
+
+    localStorage.setItem(
+        CURRENT_CHAT_KEY,
+        currentConversationId
+    );
+
+
+    saveConversations();
+
+
+    /* =================================================
+       LOAD BRANCH INTO CHAT
+    ================================================= */
+
+    if (
+        typeof window.clearAIConversationHistory ===
+        "function"
+    ) {
+
+        window.clearAIConversationHistory();
+
+    }
+
+
+    if (
+        window.conversationHistory
+    ) {
+
+        window.conversationHistory =
+            [];
+
+    }
+
+
+    if (
+        Array.isArray(
+            newConversation.messages
+        )
+    ) {
+
+        newConversation.messages.forEach(
+            function (
+                message
+            ) {
+
+                if (
+                    message.role ===
+                    "user" ||
+                    message.role ===
+                    "assistant" ||
+                    message.role ===
+                    "ai"
+                ) {
+
+                    const role =
+                        message.role ===
+                        "ai"
+                            ? "assistant"
+                            : message.role;
+
+
+                    if (
+                        typeof window.addConversationMessage ===
+                        "function"
+                    ) {
+
+                        window.addConversationMessage(
+                            role,
+                            message.content
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (
+        typeof restoreVisionContext ===
+        "function"
+    ) {
+
+        restoreVisionContext(
+            newConversation
+        );
+
+    }
+
+
+    if (
+        chatBox
+    ) {
+
+        chatBox.innerHTML =
+            "";
+
+        newConversation.messages.forEach(
+            function (
+                message
+            ) {
+
+                addMessageToChat(
+                    message.role,
+                    message.content
+                );
+
+            }
+        );
+
+    }
+
+
+    renderConversationList(
+        searchInput
+            ? searchInput.value
+            : ""
+    );
+
+
+    if (
+        chatBox
+    ) {
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+    }
+
+
+    console.log(
+        "🌿 Branch opened:",
+        newConversationId
+    );
+}
     /* =================================================
        SHOW MENU
     ================================================= */
