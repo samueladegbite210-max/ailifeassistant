@@ -2829,48 +2829,7 @@ function renderConversationList(
     );
 
 }
-    /* =================================================
-       CLOSE WHEN CLICKING OUTSIDE
-    ================================================= */
-
-    setTimeout(
-        function () {
-
-            function outsideClick(
-                event
-            ) {
-
-                if (
-                    !menu.contains(
-                        event.target
-                    ) &&
-                    !conversationItem.contains(
-                        event.target
-                    )
-                ) {
-
-                    menu.remove();
-
-                    document.removeEventListener(
-                        "click",
-                        outsideClick
-                    );
-
-                }
-
-            }
-
-
-            document.addEventListener(
-                "click",
-                outsideClick
-            );
-
-        },
-        0
-    );
-
-}
+    
     /* =====================================================
        RENAME
     ===================================================== */
