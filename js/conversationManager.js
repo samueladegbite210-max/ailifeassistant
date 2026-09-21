@@ -2819,7 +2819,44 @@ function renderConversationList(
         deleteButton
     );
 
+    /* =================================================
+       BRANCHES
+    ================================================= */
 
+    const branchesButton =
+        document.createElement(
+            "button"
+        );
+
+    branchesButton.type =
+        "button";
+
+    branchesButton.className =
+        "conversationOptionButton";
+
+    branchesButton.innerHTML =
+        "🌿 <span>Branches</span>";
+
+    branchesButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            menu.remove();
+
+            showConversationBranches(
+                conversation
+            );
+
+        }
+    );
+
+    menu.appendChild(
+        branchesButton
+    );
     /* =================================================
        SHOW MENU
     ================================================= */
