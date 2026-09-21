@@ -2838,21 +2838,34 @@ function renderConversationList(
         "🌿 <span>Branches</span>";
 
     branchesButton.addEventListener(
-        "click",
-        function (event) {
+    "click",
+    function (event) {
 
-            event.preventDefault();
+        event.preventDefault();
+        event.stopPropagation();
 
-            event.stopPropagation();
-
-            menu.remove();
-
-            showConversationBranches(
-                conversation
-            );
-
+        if (event.stopImmediatePropagation) {
+            event.stopImmediatePropagation();
         }
-    );
+
+        const selectedConversation =
+            conversation;
+
+        menu.remove();
+
+        setTimeout(
+            function () {
+
+                showConversationBranches(
+                    selectedConversation
+                );
+
+            },
+            0
+        );
+
+    }
+);
 
     menu.appendChild(
         branchesButton
