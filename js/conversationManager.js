@@ -2038,15 +2038,20 @@ function renderConversationList(
 
 
         openButton.addEventListener(
-            "click",
-            function () {
+    "click",
+    function (event) {
 
-                openConversation(
-                    conversation.id
-                );
+        event.preventDefault();
+        event.stopPropagation();
 
-            }
+        closeSideMenu();
+
+        openConversation(
+            conversation.id
         );
+
+    }
+);
 
 
         const optionsButton =
