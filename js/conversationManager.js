@@ -2252,12 +2252,18 @@ function renderConversationList(
         );
 
 
-        restoreComposerDraft(
+                restoreComposerDraft(
             conversation.id
         );
 
-    }
 
+        /* =================================================
+           ALWAYS CLOSE SIDE MENU AFTER LOADING CONVERSATION
+        ================================================= */
+
+        closeSideMenu();
+
+    }
 
     /* =====================================================
        ADD SAVED MESSAGE
