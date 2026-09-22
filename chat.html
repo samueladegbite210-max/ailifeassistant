@@ -554,16 +554,15 @@ console.log(
     }
 
 
-    function closeSideMenu() {
+    window.closeSideMenu = function () {
 
-        sideMenu.classList.remove("open");
+    sideMenu.classList.remove("open");
 
-        sideMenuOverlay.classList.remove("open");
+    sideMenuOverlay.classList.remove("open");
 
-        document.body.style.overflow =
-            "";
+    document.body.style.overflow = "";
 
-    }
+};
 
 
     menuBtn.addEventListener(
