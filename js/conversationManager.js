@@ -1470,12 +1470,8 @@ console.log("🚀 Conversation Manager loading...");
                 new Date().toISOString();
 
 
-            if (visionContext) {
-
-                conversation.visionContext =
-                    visionContext;
-
-            }
+            conversation.visionContext =
+    visionContext || null;
 
 
             if (
