@@ -2154,41 +2154,51 @@ function renderConversationList(
         }
 
 
-        if (
-            Array.isArray(
-                window.conversationHistory
-            )
-        ) {
+        window.conversationHistory =
+    (
+        Array.isArray(
+            conversation.messages
+        )
+            ? conversation.messages
+            : []
+    )
+    .filter(
+        function (message) {
 
-            window.conversationHistory =
+            return (
+                message &&
                 (
-                    Array.isArray(
-                        conversation.messages
-                    )
-                        ? conversation.messages
-                        : []
-                )
-                .map(
-                    function (message) {
-
-                        return {
-
-                            role:
-                                message.role,
-
-                            content:
-                                message.content,
-
-                            timestamp:
-                                Date.now()
-
-                        };
-
-                    }
-                );
+                    message.role === "user" ||
+                    message.role === "assistant"
+                ) &&
+                String(
+                    message.content || ""
+                ).trim()
+            );
 
         }
+    )
+    .map(
+        function (message) {
 
+            return {
+
+                role:
+                    message.role,
+
+                content:
+                    String(
+                        message.content || ""
+                    ),
+
+                timestamp:
+                    message.timestamp ||
+                    Date.now()
+
+            };
+
+        }
+    );
 
         if (
             conversation.visionContext
