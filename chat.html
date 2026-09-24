@@ -554,7 +554,7 @@ console.log(
     }
 
 
-    window.closeSideMenu = function () {
+    function closeSideMenu() {
 
     sideMenu.classList.remove("open");
 
@@ -562,7 +562,9 @@ console.log(
 
     document.body.style.overflow = "";
 
-};
+}
+
+window.closeSideMenu = closeSideMenu;
 
 
     menuBtn.addEventListener(
