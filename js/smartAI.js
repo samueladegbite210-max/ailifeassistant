@@ -3478,6 +3478,50 @@ async function smartAIReply(
     providedAttachment = null
 ) {
 
+       // 🧭 AI TOOL ROUTER
+    let toolIntent = null;
+
+    try {
+
+        if (
+            window.aiToolRouter &&
+            typeof window.aiToolRouter.detectIntent === "function"
+        ) {
+
+            toolIntent =
+                window.aiToolRouter.detectIntent(
+                    userMessage,
+                    {
+                        hasImage:
+                            Boolean(
+                                attachment ||
+                                window.activeVisionContext
+                            ),
+
+                        activeImage:
+                            window.activeVisionContext
+                    }
+                );
+
+            window.lastAIToolIntent =
+                toolIntent;
+
+            console.log(
+                "🧭 AI Tool Router:",
+                toolIntent
+            );
+
+        }
+
+    } catch (routerError) {
+
+        console.warn(
+            "⚠️ AI Tool Router error:",
+            routerError
+        );
+
+    }
+   
     const message =
         String(
             rawMessage || ""
