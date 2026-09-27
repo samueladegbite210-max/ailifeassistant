@@ -3712,6 +3712,67 @@ async function smartAIReply(
             window.lastAIToolIntent =
                 toolIntent;
 
+           /* ==========================================
+   🎨 IMAGE GENERATION ROUTE
+========================================== */
+
+if (
+    toolIntent &&
+    toolIntent.type === "image_generation" &&
+    typeof window.generateAIImage === "function"
+) {
+
+    console.log(
+        "🎨 Routing request to Image Engine..."
+    );
+
+
+    const imageResult =
+        await window.generateAIImage(
+            userMessage
+        );
+
+
+    if (
+        imageResult &&
+        imageResult.success &&
+        imageResult.image
+    ) {
+
+        /*
+         * Keep the latest generated image
+         * available for the next edit request.
+         */
+
+        window.activeGeneratedImage =
+            imageResult.image;
+
+
+        /*
+         * Special message understood by
+         * the chat renderer.
+         */
+
+        return (
+            "__AI_GENERATED_IMAGE__" +
+            imageResult.image +
+            "__END_AI_GENERATED_IMAGE__"
+        );
+
+    }
+
+
+    return (
+        "⚠️ I couldn't generate the image right now.\n\n" +
+        (
+            imageResult &&
+            imageResult.error
+                ? imageResult.error
+                : "The image engine did not return an image."
+        )
+    );
+
+}
             console.log(
                 "🧭 AI Tool Router:",
                 toolIntent
