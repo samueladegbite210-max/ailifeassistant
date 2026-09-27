@@ -3468,6 +3468,212 @@ async function processSmartAIReply(
 
 }
 
+/* ==========================================
+   🎨 AI IMAGE ENGINE
+========================================== */
+
+async function generateAIImage(
+    prompt,
+    sourceImage = null
+) {
+
+    try {
+
+        if (
+            !prompt ||
+            typeof prompt !== "string"
+        ) {
+
+            throw new Error(
+                "Image prompt is required."
+            );
+
+        }
+
+
+        const requestBody = {
+
+            prompt:
+                prompt.trim()
+
+        };
+
+
+        /*
+         * If an existing image is supplied,
+         * this becomes an image-edit request.
+         */
+
+        if (sourceImage) {
+
+            let imageData =
+                sourceImage;
+
+
+            /*
+             * Support an attachment object.
+             */
+
+            if (
+                typeof sourceImage === "object"
+            ) {
+
+                if (
+                    sourceImage.image
+                ) {
+
+                    imageData =
+                        sourceImage.image;
+
+                } else if (
+                    sourceImage.dataUrl
+                ) {
+
+                    imageData =
+                        sourceImage.dataUrl;
+
+                } else if (
+                    sourceImage.base64
+                ) {
+
+                    imageData =
+                        sourceImage.base64;
+
+                }
+
+            }
+
+
+            if (
+                typeof imageData === "string" &&
+                imageData.trim()
+            ) {
+
+                requestBody.image =
+                    imageData;
+
+            }
+
+        }
+
+
+        console.log(
+            "🎨 Sending request to Image Engine..."
+        );
+
+
+        const response =
+            await fetch(
+                "https://ai-life-assistant-backend.vercel.app/api/image",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            requestBody
+                        )
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            console.error(
+                "❌ Image Engine error:",
+                data
+            );
+
+
+            throw new Error(
+                data.error ||
+                data.details ||
+                "Image generation failed."
+            );
+
+        }
+
+
+        if (
+            !data.success ||
+            !data.image
+        ) {
+
+            throw new Error(
+                "Image engine returned no image."
+            );
+
+        }
+
+
+        console.log(
+            "✅ Image generated successfully."
+        );
+
+
+        return {
+
+            success:
+                true,
+
+            image:
+                data.image,
+
+            operation:
+                data.operation ||
+                "generate",
+
+            prompt:
+                data.prompt ||
+                prompt
+
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "🎨 Image Engine:",
+            error
+        );
+
+
+        return {
+
+            success:
+                false,
+
+            error:
+                error.message ||
+                "Unable to generate image."
+
+        };
+
+    }
+
+}
+
+
+/*
+ * Make the image engine available
+ * to the rest of the application.
+ */
+
+window.generateAIImage =
+    generateAIImage;
 
 /* ==========================================
    PUBLIC CONVERSATION-AWARE AI
