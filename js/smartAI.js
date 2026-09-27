@@ -3684,7 +3684,24 @@ async function smartAIReply(
     providedAttachment = null
 ) {
 
-       // 🧭 AI TOOL ROUTER
+    /* ======================================
+       NORMALIZE MESSAGE FIRST
+    ====================================== */
+
+    const message =
+        String(
+            rawMessage || ""
+        ).trim();
+
+    if (!message) {
+        return null;
+    }
+
+
+    /* ======================================
+       🧭 AI TOOL ROUTER
+    ====================================== */
+
     let toolIntent = null;
 
     try {
@@ -3696,83 +3713,26 @@ async function smartAIReply(
 
             toolIntent =
                 window.aiToolRouter.detectIntent(
-                    userMessage,
+                    message,
                     {
                         hasImage:
                             Boolean(
-                                attachment ||
-                                window.activeVisionContext
+                                providedAttachment ||
+                                window.activeVisionContext ||
+                                window.activeGeneratedImage
                             ),
 
                         activeImage:
-                            window.activeVisionContext
+                            window.activeVisionContext,
+
+                        generatedImage:
+                            window.activeGeneratedImage || null
                     }
                 );
 
             window.lastAIToolIntent =
                 toolIntent;
 
-           /* ==========================================
-   🎨 IMAGE GENERATION ROUTE
-========================================== */
-
-if (
-    toolIntent &&
-    toolIntent.type === "image_generation" &&
-    typeof window.generateAIImage === "function"
-) {
-
-    console.log(
-        "🎨 Routing request to Image Engine..."
-    );
-
-
-    const imageResult =
-        await window.generateAIImage(
-            userMessage
-        );
-
-
-    if (
-        imageResult &&
-        imageResult.success &&
-        imageResult.image
-    ) {
-
-        /*
-         * Keep the latest generated image
-         * available for the next edit request.
-         */
-
-        window.activeGeneratedImage =
-            imageResult.image;
-
-
-        /*
-         * Special message understood by
-         * the chat renderer.
-         */
-
-        return (
-            "__AI_GENERATED_IMAGE__" +
-            imageResult.image +
-            "__END_AI_GENERATED_IMAGE__"
-        );
-
-    }
-
-
-    return (
-        "⚠️ I couldn't generate the image right now.\n\n" +
-        (
-            imageResult &&
-            imageResult.error
-                ? imageResult.error
-                : "The image engine did not return an image."
-        )
-    );
-
-}
             console.log(
                 "🧭 AI Tool Router:",
                 toolIntent
@@ -3780,7 +3740,9 @@ if (
 
         }
 
-    } catch (routerError) {
+    }
+
+    catch (routerError) {
 
         console.warn(
             "⚠️ AI Tool Router error:",
@@ -3788,21 +3750,193 @@ if (
         );
 
     }
-   
-    const message =
-        String(
-            rawMessage || ""
-        ).trim();
 
-    if (!message) {
 
-        return null;
+    /* ======================================
+       🎨 IMAGE GENERATION
+    ====================================== */
+
+    if (
+        toolIntent &&
+        toolIntent.type === "image_generation" &&
+        typeof window.generateAIImage === "function"
+    ) {
+
+        console.log(
+            "🎨 IMAGE GENERATION REQUEST DETECTED"
+        );
+
+        console.log(
+            "🎨 Sending request directly to Image Engine..."
+        );
+
+
+        const imageResult =
+            await window.generateAIImage(
+                message
+            );
+
+
+        if (
+            imageResult &&
+            imageResult.success &&
+            imageResult.image
+        ) {
+
+            console.log(
+                "✅ IMAGE GENERATION SUCCESS"
+            );
+
+
+            /*
+             * Keep the generated image available
+             * for future editing.
+             */
+
+            window.activeGeneratedImage =
+                imageResult.image;
+
+
+            /*
+             * Return special renderer format.
+             */
+
+            return (
+                "__AI_GENERATED_IMAGE__" +
+                imageResult.image +
+                "__END_AI_GENERATED_IMAGE__"
+            );
+
+        }
+
+
+        console.error(
+            "❌ IMAGE GENERATION FAILED:",
+            imageResult
+        );
+
+
+        return (
+            "⚠️ I couldn't generate the image right now.\n\n" +
+            (
+                imageResult &&
+                imageResult.error
+                    ? imageResult.error
+                    : "The image engine did not return an image."
+            )
+        );
 
     }
 
 
     /* ======================================
-       SAVE NEW IMAGE CONTEXT
+       🖼️ IMAGE EDITING
+    ====================================== */
+
+    if (
+        toolIntent &&
+        toolIntent.type === "image_edit" &&
+        typeof window.generateAIImage === "function"
+    ) {
+
+        console.log(
+            "🎨 IMAGE EDIT REQUEST DETECTED"
+        );
+
+
+        let sourceImage =
+            window.activeGeneratedImage ||
+            null;
+
+
+        /*
+         * If there is no generated image,
+         * try the active uploaded image.
+         */
+
+        if (
+            !sourceImage &&
+            window.activeVisionContext
+        ) {
+
+            sourceImage =
+                window.activeVisionContext.image ||
+                null;
+
+        }
+
+
+        if (!sourceImage) {
+
+            console.log(
+                "⚠️ No image available for editing."
+            );
+
+            return (
+                "🖼️ I can edit an image for you, but I don't currently have an image to edit.\n\n" +
+                "Please generate or upload an image first."
+            );
+
+        }
+
+
+        const imageResult =
+            await window.generateAIImage(
+                message,
+                sourceImage
+            );
+
+
+        if (
+            imageResult &&
+            imageResult.success &&
+            imageResult.image
+        ) {
+
+            console.log(
+                "✅ IMAGE EDIT SUCCESS"
+            );
+
+
+            /*
+             * The edited image becomes
+             * the new active image.
+             */
+
+            window.activeGeneratedImage =
+                imageResult.image;
+
+
+            return (
+                "__AI_GENERATED_IMAGE__" +
+                imageResult.image +
+                "__END_AI_GENERATED_IMAGE__"
+            );
+
+        }
+
+
+        console.error(
+            "❌ IMAGE EDIT FAILED:",
+            imageResult
+        );
+
+
+        return (
+            "⚠️ I couldn't edit the image right now.\n\n" +
+            (
+                imageResult &&
+                imageResult.error
+                    ? imageResult.error
+                    : "The image engine did not return an edited image."
+            )
+        );
+
+    }
+
+
+    /* ======================================
+       SAVE NEW UPLOADED IMAGE CONTEXT
     ====================================== */
 
     if (
@@ -3820,7 +3954,7 @@ if (
 
 
     /* ======================================
-       PROCESS AI REQUEST
+       PROCESS NORMAL AI REQUEST
     ====================================== */
 
     const response =
@@ -3856,8 +3990,6 @@ if (
     return response;
 
 }
-
-
 /* ==========================================
    GLOBAL EXPORTS
 ========================================== */
