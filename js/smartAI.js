@@ -3752,81 +3752,95 @@ async function smartAIReply(
     }
 
 
-    /* ======================================
-       🎨 IMAGE GENERATION
-    ====================================== */
+  /* ======================================
+   🎨 IMAGE GENERATION
+   DIRECT SAFETY ROUTE
+====================================== */
+
+const imageGenerationPattern =
+    /\b(create|generate|make|draw|produce)\b.*\b(image|picture|photo|illustration|artwork)\b/i;
+
+const directImageGenerationRequest =
+    imageGenerationPattern.test(message) ||
+    /\b(i want|i need|can you make|can you create|can you generate)\b.*\b(image|picture|photo)\b/i.test(message);
+
+if (
+    (
+        directImageGenerationRequest ||
+        (
+            toolIntent &&
+            toolIntent.type === "image_generation"
+        )
+    ) &&
+    typeof window.generateAIImage === "function"
+) {
+
+    console.log(
+        "🎨 DIRECT IMAGE GENERATION ROUTE ACTIVATED"
+    );
+
+    console.log(
+        "🎨 Prompt:",
+        message
+    );
+
+
+    const imageResult =
+        await window.generateAIImage(
+            message
+        );
+
 
     if (
-        toolIntent &&
-        toolIntent.type === "image_generation" &&
-        typeof window.generateAIImage === "function"
+        imageResult &&
+        imageResult.success &&
+        imageResult.image
     ) {
 
         console.log(
-            "🎨 IMAGE GENERATION REQUEST DETECTED"
-        );
-
-        console.log(
-            "🎨 Sending request directly to Image Engine..."
+            "✅ IMAGE ENGINE RETURNED IMAGE"
         );
 
 
-        const imageResult =
-            await window.generateAIImage(
-                message
-            );
+        /*
+         * Save generated image so the next
+         * message can edit it.
+         */
+
+        window.activeGeneratedImage =
+            imageResult.image;
 
 
-        if (
-            imageResult &&
-            imageResult.success &&
-            imageResult.image
-        ) {
-
-            console.log(
-                "✅ IMAGE GENERATION SUCCESS"
-            );
-
-
-            /*
-             * Keep the generated image available
-             * for future editing.
-             */
-
-            window.activeGeneratedImage =
-                imageResult.image;
-
-
-            /*
-             * Return special renderer format.
-             */
-
-            return (
-                "__AI_GENERATED_IMAGE__" +
-                imageResult.image +
-                "__END_AI_GENERATED_IMAGE__"
-            );
-
-        }
-
-
-        console.error(
-            "❌ IMAGE GENERATION FAILED:",
-            imageResult
-        );
-
+        /*
+         * Send the image to the chat renderer.
+         */
 
         return (
-            "⚠️ I couldn't generate the image right now.\n\n" +
-            (
-                imageResult &&
-                imageResult.error
-                    ? imageResult.error
-                    : "The image engine did not return an image."
-            )
+            "__AI_GENERATED_IMAGE__" +
+            imageResult.image +
+            "__END_AI_GENERATED_IMAGE__"
         );
 
     }
+
+
+    console.error(
+        "❌ IMAGE ENGINE FAILED:",
+        imageResult
+    );
+
+
+    return (
+        "⚠️ I couldn't generate the image right now.\n\n" +
+        (
+            imageResult &&
+            imageResult.error
+                ? imageResult.error
+                : "The image engine did not return an image."
+        )
+    );
+
+}
 
 
     /* ======================================
