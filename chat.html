@@ -1195,6 +1195,85 @@ function cleanAIResponse(text) {
 
 function formatAIResponse(text) {
 
+        /* ==========================================
+       🎨 GENERATED IMAGE RESPONSE
+    ========================================== */
+
+    const generatedImageStart =
+        "__AI_GENERATED_IMAGE__";
+
+    const generatedImageEnd =
+        "__END_AI_GENERATED_IMAGE__";
+
+
+    if (
+        typeof text === "string" &&
+        text.includes(generatedImageStart) &&
+        text.includes(generatedImageEnd)
+    ) {
+
+        const fragment =
+            document.createDocumentFragment();
+
+
+        const imageData =
+            text
+                .split(generatedImageStart)[1]
+                .split(generatedImageEnd)[0];
+
+
+        if (imageData) {
+
+            const image =
+                document.createElement("img");
+
+
+            image.src =
+                imageData;
+
+
+            image.alt =
+                "AI generated image";
+
+
+            image.className =
+                "aiGeneratedImage";
+
+
+            image.loading =
+                "lazy";
+
+
+            image.style.display =
+                "block";
+
+
+            image.style.width =
+                "100%";
+
+
+            image.style.maxWidth =
+                "420px";
+
+
+            image.style.borderRadius =
+                "16px";
+
+
+            image.style.margin =
+                "4px 0";
+
+
+            fragment.appendChild(
+                image
+            );
+
+        }
+
+
+        return fragment;
+
+    }
     if (!text) {
 
         return document.createDocumentFragment();
