@@ -1195,6 +1195,272 @@ function cleanAIResponse(text) {
 
 function formatAIResponse(text) {
 
+
+        /* ==========================================
+       📄 CREATED FILE RESPONSE
+    ========================================== */
+
+    const createdFileStart =
+        "__AI_CREATED_FILE__";
+
+    const createdFileEnd =
+        "__END_AI_CREATED_FILE__";
+
+
+    if (
+        typeof text === "string" &&
+        text.includes(createdFileStart) &&
+        text.includes(createdFileEnd)
+    ) {
+
+        const fragment =
+            document.createDocumentFragment();
+
+
+        try {
+
+            const startIndex =
+                text.indexOf(
+                    createdFileStart
+                ) +
+                createdFileStart.length;
+
+
+            const endIndex =
+                text.indexOf(
+                    createdFileEnd
+                );
+
+
+            const fileJson =
+                text.substring(
+                    startIndex,
+                    endIndex
+                );
+
+
+            const file =
+                JSON.parse(
+                    fileJson
+                );
+
+
+            if (
+                !file ||
+                !file.data ||
+                !file.filename
+            ) {
+
+                throw new Error(
+                    "Invalid file data"
+                );
+
+            }
+
+
+            /*
+             * Create a real download URL.
+             */
+
+            const downloadUrl =
+                "data:" +
+                (
+                    file.mimeType ||
+                    "application/octet-stream"
+                ) +
+                ";base64," +
+                file.data;
+
+
+            /*
+             * File container.
+             */
+
+            const fileBox =
+                document.createElement(
+                    "div"
+                );
+
+
+            fileBox.className =
+                "aiCreatedFile";
+
+
+            /*
+             * File icon.
+             */
+
+            const icon =
+                document.createElement(
+                    "div"
+                );
+
+
+            icon.className =
+                "aiCreatedFileIcon";
+
+
+            icon.textContent =
+                "📄";
+
+
+            /*
+             * File information.
+             */
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+
+            info.className =
+                "aiCreatedFileInfo";
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+
+            name.className =
+                "aiCreatedFileName";
+
+
+            name.textContent =
+                file.filename;
+
+
+            const size =
+                document.createElement(
+                    "div"
+                );
+
+
+            size.className =
+                "aiCreatedFileSize";
+
+
+            if (
+                typeof file.size === "number"
+            ) {
+
+                size.textContent =
+                    file.size +
+                    " bytes";
+
+            }
+
+            else {
+
+                size.textContent =
+                    "AI generated file";
+
+            }
+
+
+            info.appendChild(
+                name
+            );
+
+            info.appendChild(
+                size
+            );
+
+
+            /*
+             * Download button.
+             */
+
+            const download =
+                document.createElement(
+                    "a"
+                );
+
+
+            download.className =
+                "aiCreatedFileDownload";
+
+
+            download.href =
+                downloadUrl;
+
+
+            download.download =
+                file.filename;
+
+
+            download.textContent =
+                "⬇️ Download";
+
+
+            download.setAttribute(
+                "aria-label",
+                "Download " +
+                file.filename
+            );
+
+
+            /*
+             * Assemble file card.
+             */
+
+            fileBox.appendChild(
+                icon
+            );
+
+            fileBox.appendChild(
+                info
+            );
+
+            fileBox.appendChild(
+                download
+            );
+
+
+            fragment.appendChild(
+                fileBox
+            );
+
+
+            return fragment;
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Created file rendering failed:",
+                error
+            );
+
+
+            const errorMessage =
+                document.createElement(
+                    "div"
+                );
+
+
+            errorMessage.className =
+                "aiParagraph";
+
+
+            errorMessage.textContent =
+                "⚠️ The file was created, but the download could not be prepared.";
+
+
+            fragment.appendChild(
+                errorMessage
+            );
+
+
+            return fragment;
+
+        }
+
+    }
+    
         /* ==========================================
        🎨 GENERATED IMAGE RESPONSE
     ========================================== */
