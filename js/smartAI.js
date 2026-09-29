@@ -56,7 +56,488 @@ window.conversationHistory =
 window.activeVisionContext =
     window.activeVisionContext || null;
 
+/* ==========================================
+   IMAGE WORKSPACE / VERSION HISTORY
+========================================== */
 
+const IMAGE_WORKSPACE_STORAGE_KEY =
+    "aiLifeAssistant_imageWorkspace";
+
+const IMAGE_WORKSPACE_MAX_VERSIONS = 5;
+
+
+/* ==========================================
+   LOAD IMAGE WORKSPACE
+========================================== */
+
+function loadImageWorkspace() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                IMAGE_WORKSPACE_STORAGE_KEY
+            );
+
+        if (!saved) {
+
+            return {
+                activeImage: null,
+                versions: []
+            };
+
+        }
+
+        const parsed =
+            JSON.parse(saved);
+
+        if (
+            !parsed ||
+            typeof parsed !== "object"
+        ) {
+
+            return {
+                activeImage: null,
+                versions: []
+            };
+
+        }
+
+        return {
+
+            activeImage:
+                typeof parsed.activeImage === "string"
+                    ? parsed.activeImage
+                    : null,
+
+            versions:
+                Array.isArray(parsed.versions)
+                    ? parsed.versions
+                    : []
+
+        };
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "⚠️ Could not load image workspace:",
+            error
+        );
+
+        return {
+            activeImage: null,
+            versions: []
+        };
+
+    }
+
+}
+
+
+/* ==========================================
+   SAVE IMAGE WORKSPACE
+========================================== */
+
+function saveImageWorkspace(
+    workspace
+) {
+
+    try {
+
+        localStorage.setItem(
+            IMAGE_WORKSPACE_STORAGE_KEY,
+            JSON.stringify(workspace)
+        );
+
+        console.log(
+            "💾 Image workspace saved"
+        );
+
+        return true;
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "⚠️ Could not save image workspace:",
+            error
+        );
+
+        /*
+         * If browser storage is full,
+         * remove the oldest versions and
+         * try again.
+         */
+
+        try {
+
+            const reducedWorkspace = {
+
+                activeImage:
+                    workspace.activeImage || null,
+
+                versions:
+                    Array.isArray(
+                        workspace.versions
+                    )
+                        ? workspace.versions.slice(-2)
+                        : []
+
+            };
+
+            localStorage.setItem(
+                IMAGE_WORKSPACE_STORAGE_KEY,
+                JSON.stringify(
+                    reducedWorkspace
+                )
+            );
+
+            console.log(
+                "💾 Image workspace saved with reduced history"
+            );
+
+            return true;
+
+        }
+
+        catch (retryError) {
+
+            console.error(
+                "❌ Image workspace storage failed:",
+                retryError
+            );
+
+            return false;
+
+        }
+
+    }
+
+}
+
+
+/* ==========================================
+   INITIALIZE IMAGE WORKSPACE
+========================================== */
+
+window.imageWorkspace =
+    loadImageWorkspace();
+
+
+/* ==========================================
+   GET ACTIVE GENERATED IMAGE
+========================================== */
+
+function getActiveGeneratedImage() {
+
+    /*
+     * Prefer the live runtime value.
+     */
+
+    if (
+        typeof window.activeGeneratedImage ===
+        "string" &&
+        window.activeGeneratedImage.trim()
+    ) {
+
+        return window.activeGeneratedImage;
+
+    }
+
+
+    /*
+     * Restore from persistent workspace.
+     */
+
+    const workspace =
+        window.imageWorkspace ||
+        loadImageWorkspace();
+
+    if (
+        workspace &&
+        typeof workspace.activeImage ===
+            "string" &&
+        workspace.activeImage.trim()
+    ) {
+
+        window.activeGeneratedImage =
+            workspace.activeImage;
+
+        console.log(
+            "♻️ Active generated image restored"
+        );
+
+        return workspace.activeImage;
+
+    }
+
+    return null;
+
+}
+
+
+/* ==========================================
+   SAVE GENERATED IMAGE VERSION
+========================================== */
+
+function saveGeneratedImageVersion(
+    image,
+    prompt = "",
+    operation = "generate"
+) {
+
+    if (
+        !image ||
+        typeof image !== "string"
+    ) {
+
+        return false;
+
+    }
+
+    const cleanImage =
+        image.trim();
+
+    if (!cleanImage) {
+
+        return false;
+
+    }
+
+    let workspace =
+        window.imageWorkspace ||
+        loadImageWorkspace();
+
+
+    /*
+     * Make this image the active image.
+     */
+
+    window.activeGeneratedImage =
+        cleanImage;
+
+
+    /*
+     * Create version record.
+     */
+
+    const version = {
+
+        id:
+            "image_" +
+            Date.now(),
+
+        image:
+            cleanImage,
+
+        prompt:
+            String(
+                prompt || ""
+            ).trim(),
+
+        operation:
+            operation === "edit"
+                ? "edit"
+                : "generate",
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    /*
+     * Add newest version.
+     */
+
+    const versions =
+        Array.isArray(
+            workspace.versions
+        )
+            ? workspace.versions
+            : [];
+
+    versions.push(version);
+
+
+    /*
+     * Keep only the newest versions.
+     */
+
+    workspace.versions =
+        versions.slice(
+            -IMAGE_WORKSPACE_MAX_VERSIONS
+        );
+
+    workspace.activeImage =
+        cleanImage;
+
+
+    window.imageWorkspace =
+        workspace;
+
+
+    /*
+     * Persist workspace.
+     */
+
+    saveImageWorkspace(
+        workspace
+    );
+
+
+    console.log(
+        "🖼️ Image version saved:",
+        version.operation,
+        version.id
+    );
+
+    return version;
+
+}
+
+
+/* ==========================================
+   GET IMAGE HISTORY
+========================================== */
+
+function getImageHistory() {
+
+    const workspace =
+        window.imageWorkspace ||
+        loadImageWorkspace();
+
+    return Array.isArray(
+        workspace.versions
+    )
+        ? workspace.versions
+        : [];
+
+}
+
+
+/* ==========================================
+   RESTORE IMAGE VERSION
+========================================== */
+
+function restoreImageVersion(
+    versionId
+) {
+
+    const history =
+        getImageHistory();
+
+    const version =
+        history.find(
+            function (item) {
+
+                return (
+                    item &&
+                    item.id === versionId
+                );
+
+            }
+        );
+
+    if (!version) {
+
+        return null;
+
+    }
+
+    window.activeGeneratedImage =
+        version.image;
+
+
+    const workspace =
+        window.imageWorkspace ||
+        loadImageWorkspace();
+
+    workspace.activeImage =
+        version.image;
+
+    window.imageWorkspace =
+        workspace;
+
+    saveImageWorkspace(
+        workspace
+    );
+
+
+    console.log(
+        "♻️ Image version restored:",
+        version.id
+    );
+
+    return version.image;
+
+}
+
+
+/* ==========================================
+   CLEAR IMAGE WORKSPACE
+========================================== */
+
+function clearImageWorkspace() {
+
+    window.activeGeneratedImage =
+        null;
+
+    window.imageWorkspace = {
+
+        activeImage:
+            null,
+
+        versions:
+            []
+
+    };
+
+    try {
+
+        localStorage.removeItem(
+            IMAGE_WORKSPACE_STORAGE_KEY
+        );
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "⚠️ Could not clear image workspace:",
+            error
+        );
+
+    }
+
+    console.log(
+        "🧹 Image workspace cleared"
+    );
+
+}
+
+
+/* ==========================================
+   PUBLIC IMAGE WORKSPACE API
+========================================== */
+
+window.getActiveGeneratedImage =
+    getActiveGeneratedImage;
+
+window.saveGeneratedImageVersion =
+    saveGeneratedImageVersion;
+
+window.getImageHistory =
+    getImageHistory;
+
+window.restoreImageVersion =
+    restoreImageVersion;
+
+window.clearImageWorkspace =
+    clearImageWorkspace;
 /* ==========================================
    CLEAN OLD CONVERSATION
 ========================================== */
@@ -3807,8 +4288,11 @@ if (
          * message can edit it.
          */
 
-        window.activeGeneratedImage =
-            imageResult.image;
+        saveGeneratedImageVersion(
+    imageResult.image,
+    message,
+    "generate"
+);
 
 
         /*
@@ -3859,8 +4343,8 @@ if (
 
 
         let sourceImage =
-            window.activeGeneratedImage ||
-            null;
+    getActiveGeneratedImage() ||
+    null;
 
 
         /*
@@ -3917,8 +4401,11 @@ if (
              * the new active image.
              */
 
-            window.activeGeneratedImage =
-                imageResult.image;
+            saveGeneratedImageVersion(
+    imageResult.image,
+    message,
+    "edit"
+);
 
 
             return (
