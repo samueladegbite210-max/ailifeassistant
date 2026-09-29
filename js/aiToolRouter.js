@@ -326,29 +326,39 @@ console.log("🧭 AI Tool Router loading...");
          * IMAGE EDITING
          */
 
-        if (
-            hasImage &&
-            detectImageEdit(text)
-        ) {
+        // ==============================
+// IMAGE EDIT DETECTION
+// ==============================
 
-            return {
-                type:
-                    ROUTES.IMAGE_EDIT,
+const hasImage =
+    Boolean(
+        context &&
+        (
+            context.hasImage ||
+            context.activeImage ||
+            context.generatedImage
+        )
+    );
 
-                confidence: 0.95,
+const imageEditPattern =
+    /\b(edit|modify|change|alter|remove|delete|replace|add|put|move|make|turn|transform|adjust|fix|update|swap|background|shirt|clothes|person|people|house|scene|color|colour)\b/i;
 
-                message: message,
+const imageEditInstructionPattern =
+    /\b(put|place|add|remove|delete|change|replace|move|make|turn|transform)\b.*\b(in|on|into|with|to|from|background|front|behind|next|beside)\b/i;
 
-                requiresImage:
-                    true,
-
-                requiresFile:
-                    false
-
-            };
-
-        }
-
+if (
+    hasImage &&
+    (
+        imageEditPattern.test(message) ||
+        imageEditInstructionPattern.test(message)
+    )
+) {
+    return {
+        type: "image_edit",
+        confidence: 0.98,
+        message: message
+    };
+}
 
         /*
          * IMAGE ANALYSIS
