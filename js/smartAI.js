@@ -32,7 +32,293 @@ const ONLINE_AI_ENDPOINT =
 const MAX_FILE_CONTENT_LENGTH =
     12000;
 
+/* ==========================================
+   FILE CREATION
+========================================== */
 
+function isFileCreationCommand(message) {
+
+    if (!message) return false;
+
+    const text =
+        String(message)
+            .trim()
+            .toLowerCase();
+
+    return (
+        /\b(create|make|generate|write|prepare)\b/.test(text) &&
+        /\b(file|document|text file|markdown|csv|txt)\b/.test(text)
+    );
+}
+
+
+function detectFileCreationType(message) {
+
+    const text =
+        String(message || "")
+            .toLowerCase();
+
+    if (
+        /\b(csv|spreadsheet|comma[- ]separated)\b/.test(text)
+    ) {
+        return {
+            extension: "csv",
+            mimeType: "text/csv"
+        };
+    }
+
+    if (
+        /\b(markdown|\.md)\b/.test(text)
+    ) {
+        return {
+            extension: "md",
+            mimeType: "text/markdown"
+        };
+    }
+
+    return {
+        extension: "txt",
+        mimeType: "text/plain"
+    };
+}
+
+
+function detectRequestedFilename(message, extension) {
+
+    const text =
+        String(message || "")
+            .trim();
+
+
+    /*
+     * Look for:
+     *
+     * "called notes.txt"
+     * "named report.md"
+     * "filename data.csv"
+     */
+
+    const filenameMatch =
+        text.match(
+            /\b(?:called|named|filename|file\s+name)\s+["']?([^"'\n]+?)["']?(?:\s|$)/i
+        );
+
+
+    if (
+        filenameMatch &&
+        filenameMatch[1]
+    ) {
+
+        let filename =
+            filenameMatch[1]
+                .trim()
+                .replace(
+                    /[?.!,]+$/,
+                    ""
+                );
+
+
+        if (
+            !/\.[a-z0-9]+$/i.test(
+                filename
+            )
+        ) {
+
+            filename +=
+                "." + extension;
+
+        }
+
+
+        return filename;
+
+    }
+
+
+    return (
+        "AI-Life-Assistant-" +
+        Date.now() +
+        "." +
+        extension
+    );
+
+}
+
+
+async function createAIFile(message) {
+
+    const fileType =
+        detectFileCreationType(
+            message
+        );
+
+
+    const filename =
+        detectRequestedFilename(
+            message,
+            fileType.extension
+        );
+
+
+    /*
+     * Ask the normal AI endpoint to
+     * create the actual file content.
+     */
+
+    const contentPrompt = `
+Create the content for the requested ${fileType.extension.toUpperCase()} file.
+
+User request:
+${message}
+
+Important:
+- Return ONLY the actual file content.
+- Do not add explanations before or after the content.
+- Do not use Markdown code fences.
+- For CSV, return valid CSV only.
+- Make the content complete and useful.
+`;
+
+
+    const response =
+        await fetch(
+            ONLINE_AI_ENDPOINT,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    message:
+                        contentPrompt,
+
+                    history:
+                        getConversationHistory()
+
+                })
+
+            }
+        );
+
+
+    const data =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            data?.error ||
+            "AI could not create the file content."
+        );
+
+    }
+
+
+    const content =
+        String(
+            data?.reply || ""
+        ).trim();
+
+
+    if (!content) {
+
+        throw new Error(
+            "AI returned empty file content."
+        );
+
+    }
+
+
+    /*
+     * Remove accidental code fences.
+     */
+
+    const cleanContent =
+        content
+            .replace(
+                /^```(?:text|txt|markdown|md|csv)?\s*/i,
+                ""
+            )
+            .replace(
+                /\s*```$/i,
+                ""
+            )
+            .trim();
+
+
+    const fileResponse =
+        await fetch(
+            ONLINE_AI_ENDPOINT,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    createFile: {
+
+                        filename:
+                            filename,
+
+                        mimeType:
+                            fileType.mimeType,
+
+                        content:
+                            cleanContent
+
+                    }
+
+                })
+
+            }
+        );
+
+
+    const fileData =
+        await fileResponse.json();
+
+
+    if (!fileResponse.ok) {
+
+        throw new Error(
+            fileData?.error ||
+            "File creation failed."
+        );
+
+    }
+
+
+    if (
+        !fileData?.success ||
+        !fileData?.file?.data
+    ) {
+
+        throw new Error(
+            "File engine returned no file."
+        );
+
+    }
+
+
+    return fileData.file;
+
+}
+
+
+window.isFileCreationCommand =
+    isFileCreationCommand;
+
+window.createAIFile =
+    createAIFile;
 /* ==========================================
    CONVERSATION CONTEXT SYSTEM
 ========================================== */
@@ -3600,6 +3886,65 @@ async function processSmartAIReply(
             rawMessage || ""
         ).trim();
 
+   /* ==========================================
+   FILE CREATION
+========================================== */
+
+if (
+    isFileCreationCommand(original)
+) {
+
+    try {
+
+        const file =
+            await createAIFile(
+                original
+            );
+
+
+        /*
+         * Return a structured marker.
+         * The frontend will handle the
+         * actual download in the next step.
+         */
+
+        return (
+            "__AI_CREATED_FILE__" +
+            JSON.stringify({
+                filename:
+                    file.filename,
+
+                mimeType:
+                    file.mimeType,
+
+                size:
+                    file.size,
+
+                data:
+                    file.data
+            }) +
+            "__END_AI_CREATED_FILE__"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "❌ AI file creation failed:",
+            error
+        );
+
+
+        return (
+            "⚠️ I couldn't create that file right now.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
     if (!original) {
 
         return null;
@@ -4177,7 +4522,6 @@ async function smartAIReply(
     if (!message) {
         return null;
     }
-
 
     /* ======================================
        🧭 AI TOOL ROUTER
