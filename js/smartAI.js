@@ -4808,7 +4808,154 @@ if (
             providedAttachment
         );
 
+/* ==========================================
+   CREATED FILE HANDLER
+========================================== */
 
+if (
+    typeof result === "string" &&
+    result.startsWith(
+        "__AI_CREATED_FILE__"
+    )
+) {
+
+    const startMarker =
+        "__AI_CREATED_FILE__";
+
+    const endMarker =
+        "__END_AI_CREATED_FILE__";
+
+
+    const startIndex =
+        result.indexOf(
+            startMarker
+        ) +
+        startMarker.length;
+
+
+    const endIndex =
+        result.indexOf(
+            endMarker
+        );
+
+
+    if (
+        endIndex !== -1 &&
+        endIndex > startIndex
+    ) {
+
+        try {
+
+            const fileJson =
+                result.substring(
+                    startIndex,
+                    endIndex
+                );
+
+
+            const file =
+                JSON.parse(
+                    fileJson
+                );
+
+
+            if (
+                file &&
+                file.data &&
+                file.filename
+            ) {
+
+                const fileUrl =
+                    "data:" +
+                    (
+                        file.mimeType ||
+                        "application/octet-stream"
+                    ) +
+                    ";base64," +
+                    file.data;
+
+
+                /*
+                 * Create a temporary download link.
+                 */
+
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                link.href =
+                    fileUrl;
+
+
+                link.download =
+                    file.filename;
+
+
+                link.textContent =
+                    "📄 Download " +
+                    file.filename;
+
+
+                link.target =
+                    "_blank";
+
+
+                link.rel =
+                    "noopener";
+
+
+                /*
+                 * Store the link information
+                 * for the frontend renderer.
+                 */
+
+                return {
+                    type:
+                        "file",
+
+                    filename:
+                        file.filename,
+
+                    mimeType:
+                        file.mimeType,
+
+                    size:
+                        file.size,
+
+                    data:
+                        file.data,
+
+                    downloadUrl:
+                        fileUrl,
+
+                    downloadLink:
+                        link.outerHTML
+                };
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "❌ Could not process created file:",
+                error
+            );
+
+            return (
+                "⚠️ The file was created, " +
+                "but I couldn't prepare the download."
+            );
+
+        }
+
+    }
+
+}
+   
     /* ======================================
        SAVE CONVERSATION
     ====================================== */
