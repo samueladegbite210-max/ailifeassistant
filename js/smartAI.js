@@ -4197,17 +4197,17 @@ async function smartAIReply(
                     message,
                     {
                         hasImage:
-                            Boolean(
-                                providedAttachment ||
-                                window.activeVisionContext ||
-                                window.activeGeneratedImage
-                            ),
+    Boolean(
+        providedAttachment ||
+        window.activeVisionContext ||
+        getActiveGeneratedImage()
+    ),
 
                         activeImage:
                             window.activeVisionContext,
 
                         generatedImage:
-                            window.activeGeneratedImage || null
+    getActiveGeneratedImage() || null
                     }
                 );
 
@@ -4604,7 +4604,20 @@ window.hasCurrentDocument =
 window.clearCurrentDocument =
     clearCurrentDocument;
 
+window.getActiveGeneratedImage =
+    getActiveGeneratedImage;
 
+window.saveGeneratedImageVersion =
+    saveGeneratedImageVersion;
+
+window.getImageHistory =
+    getImageHistory;
+
+window.restoreImageVersion =
+    restoreImageVersion;
+
+window.clearImageWorkspace =
+    clearImageWorkspace;
 /* ==========================================
    READY CHECK
 ========================================== */
