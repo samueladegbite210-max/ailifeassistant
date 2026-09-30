@@ -145,6 +145,20 @@ function detectRequestedFilename(message, extension) {
 }
 
 
+function isFileEditingCommand(message) {
+
+    if (!message) return false;
+
+    const text =
+        String(message)
+            .trim()
+            .toLowerCase();
+
+    return (
+        /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add)\b/.test(text) &&
+        /\b(file|document|text|markdown|csv|txt|docx|word|pdf)\b/.test(text)
+    );
+}
 async function createAIFile(message) {
 
     const fileType =
@@ -319,6 +333,8 @@ window.isFileCreationCommand =
 
 window.createAIFile =
     createAIFile;
+window.isFileEditingCommand =
+    isFileEditingCommand;
 /* ==========================================
    CONVERSATION CONTEXT SYSTEM
 ========================================== */
