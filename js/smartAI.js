@@ -4414,25 +4414,77 @@ if (
 
 
     /* ======================================
-       FILE ATTACHMENT
-    ====================================== */
+   FILE ATTACHMENT
+====================================== */
+
+if (
+    attachmentType === "file"
+) {
+
+    console.log(
+        "📄 FILE ATTACHMENT FOUND"
+    );
+
+
+    /* ==================================
+       FILE EDITING
+    ================================== */
 
     if (
-        attachmentType === "file"
+        isFileEditingCommand(
+            original
+        )
     ) {
 
         console.log(
-            "📄 FILE ATTACHMENT FOUND"
+            "✏️ FILE EDITING COMMAND DETECTED"
         );
 
-        const fileReply =
-            await handleFileCommand(
-                original
+        try {
+
+            const editedFile =
+                await editAIFile(
+                    original
+                );
+
+            return (
+                "__AI_CREATED_FILE__" +
+                JSON.stringify(
+                    editedFile
+                ) +
+                "__END_AI_CREATED_FILE__"
             );
 
-        return fileReply;
+        } catch (error) {
 
+            console.error(
+                "❌ FILE EDITING ERROR:",
+                error
+            );
+
+            return (
+                "I couldn't edit that file. " +
+                (
+                    error?.message ||
+                    "An unknown error occurred."
+                )
+            );
+        }
     }
+
+
+    /* ==================================
+       NORMAL FILE COMMAND
+    ================================== */
+
+    const fileReply =
+        await handleFileCommand(
+            original
+        );
+
+    return fileReply;
+
+}
 
 
     /* ======================================
