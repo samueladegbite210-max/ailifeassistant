@@ -2832,11 +2832,20 @@ function isFileCommand(
         text.includes("where") ||
         text.includes("why") ||
         text.includes("how") ||
+text.includes("file") ||
+text.includes("document") ||
+text.includes("this") ||
 
-        text.includes("file") ||
-        text.includes("document") ||
-
-        text.includes("this")
+text.includes("edit") ||
+text.includes("modify") ||
+text.includes("update") ||
+text.includes("rewrite") ||
+text.includes("revise") ||
+text.includes("correct") ||
+text.includes("fix") ||
+text.includes("add") ||
+text.includes("remove") ||
+text.includes("delete")
 
     );
 
