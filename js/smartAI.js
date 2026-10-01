@@ -159,6 +159,347 @@ function isFileEditingCommand(message) {
         /\b(file|document|text|markdown|csv|txt|docx|word|pdf)\b/.test(text)
     );
 }
+
+/* ==========================================
+   AI FILE EDITOR
+========================================== */
+
+async function editAIFile(message) {
+
+    console.log(
+        "✏️ AI FILE EDITOR STARTED:",
+        message
+    );
+
+    const attachment =
+        getCurrentAttachment();
+
+
+    /* ======================================
+       CHECK ATTACHMENT
+    ====================================== */
+
+    if (!attachment) {
+
+        throw new Error(
+            "No file is currently attached."
+        );
+
+    }
+
+
+    if (
+        getAttachmentType(
+            attachment
+        ) !== "file"
+    ) {
+
+        throw new Error(
+            "The current attachment is not a file."
+        );
+
+    }
+
+
+    /* ======================================
+       CHECK FILE READER
+    ====================================== */
+
+    if (
+        typeof window.extractFileText !==
+        "function"
+    ) {
+
+        throw new Error(
+            "File-reading engine is unavailable."
+        );
+
+    }
+
+
+    /* ======================================
+       EXTRACT ORIGINAL FILE
+    ====================================== */
+
+    console.log(
+        "📖 Reading original file..."
+    );
+
+    const extractedText =
+        await window.extractFileText(
+            attachment
+        );
+
+
+    if (
+        !extractedText ||
+        !String(extractedText).trim()
+    ) {
+
+        throw new Error(
+            "I couldn't extract readable text from this file."
+        );
+
+    }
+
+
+    console.log(
+        "✅ Original file extracted:",
+        extractedText.length,
+        "characters"
+    );
+
+
+    /* ======================================
+       SAVE ORIGINAL DOCUMENT
+    ====================================== */
+
+    const originalFilename =
+        attachment.name ||
+        attachment.file?.name ||
+        "document.txt";
+
+    saveCurrentDocument(
+        originalFilename,
+        extractedText
+    );
+
+
+    /* ======================================
+       PREPARE DOCUMENT FOR AI
+    ====================================== */
+
+    const documentText =
+        limitFileText(
+            extractedText
+        );
+
+
+    /* ======================================
+       BUILD EDITING PROMPT
+    ====================================== */
+
+    const editPrompt =
+        `
+You are editing an uploaded document.
+
+FILE NAME:
+${originalFilename}
+
+USER'S REQUEST:
+${String(message || "").trim()}
+
+ORIGINAL DOCUMENT:
+${documentText}
+
+INSTRUCTIONS:
+
+1. Apply the user's requested changes to the document.
+2. Preserve all content that the user did not ask to change.
+3. Do not make unrelated changes.
+4. Do not invent information.
+5. Return the complete edited document.
+6. Return ONLY the edited document content.
+7. Do not explain what you changed.
+8. Do not use Markdown code fences.
+9. Keep the original document's structure and formatting style as much as possible.
+`.trim();
+
+
+    console.log(
+        "🤖 Sending editing request to Online AI..."
+    );
+
+
+    const response =
+        await fetch(
+            ONLINE_AI_ENDPOINT,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    message:
+                        editPrompt,
+
+                    history:
+                        getConversationHistory()
+
+                })
+
+            }
+        );
+
+
+    const data =
+        await response.json();
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            data?.error ||
+            "AI could not edit the document."
+        );
+
+    }
+
+
+    const editedContent =
+        String(
+            data?.reply || ""
+        ).trim();
+
+
+    if (!editedContent) {
+
+        throw new Error(
+            "AI returned empty edited content."
+        );
+
+    }
+
+
+    /* ======================================
+       CLEAN AI OUTPUT
+    ====================================== */
+
+    const cleanContent =
+        editedContent
+            .replace(
+                /^```(?:text|txt|markdown|md|csv)?\s*/i,
+                ""
+            )
+            .replace(
+                /\s*```$/i,
+                ""
+            )
+            .trim();
+
+
+    /* ======================================
+       CREATE EDITED FILE NAME
+    ====================================== */
+
+    const lastDot =
+        originalFilename.lastIndexOf(".");
+
+
+    let editedFilename;
+
+
+    if (lastDot > 0) {
+
+        editedFilename =
+            originalFilename.slice(
+                0,
+                lastDot
+            ) +
+            "-edited" +
+            originalFilename.slice(
+                lastDot
+            );
+
+    } else {
+
+        editedFilename =
+            originalFilename +
+            "-edited.txt";
+
+    }
+
+
+    /* ======================================
+       DETECT ORIGINAL MIME TYPE
+    ====================================== */
+
+    const mimeType =
+        attachment.mimeType ||
+        attachment.file?.type ||
+        "text/plain";
+
+
+    /* ======================================
+       CREATE NEW FILE
+    ====================================== */
+
+    console.log(
+        "📄 Creating edited file:",
+        editedFilename
+    );
+
+
+    const fileResponse =
+        await fetch(
+            ONLINE_AI_ENDPOINT,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    createFile: {
+
+                        filename:
+                            editedFilename,
+
+                        mimeType:
+                            mimeType,
+
+                        content:
+                            cleanContent
+
+                    }
+
+                })
+
+            }
+        );
+
+
+    const fileData =
+        await fileResponse.json();
+
+
+    if (!fileResponse.ok) {
+
+        throw new Error(
+            fileData?.error ||
+            "Edited file creation failed."
+        );
+
+    }
+
+
+    if (
+        !fileData?.success ||
+        !fileData?.file?.data
+    ) {
+
+        throw new Error(
+            "File engine returned no edited file."
+        );
+
+    }
+
+
+    console.log(
+        "✅ EDITED FILE CREATED:",
+        editedFilename
+    );
+
+
+    return fileData.file;
+}
 async function createAIFile(message) {
 
     const fileType =
@@ -335,6 +676,8 @@ window.createAIFile =
     createAIFile;
 window.isFileEditingCommand =
     isFileEditingCommand;
+window.editAIFile =
+    editAIFile;
 /* ==========================================
    CONVERSATION CONTEXT SYSTEM
 ========================================== */
