@@ -36,19 +36,27 @@ const MAX_FILE_CONTENT_LENGTH =
    FILE CREATION
 ========================================== */
 
-function isFileCreationCommand(message) {
+function isFileEditingCommand(message) {
 
     if (!message) return false;
+
+    const attachment =
+        getCurrentAttachment();
+
+    if (
+        !attachment ||
+        getAttachmentType(attachment) !== "file"
+    ) {
+        return false;
+    }
 
     const text =
         String(message)
             .trim()
             .toLowerCase();
 
-    return (
-        /\b(create|make|generate|write|prepare)\b/.test(text) &&
-        /\b(file|document|text file|markdown|csv|txt)\b/.test(text)
-    );
+    return /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add)\b/
+        .test(text);
 }
 
 
