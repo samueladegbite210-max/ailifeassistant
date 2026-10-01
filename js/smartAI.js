@@ -36,27 +36,19 @@ const MAX_FILE_CONTENT_LENGTH =
    FILE CREATION
 ========================================== */
 
-function isFileEditingCommand(message) {
+function isFileCreationCommand(message) {
 
     if (!message) return false;
-
-    const attachment =
-        getCurrentAttachment();
-
-    if (
-        !attachment ||
-        getAttachmentType(attachment) !== "file"
-    ) {
-        return false;
-    }
 
     const text =
         String(message)
             .trim()
             .toLowerCase();
 
-    return /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add)\b/
-        .test(text);
+    return (
+        /\b(create|make|generate|write|prepare)\b/.test(text) &&
+        /\b(file|document|text file|markdown|csv|txt)\b/.test(text)
+    );
 }
 
 
@@ -3309,268 +3301,7 @@ async function handleFileCommand(
 
 }
 
-/* ==========================================
-   AI FILE EDITING
-========================================== */
 
-function isFileEditingCommand(message) {
-
-    if (!message) return false;
-
-    const attachment =
-        getCurrentAttachment();
-
-    if (
-        !attachment ||
-        getAttachmentType(attachment) !== "file"
-    ) {
-        return false;
-    }
-
-    const text =
-        String(message)
-            .trim()
-            .toLowerCase();
-
-    return /\b(
-        edit|
-        modify|
-        update|
-        change|
-        rewrite|
-        revise|
-        correct|
-        fix|
-        remove|
-        delete|
-        add
-    )\b/.test(
-        text.replace(/\s+/g, " ")
-    );
-}
-
-
-async function editAIFile(message) {
-
-    console.log(
-        "✏️ AI FILE EDIT REQUEST:",
-        message
-    );
-
-    const attachment =
-        getCurrentAttachment();
-
-    if (!attachment) {
-        throw new Error(
-            "No file is currently attached."
-        );
-    }
-
-    if (
-        getAttachmentType(attachment) !== "file"
-    ) {
-        throw new Error(
-            "The current attachment is not a file."
-        );
-    }
-
-    if (
-        typeof window.extractFileText !==
-        "function"
-    ) {
-        throw new Error(
-            "File text extraction is unavailable."
-        );
-    }
-
-    /* ======================================
-       EXTRACT ORIGINAL DOCUMENT
-    ====================================== */
-
-    const extractedText =
-        await window.extractFileText(
-            attachment
-        );
-
-    if (
-        !extractedText ||
-        !String(extractedText).trim()
-    ) {
-        throw new Error(
-            "I could not extract readable text from this file."
-        );
-    }
-
-    const originalText =
-        limitFileText(
-            String(extractedText)
-        );
-
-    const fileName =
-        attachment.name ||
-        attachment.file?.name ||
-        "document.txt";
-
-    const mimeType =
-        attachment.mimeType ||
-        attachment.file?.type ||
-        attachment.type ||
-        "text/plain";
-
-
-    /* ======================================
-       ASK AI TO EDIT DOCUMENT
-    ====================================== */
-
-    const editPrompt = `
-You are editing an uploaded document.
-
-Original file name:
-${fileName}
-
-User's requested changes:
-${message}
-
-Original document:
-${originalText}
-
-Instructions:
-
-- Apply the user's requested changes.
-- Preserve all original content that the user did not ask to change.
-- Do not make unrelated changes.
-- Do not invent information.
-- Return the COMPLETE edited document.
-- Return ONLY the edited document content.
-- Do not explain your changes.
-- Do not use code fences.
-`.trim();
-
-
-    const editedContent =
-        await askOnlineAI(
-            editPrompt
-        );
-
-    if (
-        !editedContent ||
-        !String(editedContent).trim()
-    ) {
-        throw new Error(
-            "The AI did not return edited document content."
-        );
-    }
-
-
-    /* ======================================
-       CLEAN AI OUTPUT
-    ====================================== */
-
-    const cleanContent =
-        String(editedContent)
-            .trim()
-            .replace(
-                /^```(?:text|txt|markdown|md|csv)?\s*/i,
-                ""
-            )
-            .replace(
-                /\s*```$/i,
-                ""
-            )
-            .trim();
-
-
-    /* ======================================
-       CREATE EDITED FILE NAME
-    ====================================== */
-
-    const lastDot =
-        fileName.lastIndexOf(".");
-
-    let editedFilename;
-
-    if (lastDot > 0) {
-
-        editedFilename =
-            fileName.slice(0, lastDot) +
-            "-edited" +
-            fileName.slice(lastDot);
-
-    } else {
-
-        editedFilename =
-            fileName +
-            "-edited.txt";
-    }
-
-
-    /* ======================================
-       CREATE NEW FILE
-       ORIGINAL FILE IS NOT OVERWRITTEN
-    ====================================== */
-
-    const response =
-        await fetch(
-            ONLINE_AI_ENDPOINT,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    createFile: {
-
-                        filename:
-                            editedFilename,
-
-                        mimeType:
-                            mimeType,
-
-                        content:
-                            cleanContent
-                    }
-                })
-            }
-        );
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            `File creation failed: HTTP ${response.status}`
-        );
-    }
-
-
-    const fileData =
-        await response.json();
-
-
-    if (
-        !fileData ||
-        !fileData.success ||
-        !fileData.file ||
-        !fileData.file.data
-    ) {
-
-        throw new Error(
-            "The backend did not return a valid edited file."
-        );
-    }
-
-
-    console.log(
-        "✅ EDITED FILE CREATED:",
-        editedFilename
-    );
-
-
-    return fileData.file;
-}
 /* ==========================================
    UPLOAD LIST
 ========================================== */
@@ -4422,77 +4153,25 @@ if (
 
 
     /* ======================================
-   FILE ATTACHMENT
-====================================== */
-
-if (
-    attachmentType === "file"
-) {
-
-    console.log(
-        "📄 FILE ATTACHMENT FOUND"
-    );
-
-
-    /* ==================================
-       FILE EDITING
-    ================================== */
+       FILE ATTACHMENT
+    ====================================== */
 
     if (
-        isFileEditingCommand(
-            original
-        )
+        attachmentType === "file"
     ) {
 
         console.log(
-            "✏️ FILE EDITING COMMAND DETECTED"
+            "📄 FILE ATTACHMENT FOUND"
         );
 
-        try {
-
-            const editedFile =
-                await editAIFile(
-                    original
-                );
-
-            return (
-                "__AI_CREATED_FILE__" +
-                JSON.stringify(
-                    editedFile
-                ) +
-                "__END_AI_CREATED_FILE__"
+        const fileReply =
+            await handleFileCommand(
+                original
             );
 
-        } catch (error) {
+        return fileReply;
 
-            console.error(
-                "❌ FILE EDITING ERROR:",
-                error
-            );
-
-            return (
-                "I couldn't edit that file. " +
-                (
-                    error?.message ||
-                    "An unknown error occurred."
-                )
-            );
-        }
     }
-
-
-    /* ==================================
-       NORMAL FILE COMMAND
-    ================================== */
-
-    const fileReply =
-        await handleFileCommand(
-            original
-        );
-
-    return fileReply;
-
-}
 
 
     /* ======================================
@@ -5455,12 +5134,6 @@ window.restoreImageVersion =
 
 window.clearImageWorkspace =
     clearImageWorkspace;
-
-window.isFileEditingCommand =
-    isFileEditingCommand;
-
-window.editAIFile =
-    editAIFile;
 /* ==========================================
    READY CHECK
 ========================================== */
