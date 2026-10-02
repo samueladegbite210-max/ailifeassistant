@@ -4446,11 +4446,34 @@ if (
 
 
     /* ======================================
+       FILE ATTACHMENT
+       FILES ALWAYS TAKE PRIORITY
+       OVER IMAGE CONTEXT
+    ====================================== */
+
+    if (
+        attachmentType === "file"
+    ) {
+
+        console.log(
+            "📄 FILE ATTACHMENT FOUND"
+        );
+
+        const fileReply =
+            await handleFileCommand(
+                original
+            );
+
+        return fileReply;
+
+    }
+
+
+    /* ======================================
        IMAGE FOLLOW-UP FROM SAVED CONTEXT
     ====================================== */
 
     if (
-        attachmentType !== "file" &&
         shouldUseVisionContext(
             original
         )
