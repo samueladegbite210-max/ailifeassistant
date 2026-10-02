@@ -4450,6 +4450,7 @@ if (
     ====================================== */
 
     if (
+        attachmentType !== "file" &&
         shouldUseVisionContext(
             original
         )
