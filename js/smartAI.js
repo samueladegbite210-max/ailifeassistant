@@ -283,7 +283,7 @@ async function editAIFile(message) {
         `
 You are editing an uploaded document.
 
-ORIGINAL FILE NAME:
+FILE NAME:
 ${originalFilename}
 
 USER'S REQUEST:
@@ -303,10 +303,6 @@ INSTRUCTIONS:
 7. Do not explain what you changed.
 8. Do not use Markdown code fences.
 9. Keep the original document's structure and formatting style as much as possible.
-10. If the user explicitly requests a different file extension or format, convert the document content to that requested format.
-11. When converting formats, preserve the original information and apply the requested edit.
-12. Do not merely rename the content when the requested extension represents a different programming language or document format.
-13. If the requested filename keeps the same file extension, do not convert the document format.
 `.trim();
 
 
@@ -332,7 +328,7 @@ INSTRUCTIONS:
                         editPrompt,
 
                     history:
-                        getConversationHistory()
+                        []
 
                 })
 
