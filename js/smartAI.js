@@ -386,32 +386,54 @@ INSTRUCTIONS:
        CREATE EDITED FILE NAME
     ====================================== */
 
-    const lastDot =
-        originalFilename.lastIndexOf(".");
+    let editedFilename = "";
 
+    const filenameMatch =
+        String(message || "").match(
+            /\b(?:change|rename|save)\s+(?:it\s+)?(?:to|as)\s+["'`]?([a-zA-Z0-9_.-]+\.[a-zA-Z0-9]+)["'`]?/i
+        );
 
-    let editedFilename;
-
-
-    if (lastDot > 0) {
-
-        editedFilename =
-            originalFilename.slice(
-                0,
-                lastDot
-            ) +
-            "-edited" +
-            originalFilename.slice(
-                lastDot
-            );
-
-    } else {
+    if (
+        filenameMatch &&
+        filenameMatch[1]
+    ) {
 
         editedFilename =
-            originalFilename +
-            "-edited.txt";
+            filenameMatch[1].trim();
 
     }
+
+    if (!editedFilename) {
+
+        const lastDot =
+            originalFilename.lastIndexOf(".");
+
+        if (lastDot > 0) {
+
+            editedFilename =
+                originalFilename.slice(
+                    0,
+                    lastDot
+                ) +
+                "-edited" +
+                originalFilename.slice(
+                    lastDot
+                );
+
+        } else {
+
+            editedFilename =
+                originalFilename +
+                "-edited.txt";
+
+        }
+
+    }
+
+    console.log(
+        "📝 Final edited filename:",
+        editedFilename
+    );
 
 
     /* ======================================
@@ -4441,84 +4463,6 @@ if (
         console.log(
             "💬 Image attached but request is not image-related."
         );
-
-    }
-
-
-    /* ======================================
-       FILE ATTACHMENT
-       FILES ALWAYS TAKE PRIORITY
-       OVER IMAGE CONTEXT
-    ====================================== */
-
-    if (
-        attachmentType === "file"
-    ) {
-
-        console.log(
-            "📄 FILE ATTACHMENT FOUND"
-        );
-
-        /* ==================================
-           FILE EDITING
-        ================================== */
-
-        if (
-            isFileEditingCommand(
-                original
-            )
-        ) {
-
-            console.log(
-                "✏️ FILE EDITING COMMAND DETECTED"
-            );
-
-            try {
-
-                const editedFile =
-                    await editAIFile(
-                        original
-                    );
-
-                return (
-                    "__AI_CREATED_FILE__" +
-                    JSON.stringify(
-                        editedFile
-                    ) +
-                    "__END_AI_CREATED_FILE__"
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "❌ FILE EDITING ERROR:",
-                    error
-                );
-
-                return (
-                    "⚠️ I couldn't edit that file.\n\n" +
-                    (
-                        error?.message ||
-                        "An unknown error occurred."
-                    )
-                );
-
-            }
-
-        }
-
-        /* ==================================
-           NORMAL FILE COMMAND
-        ================================== */
-
-        const fileReply =
-            await handleFileCommand(
-                original
-            );
-
-        return fileReply;
 
     }
 
