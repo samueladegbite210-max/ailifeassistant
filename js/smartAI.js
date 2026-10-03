@@ -283,7 +283,7 @@ async function editAIFile(message) {
         `
 You are editing an uploaded document.
 
-FILE NAME:
+ORIGINAL FILE NAME:
 ${originalFilename}
 
 USER'S REQUEST:
@@ -303,6 +303,10 @@ INSTRUCTIONS:
 7. Do not explain what you changed.
 8. Do not use Markdown code fences.
 9. Keep the original document's structure and formatting style as much as possible.
+10. If the user explicitly requests a different file extension or format, convert the document content to that requested format.
+11. When converting formats, preserve the original information and apply the requested edit.
+12. Do not merely rename the content when the requested extension represents a different programming language or document format.
+13. If the requested filename keeps the same file extension, do not convert the document format.
 `.trim();
 
 
@@ -386,54 +390,32 @@ INSTRUCTIONS:
        CREATE EDITED FILE NAME
     ====================================== */
 
-    let editedFilename = "";
+    const lastDot =
+        originalFilename.lastIndexOf(".");
 
-    const filenameMatch =
-        String(message || "").match(
-            /\b(?:change|rename|save)\s+(?:it\s+)?(?:to|as)\s+["'`]?([a-zA-Z0-9_.-]+\.[a-zA-Z0-9]+)["'`]?/i
-        );
 
-    if (
-        filenameMatch &&
-        filenameMatch[1]
-    ) {
+    let editedFilename;
+
+
+    if (lastDot > 0) {
 
         editedFilename =
-            filenameMatch[1].trim();
+            originalFilename.slice(
+                0,
+                lastDot
+            ) +
+            "-edited" +
+            originalFilename.slice(
+                lastDot
+            );
+
+    } else {
+
+        editedFilename =
+            originalFilename +
+            "-edited.txt";
 
     }
-
-    if (!editedFilename) {
-
-        const lastDot =
-            originalFilename.lastIndexOf(".");
-
-        if (lastDot > 0) {
-
-            editedFilename =
-                originalFilename.slice(
-                    0,
-                    lastDot
-                ) +
-                "-edited" +
-                originalFilename.slice(
-                    lastDot
-                );
-
-        } else {
-
-            editedFilename =
-                originalFilename +
-                "-edited.txt";
-
-        }
-
-    }
-
-    console.log(
-        "📝 Final edited filename:",
-        editedFilename
-    );
 
 
     /* ======================================
