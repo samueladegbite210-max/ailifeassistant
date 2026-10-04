@@ -171,6 +171,7 @@ async function editAIFile(message) {
         message
     );
 
+
     const attachment =
         getCurrentAttachment();
 
@@ -218,12 +219,13 @@ async function editAIFile(message) {
 
 
     /* ======================================
-       EXTRACT ORIGINAL FILE
+       READ ORIGINAL FILE
     ====================================== */
 
     console.log(
         "📖 Reading original file..."
     );
+
 
     const extractedText =
         await window.extractFileText(
@@ -251,13 +253,14 @@ async function editAIFile(message) {
 
 
     /* ======================================
-       SAVE ORIGINAL DOCUMENT
+       ORIGINAL FILENAME
     ====================================== */
 
     const originalFilename =
-        attachment.name ||
         attachment.file?.name ||
+        attachment.name ||
         "document.txt";
+
 
     saveCurrentDocument(
         originalFilename,
@@ -266,48 +269,195 @@ async function editAIFile(message) {
 
 
     /* ======================================
-       PREPARE DOCUMENT FOR AI
+       LIMIT CONTENT
+       
+       This keeps the request small enough
+       for the current Groq TPM limit.
     ====================================== */
 
     const documentText =
         limitFileText(
-            extractedText
+            extractedText,
+            12000
         );
 
 
     /* ======================================
-       BUILD EDITING PROMPT
+       FIND EXPLICIT OUTPUT FILENAME
+       
+       Examples:
+       "change it to chat-edited.js"
+       "rename it to final.css"
+       "save as notes.md"
     ====================================== */
 
-    const editPrompt =
-        `
-You are editing an uploaded document.
+    const originalLower =
+        originalFilename
+            .trim()
+            .toLowerCase();
 
-FILE NAME:
-${originalFilename}
 
-USER'S REQUEST:
-${String(message || "").trim()}
+    const explicitNameMatch =
+        String(message || "").match(
+            /\b(?:change|rename|save|call|name|make)\b[\s\S]{0,40}?\b(?:to|as|named|called)\b\s*["'`]?([A-Za-z0-9_.-]+\.(?:txt|md|csv|json|js|css|html?|xml|py|java|php|ts|docx|pdf))["'`]?/i
+        );
 
-ORIGINAL DOCUMENT:
-${documentText}
 
-INSTRUCTIONS:
+    let editedFilename = null;
 
-1. Apply the user's requested changes to the document.
-2. Preserve all content that the user did not ask to change.
-3. Do not make unrelated changes.
-4. Do not invent information.
-5. Return the complete edited document.
-6. Return ONLY the edited document content.
-7. Do not explain what you changed.
-8. Do not use Markdown code fences.
-9. Keep the original document's structure and formatting style as much as possible.
-`.trim();
+
+    if (
+        explicitNameMatch &&
+        explicitNameMatch[1]
+    ) {
+
+        editedFilename =
+            explicitNameMatch[1].trim();
+
+    }
+
+
+    /* ======================================
+       IF NO EXPLICIT NAME:
+       CREATE ORIGINAL-NAME-EDITED.EXT
+    ====================================== */
+
+    if (
+        !editedFilename
+    ) {
+
+        const lastDot =
+            originalFilename.lastIndexOf(
+                "."
+            );
+
+
+        if (
+            lastDot > 0
+        ) {
+
+            editedFilename =
+                originalFilename.slice(
+                    0,
+                    lastDot
+                ) +
+                "-edited" +
+                originalFilename.slice(
+                    lastDot
+                );
+
+        }
+
+        else {
+
+            editedFilename =
+                originalFilename +
+                "-edited.txt";
+
+        }
+
+    }
+
+
+    /* ======================================
+       DETERMINE MIME TYPE FROM OUTPUT NAME
+       
+       IMPORTANT:
+       If style.css becomes chat-edited.js,
+       the new file must be JavaScript,
+       not CSS.
+    ====================================== */
+
+    const extensionMatch =
+        editedFilename.match(
+            /\.([a-z0-9]+)$/i
+        );
+
+
+    const extension =
+        extensionMatch
+            ? extensionMatch[1].toLowerCase()
+            : "txt";
+
+
+    const mimeMap = {
+
+        txt:
+            "text/plain",
+
+        md:
+            "text/markdown",
+
+        csv:
+            "text/csv",
+
+        json:
+            "application/json",
+
+        js:
+            "application/javascript",
+
+        css:
+            "text/css",
+
+        html:
+            "text/html",
+
+        htm:
+            "text/html",
+
+        xml:
+            "application/xml",
+
+        py:
+            "text/x-python",
+
+        java:
+            "text/x-java-source",
+
+        php:
+            "application/x-httpd-php",
+
+        ts:
+            "application/typescript",
+
+        docx:
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+
+        pdf:
+            "application/pdf"
+
+    };
+
+
+    const mimeType =
+        mimeMap[extension] ||
+        "text/plain";
+
+
+    /* ======================================
+       SEND ONE FILE-EDIT REQUEST
+       
+       IMPORTANT:
+       No conversation history.
+       The backend now handles both:
+       AI editing + file creation.
+    ====================================== */
+
+    console.log(
+        "🤖 Sending file edit request..."
+    );
 
 
     console.log(
-        "🤖 Sending editing request to Online AI..."
+        "📄 Output filename:",
+        editedFilename
+    );
+
+
+    console.log(
+        "📦 Output MIME type:",
+        mimeType
     );
 
 
@@ -315,177 +465,96 @@ INSTRUCTIONS:
         await fetch(
             ONLINE_AI_ENDPOINT,
             {
-                method: "POST",
+
+                method:
+                    "POST",
 
                 headers: {
+
                     "Content-Type":
                         "application/json"
+
                 },
 
-                body: JSON.stringify({
+                body:
+                    JSON.stringify({
 
-                    message:
-                        editPrompt,
+                        fileEdit: {
 
-                    history:
-                        [],
+                            filename:
+                                editedFilename,
 
-                    fileEdit:
-                        true
+                            mimeType:
+                                mimeType,
 
-                })
+                            instruction:
+                                String(
+                                    message || ""
+                                ).trim(),
+
+                            content:
+                                documentText
+
+                        }
+
+                    })
 
             }
         );
 
+
+    /* ======================================
+       READ RESPONSE SAFELY
+    ====================================== */
 
     const data =
         await response.json();
 
 
-    if (!response.ok) {
+    /* ======================================
+       ERROR HANDLING
+    ====================================== */
+
+    if (
+        !response.ok
+    ) {
+
+        if (
+            response.status ===
+            429
+        ) {
+
+            const seconds =
+                Number(
+                    data?.retryAfter
+                ) || 10;
+
+
+            throw new Error(
+                "The AI service is temporarily busy. " +
+                "Please wait about " +
+                seconds +
+                " seconds and try again."
+            );
+
+        }
+
 
         throw new Error(
             data?.error ||
-            "AI could not edit the document."
-        );
-
-    }
-
-
-    const editedContent =
-        String(
-            data?.reply || ""
-        ).trim();
-
-
-    if (!editedContent) {
-
-        throw new Error(
-            "AI returned empty edited content."
+            "AI could not edit the file."
         );
 
     }
 
 
     /* ======================================
-       CLEAN AI OUTPUT
+       VALIDATE FILE RESPONSE
     ====================================== */
-
-    const cleanContent =
-        editedContent
-            .replace(
-                /^```(?:text|txt|markdown|md|csv)?\s*/i,
-                ""
-            )
-            .replace(
-                /\s*```$/i,
-                ""
-            )
-            .trim();
-
-
-    /* ======================================
-       CREATE EDITED FILE NAME
-    ====================================== */
-
-    const lastDot =
-        originalFilename.lastIndexOf(".");
-
-
-    let editedFilename;
-
-
-    if (lastDot > 0) {
-
-        editedFilename =
-            originalFilename.slice(
-                0,
-                lastDot
-            ) +
-            "-edited" +
-            originalFilename.slice(
-                lastDot
-            );
-
-    } else {
-
-        editedFilename =
-            originalFilename +
-            "-edited.txt";
-
-    }
-
-
-    /* ======================================
-       DETECT ORIGINAL MIME TYPE
-    ====================================== */
-
-    const mimeType =
-        attachment.mimeType ||
-        attachment.file?.type ||
-        "text/plain";
-
-
-    /* ======================================
-       CREATE NEW FILE
-    ====================================== */
-
-    console.log(
-        "📄 Creating edited file:",
-        editedFilename
-    );
-
-
-    const fileResponse =
-        await fetch(
-            ONLINE_AI_ENDPOINT,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    createFile: {
-
-                        filename:
-                            editedFilename,
-
-                        mimeType:
-                            mimeType,
-
-                        content:
-                            cleanContent
-
-                    }
-
-                })
-
-            }
-        );
-
-
-    const fileData =
-        await fileResponse.json();
-
-
-    if (!fileResponse.ok) {
-
-        throw new Error(
-            fileData?.error ||
-            "Edited file creation failed."
-        );
-
-    }
-
 
     if (
-        !fileData?.success ||
-        !fileData?.file?.data
+        !data?.success ||
+        !data?.file?.data
     ) {
 
         throw new Error(
@@ -497,12 +566,14 @@ INSTRUCTIONS:
 
     console.log(
         "✅ EDITED FILE CREATED:",
-        editedFilename
+        data.file.filename
     );
 
 
-    return fileData.file;
+    return data.file;
+
 }
+
 async function createAIFile(message) {
 
     const fileType =
