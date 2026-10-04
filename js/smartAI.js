@@ -36,7 +36,7 @@ const MAX_FILE_CONTENT_LENGTH =
    FILE CREATION
 ========================================== */
 
-function isFileCreationCommand(message) {
+function isFileEditingCommand(message) {
 
     if (!message) return false;
 
@@ -45,10 +45,23 @@ function isFileCreationCommand(message) {
             .trim()
             .toLowerCase();
 
+    const editWords =
+        /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add)\b/;
+
+    const fileWords =
+        /\b(file|document|text|markdown|csv|txt|docx|word|pdf|css|js|javascript|html|htm|json|xml|py|python|java|php|ts|typescript)\b/;
+
+    const fileExtension =
+        /\.(txt|md|csv|docx|pdf|css|js|html?|json|xml|py|java|php|ts)\b/;
+
     return (
-        /\b(create|make|generate|write|prepare)\b/.test(text) &&
-        /\b(file|document|text file|markdown|csv|txt)\b/.test(text)
+        editWords.test(text) &&
+        (
+            fileWords.test(text) ||
+            fileExtension.test(text)
+        )
     );
+
 }
 
 
