@@ -328,7 +328,10 @@ INSTRUCTIONS:
                         editPrompt,
 
                     history:
-                        []
+                        [],
+
+                    fileEdit:
+                        true
 
                 })
 
