@@ -328,7 +328,7 @@ INSTRUCTIONS:
                         editPrompt,
 
                     history:
-                        []
+                        getConversationHistory()
 
                 })
 
@@ -4441,6 +4441,84 @@ if (
         console.log(
             "💬 Image attached but request is not image-related."
         );
+
+    }
+
+
+    /* ======================================
+       FILE ATTACHMENT
+       FILES ALWAYS TAKE PRIORITY
+       OVER IMAGE CONTEXT
+    ====================================== */
+
+    if (
+        attachmentType === "file"
+    ) {
+
+        console.log(
+            "📄 FILE ATTACHMENT FOUND"
+        );
+
+        /* ==================================
+           FILE EDITING
+        ================================== */
+
+        if (
+            isFileEditingCommand(
+                original
+            )
+        ) {
+
+            console.log(
+                "✏️ FILE EDITING COMMAND DETECTED"
+            );
+
+            try {
+
+                const editedFile =
+                    await editAIFile(
+                        original
+                    );
+
+                return (
+                    "__AI_CREATED_FILE__" +
+                    JSON.stringify(
+                        editedFile
+                    ) +
+                    "__END_AI_CREATED_FILE__"
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "❌ FILE EDITING ERROR:",
+                    error
+                );
+
+                return (
+                    "⚠️ I couldn't edit that file.\n\n" +
+                    (
+                        error?.message ||
+                        "An unknown error occurred."
+                    )
+                );
+
+            }
+
+        }
+
+        /* ==================================
+           NORMAL FILE COMMAND
+        ================================== */
+
+        const fileReply =
+            await handleFileCommand(
+                original
+            );
+
+        return fileReply;
 
     }
 
