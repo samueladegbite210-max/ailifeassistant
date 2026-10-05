@@ -163,6 +163,22 @@ function isFileEditingCommand(message) {
     const fileExtension =
         /\.(txt|md|csv|docx|pdf|css|js|html?|json|xml|py|java|php|ts)\b/;
 
+    /*
+     * The attachment card's Edit button
+     * may send only the word "Edit".
+     *
+     * Since this function is used inside
+     * the FILE ATTACHMENT routing, that
+     * is enough to identify an edit request.
+     */
+
+    if (
+        text === "edit" ||
+        text === "modify"
+    ) {
+        return true;
+    }
+
     return (
         editWords.test(text) &&
         (
@@ -172,7 +188,6 @@ function isFileEditingCommand(message) {
     );
 
 }
-
 /* ==========================================
    AI FILE EDITOR
 ========================================== */
