@@ -154,27 +154,10 @@ function isFileEditingCommand(message) {
             .trim()
             .toLowerCase();
 
-
-    const editWords =
-        /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add)\b/;
-
-
-    const fileWords =
-        /\b(file|document|text|markdown|csv|txt|docx|word|pdf|css|js|javascript|html|htm|json|xml|py|python|java|php|ts|typescript)\b/;
-
-
-    const fileExtension =
-        /\.(txt|md|csv|docx|pdf|css|js|html?|json|xml|py|java|php|ts)\b/;
-
-
     return (
-        editWords.test(text) &&
-        (
-            fileWords.test(text) ||
-            fileExtension.test(text)
-        )
+        /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add)\b/.test(text) &&
+        /\b(file|document|text|markdown|csv|txt|docx|word|pdf)\b/.test(text)
     );
-
 }
 
 /* ==========================================
@@ -345,7 +328,7 @@ INSTRUCTIONS:
                         editPrompt,
 
                     history:
-                        getConversationHistory()
+                        []
 
                 })
 
