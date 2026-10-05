@@ -5016,9 +5016,20 @@ async function smartAIReply(
                     {
                         hasImage:
     Boolean(
-        providedAttachment ||
-        window.activeVisionContext ||
-        getActiveGeneratedImage()
+        (
+            providedAttachment &&
+            getAttachmentType(
+                providedAttachment
+            ) === "image"
+        ) ||
+        (
+            !providedAttachment &&
+            window.activeVisionContext
+        ) ||
+        (
+            !providedAttachment &&
+            getActiveGeneratedImage()
+        )
     ),
 
                         activeImage:
