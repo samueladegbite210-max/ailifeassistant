@@ -154,37 +154,69 @@ function isFileEditingCommand(message) {
             .trim()
             .toLowerCase();
 
+
+    /* ==========================================
+       CHECK FOR EDITING LANGUAGE
+    ========================================== */
+
     const editWords =
-        /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add)\b/;
+        /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add|insert|replace)\b/;
+
+
+    if (!editWords.test(text)) {
+        return false;
+    }
+
+
+    /* ==========================================
+       IF A FILE IS CURRENTLY ATTACHED,
+       THE USER DOES NOT NEED TO SAY "FILE"
+    ========================================== */
+
+    let attachment = null;
+
+    try {
+
+        attachment =
+            getCurrentAttachment();
+
+    } catch (error) {
+
+        attachment = null;
+
+    }
+
+
+    if (
+        attachment &&
+        typeof getAttachmentType ===
+        "function" &&
+        getAttachmentType(
+            attachment
+        ) === "file"
+    ) {
+
+        return true;
+
+    }
+
+
+    /* ==========================================
+       ALSO SUPPORT EXPLICIT FILE REFERENCES
+       WHEN NO FILE IS CURRENTLY ATTACHED
+    ========================================== */
 
     const fileWords =
         /\b(file|document|text|markdown|csv|txt|docx|word|pdf|css|js|javascript|html|htm|json|xml|py|python|java|php|ts|typescript)\b/;
 
+
     const fileExtension =
         /\.(txt|md|csv|docx|pdf|css|js|html?|json|xml|py|java|php|ts)\b/;
 
-    /*
-     * The attachment card's Edit button
-     * may send only the word "Edit".
-     *
-     * Since this function is used inside
-     * the FILE ATTACHMENT routing, that
-     * is enough to identify an edit request.
-     */
-
-    if (
-        text === "edit" ||
-        text === "modify"
-    ) {
-        return true;
-    }
 
     return (
-        editWords.test(text) &&
-        (
-            fileWords.test(text) ||
-            fileExtension.test(text)
-        )
+        fileWords.test(text) ||
+        fileExtension.test(text)
     );
 
 }
@@ -5016,20 +5048,9 @@ async function smartAIReply(
                     {
                         hasImage:
     Boolean(
-        (
-            providedAttachment &&
-            getAttachmentType(
-                providedAttachment
-            ) === "image"
-        ) ||
-        (
-            !providedAttachment &&
-            window.activeVisionContext
-        ) ||
-        (
-            !providedAttachment &&
-            getActiveGeneratedImage()
-        )
+        providedAttachment ||
+        window.activeVisionContext ||
+        getActiveGeneratedImage()
     ),
 
                         activeImage:
