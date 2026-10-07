@@ -3514,6 +3514,164 @@ ChatGPT Typing Animation
     white-space: nowrap;
     cursor: pointer;
 }
+/* =====================================================
+   AUTHENTICATION PAGE
+===================================================== */
+
+.authPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.authCard {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px 24px;
+    box-sizing: border-box;
+}
+
+.authLogo {
+    text-align: center;
+    font-size: 52px;
+    margin-bottom: 10px;
+}
+
+.authCard h1 {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.authSubtitle {
+    text-align: center;
+    opacity: 0.75;
+    margin-bottom: 24px;
+}
+
+.authButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.socialButton {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 15px;
+}
+
+.socialButton:hover {
+    background: rgba(255,255,255,0.10);
+}
+
+.socialIcon {
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.authDivider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0;
+    opacity: 0.65;
+}
+
+.authDivider::before,
+.authDivider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: currentColor;
+}
+
+.authDivider span {
+    font-size: 13px;
+}
+
+#authForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#authForm label {
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+#authForm input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 14px;
+    padding: 12px;
+    border-radius: 9px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+    color: inherit;
+    font-size: 15px;
+}
+
+.primaryAuthButton {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 4px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.forgotPasswordLink {
+    display: block;
+    margin: 14px auto 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    opacity: 0.75;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+}
+
+.forgotPasswordLink:hover {
+    opacity: 1;
+}
+
+#authMessage {
+    min-height: 20px;
+    margin: 16px 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+.authSwitch {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.authSwitch button {
+    border: none;
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+}
 /*==================================================
 THE END
 ==================================================*/
