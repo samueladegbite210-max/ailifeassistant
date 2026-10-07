@@ -115,19 +115,24 @@ document.getElementById("googleSignInBtn")?.addEventListener("click", async () =
 
     showAuthMessage("Connecting to Google...");
 
-    const { error } =
+    const { data, error } =
         await window.supabaseClient.auth.signInWithOAuth({
             provider: "google",
             options: {
                 redirectTo:
                     window.location.origin +
-                    window.location.pathname
+                    "/ailifeassistant/auth.html"
             }
         });
 
     if (error) {
         console.error("❌ Google sign-in error:", error);
         showAuthMessage(error.message, true);
+        return;
+    }
+
+    if (data?.url) {
+        window.location.href = data.url;
     }
 
 });
