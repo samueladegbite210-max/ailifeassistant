@@ -3594,6 +3594,30 @@ console.log(
 
 
 </script>
-    
+
+<script>
+    (async function protectChatPage() {
+
+        const { data, error } =
+            await window.supabaseClient.auth.getSession();
+
+        if (error) {
+            console.error("❌ Authentication check failed:", error);
+            return;
+        }
+
+        if (!data.session) {
+            window.location.href = "auth.html";
+            return;
+        }
+
+        console.log(
+            "✅ Authenticated user:",
+            data.session.user.email
+        );
+
+    })();
+</script>
+
 </body>
 </html>
