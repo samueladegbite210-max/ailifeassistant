@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AI Life Assistant - Sign In</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabaseClient.js"></script>
+
+</head>
+
+<body>
+
+    <main class="authPage">
+
+        <section class="authCard">
+
+            <div class="authLogo">
+                🤖
+            </div>
+
+            <h1>AI Life Assistant</h1>
+
+            <p class="authSubtitle">
+                Welcome back
+            </p>
+
+            <div class="authButtons">
+
+                <button type="button" id="googleSignInBtn">
+                    Continue with Google
+                </button>
+
+                <button type="button" id="appleSignInBtn">
+                    Continue with Apple
+                </button>
+
+            </div>
+
+            <div class="authDivider">
+                <span>or</span>
+            </div>
+
+            <form id="authForm">
+
+                <label for="authEmail">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="authEmail"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+                <label for="authPassword">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="authPassword"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit" id="signInBtn">
+                    Sign In
+                </button>
+
+            </form>
+
+            <button
+                type="button"
+                id="forgotPasswordBtn"
+            >
+                Forgot password?
+            </button>
+
+            <p id="authMessage"></p>
+
+            <p class="authSwitch">
+
+                Don't have an account?
+
+                <button
+                    type="button"
+                    id="createAccountBtn"
+                >
+                    Create Account
+                </button>
+
+            </p>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
