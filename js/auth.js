@@ -112,9 +112,25 @@ document
 // -----------------------------------------------------
 
 document.getElementById("googleSignInBtn")?.addEventListener("click", async () => {
-    showAuthMessage("Google sign-in is coming soon.");
-});
 
+    showAuthMessage("Connecting to Google...");
+
+    const { error } =
+        await window.supabaseClient.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo:
+                    window.location.origin +
+                    window.location.pathname
+            }
+        });
+
+    if (error) {
+        console.error("❌ Google sign-in error:", error);
+        showAuthMessage(error.message, true);
+    }
+
+});
 
 // -----------------------------------------------------
 // APPLE
