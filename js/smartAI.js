@@ -154,6 +154,52 @@ function isFileEditingCommand(message) {
             .trim()
             .toLowerCase();
 
+    const editWords =
+        /\b(edit|modify|update|change|rewrite|revise|correct|fix|remove|delete|add|insert|replace)\b/;
+
+    if (!editWords.test(text)) {
+        return false;
+    }
+
+    let attachment = null;
+
+    try {
+        attachment = getCurrentAttachment();
+    } catch (error) {
+        attachment = null;
+    }
+
+    /*
+     * If a file is currently attached,
+     * an editing command should edit that file
+     * even when the user does not mention
+     * "file", "CSS", "document", etc.
+     */
+    if (
+        attachment &&
+        typeof getAttachmentType === "function" &&
+        getAttachmentType(attachment) === "file"
+    ) {
+        return true;
+    }
+
+    /*
+     * Also support editing requests that
+     * explicitly mention a file type/name.
+     */
+    const fileWords =
+        /\b(file|document|text|markdown|csv|txt|docx|word|pdf|css|js|javascript|html|htm|json|xml|py|python|java|php|ts|typescript)\b/;
+
+    const fileExtension =
+        /\.(txt|md|csv|docx|pdf|css|js|html?|json|xml|py|java|php|ts)\b/;
+
+    return (
+        fileWords.test(text) ||
+        fileExtension.test(text)
+    );
+
+}
+
 
     /* ==========================================
        CHECK FOR EDITING LANGUAGE
