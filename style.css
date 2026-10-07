@@ -3672,6 +3672,61 @@ ChatGPT Typing Animation
     cursor: pointer;
     font-weight: 600;
 }
+.googleIcon {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: Arial, sans-serif;
+    background: conic-gradient(
+        from -45deg,
+        #4285f4 0deg 90deg,
+        #34a853 90deg 180deg,
+        #fbbc05 180deg 270deg,
+        #ea4335 270deg 360deg
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.appleIcon {
+    font-size: 20px;
+    line-height: 1;
+}
+@media (max-width: 480px) {
+
+    .authPage {
+        padding: 12px;
+    }
+
+    .authCard {
+        padding: 22px 18px;
+    }
+
+    .authLogo {
+        font-size: 44px;
+        margin-bottom: 6px;
+    }
+
+    .authSubtitle {
+        margin-bottom: 18px;
+    }
+
+    .authDivider {
+        margin: 16px 0;
+    }
+
+    .authButtons {
+        gap: 8px;
+    }
+
+    #authForm input {
+        margin-bottom: 11px;
+    }
+
+    .authSwitch {
+        margin-top: 14px;
+    }
+}
 /*==================================================
 THE END
 ==================================================*/
