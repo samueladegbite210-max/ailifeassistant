@@ -604,20 +604,52 @@ window.closeSideMenu = closeSideMenu;
 
     if (newChatBtn) {
 
-        newChatBtn.addEventListener(
-            "click",
-            function () {
+    newChatBtn.addEventListener(
+        "click",
+        function () {
 
-                closeSideMenu();
+            closeSideMenu();
 
-                console.log(
-                    "🆕 New Chat clicked"
-                );
+            console.log(
+                "🆕 New Chat clicked"
+            );
+
+            if (
+                typeof window.clearConversationHistory === "function"
+            ) {
+
+                window.clearConversationHistory();
 
             }
-        );
 
-    }
+            if (
+                typeof window.clearCurrentDocument === "function"
+            ) {
+
+                window.clearCurrentDocument();
+
+            }
+
+            if (
+                typeof window.clearImageWorkspace === "function"
+            ) {
+
+                window.clearImageWorkspace();
+
+            }
+
+            window.aiAttachment = null;
+
+            window.uploadedFiles = [];
+
+            console.log(
+                "🧹 New conversation started"
+            );
+
+        }
+    );
+
+}
 
 
     console.log(
