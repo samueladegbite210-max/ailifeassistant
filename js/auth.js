@@ -111,26 +111,18 @@ document
 // GOOGLE
 // -----------------------------------------------------
 
-document
-    .getElementById("googleSignInBtn")
-    ?.addEventListener("click", async () => {
-
-        showAuthMessage("Google sign-in is not configured yet.");
-
-    });
+document.getElementById("googleSignInBtn")?.addEventListener("click", async () => {
+    showAuthMessage("Google sign-in is coming soon.");
+});
 
 
 // -----------------------------------------------------
 // APPLE
 // -----------------------------------------------------
 
-document
-    .getElementById("appleSignInBtn")
-    ?.addEventListener("click", async () => {
-
-        showAuthMessage("Apple sign-in is not configured yet.");
-
-    });
+document.getElementById("appleSignInBtn")?.addEventListener("click", async () => {
+    showAuthMessage("Apple sign-in is coming soon.");
+});
 
 
 // -----------------------------------------------------
