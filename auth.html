@@ -35,17 +35,17 @@
                 Welcome back
             </p>
 
-            <div class="authButtons">
+  <div class="authButtons">
+    <button type="button" id="googleSignInBtn" class="socialButton googleButton">
+        <span class="socialIcon">G</span>
+        <span>Continue with Google</span>
+    </button>
 
-                <button type="button" id="googleSignInBtn">
-                    Continue with Google
-                </button>
-
-                <button type="button" id="appleSignInBtn">
-                    Continue with Apple
-                </button>
-
-            </div>
+    <button type="button" id="appleSignInBtn" class="socialButton appleButton">
+        <span class="socialIcon"></span>
+        <span>Continue with Apple</span>
+    </button>
+</div>
 
             <div class="authDivider">
                 <span>or</span>
@@ -77,18 +77,19 @@
                     required
                 >
 
-                <button type="submit" id="signInBtn">
-                    Sign In
-                </button>
+          <button type="submit" id="signInBtn" class="primaryAuthButton">
+    Sign In
+</button>
 
             </form>
 
             <button
-                type="button"
-                id="forgotPasswordBtn"
-            >
-                Forgot password?
-            </button>
+    type="button"
+    id="forgotPasswordBtn"
+    class="forgotPasswordLink"
+>
+    Forgot password?
+</button>
 
             <p id="authMessage"></p>
 
