@@ -442,20 +442,29 @@ SIDE MENU
     position: fixed;
     top: 0;
     left: -300px;
+
     width: 280px;
     height: 100vh;
-    box-sizing: border-box;
-    background: var(--card2);
-    padding: 25px;
-    transition: left .35s ease;
-    z-index: 3000;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-}
-.side-menu.open{
 
-    left:0;
+    box-sizing: border-box;
+    padding: 25px;
+    padding-bottom: 120px;
+
+    background: var(--card2);
+
+    transition: left .35s ease;
+
+    z-index: 10000;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+}
+
+.side-menu.open {
+    left: 0;
 }
 .menu-btn{
 
@@ -481,30 +490,23 @@ SIDE MENU
 
 }
 
-.menu-overlay{
+.menu-overlay {
+    position: fixed;
+    inset: 0;
 
-    position:fixed;
+    background: rgba(0,0,0,.5);
 
-    inset:0;
+    opacity: 0;
+    visibility: hidden;
 
-    background:rgba(0,0,0,.5);
+    transition: .3s;
 
-    opacity:0;
-
-    visibility:hidden;
-
-    transition:.3s;
-
-    z-index:2500;
-
+    z-index: 9000;
 }
 
-.menu-overlay.show{
-
-    opacity:1;
-
-    visibility:visible;
-
+.menu-overlay.show {
+    opacity: 1;
+    visibility: visible;
 }
 .side-menu a{
 
