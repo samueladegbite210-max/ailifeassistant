@@ -115,24 +115,62 @@ document.getElementById("googleSignInBtn")?.addEventListener("click", async () =
 
     showAuthMessage("Connecting to Google...");
 
-    const { data, error } =
-        await window.supabaseClient.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo:
-                    window.location.origin +
-                    "/ailifeassistant/auth.html"
-            }
-        });
+    try {
 
-    if (error) {
-        console.error("❌ Google sign-in error:", error);
-        showAuthMessage(error.message, true);
-        return;
-    }
+        console.log("🔵 Starting Google sign-in...");
 
-    if (data?.url) {
+        const redirectUrl =
+            window.location.origin +
+            "/ailifeassistant/auth.html";
+
+        console.log("🔵 Redirect URL:", redirectUrl);
+
+        const { data, error } =
+            await window.supabaseClient.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: redirectUrl
+                }
+            });
+
+        console.log("🔵 Supabase OAuth response:", data);
+        console.log("🔵 Supabase OAuth error:", error);
+
+        if (error) {
+            console.error("❌ Google sign-in error:", error);
+
+            showAuthMessage(
+                "Google sign-in error: " + error.message,
+                true
+            );
+
+            return;
+        }
+
+        if (!data?.url) {
+
+            showAuthMessage(
+                "Google sign-in failed: Supabase did not return a login URL.",
+                true
+            );
+
+            return;
+        }
+
+        console.log("✅ Google login URL received.");
+
         window.location.href = data.url;
+
+    } catch (error) {
+
+        console.error("❌ Google sign-in exception:", error);
+
+        showAuthMessage(
+            "Google sign-in exception: " +
+            (error?.message || String(error)),
+            true
+        );
+
     }
 
 });
