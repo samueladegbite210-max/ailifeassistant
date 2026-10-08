@@ -438,28 +438,20 @@ BOTTOM NAVIGATION
 SIDE MENU
 ==================================================*/
 
-.side-menu{
-
-    position:fixed;
-
-    top:0;
-
-    left:-300px;
-
-    width:280px;
-
-    height:100%;
-
-    background:var(--card2);
-
-    padding:25px;
-
-    transition:.35s;
-
-    z-index:3000;
-
-    overflow-y:auto;
-
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    box-sizing: border-box;
+    background: var(--card2);
+    padding: 25px;
+    transition: left .35s ease;
+    z-index: 3000;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 .side-menu.open{
 
