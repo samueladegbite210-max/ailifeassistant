@@ -48,7 +48,7 @@ authForm?.addEventListener("submit", async (event) => {
 
     showAuthMessage("✅ Signed in successfully.");
 
-    window.location.href = "chat.html";
+    window.location.href =  "dashboard.html";
 });
 
 
