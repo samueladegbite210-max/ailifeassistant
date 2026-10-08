@@ -229,7 +229,6 @@ document
 // -----------------------------------------------------
 // CHECK CURRENT SESSION
 // -----------------------------------------------------
-
 (async function checkCurrentSession() {
 
     const { data, error } =
@@ -241,10 +240,13 @@ document
     }
 
     if (data.session) {
+
         console.log(
-            "ℹ️ Existing Supabase session:",
+            "✅ Authenticated user:",
             data.session.user.email
         );
+
+        window.location.href = "dashboard.html";
     }
 
 })();
