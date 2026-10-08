@@ -209,8 +209,8 @@ document
                 email,
                 {
                     redirectTo:
-                        window.location.origin +
-                        window.location.pathname
+    window.location.origin +
+    "/ailifeassistant/reset-password.html"
                 }
             );
 
