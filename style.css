@@ -3727,6 +3727,26 @@ ChatGPT Typing Animation
         margin-top: 14px;
     }
 }
+
+.signOutButton {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 12px;
+    background: #ef4444;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+}
+
+.signOutButton:hover {
+    opacity: 0.9;
+}
 /*==================================================
 THE END
 ==================================================*/
