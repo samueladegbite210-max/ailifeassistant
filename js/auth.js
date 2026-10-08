@@ -98,7 +98,7 @@ document
         if (data.session) {
             showAuthMessage("✅ Account created. Opening your assistant...");
 
-            window.location.href = "chat.html";
+            window.location.href = "dashboard.html";
         } else {
             showAuthMessage(
                 "✅ Account created. Please check your email to confirm your account."
