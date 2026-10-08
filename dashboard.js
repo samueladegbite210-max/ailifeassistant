@@ -820,9 +820,10 @@ function dashboardHealthCheck() {
 ==================================================*/
 
 function initSideMenu() {
-    const menuBtn  = document.getElementById("menuBtn");
+    const menuBtn = document.getElementById("menuBtn");
     const closeBtn = document.getElementById("closeBtn");
     const sideMenu = document.getElementById("sideMenu");
+    const menuOverlay = document.getElementById("menuOverlay");
 
     if (!menuBtn || !sideMenu) {
         console.warn("Side menu elements not found");
@@ -832,39 +833,62 @@ function initSideMenu() {
     // Open menu
     menuBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+
         sideMenu.classList.add("open");
-        document.body.style.overflow = "hidden";
+
+        if (menuOverlay) {
+            menuOverlay.classList.add("show");
+        }
+
+        // Keep the page from moving behind the menu
+        // while allowing the menu itself to scroll.
+        document.body.style.overflow = "";
     });
 
     // Close menu
+    function closeMenu() {
+        sideMenu.classList.remove("open");
+
+        if (menuOverlay) {
+            menuOverlay.classList.remove("show");
+        }
+
+        document.body.style.overflow = "";
+    }
+
     if (closeBtn) {
-        closeBtn.addEventListener("click", () => {
-            sideMenu.classList.remove("open");
-            document.body.style.overflow = "";
+        closeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeMenu();
         });
     }
 
-    // Close when clicking any link inside the menu
+    // Close when clicking a menu link
     sideMenu.querySelectorAll("a").forEach(link => {
         link.addEventListener("click", () => {
-            sideMenu.classList.add("active");
-         sideMenu.classList.remove("active");
-            document.body.style.overflow = "";
+            closeMenu();
         });
     });
 
+    // Close when clicking the overlay
+    if (menuOverlay) {
+        menuOverlay.addEventListener("click", () => {
+            closeMenu();
+        });
+    }
+
     // Close when clicking outside the menu
     document.addEventListener("click", (e) => {
-        if (sideMenu.classList.contains("open") &&
+        if (
+            sideMenu.classList.contains("open") &&
             !sideMenu.contains(e.target) &&
             e.target !== menuBtn &&
-            !menuBtn.contains(e.target)) {
-            sideMenu.classList.remove("open");
-            document.body.style.overflow = "";
+            !menuBtn.contains(e.target)
+        ) {
+            closeMenu();
         }
     });
 }
-
 
 /*==================================================
  DASHBOARD REFRESH ENGINE
