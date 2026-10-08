@@ -376,7 +376,23 @@ Keep opening AI Life Assistant every day!
 
 <script src="reminders.js"></script>
 <script src="dashboard.js"></script>
+<script>
+document.getElementById("signOutBtn")?.addEventListener("click", async () => {
 
+    const { error } =
+        await window.supabaseClient.auth.signOut();
+
+    if (error) {
+        console.error("❌ Sign out error:", error);
+        alert("Unable to sign out. Please try again.");
+        return;
+    }
+
+    console.log("✅ User signed out.");
+
+    window.location.href = "auth.html";
+});
+</script>
     
 </body>
 </html>
