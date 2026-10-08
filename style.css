@@ -3738,6 +3738,15 @@ ChatGPT Typing Animation
 .signOutButton:hover {
     opacity: 0.9;
 }
+.side-menu {
+    height: 100vh;
+    max-height: 100vh;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+}
 /*==================================================
 THE END
 ==================================================*/
