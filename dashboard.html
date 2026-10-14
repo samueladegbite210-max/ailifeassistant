@@ -375,65 +375,37 @@ Keep opening AI Life Assistant every day!
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script src="js/supabaseClient.js"></script>
+
 <script src="js/userStorage.js"></script>
 
+<script src="reminders.js"></script>
+
+<script src="dashboard.js"></script>
+
 <script>
-(async function initializeDashboard() {
-    try {
-        const { data, error } =
-            await window.supabaseClient.auth.getSession();
 
-        if (error || !data.session) {
-            window.location.replace("auth.html");
-            return;
-        }
+document.getElementById("signOutBtn")?.addEventListener("click", async () => {
 
-        await window.userStorage.initialize();
+    const { error } =
 
-        console.log("✅ User storage initialized.");
+        await window.supabaseClient.auth.signOut();
 
-        // Load application scripts only after authentication.
-        const scripts = [
-            "reminders.js",
-            "dashboard.js"
-        ];
+    if (error) {
 
-        for (const src of scripts) {
-            await new Promise((resolve, reject) => {
-                const script = document.createElement("script");
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = () =>
-                    reject(new Error("Failed to load " + src));
-                document.body.appendChild(script);
-            });
-        }
+        console.error("❌ Sign out error:", error);
 
-        document.getElementById("signOutBtn")
-            ?.addEventListener("click", async () => {
-                const { error } =
-                    await window.supabaseClient.auth.signOut();
+        alert("Unable to sign out. Please try again.");
 
-                if (error) {
-                    console.error("Sign-out error:", error);
-                    alert("Unable to sign out. Please try again.");
-                    return;
-                }
+        return;
 
-                window.location.replace("auth.html");
-            });
+    }
 
-    } catch (error) {
-    console.error("Dashboard initialization failed:", error);
+    window.location.href = "auth.html";
 
-    alert(
-        "Dashboard error: " +
-        (error.message || String(error)) +
-        "\n\nPlease take a screenshot and send it to ChatGPT."
-    );
-}
-})();
+});
+
 
 </script>
     
