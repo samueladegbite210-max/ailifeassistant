@@ -57,65 +57,46 @@
 
 </div>
 
-            <div class="authDivider">
-                <span>or</span>
-            </div>
-
-            <form id="authForm">
-
-                <label for="authEmail">
-                    Email
-                </label>
-
-                <input
-                    type="email"
-                    id="authEmail"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    required
-                >
-
-                <label for="authPassword">
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    id="authPassword"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
-
-          <button type="submit" id="signInBtn" class="primaryAuthButton">
-    Sign In
-</button>
-
-            </form>
-
-            <button
+            <div id="emailAuthSection" style="display: none;">
+<div class="authDivider">
+    <span>or</span>
+</div>
+<form id="authForm">
+    <label for="authEmail">Email</label>
+    <input
+        type="email"
+        id="authEmail"
+        placeholder="Enter your email"
+        autocomplete="email"
+        required
+    >
+    <label for="authPassword">Password</label>
+    <input
+        type="password"
+        id="authPassword"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        required
+    >
+    <button type="submit" id="signInBtn" class="primaryAuthButton">
+        Sign In
+    </button>
+</form>
+<button
     type="button"
     id="forgotPasswordBtn"
     class="forgotPasswordLink"
 >
     Forgot password?
 </button>
-
-            <p id="authMessage"></p>
-
-            <p class="authSwitch">
-
-                Don't have an account?
-
-                <button
-                    type="button"
-                    id="createAccountBtn"
-                >
-                    Create Account
-                </button>
-
-            </p>
-
+<p class="authSwitch">
+    Don't have an account?
+    <button type="button" id="createAccountBtn">
+        Create Account
+    </button>
+</p>
+</div>
+<p id="authMessage"></p>
         </section>
 
     </main>
