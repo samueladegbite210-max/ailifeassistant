@@ -15,7 +15,7 @@ const APP = {
     name: "AI Life Assistant",
     version: "6.1.2",
     author: "Adegbite Samuel Abayomi",
-    username: localStorage.getItem("profileName") || "Samuel",
+    username: "Samuel",
     clockInterval: 1000,
     refreshInterval: 30000,
     weatherRefresh: 600000,
@@ -35,15 +35,18 @@ const CACHE = {
 
 
 /*==================================================
- SAFE STORAGE
+ USER-SPECIFIC SAFE STORAGE
 ==================================================*/
 
 const Storage = {
     read(key, fallback = []) {
         try {
-            const value = localStorage.getItem(key);
+            const value = window.userStorage.getItem(key);
+
             if (value === null) return fallback;
+
             return JSON.parse(value);
+
         } catch (error) {
             console.error("Storage Read Error:", key, error);
             return fallback;
@@ -52,8 +55,13 @@ const Storage = {
 
     write(key, value) {
         try {
-            localStorage.setItem(key, JSON.stringify(value));
+            window.userStorage.setItem(
+                key,
+                JSON.stringify(value)
+            );
+
             return true;
+
         } catch (error) {
             console.error("Storage Write Error:", key, error);
             return false;
@@ -61,6 +69,14 @@ const Storage = {
     }
 };
 
+
+// Load the signed-in user's profile name.
+try {
+    APP.username =
+        window.userStorage.getItem("profileName") || "Samuel";
+} catch (error) {
+    console.error("Unable to load profile name:", error);
+}
 
 /*==================================================
  LOAD ALL DASHBOARD DATA
