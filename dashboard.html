@@ -378,25 +378,59 @@ Keep opening AI Life Assistant every day!
 <script src="js/supabaseClient.js"></script>
 <script src="js/userStorage.js"></script>
 
-<script src="reminders.js"></script>
-<script src="dashboard.js"></script>
-
 <script>
-document.getElementById("signOutBtn")?.addEventListener("click", async () => {
+(async function initializeDashboard() {
+    try {
+        const { data, error } =
+            await window.supabaseClient.auth.getSession();
 
-    const { error } =
-        await window.supabaseClient.auth.signOut();
+        if (error || !data.session) {
+            window.location.replace("auth.html");
+            return;
+        }
 
-    if (error) {
-        console.error("❌ Sign out error:", error);
-        alert("Unable to sign out. Please try again.");
-        return;
+        await window.userStorage.initialize();
+
+        console.log("✅ User storage initialized.");
+
+        // Load application scripts only after authentication.
+        const scripts = [
+            "reminders.js",
+            "dashboard.js"
+        ];
+
+        for (const src of scripts) {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = () =>
+                    reject(new Error("Failed to load " + src));
+                document.body.appendChild(script);
+            });
+        }
+
+        document.getElementById("signOutBtn")
+            ?.addEventListener("click", async () => {
+                const { error } =
+                    await window.supabaseClient.auth.signOut();
+
+                if (error) {
+                    console.error("Sign-out error:", error);
+                    alert("Unable to sign out. Please try again.");
+                    return;
+                }
+
+                window.location.replace("auth.html");
+            });
+
+    } catch (error) {
+        console.error("Dashboard initialization failed:", error);
+        alert("Unable to load your dashboard. Please sign in again.");
+        window.location.replace("auth.html");
     }
+})();
 
-    console.log("✅ User signed out.");
-
-    window.location.href = "auth.html";
-});
 </script>
     
 </body>
