@@ -42,9 +42,20 @@
             throw new Error("Supabase client is not available.");
         }
 
-        const { data, error } =
-            await window.supabaseClient.auth.getUser();
+        let data;
+let error;
 
+try {
+    const result =
+        await window.supabaseClient.auth.getUser();
+
+    data = result.data;
+    error = result.error;
+
+} catch (err) {
+    console.error("Supabase getUser failed:", err);
+    throw err;
+}
         if (error || !data.user) {
             currentUserId = null;
             initialized = false;
