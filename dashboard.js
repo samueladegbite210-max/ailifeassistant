@@ -34,19 +34,17 @@ const CACHE = {
 };
 
 
+
 /*==================================================
- USER-SPECIFIC SAFE STORAGE
+ SAFE STORAGE
 ==================================================*/
 
 const Storage = {
     read(key, fallback = []) {
         try {
-            const value = window.userStorage.getItem(key);
-
+            const value = localStorage.getItem(key);
             if (value === null) return fallback;
-
             return JSON.parse(value);
-
         } catch (error) {
             console.error("Storage Read Error:", key, error);
             return fallback;
@@ -55,20 +53,14 @@ const Storage = {
 
     write(key, value) {
         try {
-            window.userStorage.setItem(
-                key,
-                JSON.stringify(value)
-            );
-
+            localStorage.setItem(key, JSON.stringify(value));
             return true;
-
         } catch (error) {
             console.error("Storage Write Error:", key, error);
             return false;
         }
     }
 };
-
 
 // Load the signed-in user's profile name.
 try {
