@@ -4,7 +4,9 @@
 // AI Life Assistant - Tasks
 // ==========================
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = JSON.parse(
+    window.userStorage.getItem("tasks")
+) || [];
 
 const taskInput     = document.getElementById("taskInput");
 const taskPriority  = document.getElementById("taskPriority");
@@ -55,12 +57,15 @@ function addTask() {
 // Save
 // ==========================
 function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    window.userStorage.setItem(
+        "tasks",
+        JSON.stringify(tasks)
+    );
+
     renderTasks();
     updateTaskSummary();
     updateTaskProgress();
 }
-
 // ==========================
 // Render Tasks
 // ==========================
