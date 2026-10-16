@@ -42,7 +42,9 @@ const CACHE = {
 const Storage = {
     read(key, fallback = []) {
         try {
-            const value = localStorage.getItem(key);
+            const value = window.userStorage.isInitialized()
+    ? window.userStorage.getItem(key)
+    : localStorage.getItem(key);
             if (value === null) return fallback;
             return JSON.parse(value);
         } catch (error) {
@@ -53,7 +55,11 @@ const Storage = {
 
     write(key, value) {
         try {
-            localStorage.setItem(key, JSON.stringify(value));
+            if (window.userStorage.isInitialized()) {
+    window.userStorage.setItem(key, JSON.stringify(value));
+} else {
+    localStorage.setItem(key, JSON.stringify(value));
+}
             return true;
         } catch (error) {
             console.error("Storage Write Error:", key, error);
