@@ -129,8 +129,11 @@ document.getElementById("googleSignInBtn")?.addEventListener("click", async () =
             await window.supabaseClient.auth.signInWithOAuth({
                 provider: "google",
                 options: {
-                    redirectTo: redirectUrl
-                }
+    redirectTo: redirectUrl,
+    queryParams: {
+        prompt: "select_account"
+    }
+}
             });
 
         console.log("🔵 Supabase OAuth response:", data);
