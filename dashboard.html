@@ -378,7 +378,15 @@ Keep opening AI Life Assistant every day!
 
 <script src="js/supabaseClient.js"></script>
 
+
 <script src="js/userStorage.js"></script>
+
+<script>
+window.userStorage.initialize().catch(function(error) {
+    console.error("User storage initialization failed:", error);
+});
+</script>
+
 
 <script src="reminders.js"></script>
 
