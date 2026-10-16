@@ -2,20 +2,33 @@
 
 console.log("🚀 Conversation Manager loading...");
 
-(function () {
+
+(async function () {
 
     /* =====================================================
-       STORAGE
+       STORAGE — SEPARATE EACH SIGNED-IN USER
     ===================================================== */
 
+    const { data, error } =
+        await window.supabaseClient.auth.getUser();
+
+    if (error || !data.user) {
+        console.error(
+            "Conversation Manager: No signed-in user found."
+        );
+        return;
+    }
+
+    const userId = data.user.id;
+
     const STORAGE_KEY =
-        "aiLifeAssistantConversations";
+        "aiLifeAssistantConversations_" + userId;
 
     const CURRENT_CHAT_KEY =
-        "aiLifeAssistantCurrentConversationId";
+        "aiLifeAssistantCurrentConversationId_" + userId;
 
     const DRAFT_PREFIX =
-        "aiLifeAssistantDraft_";
+        "aiLifeAssistantDraft_" + userId + "_";
 
     const NEW_DRAFT_KEY =
         DRAFT_PREFIX + "new";
