@@ -150,7 +150,38 @@ onclick="window.location.href='dashboard.html'">
 
 </div>
 
-<script src="tasks.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/supabaseClient.js"></script>
+
+<script src="js/userStorage.js"></script>
+
+<script>
+
+(async function () {
+
+    try {
+
+        await window.userStorage.initialize();
+
+        const script = document.createElement("script");
+
+        script.src = "tasks.js";
+
+        document.body.appendChild(script);
+
+    } catch (error) {
+
+        console.error("Tasks initialization failed:", error);
+
+        alert("Please sign in again to access your tasks.");
+
+    }
+
+})();
+
+</script>
 
 </body>
+
 </html>
