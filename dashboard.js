@@ -68,13 +68,19 @@ const Storage = {
     }
 };
 
-// Load the signed-in user's profile name.
+ // Load the profile name safely.
 try {
-    APP.username =
-        window.userStorage.getItem("profileName") || "Samuel";
+    if (window.userStorage.isInitialized()) {
+        APP.username =
+            window.userStorage.getItem("profileName") || "Samuel";
+    } else {
+        APP.username = "Samuel";
+    }
 } catch (error) {
     console.error("Unable to load profile name:", error);
+    APP.username = "Samuel";
 }
+
 
 /*==================================================
  LOAD ALL DASHBOARD DATA
