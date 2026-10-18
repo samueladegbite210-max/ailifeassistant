@@ -380,34 +380,12 @@ Keep opening AI Life Assistant every day!
 
 
 
+
 <script src="js/userStorage.js"></script>
 
-<script>
-(async function () {
-    try {
-        await window.userStorage.initialize();
+<script src="reminders.js"></script>
 
-        const remindersScript = document.createElement("script");
-        remindersScript.src = "reminders.js";
-        document.body.appendChild(remindersScript);
-
-        remindersScript.onload = function () {
-            const dashboardScript = document.createElement("script");
-            dashboardScript.src = "dashboard.js";
-            document.body.appendChild(dashboardScript);
-        };
-
-        remindersScript.onerror = function () {
-            console.error("Unable to load reminders.js");
-        };
-
-    } catch (error) {
-        console.error("User storage initialization failed:", error);
-        alert("Please sign in again to access your personal data.");
-        window.location.href = "auth.html";
-    }
-})();
-</script>
+<script src="dashboard.js"></script>
 
 <script>
 document.getElementById("signOutBtn")?.addEventListener("click", async () => {
@@ -422,7 +400,5 @@ document.getElementById("signOutBtn")?.addEventListener("click", async () => {
     window.location.href = "auth.html";
 });
 </script>
-
-    
 </body>
 </html>
