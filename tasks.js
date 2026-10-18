@@ -56,16 +56,15 @@ function addTask() {
 // ==========================
 // Save
 // ==========================
+
 function saveTasks() {
-    window.userStorage.setItem(
-        "tasks",
-        JSON.stringify(tasks)
-    );
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 
     renderTasks();
     updateTaskSummary();
     updateTaskProgress();
 }
+
 // ==========================
 // Render Tasks
 // ==========================
