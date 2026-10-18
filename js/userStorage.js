@@ -57,11 +57,20 @@ try {
     throw err;
 }
         if (error || !data.user) {
-            currentUserId = null;
-            initialized = false;
+    currentUserId = null;
+    initialized = false;
 
-            throw new Error("Please sign in before accessing your data.");
-        }
+    console.error(
+        "User storage auth check failed:",
+        error,
+        "User found:",
+        !!data.user
+    );
+
+    throw new Error(
+        error?.message || "Supabase returned no signed-in user."
+    );
+}
 
         const userId = data.user.id;
 
