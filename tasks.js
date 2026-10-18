@@ -5,7 +5,7 @@
 // ==========================
 
 let tasks = JSON.parse(
-    window.userStorage.getItem("tasks")
+    localStorage.getItem("tasks")
 ) || [];
 
 const taskInput     = document.getElementById("taskInput");
