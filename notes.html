@@ -115,190 +115,381 @@ placeholder="🔍 Search notes...">
 <script src="js/supabaseClient.js"></script>
 <script>
 
+
 const notes = document.getElementById("notes");
+const noteTitle = document.getElementById("noteTitle");
+const notesList = document.getElementById("notesList");
+const searchNote = document.getElementById("searchNote");
 
-notes.value = localStorage.getItem("notes") || "";
+let allNotes = [];
+let currentUserId = null;
+let editingNoteId = null;
+let notesLoaded = false;
 
-function saveNote(){
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
 
-    const title = document.getElementById("noteTitle").value.trim();
+function draftKey() {
+    return "aiLifeAssistantNotesDraft_" + currentUserId;
+}
+
+async function loadNotes() {
+    try {
+        const client = window.supabaseClient;
+
+        if (!client) {
+            throw new Error("Supabase client is unavailable.");
+        }
+
+        const { data: authData, error: authError } =
+            await client.auth.getUser();
+
+        if (authError) throw authError;
+
+        if (!authData.user) {
+            throw new Error("Please sign in to access your notes.");
+        }
+
+        currentUserId = authData.user.id;
+
+        const { data, error } = await client
+            .from("notes")
+            .select("id, note_data")
+            .eq("user_id", currentUserId);
+
+        if (error) throw error;
+
+        allNotes = (data || []).map(row => ({
+            dbId: row.id,
+            id: row.note_data.id,
+            title: row.note_data.title,
+            content: row.note_data.content
+        }));
+
+        const savedDraft = localStorage.getItem(draftKey());
+
+        if (savedDraft !== null) {
+            try {
+                const draft = JSON.parse(savedDraft);
+                noteTitle.value = draft.title || "";
+                notes.value = draft.content || "";
+            } catch {
+                noteTitle.value = "";
+                notes.value = "";
+            }
+        } else {
+            // Preserve the old browser draft for the first signed-in
+            // account, then save it under that account's own draft key.
+            const legacyDraft = localStorage.getItem("notes") || "";
+
+            if (legacyDraft) {
+                notes.value = legacyDraft;
+                localStorage.setItem(draftKey(), JSON.stringify({
+                    title: "",
+                    content: legacyDraft
+                }));
+                localStorage.removeItem("notes");
+            }
+        }
+
+        notesLoaded = true;
+        renderNotes();
+
+    } catch (error) {
+        console.error("Unable to load notes:", error);
+        alert("Unable to load your notes. Please try again.");
+    }
+}
+
+function renderNotes() {
+    if (!notesLoaded) return;
+
+    const keyword = searchNote.value.toLowerCase();
+
+    const filteredNotes = [...allNotes]
+        .filter(note =>
+            String(note.title || "").toLowerCase().includes(keyword) ||
+            String(note.content || "").toLowerCase().includes(keyword)
+        )
+        .reverse();
+
+    notesList.innerHTML = "";
+
+    filteredNotes.forEach(note => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const title = document.createElement("h3");
+        title.textContent = note.title;
+
+        const content = document.createElement("p");
+        content.textContent = note.content;
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "✏️ Edit";
+        editButton.onclick = () => editNote(note.id);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "🗑 Delete";
+        deleteButton.onclick = () => deleteNote(note.id);
+
+        card.append(title, content, editButton, deleteButton);
+        notesList.appendChild(card);
+    });
+}
+
+function saveDraft() {
+    if (!currentUserId || !notesLoaded) return;
+
+    localStorage.setItem(draftKey(), JSON.stringify({
+        title: noteTitle.value,
+        content: notes.value
+    }));
+}
+
+async function saveNote() {
+    if (!notesLoaded || !currentUserId) {
+        alert("Please wait for your notes to finish loading.");
+        return;
+    }
+
+    const title = noteTitle.value.trim();
     const content = notes.value.trim();
 
-    if(title === "" || content === ""){
-
+    if (!title || !content) {
         alert("Please enter a title and note.");
-
         return;
-
     }
 
-    let allNotes = JSON.parse(localStorage.getItem("allNotes")) || [];
+    try {
+        const client = window.supabaseClient;
 
-    allNotes.push({
-        id: Date.now(),
-        title: title,
-        content: content
-    });
-
-    localStorage.setItem("allNotes", JSON.stringify(allNotes));
-
-    document.getElementById("noteTitle").value = "";
-    notes.value = "";
-
-    loadNotes();
-
-    alert("✅ Note Saved!");
-
-}
-
-notes.addEventListener("input", function(){
-
-    localStorage.setItem("notes", notes.value);
-
-});
-
-document.addEventListener("keydown", function(event){
-
-    if((event.ctrlKey || event.metaKey) && event.key === "s"){
-
-        event.preventDefault();
-
-        saveNote();
-
-    }
-
-});
-    function loadNotes(){
-
-    const container = document.getElementById("notesList");
-
-    if(!container) return;
-
-    let allNotes = JSON.parse(localStorage.getItem("allNotes")) || [];
-
-    container.innerHTML = "";
-
-    allNotes.reverse().forEach(function(note){
-
-        container.innerHTML += `
-        <div class="card">
-
-            <h3>${note.title}</h3>
-
-            <p>${note.content}</p>
-
-            <button onclick="editNote(${note.id})">
-            ✏️ Edit
-            </button>
-
-            <button onclick="deleteNote(${note.id})">
-            🗑 Delete
-            </button>
-
-        </div>
-        
-        `;
-
-    });
-
-}
-    document.getElementById("searchNote").addEventListener("input", function(){
-
-    const keyword = this.value.toLowerCase();
-
-    let allNotes =
-        JSON.parse(localStorage.getItem("allNotes")) || [];
-
-    const container =
-        document.getElementById("notesList");
-
-    container.innerHTML = "";
-
-    allNotes
-        .reverse()
-        .filter(function(note){
-
-            return (
-                note.title.toLowerCase().includes(keyword) ||
-                note.content.toLowerCase().includes(keyword)
+        if (editingNoteId !== null) {
+            const existing = allNotes.find(
+                note => String(note.id) === String(editingNoteId)
             );
 
-        })
-        .forEach(function(note){
+            if (!existing) {
+                throw new Error("The note could not be found.");
+            }
 
-            container.innerHTML += `
-            <div class="card">
+            const { data, error } = await client
+                .from("notes")
+                .update({
+                    note_data: {
+                        id: existing.id,
+                        title,
+                        content
+                    }
+                })
+                .eq("id", existing.dbId)
+                .eq("user_id", currentUserId)
+                .select("id, note_data")
+                .single();
 
-                <h3>${note.title}</h3>
+            if (error) throw error;
 
-                <p>${note.content}</p>
+            existing.title = data.note_data.title;
+            existing.content = data.note_data.content;
+        } else {
+            const newId = Date.now();
 
-                <button onclick="editNote(${note.id})">
-                ✏️ Edit
-                </button>
+            const { data, error } = await client
+                .from("notes")
+                .insert({
+                    user_id: currentUserId,
+                    note_data: {
+                        id: newId,
+                        title,
+                        content
+                    }
+                })
+                .select("id, note_data")
+                .single();
 
-                <button onclick="deleteNote(${note.id})">
-                🗑 Delete
-                </button>
+            if (error) throw error;
 
-            </div>
-            `;
+            allNotes.push({
+                dbId: data.id,
+                id: data.note_data.id,
+                title: data.note_data.title,
+                content: data.note_data.content
+            });
+        }
 
-        });
-
-});
-    function clearNote(){
-
-    if(confirm("Delete current note?")){
-
-        document.getElementById("noteTitle").value = "";
+        editingNoteId = null;
+        noteTitle.value = "";
         notes.value = "";
+        saveDraft();
+        renderNotes();
 
+        alert("✅ Note saved successfully!");
+
+    } catch (error) {
+        console.error("Unable to save note:", error);
+        alert("Unable to save your note: " + error.message);
     }
-
 }
-    function editNote(id){
 
-    let allNotes =
-        JSON.parse(localStorage.getItem("allNotes")) || [];
+function editNote(id) {
+    const note = allNotes.find(
+        item => String(item.id) === String(id)
+    );
 
-    const note = allNotes.find(function(n){
+    if (!note) return;
 
-        return n.id === id;
+    editingNoteId = note.id;
+    noteTitle.value = note.title;
+    notes.value = note.content;
 
+    saveDraft();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
     });
-
-    if(!note) return;
-
-    document.getElementById("noteTitle").value = note.title;
-
-    document.getElementById("notes").value = note.content;
-
-    deleteNote(id);
-
 }
 
-function deleteNote(id){
+async function deleteNote(id) {
+    if (!confirm("🗑 Delete this note?")) return;
 
-    if(!confirm("🗑 Delete this note?")){
-        return;
+    const note = allNotes.find(
+        item => String(item.id) === String(id)
+    );
+
+    if (!note || !currentUserId) return;
+
+    try {
+        const { error } = await window.supabaseClient
+            .from("notes")
+            .delete()
+            .eq("id", note.dbId)
+            .eq("user_id", currentUserId);
+
+        if (error) throw error;
+
+        allNotes = allNotes.filter(
+            item => String(item.id) !== String(id)
+        );
+
+        if (String(editingNoteId) === String(id)) {
+            editingNoteId = null;
+            noteTitle.value = "";
+            notes.value = "";
+            saveDraft();
+        }
+
+        renderNotes();
+
+    } catch (error) {
+        console.error("Unable to delete note:", error);
+        alert("Unable to delete your note. Please try again.");
     }
-
-    let allNotes =
-        JSON.parse(localStorage.getItem("allNotes")) || [];
-
-    allNotes = allNotes.filter(function(note){
-
-        return note.id !== id;
-
-    });
-
-    localStorage.setItem("allNotes", JSON.stringify(allNotes));
-
-    loadNotes();
-
 }
-    loadNotes();
+
+function clearNote() {
+    if (!confirm("Clear the current note editor?")) return;
+
+    noteTitle.value = "";
+    notes.value = "";
+    editingNoteId = null;
+    saveDraft();
+}
+
+notes.addEventListener("input", saveDraft);
+noteTitle.addEventListener("input", saveDraft);
+searchNote.addEventListener("input", renderNotes);
+
+document.addEventListener("keydown", event => {
+    if ((event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        saveNote();
+    }
+});
+
+// Temporary migration function. Keep it until backup cleanup is complete.
+window.migrateNotesToSupabase = async function () {
+    try {
+        const client = window.supabaseClient;
+
+        if (!client) {
+            alert("Supabase is not available. Please try again.");
+            return;
+        }
+
+        const { data: authData, error: authError } =
+            await client.auth.getUser();
+
+        if (authError) throw authError;
+
+        if (!authData.user) {
+            alert("Please sign in before backing up your notes.");
+            return;
+        }
+
+        const savedNotes = JSON.parse(
+            localStorage.getItem("allNotes") || "[]"
+        );
+
+        if (savedNotes.length === 0) {
+            alert("No saved browser notes were found.");
+            return;
+        }
+
+        const { data: existingRows, error: readError } =
+            await client
+                .from("notes")
+                .select("note_data")
+                .eq("user_id", authData.user.id);
+
+        if (readError) throw readError;
+
+        const existingIds = new Set(
+            (existingRows || []).map(
+                row => String(row.note_data.id)
+            )
+        );
+
+        const records = savedNotes
+            .filter(note => !existingIds.has(String(note.id)))
+            .map(note => ({
+                user_id: authData.user.id,
+                note_data: {
+                    id: note.id,
+                    title: note.title,
+                    content: note.content
+                }
+            }));
+
+        if (records.length === 0) {
+            alert("Your browser notes are already backed up.");
+            return;
+        }
+
+        const { error } = await client
+            .from("notes")
+            .insert(records);
+
+        if (error) throw error;
+
+        alert("Success! " + records.length +
+            " additional notes backed up. Browser copies remain untouched.");
+
+    } catch (error) {
+        console.error("Notes backup failed:", error);
+        alert("Notes backup failed: " + error.message);
+    }
+};
+
+loadNotes();
 
     
 window.migrateNotesToSupabase = async function () {
