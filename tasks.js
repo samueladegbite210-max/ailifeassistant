@@ -239,25 +239,38 @@ function escapeHtml(str) {
 // ==========================
 // Complete / Uncomplete Task
 // ==========================
-function toggleTask(id) {
-    tasks = tasks.map(task => {
-        if (task.id === id) {
-            if (!task.done) {
-                task.done = true;
 
-                if (typeof addXP === "function") {
-                    addXP(10);
-                }
+async function toggleTask(id) {
+    const task = tasks.find(task => task.id === id);
 
-                createNotification("✅ Task completed: " + task.text);
-            } else {
-                task.done = false;
+    if (!task) return;
+
+    if (!tasksLoaded || !currentTaskUserId) {
+        alert("Please wait for your tasks to finish loading.");
+        return;
+    }
+
+    const previousDone = task.done;
+
+    task.done = !task.done;
+
+    try {
+        await saveTasks();
+
+        if (task.done) {
+            createNotification("✅ Task completed: " + task.text);
+
+            if (typeof addXP === "function") {
+                addXP(10);
             }
         }
-        return task;          // ← always return the task
-    });
+    } catch (error) {
+        task.done = previousDone;
 
-    saveTasks();
+        renderTasks();
+        updateTaskSummary();
+        updateTaskProgress();
+    }
 }
 
 // ==========================
