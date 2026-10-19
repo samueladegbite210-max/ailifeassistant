@@ -390,16 +390,21 @@ async function migrateGoalsToSupabase() {
 
         if (readError) throw readError;
 
-        const existingTitles = new Set(
-            (existingGoals || []).map(row =>
-                row.goal_data?.title || row.goal_data?.text || ""
-            )
-        );
+        
+const existingIds = new Set(
+    (existingGoals || [])
+        .map(row => row.goal_data?.id)
+        .filter(id => id !== undefined && id !== null)
+        .map(id => String(id))
+);
 
-        const goalsToInsert = localGoals.filter(goal => {
-            const title = goal.title || goal.text || "";
-            return title && !existingTitles.has(title);
-        });
+const goalsToInsert = localGoals.filter(goal => {
+    return (
+        goal.id !== undefined &&
+        goal.id !== null &&
+        !existingIds.has(String(goal.id))
+    );
+});
 
         if (goalsToInsert.length === 0) {
             alert("Your goals are already backed up. No duplicates were added.");
