@@ -16,6 +16,52 @@ const taskPriority  = document.getElementById("taskPriority");
 const taskList      = document.getElementById("taskList");
 const searchTask    = document.getElementById("searchTask");
 
+
+async function loadTasksFromSupabase() {
+    if (tasksLoading) return;
+
+    tasksLoading = true;
+
+    try {
+        if (!window.supabaseClient) {
+            throw new Error("Supabase client is unavailable.");
+        }
+
+        const { data: authData, error: authError } =
+            await window.supabaseClient.auth.getUser();
+
+        if (authError) throw authError;
+
+        if (!authData.user) {
+            throw new Error("Please sign in to load your tasks.");
+        }
+
+        currentTaskUserId = authData.user.id;
+
+        const { data, error } = await window.supabaseClient
+            .from("tasks")
+            .select("task_data")
+            .eq("user_id", currentTaskUserId);
+
+        if (error) throw error;
+
+        tasks = (data || []).map(row => row.task_data);
+
+        tasksLoaded = true;
+
+        renderTasks();
+        updateTaskSummary();
+        updateTaskProgress();
+
+    } catch (error) {
+        console.error("Unable to load tasks from Supabase:", error);
+        alert("Unable to load your tasks from the database. Please try again.");
+    } finally {
+        tasksLoading = false;
+    }
+}
+
+
 // ==========================
 // Notifications
 // ==========================
