@@ -280,11 +280,19 @@ window.migrateTasksToSupabase = async function () {
                 .insert(records)
                 .select();
 
-        if (uploadError) {
-            console.error("Task migration failed:", uploadError);
-            alert("Migration failed. Your original tasks are still saved. Please tell me the error.");
-            return;
-        }
+        
+if (uploadError) {
+    console.error("Task migration failed:", uploadError);
+
+    alert(
+        "Migration failed:\n" +
+        uploadError.message +
+        "\nCode: " + (uploadError.code || "unknown")
+    );
+
+    return;
+}
+
 
         alert(
             "Success! " + uploaded.length +
