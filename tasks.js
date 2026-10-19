@@ -234,13 +234,67 @@ initializeTasks();
 // ==========================
 // Safe task backup for Supabase migration
 // ==========================
-window.backupTasksForMigration = function () {
-    const savedTasks = JSON.parse(
-        localStorage.getItem("tasks") || "[]"
-    );
 
-    console.log("Task backup:", JSON.stringify(savedTasks));
+window.migrateTasksToSupabase = async function () {
+    try {
+        // Check the Supabase client
+        if (!window.supabaseClient) {
+            alert("Supabase is not available. Please try again.");
+            return;
+        }
 
-    return savedTasks;
+        // Confirm the signed-in user
+        const { data, error } =
+            await window.supabaseClient.auth.getUser();
+
+        if (error || !data.user) {
+            alert("Please sign in before migrating your tasks.");
+            return;
+        }
+
+        // Read existing tasks without deleting them
+        const savedTasks = JSON.parse(
+            localStorage.getItem("tasks") || "[]"
+        );
+
+        if (savedTasks.length === 0) {
+            alert("No existing tasks were found.");
+            return;
+        }
+
+        // Prepare records for the Supabase table
+        const records = savedTasks.map(task => ({
+            user_id: data.user.id,
+            task_data: {
+                id: task.id,
+                text: task.text,
+                priority: task.priority,
+                done: task.done
+            }
+        }));
+
+        // Upload tasks to Supabase
+        const { data: uploaded, error: uploadError } =
+            await window.supabaseClient
+                .from("tasks")
+                .insert(records)
+                .select();
+
+        if (uploadError) {
+            console.error("Task migration failed:", uploadError);
+            alert("Migration failed. Your original tasks are still saved. Please tell me the error.");
+            return;
+        }
+
+        alert(
+            "Success! " + uploaded.length +
+            " tasks uploaded to Supabase. Your original tasks are still saved in Safari."
+        );
+
+        console.log("Migrated tasks:", uploaded);
+
+    } catch (error) {
+        console.error("Task migration error:", error);
+        alert("Something went wrong. Your original tasks have not been deleted.");
+    }
 };
-
