@@ -229,3 +229,18 @@ function initializeTasks() {
 }
 
 initializeTasks();
+
+ 
+// ==========================
+// Safe task backup for Supabase migration
+// ==========================
+window.backupTasksForMigration = function () {
+    const savedTasks = JSON.parse(
+        localStorage.getItem("tasks") || "[]"
+    );
+
+    console.log("Task backup:", JSON.stringify(savedTasks));
+
+    return savedTasks;
+};
+
