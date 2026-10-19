@@ -276,19 +276,64 @@ async function toggleTask(id) {
 // ==========================
 // Delete Task
 // ==========================
-function deleteTask(id) {
-    if (!confirm("Delete this task?")) return;
 
-    const deleted = tasks.find(task => task.id === id);
+async function deleteTask(id) {
+    if (!tasksLoaded || !currentTaskUserId) {
+        alert("Please wait for your tasks to finish loading.");
+        return;
+    }
+
+    const task = tasks.find(task => task.id === id);
+
+    if (!task) return;
+
+    if (!confirm("Are you sure you want to delete this task?")) {
+        return;
+    }
+
+    const previousTasks = [...tasks];
 
     tasks = tasks.filter(task => task.id !== id);
 
-    if (deleted) {
-        createNotification("🗑 Deleted task: " + deleted.text);
-    }
+    try {
+        await saveTasks();
 
-    saveTasks();
+        const { data: rows, error: findError } =
+            await window.supabaseClient
+                .from("tasks")
+                .select("id, task_data")
+                .eq("user_id", currentTaskUserId);
+
+        if (findError) throw findError;
+
+        const record = (rows || []).find(
+            row => String(row.task_data.id) === String(id)
+        );
+
+        if (record) {
+            const { error: deleteError } =
+                await window.supabaseClient
+                    .from("tasks")
+                    .delete()
+                    .eq("id", record.id)
+                    .eq("user_id", currentTaskUserId);
+
+            if (deleteError) throw deleteError;
+        }
+
+        createNotification("🗑️ Task deleted: " + task.text);
+
+    } catch (error) {
+        tasks = previousTasks;
+        renderTasks();
+        updateTaskSummary();
+        updateTaskProgress();
+
+        console.error("Unable to delete task:", error);
+        alert("Unable to delete the task. Please try again.");
+    }
 }
+
 
 // ==========================
 // Summary
