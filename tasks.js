@@ -106,13 +106,49 @@ function addTask() {
 // Save
 // ==========================
 
-function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
 
-    renderTasks();
-    updateTaskSummary();
-    updateTaskProgress();
+async function saveTasks() {
+    if (!tasksLoaded || !currentTaskUserId) {
+        alert("Your tasks are not loaded yet. Please wait and try again.");
+        return;
+    }
+
+    try {
+        const records = tasks.map(task => ({
+            user_id: currentTaskUserId,
+            task_data: {
+                id: task.id,
+                text: task.text,
+                priority: task.priority,
+                done: task.done
+            }
+        }));
+
+        const { error: deleteError } = await window.supabaseClient
+            .from("tasks")
+            .delete()
+            .eq("user_id", currentTaskUserId);
+
+        if (deleteError) throw deleteError;
+
+        if (records.length > 0) {
+            const { error: insertError } = await window.supabaseClient
+                .from("tasks")
+                .insert(records);
+
+            if (insertError) throw insertError;
+        }
+
+        renderTasks();
+        updateTaskSummary();
+        updateTaskProgress();
+
+    } catch (error) {
+        console.error("Unable to save tasks:", error);
+        alert("Unable to save your tasks to the database. Please tell me.");
+    }
 }
+
 
 // ==========================
 // Render Tasks
