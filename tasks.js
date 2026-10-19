@@ -81,7 +81,13 @@ function createNotification(message) {
 // ==========================
 // Add Task
 // ==========================
-function addTask() {
+
+async function addTask() {
+    if (!tasksLoaded || !currentTaskUserId) {
+        alert("Please wait for your tasks to finish loading.");
+        return;
+    }
+
     const text = taskInput.value.trim();
 
     if (text === "") {
@@ -89,17 +95,26 @@ function addTask() {
         return;
     }
 
-    tasks.push({
+    const newTask = {
         id: Date.now(),
         text: text,
         priority: taskPriority.value,
         done: false
-    });
+    };
 
-    createNotification("📝 New task added: " + text);
-    taskInput.value = "";
+    tasks.push(newTask);
 
-    saveTasks();
+    try {
+        await saveTasks();
+
+        createNotification("📝 New task added: " + text);
+        taskInput.value = "";
+    } catch (error) {
+        tasks = tasks.filter(task => task.id !== newTask.id);
+        renderTasks();
+        updateTaskSummary();
+        updateTaskProgress();
+    }
 }
 
 // ==========================
@@ -307,10 +322,9 @@ function getTaskSummary() {
 // ==========================
 // Start
 // ==========================
-function initializeTasks() {
-    renderTasks();
-    updateTaskSummary();
-    updateTaskProgress();
+
+async function initializeTasks() {
+    await loadTasksFromSupabase();
 }
 
 initializeTasks();
