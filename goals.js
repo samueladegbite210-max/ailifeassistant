@@ -176,7 +176,7 @@ function deleteGoal(id){
 
     saveGoals();
 
-}
+
 
 }
 refreshNotifications();
@@ -360,3 +360,72 @@ document.addEventListener(
     initializeGoals
 
 );
+
+async function migrateGoalsToSupabase() {
+    try {
+        const { data: { user }, error: authError } =
+            await window.supabaseClient.auth.getUser();
+
+        if (authError) throw authError;
+
+        if (!user) {
+            alert("Please sign in before backing up your goals.");
+            return;
+        }
+
+        const localGoals = JSON.parse(
+            localStorage.getItem("goals") || "[]"
+        );
+
+        if (!Array.isArray(localGoals) || localGoals.length === 0) {
+            alert("No existing browser goals were found to back up.");
+            return;
+        }
+
+        const { data: existingGoals, error: readError } =
+            await window.supabaseClient
+                .from("goals")
+                .select("goal_data")
+                .eq("user_id", user.id);
+
+        if (readError) throw readError;
+
+        const existingTitles = new Set(
+            (existingGoals || []).map(row =>
+                row.goal_data?.title || row.goal_data?.text || ""
+            )
+        );
+
+        const goalsToInsert = localGoals.filter(goal => {
+            const title = goal.title || goal.text || "";
+            return title && !existingTitles.has(title);
+        });
+
+        if (goalsToInsert.length === 0) {
+            alert("Your goals are already backed up. No duplicates were added.");
+            return;
+        }
+
+        const rows = goalsToInsert.map(goal => ({
+            user_id: user.id,
+            goal_data: goal
+        }));
+
+        const { error: insertError } = await window.supabaseClient
+            .from("goals")
+            .insert(rows);
+
+        if (insertError) throw insertError;
+
+        alert(
+            "Success! " + goalsToInsert.length +
+            " goals backed up to Supabase.\n" +
+            "Your original browser goals remain untouched."
+        );
+
+    } catch (error) {
+        console.error("Goals backup failed:", error);
+        alert("Goals backup failed: " + error.message);
+    }
+}
+
