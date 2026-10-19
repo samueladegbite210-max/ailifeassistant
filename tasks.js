@@ -4,9 +4,12 @@
 // AI Life Assistant - Tasks
 // ==========================
 
-let tasks = JSON.parse(
-    localStorage.getItem("tasks")
-) || [];
+
+let tasks = [];
+let tasksLoaded = false;
+let tasksLoading = false;
+let currentTaskUserId = null;
+
 
 const taskInput     = document.getElementById("taskInput");
 const taskPriority  = document.getElementById("taskPriority");
