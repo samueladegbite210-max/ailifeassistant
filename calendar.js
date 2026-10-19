@@ -1,12 +1,122 @@
 
-let events = JSON.parse(localStorage.getItem("events")) || [];
+let events = [];
+let currentUserId = null;
+let eventsLoaded = false;
+let editingEventId = null;
 
 const eventList = document.getElementById("eventList");
+const searchEvent = document.getElementById("searchEvent");
 
-// Load events when page opens
-renderEvents();
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
 
-function addEvent() {
+async function loadEvents() {
+    try {
+        const client = window.supabaseClient;
+        if (!client) throw new Error("Supabase client is unavailable.");
+
+        const { data: authData, error: authError } =
+            await client.auth.getUser();
+
+        if (authError) throw authError;
+        if (!authData.user) {
+            throw new Error("Please sign in to access your events.");
+        }
+
+        currentUserId = authData.user.id;
+
+        const { data, error } = await client
+            .from("events")
+            .select("id, event_data")
+            .eq("user_id", currentUserId);
+
+        if (error) throw error;
+
+        events = (data || []).map(row => ({
+            ...row.event_data,
+            dbId: row.id
+        }));
+
+        eventsLoaded = true;
+        renderEvents();
+        updateCalendarSummary();
+        loadTodayEvent();
+        loadNextEvent();
+
+    } catch (error) {
+        console.error("Unable to load events:", error);
+        alert("Unable to load your events. Please sign in and try again.");
+    }
+}
+
+function renderEvents() {
+    if (!eventsLoaded || !eventList) return;
+
+    eventList.innerHTML = "";
+
+    const keyword = searchEvent
+        ? searchEvent.value.toLowerCase().trim()
+        : "";
+
+    const filtered = [...events]
+        .filter(event =>
+            [event.title, event.location, event.notes]
+                .some(value => String(value || "").toLowerCase().includes(keyword))
+        )
+        .sort((a, b) =>
+            new Date(a.date + "T" + (a.time || "00:00")) -
+            new Date(b.date + "T" + (b.time || "00:00"))
+        );
+
+    if (filtered.length === 0) {
+        eventList.textContent = keyword
+            ? "No matching events found."
+            : "No upcoming events.";
+        return;
+    }
+
+    filtered.forEach(event => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const title = document.createElement("h3");
+        title.textContent = "📅 " + (event.title || "");
+
+        const details = document.createElement("div");
+        details.innerHTML = `
+            <p><strong>Date:</strong> ${escapeHtml(event.date)}</p>
+            ${event.time ? `<p><strong>Time:</strong> ${escapeHtml(event.time)}</p>` : ""}
+            ${event.location ? `<p><strong>Location:</strong> ${escapeHtml(event.location)}</p>` : ""}
+            ${event.notes ? `<p><strong>Notes:</strong> ${escapeHtml(event.notes)}</p>` : ""}
+            ${event.reminder ? `<p><strong>Reminder:</strong> ${escapeHtml(event.reminder)}</p>` : ""}
+            ${event.repeat ? `<p><strong>Repeat:</strong> ${escapeHtml(event.repeat)}</p>` : ""}
+        `;
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "✏️ Edit";
+        editButton.onclick = () => editEvent(event.dbId);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "🗑 Delete";
+        deleteButton.onclick = () => deleteEvent(event.dbId);
+
+        card.append(title, details, editButton, deleteButton);
+        eventList.appendChild(card);
+    });
+}
+
+async function addEvent() {
+    if (!eventsLoaded || !currentUserId) {
+        alert("Please wait for your events to finish loading.");
+        return;
+    }
 
     const title = document.getElementById("eventTitle").value.trim();
     const date = document.getElementById("eventDate").value;
@@ -16,29 +126,115 @@ function addEvent() {
     const reminder = document.getElementById("eventReminder").value;
     const repeat = document.getElementById("eventRepeat").value;
 
-    if (title === "" || date === "") {
+    if (!title || !date) {
         alert("Please enter an Event Title and Date.");
         return;
     }
 
-    const newEvent = {
-        title: title,
-        date: date,
-        time: time,
-        location: location,
-        notes: notes,
-        reminder: reminder,
-        repeat: repeat
+    const eventData = {
+        title, date, time, location, notes, reminder, repeat
     };
 
-    events.push(newEvent);
+    try {
+        if (editingEventId) {
+            const existing = events.find(event => event.dbId === editingEventId);
+            if (!existing) throw new Error("The event could not be found.");
 
-    localStorage.setItem("events", JSON.stringify(events));
+            const { data, error } = await window.supabaseClient
+                .from("events")
+                .update({ event_data: eventData })
+                .eq("id", editingEventId)
+                .eq("user_id", currentUserId)
+                .select("id, event_data")
+                .single();
 
-    renderEvents();
-updateCalendarSummary();
-loadTodayEvent();
-    // Clear form
+            if (error) throw error;
+
+            events = events.map(event =>
+                event.dbId === editingEventId
+                    ? { ...data.event_data, dbId: data.id }
+                    : event
+            );
+        } else {
+            const { data, error } = await window.supabaseClient
+                .from("events")
+                .insert({
+                    user_id: currentUserId,
+                    event_data: eventData
+                })
+                .select("id, event_data")
+                .single();
+
+            if (error) throw error;
+
+            events.push({ ...data.event_data, dbId: data.id });
+        }
+
+        editingEventId = null;
+        clearEventForm();
+        renderEvents();
+        updateCalendarSummary();
+        loadTodayEvent();
+        loadNextEvent();
+
+        alert("✅ Event saved successfully!");
+
+    } catch (error) {
+        console.error("Unable to save event:", error);
+        alert("Unable to save your event: " + error.message);
+    }
+}
+
+function editEvent(dbId) {
+    const event = events.find(item => item.dbId === dbId);
+    if (!event) return;
+
+    editingEventId = dbId;
+    document.getElementById("eventTitle").value = event.title || "";
+    document.getElementById("eventDate").value = event.date || "";
+    document.getElementById("eventTime").value = event.time || "";
+    document.getElementById("eventLocation").value = event.location || "";
+    document.getElementById("eventNotes").value = event.notes || "";
+    document.getElementById("eventReminder").value = event.reminder || "none";
+    document.getElementById("eventRepeat").value = event.repeat || "none";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function deleteEvent(dbId) {
+    if (!confirm("Delete this event?")) return;
+
+    const event = events.find(item => item.dbId === dbId);
+    if (!event || !currentUserId) return;
+
+    try {
+        const { error } = await window.supabaseClient
+            .from("events")
+            .delete()
+            .eq("id", dbId)
+            .eq("user_id", currentUserId);
+
+        if (error) throw error;
+
+        events = events.filter(item => item.dbId !== dbId);
+
+        if (editingEventId === dbId) {
+            editingEventId = null;
+            clearEventForm();
+        }
+
+        renderEvents();
+        updateCalendarSummary();
+        loadTodayEvent();
+        loadNextEvent();
+
+    } catch (error) {
+        console.error("Unable to delete event:", error);
+        alert("Unable to delete your event. Please try again.");
+    }
+}
+
+function clearEventForm() {
     document.getElementById("eventTitle").value = "";
     document.getElementById("eventDate").value = "";
     document.getElementById("eventTime").value = "";
@@ -46,243 +242,84 @@ loadTodayEvent();
     document.getElementById("eventNotes").value = "";
     document.getElementById("eventReminder").value = "none";
     document.getElementById("eventRepeat").value = "none";
-
-    alert("✅ Event saved successfully!");
-
 }
 
-function renderEvents() {
+function updateCalendarSummary() {
+    if (!eventsLoaded) return;
 
-    eventList.innerHTML = "";
-events.sort(function(a, b){
-
-    return new Date(a.date + " " + (a.time || "00:00")) -
-           new Date(b.date + " " + (b.time || "00:00"));
-
-});
-    if (events.length === 0) {
-        eventList.innerHTML = "<li>No upcoming events.</li>";
-        return;
-    }
-
-    events.forEach(function(event, index){
-
-        const card = document.createElement("div");
-
-card.className = "card";
-
-card.innerHTML = `
-    <h3>📅 ${event.title}</h3>
-
-    <p><strong>Date:</strong> ${event.date}</p>
-
-    ${event.time ? `<p><strong>Time:</strong> ${event.time}</p>` : ""}
-
-    ${event.location ? `<p><strong>Location:</strong> ${event.location}</p>` : ""}
-
-    ${event.notes ? `<p><strong>Notes:</strong> ${event.notes}</p>` : ""}
-
-    <button onclick="editEvent(${index})">
-        ✏️ Edit
-    </button>
-
-    <button onclick="deleteEvent(${index})">
-        🗑 Delete
-    </button>
-`;
-        eventList.appendChild(card);
-
-    });
-
-}
-
-function deleteEvent(index){
-
-    if(confirm("Delete this event?")){
-
-        events.splice(index,1);
-
-        localStorage.setItem("events", JSON.stringify(events));
-
-        renderEvents();
-updateCalendarSummary();
-loadTodayEvent();
-    }
-    
-}
-function editEvent(index){
-
-    const event = events[index];
-
-    document.getElementById("eventTitle").value = event.title;
-    document.getElementById("eventDate").value = event.date;
-    document.getElementById("eventTime").value = event.time;
-    document.getElementById("eventLocation").value = event.location;
-    document.getElementById("eventNotes").value = event.notes;
-    document.getElementById("eventReminder").value = event.reminder;
-    document.getElementById("eventRepeat").value = event.repeat;
-
-    events.splice(index,1);
-
-    localStorage.setItem("events", JSON.stringify(events));
-
-    renderEvents();
-
-}
-    
-// ==========================
-// Next Upcoming Event
-// ==========================
-
-function loadNextEvent(){
-
-    const nextEventBox = document.getElementById("nextEvent");
-
-    if(!nextEventBox) return;
-
-    let events = JSON.parse(localStorage.getItem("events")) || [];
-
-    if(events.length === 0){
-
-        nextEventBox.innerHTML = "<p>No upcoming events.</p>";
-
-        return;
-
-    }
-
-    events.sort(function(a,b){
-
-        return new Date(a.date + " " + (a.time || "00:00")) -
-               new Date(b.date + " " + (b.time || "00:00"));
-
-    });
-
-    const next = events[0];
-
-    nextEventBox.innerHTML = `
-        <strong>📅 ${next.title}</strong><br>
-        ${next.date}<br>
-        ${next.time ? "🕒 " + next.time : ""}
-    `;
-
-}
-
-loadNextEvent();
-document.getElementById("searchEvent").addEventListener("input", function(){
-
-    const keyword = this.value.toLowerCase().trim();
-
-    // If search box is empty, show all events again
-    if(keyword === ""){
-        renderEvents();
-        return;
-    }
-
-    const container = document.getElementById("eventList");
-    container.innerHTML = "";
-
-    events
-    .filter(function(event){
-
-        return (
-            (event.title || "").toLowerCase().includes(keyword) ||
-            (event.location || "").toLowerCase().includes(keyword) ||
-            (event.notes || "").toLowerCase().includes(keyword)
-        );
-
-    })
-    .forEach(function(event, index){
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-            <h3>📅 ${event.title}</h3>
-
-            <p><strong>Date:</strong> ${event.date}</p>
-
-            ${event.time ? `<p>🕒 ${event.time}</p>` : ""}
-            ${event.location ? `<p>📍 ${event.location}</p>` : ""}
-            ${event.notes ? `<p>📝 ${event.notes}</p>` : ""}
-
-            <button onclick="editEvent(${index})">✏️ Edit</button>
-
-            <button onclick="deleteEvent(${index})">🗑 Delete</button>
-        `;
-
-        container.appendChild(card);
-
-    });
-
-    // If nothing matches
-    if(container.innerHTML === ""){
-        container.innerHTML = "<p>❌ No matching events found.</p>";
-    }
-
-});
-// ==========================
-// Calendar Summary
-// ==========================
-
-function updateCalendarSummary(){
-
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-
-    const today = new Date().toISOString().split("T")[0];
-
-    const upcoming = events.filter(event => event.date >= today);
-
-    const todayEvents = events.filter(event => event.date === today);
+    const today = new Date();
+    const todayString = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
 
     document.getElementById("totalEvents").textContent = events.length;
-
-    document.getElementById("todayEvents").textContent = todayEvents.length;
-
-    document.getElementById("upcomingEvents").textContent = upcoming.length;
-
+    document.getElementById("todayEvents").textContent =
+        events.filter(event => event.date === todayString).length;
+    document.getElementById("upcomingEvents").textContent =
+        events.filter(event => event.date >= todayString).length;
 }
-// ==========================
-// Today's Event
-// ==========================
 
-function loadTodayEvent(){
-
+function loadTodayEvent() {
     const box = document.getElementById("todayEvent");
+    if (!box || !eventsLoaded) return;
 
-    if(!box) return;
+    const today = new Date();
+    const todayString = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
 
-    const events = JSON.parse(localStorage.getItem("events")) || [];
-
-    const today = new Date().toISOString().split("T")[0];
-
-    const todayEvents = events.filter(event => event.date === today);
-
-    if(todayEvents.length === 0){
-
-        box.innerHTML = "No events today.";
-
-        return;
-
-    }
+    const todayEvents = events.filter(event => event.date === todayString);
 
     box.innerHTML = "";
 
-    todayEvents.forEach(function(event){
+    if (todayEvents.length === 0) {
+        box.textContent = "No events today.";
+        return;
+    }
 
-        box.innerHTML += `
-            <strong>${event.title}</strong><br>
-            📅 ${event.date}<br>
-            ${event.time ? "🕒 " + event.time : ""}
-            <br><br>
-        `;
-
+    todayEvents.forEach(event => {
+        const item = document.createElement("p");
+        item.textContent =
+            event.title + " — " + event.date +
+            (event.time ? " at " + event.time : "");
+        box.appendChild(item);
     });
-
 }
-renderEvents();
-updateCalendarSummary();
-loadTodayEvent();
-loadNextEvent();
+
+function loadNextEvent() {
+    const box = document.getElementById("nextEvent");
+    if (!box || !eventsLoaded) return;
+
+    const today = new Date();
+    const todayString = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
+
+    const upcoming = [...events]
+        .filter(event => event.date >= todayString)
+        .sort((a, b) =>
+            new Date(a.date + "T" + (a.time || "00:00")) -
+            new Date(b.date + "T" + (b.time || "00:00"))
+        );
+
+    box.textContent = upcoming.length
+        ? upcoming[0].title + " — " + upcoming[0].date +
+          (upcoming[0].time ? " at " + upcoming[0].time : "")
+        : "No upcoming events.";
+}
+
+if (searchEvent) {
+    searchEvent.addEventListener("input", renderEvents);
+}
+
+loadEvents();
+
 
 
 
