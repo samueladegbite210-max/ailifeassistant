@@ -277,6 +277,7 @@ async function toggleTask(id) {
 // Delete Task
 // ==========================
 
+
 async function deleteTask(id) {
     if (!tasksLoaded || !currentTaskUserId) {
         alert("Please wait for your tasks to finish loading.");
@@ -291,13 +292,7 @@ async function deleteTask(id) {
         return;
     }
 
-    const previousTasks = [...tasks];
-
-    tasks = tasks.filter(task => task.id !== id);
-
     try {
-        await saveTasks();
-
         const { data: rows, error: findError } =
             await window.supabaseClient
                 .from("tasks")
@@ -321,14 +316,15 @@ async function deleteTask(id) {
             if (deleteError) throw deleteError;
         }
 
-        createNotification("🗑️ Task deleted: " + task.text);
+        tasks = tasks.filter(task => task.id !== id);
 
-    } catch (error) {
-        tasks = previousTasks;
         renderTasks();
         updateTaskSummary();
         updateTaskProgress();
 
+        createNotification("🗑️ Task deleted: " + task.text);
+
+    } catch (error) {
         console.error("Unable to delete task:", error);
         alert("Unable to delete the task. Please try again.");
     }
