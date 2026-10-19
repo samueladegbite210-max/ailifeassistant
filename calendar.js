@@ -283,3 +283,82 @@ renderEvents();
 updateCalendarSummary();
 loadTodayEvent();
 loadNextEvent();
+
+
+
+window.migrateEventsToSupabase = async function () {
+    try {
+        const client = window.supabaseClient;
+
+        if (!client) {
+            alert("Supabase is unavailable. Please try again.");
+            return;
+        }
+
+        const { data: authData, error: authError } =
+            await client.auth.getUser();
+
+        if (authError) throw authError;
+
+        if (!authData.user) {
+            alert("Please sign in before backing up your events.");
+            return;
+        }
+
+        const savedEvents = JSON.parse(
+            localStorage.getItem("events") || "[]"
+        );
+
+        if (!Array.isArray(savedEvents) || savedEvents.length === 0) {
+            alert("No saved browser events were found.");
+            return;
+        }
+
+        const { data: existingRows, error: readError } =
+            await client
+                .from("events")
+                .select("event_data")
+                .eq("user_id", authData.user.id);
+
+        if (readError) throw readError;
+
+        const existingIds = new Set(
+            (existingRows || [])
+                .map(row => row.event_data.legacyId)
+                .filter(Boolean)
+        );
+
+        const records = savedEvents
+            .map((event, index) => ({
+                user_id: authData.user.id,
+                event_data: {
+                    ...event,
+                    legacyId: "browser-event-" + index
+                }
+            }))
+            .filter(record =>
+                !existingIds.has(record.event_data.legacyId)
+            );
+
+        if (records.length === 0) {
+            alert("Your saved browser events are already backed up. No duplicates were added.");
+            return;
+        }
+
+        const { error } = await client
+            .from("events")
+            .insert(records);
+
+        if (error) throw error;
+
+        alert(
+            "Success! " + records.length +
+            " events backed up to Supabase. Your original browser events remain untouched."
+        );
+
+    } catch (error) {
+        console.error("Event backup failed:", error);
+        alert("Event backup failed: " + error.message);
+    }
+};
+
