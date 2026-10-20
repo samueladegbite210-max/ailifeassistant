@@ -948,13 +948,27 @@ function refreshDashboard() {
  INITIALIZATION
 ==================================================*/
 
-function initializeDashboard() {
-    dashboardHealthCheck();
-    refreshDashboard();
-    initSideMenu();                 // ← Side menu now works
 
-    setInterval(updateClock, APP.clockInterval);
-    setInterval(refreshDashboard, APP.refreshInterval);
+async function initializeDashboard() {
+    try {
+        // Initialize storage for the signed-in user first.
+        await window.userStorage.initialize();
+
+        // Load the dashboard only after initialization succeeds.
+        dashboardHealthCheck();
+        refreshDashboard();
+        initSideMenu();
+
+        setInterval(updateClock, APP.clockInterval);
+        setInterval(refreshDashboard, APP.refreshInterval);
+
+    } catch (error) {
+        console.error(
+            "Dashboard initialization failed:",
+            error
+        );
+    }
 }
+
 
 document.addEventListener("DOMContentLoaded", initializeDashboard);
