@@ -949,26 +949,13 @@ function refreshDashboard() {
 ==================================================*/
 
 
-async function initializeDashboard() {
-    try {
-        // Initialize storage for the signed-in user first.
-        await window.userStorage.initialize();
+function initializeDashboard() {
+    dashboardHealthCheck();
+    refreshDashboard();
+    initSideMenu();
 
-        // Load the dashboard only after initialization succeeds.
-        dashboardHealthCheck();
-        refreshDashboard();
-        initSideMenu();
-
-        setInterval(updateClock, APP.clockInterval);
-        setInterval(refreshDashboard, APP.refreshInterval);
-
-    } catch (error) {
-        console.error(
-            "Dashboard initialization failed:",
-            error
-        );
-    }
+    setInterval(updateClock, APP.clockInterval);
+    setInterval(refreshDashboard, APP.refreshInterval);
 }
-
 
 document.addEventListener("DOMContentLoaded", initializeDashboard);
