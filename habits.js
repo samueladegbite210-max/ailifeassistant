@@ -137,6 +137,8 @@ function updateHabitProgress() {
 // if that user has no habits saved in Supabase yet.
 async function initializeHabits() {
     habitsReady = false;
+    currentUser = null;
+    habits = [];
     renderHabits();
     try {
         const client = window.supabaseClient;
@@ -149,7 +151,9 @@ async function initializeHabits() {
         currentUser = sessionData.session?.user || null;
         if (!currentUser) {
             const box = document.getElementById("habitList");
-            if (box) box.textContent = "Please sign in to access your habits.";
+            if (box) {
+                box.textContent = "Please sign in to access your habits.";
+            }
             return;
         }
         const { data: rows, error: loadError } = await client
@@ -163,24 +167,39 @@ async function initializeHabits() {
                 dbId: row.id
             }));
         } else {
-            // Preserve and migrate the user's existing browser habits.
-            habits = getLegacyHabits();
-            for (const habit of habits) {
-                const { data, error } = await client
-                    .from("habits")
-                    .insert({
-                        user_id: currentUser.id,
-                        habit_data: cleanHabit(habit)
-                    })
-                    .select("id")
-                    .single();
-                if (error) throw error;
-                habit.dbId = data.id;
-            }
-            localStorage.setItem(
-                "habits",
-                JSON.stringify(habits.map(cleanHabit))
-            );
+            // Show defaults without importing shared browser data.
+            habits = [
+                {
+                    id: 1,
+                    title: "💧 Drink Water",
+                    streak: 0,
+                    lastCompleted: null
+                },
+                {
+                    id: 2,
+                    title: "🏃 Exercise",
+                    streak: 0,
+                    lastCompleted: null
+                },
+                {
+                    id: 3,
+                    title: "📖 Read",
+                    streak: 0,
+                    lastCompleted: null
+                },
+                {
+                    id: 4,
+                    title: "😴 Sleep Before 11PM",
+                    streak: 0,
+                    lastCompleted: null
+                },
+                {
+                    id: 5,
+                    title: "🙏 Pray",
+                    streak: 0,
+                    lastCompleted: null
+                }
+            ];
         }
         habitsReady = true;
         renderHabits();
@@ -190,8 +209,7 @@ async function initializeHabits() {
         const box = document.getElementById("habitList");
         if (box) {
             box.textContent =
-                "Could not load habits. Your existing browser data has not been intentionally deleted. Please refresh and try again.";
+                "Could not load habits. Please refresh and try again.";
         }
     }
 }
-initializeHabits();
