@@ -3,185 +3,347 @@
 // ==========================
 
 
-let goals = JSON.parse(localStorage.getItem("goals")) || [];
+
+/* =========================================
+   AI Life Assistant - Goals
+   Supabase user-specific storage
+========================================= */
+
+let goals = [];
+let currentUserId = null;
+let editingGoalId = null;
+let goalsLoaded = false;
 
 const goalTitle = document.getElementById("goalTitle");
 const goalDescription = document.getElementById("goalDescription");
 const goalDeadline = document.getElementById("goalDeadline");
 const goalCategory = document.getElementById("goalCategory");
-
 const goalList = document.getElementById("goalList");
-// Add Goal
-function saveGoal(){
+
+const goalsClient = window.supabaseClient;
+
+// Get the signed-in user
+async function getGoalsUser() {
+    const { data, error } =
+        await goalsClient.auth.getUser();
+
+    if (error) throw error;
+
+    if (!data.user) {
+        throw new Error("Please sign in to access your goals.");
+    }
+
+    return data.user;
+}
+
+// Load only this user's goals
+async function loadGoals() {
+    try {
+        if (!goalsClient) {
+            throw new Error("Supabase client is not available.");
+        }
+
+        const user = await getGoalsUser();
+        currentUserId = user.id;
+
+        const { data, error } = await goalsClient
+            .from("goals")
+            .select("id, goal_data")
+            .eq("user_id", currentUserId);
+
+        if (error) throw error;
+
+        goals = (data || []).map(row => ({
+            ...row.goal_data,
+            dbId: row.id
+        }));
+
+        goalsLoaded = true;
+
+        renderGoals();
+        updateGoalSummary();
+        updateGoalProgress();
+
+    } catch (error) {
+        console.error("Failed to load goals:", error);
+        alert("Could not load goals: " + error.message);
+    }
+}
+
+// Save a new goal or update an existing goal
+async function saveGoal() {
+    if (!goalsLoaded || !currentUserId) {
+        alert("Your goals are still loading. Please try again.");
+        return;
+    }
 
     const title = goalTitle.value.trim();
     const description = goalDescription.value.trim();
     const deadline = goalDeadline.value;
     const category = goalCategory.value;
 
-    if(title === ""){
-
+    if (!title) {
         alert("Please enter a goal title.");
-
         return;
-
     }
 
-    goals.push({
+    const existingGoal = editingGoalId
+        ? goals.find(goal => goal.dbId === editingGoalId)
+        : null;
 
-    
-id: Date.now(),
-        title: title,
+    const goalData = {
+        ...(existingGoal || {}),
+        title,
+        description,
+        deadline,
+        category,
+        done: existingGoal ? existingGoal.done : false
+    };
 
-        description: description,
+    delete goalData.dbId;
 
-        deadline: deadline,
+    try {
+        if (existingGoal) {
+            const { error } = await goalsClient
+                .from("goals")
+                .update({ goal_data: goalData })
+                .eq("id", existingGoal.dbId)
+                .eq("user_id", currentUserId);
 
-        category: category,
+            if (error) throw error;
 
-        done: false
+            goals = goals.map(goal =>
+                goal.dbId === existingGoal.dbId
+                    ? { ...goalData, dbId: goal.dbId }
+                    : goal
+            );
 
-    });
+        } else {
+            const { data, error } = await goalsClient
+                .from("goals")
+                .insert({
+                    user_id: currentUserId,
+                    goal_data: goalData
+                })
+                .select("id, goal_data")
+                .single();
 
-    saveGoals();
+            if (error) throw error;
 
-    goalTitle.value = "";
-    goalDescription.value = "";
-    goalDeadline.value = "";
-    goalCategory.value = "Personal";
-
-}
-
-// Save Goals
-function saveGoals(){
-
-    localStorage.setItem(
-
-        "goals",
-
-        JSON.stringify(goals)
-
-    );
-
-    renderGoals();
-
-    updateGoalSummary();
-
-    updateGoalProgress();
-   refreshNotifications();
-}
-
-// Render Goals
-function renderGoals(){
-
-    goalList.innerHTML = "";
-
-    if(goals.length === 0){
-
-        goalList.innerHTML = "<p>No goals yet.</p>";
-
-        updateGoalSummary();
-
-        return;
-
-    }
-
-    goals.forEach(function(goal){
-
-        const card = document.createElement("div");
-
-        card.className = "card";
-
-        card.innerHTML = `
-
-        <h3>${goal.done ? "✅" : "🎯"} ${goal.title || goal.text}</h3>
-
-        ${goal.description ? `<p>${goal.description}</p>` : ""}
-
-        ${goal.category ? `<p>📂 ${goal.category}</p>` : ""}
-
-        ${goal.deadline ? `<p>📅 ${goal.deadline}</p>` : ""}
-
-    
-
-<button onclick="editGoal(${goal.id})">
-✏️ Edit
-</button>
-
-<button onclick="toggleGoal(${goal.id})">
-${goal.done ? "↩ Mark Pending" : "✅ Complete"}
-</button>
-
-<button onclick="deleteGoal(${goal.id})">
-🗑 Delete
-</button>
-        `;
-
-        goalList.appendChild(card);
-
-    });
-
-    updateGoalSummary();
-
-}
-// Complete Goal
-function toggleGoal(id){
-
-    goals = goals.map(goal=>{
-
-        if(goal.id === id){
-
-            if(!goal.done){
-
-                goal.done = true;
-
-                if(typeof addXP === "function"){
-
-                    addXP(20);
-
-                }
-
-                if(typeof addNotification === "function"){
-
-                    addNotification(
-                        `🎯 Goal Completed: ${goal.title}`,
-                        "Achievement"
-                    );
-
-                }
-
-            }else{
-
-                goal.done = false;
-
-            }
-
+            goals.push({
+                ...data.goal_data,
+                dbId: data.id
+            });
         }
 
-        return goal;
+        editingGoalId = null;
+        goalTitle.value = "";
+        goalDescription.value = "";
+        goalDeadline.value = "";
+        goalCategory.value = "Personal";
 
+        renderGoals();
+        updateGoalSummary();
+        updateGoalProgress();
+
+    } catch (error) {
+        console.error("Failed to save goal:", error);
+        alert("Could not save goal: " + error.message);
+    }
+}
+
+// Render goals safely
+function renderGoals(filteredGoals = goals) {
+    if (!goalList) return;
+
+    goalList.replaceChildren();
+
+    if (filteredGoals.length === 0) {
+        const message = document.createElement("p");
+        message.textContent = "No goals yet.";
+        goalList.appendChild(message);
+        return;
+    }
+
+    filteredGoals.forEach(goal => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const heading = document.createElement("h3");
+        heading.textContent =
+            `${goal.done ? "✅" : "🎯"} ${goal.title || goal.text || ""}`;
+        card.appendChild(heading);
+
+        if (goal.description) {
+            const description = document.createElement("p");
+            description.textContent = goal.description;
+            card.appendChild(description);
+        }
+
+        if (goal.category) {
+            const category = document.createElement("p");
+            category.textContent = `📂 ${goal.category}`;
+            card.appendChild(category);
+        }
+
+        if (goal.deadline) {
+            const deadline = document.createElement("p");
+            deadline.textContent = `📅 ${goal.deadline}`;
+            card.appendChild(deadline);
+        }
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "✏️ Edit";
+        editButton.addEventListener("click", () => editGoal(goal.dbId));
+        card.appendChild(editButton);
+
+        const completeButton = document.createElement("button");
+        completeButton.textContent = goal.done
+            ? "↩ Mark Pending"
+            : "✅ Complete";
+        completeButton.addEventListener(
+            "click",
+            () => toggleGoal(goal.dbId)
+        );
+        card.appendChild(completeButton);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "🗑 Delete";
+        deleteButton.addEventListener(
+            "click",
+            () => deleteGoal(goal.dbId)
+        );
+        card.appendChild(deleteButton);
+
+        goalList.appendChild(card);
     });
-
-    saveGoals();
-
 }
-refreshNotifications();
 
-// Delete Goal
-function deleteGoal(id){
+// Edit without deleting the original goal
+function editGoal(dbId) {
+    const goal = goals.find(item => item.dbId === dbId);
+    if (!goal) return;
 
-    if(!confirm("Delete this goal?")) return;
+    editingGoalId = dbId;
 
-    goals = goals.filter(goal => goal.id !== id);
+    goalTitle.value = goal.title || goal.text || "";
+    goalDescription.value = goal.description || "";
+    goalDeadline.value = goal.deadline || "";
+    goalCategory.value = goal.category || "Personal";
 
-    saveGoals();
-
-
-
+    goalTitle.focus();
 }
-refreshNotifications();
-function updateGoalSummary(){
 
+// Complete or reopen a goal
+async function toggleGoal(dbId) {
+    const goal = goals.find(item => item.dbId === dbId);
+    if (!goal || !currentUserId) return;
+
+    const updatedGoal = { ...goal, done: !goal.done };
+    delete updatedGoal.dbId;
+
+    try {
+        const { error } = await goalsClient
+            .from("goals")
+            .update({ goal_data: updatedGoal })
+            .eq("id", dbId)
+            .eq("user_id", currentUserId);
+
+        if (error) throw error;
+
+        goals = goals.map(item =>
+            item.dbId === dbId
+                ? { ...updatedGoal, dbId }
+                : item
+        );
+
+        if (updatedGoal.done) {
+            if (typeof addXP === "function") {
+                addXP(20);
+            }
+
+            if (typeof addNotification === "function") {
+                addNotification(
+                    `🎯 Goal Completed: ${updatedGoal.title || updatedGoal.text || ""}`,
+                    "Achievement"
+                );
+            }
+        }
+
+        renderGoals();
+        updateGoalSummary();
+        updateGoalProgress();
+
+        if (typeof refreshNotifications === "function") {
+            refreshNotifications();
+        }
+
+    } catch (error) {
+        console.error("Failed to update goal:", error);
+        alert("Could not update goal: " + error.message);
+    }
+}
+
+// Delete a goal belonging to this user
+async function deleteGoal(dbId) {
+    if (!confirm("Delete this goal?")) return;
+    if (!currentUserId) return;
+
+    try {
+        const { error } = await goalsClient
+            .from("goals")
+            .delete()
+            .eq("id", dbId)
+            .eq("user_id", currentUserId);
+
+        if (error) throw error;
+
+        goals = goals.filter(goal => goal.dbId !== dbId);
+
+        if (editingGoalId === dbId) {
+            editingGoalId = null;
+            goalTitle.value = "";
+            goalDescription.value = "";
+            goalDeadline.value = "";
+            goalCategory.value = "Personal";
+        }
+
+        renderGoals();
+        updateGoalSummary();
+        updateGoalProgress();
+
+    } catch (error) {
+        console.error("Failed to delete goal:", error);
+        alert("Could not delete goal: " + error.message);
+    }
+}
+
+// Search goals
+const searchGoal = document.getElementById("searchGoal");
+
+if (searchGoal) {
+    searchGoal.addEventListener("input", function () {
+        const keyword = this.value.toLowerCase().trim();
+
+        const filteredGoals = goals.filter(goal =>
+            (goal.title || goal.text || "").toLowerCase().includes(keyword) ||
+            (goal.description || "").toLowerCase().includes(keyword) ||
+            (goal.category || "").toLowerCase().includes(keyword)
+        );
+
+        renderGoals(filteredGoals);
+
+        if (filteredGoals.length === 0) {
+            goalList.replaceChildren();
+            const message = document.createElement("p");
+            message.textContent = "❌ No matching goals found.";
+            goalList.appendChild(message);
+        }
+    });
+}
+
+// Update goal counters
+function updateGoalSummary() {
     const total = goals.length;
     const completed = goals.filter(goal => goal.done).length;
     const pending = total - completed;
@@ -190,110 +352,14 @@ function updateGoalSummary(){
     const completedBox = document.getElementById("completedGoals");
     const pendingBox = document.getElementById("pendingGoals");
 
-    if(totalBox) totalBox.textContent = total;
-    if(completedBox) completedBox.textContent = completed;
-    if(pendingBox) pendingBox.textContent = pending;
-
+    if (totalBox) totalBox.textContent = total;
+    if (completedBox) completedBox.textContent = completed;
+    if (pendingBox) pendingBox.textContent = pending;
 }
-// ==========================
-// Edit Goal
-// ==========================
 
-function editGoal(id){
-
-    const goal = goals.find(g => g.id === id);
-
-    if(!goal) return;
-
-    goalTitle.value = goal.title;
-    goalDescription.value = goal.description;
-    goalDeadline.value = goal.deadline;
-    goalCategory.value = goal.category;
-
-    goals = goals.filter(g => g.id !== id);
-
-    saveGoals();
-
-}
-// ==========================
-// Search Goals
-// ==========================
-
-document.getElementById("searchGoal").addEventListener("input", function(){
-
-    const keyword = this.value.toLowerCase().trim();
-
-    if(keyword === ""){
-        renderGoals();
-        return;
-    }
-
-    goalList.innerHTML = "";
-
-    goals
-    .filter(function(goal){
-
-        return (
-
-            (goal.title || "").toLowerCase().includes(keyword) ||
-
-            (goal.description || "").toLowerCase().includes(keyword) ||
-
-            (goal.category || "").toLowerCase().includes(keyword)
-
-        );
-
-    })
-
-    .forEach(function(goal){
-
-        const card = document.createElement("div");
-
-        card.className = "card";
-
-        card.innerHTML = `
-
-        <h3>${goal.done ? "✅" : "🎯"} ${goal.title || goal.text}</h3>
-
-        ${goal.description ? `<p>${goal.description}</p>` : ""}
-
-        ${goal.category ? `<p>📂 ${goal.category}</p>` : ""}
-
-        ${goal.deadline ? `<p>📅 ${goal.deadline}</p>` : ""}
-
-        <button onclick="editGoal(${goal.id})">
-✏️ Edit
-</button>
-
-<button onclick="toggleGoal(${goal.id})">
-${goal.done ? "↩ Mark Pending" : "✅ Complete"}
-</button>
-
-<button onclick="deleteGoal(${goal.id})">
-🗑 Delete
-</button>
-
-        `;
-
-        goalList.appendChild(card);
-
-    });
-
-    if(goalList.innerHTML === ""){
-
-        goalList.innerHTML = "<p>❌ No matching goals found.</p>";
-
-    }
-
-});
-// ==========================
-// Goal Progress
-// ==========================
-
-function updateGoalProgress(){
-
+// Update progress bar
+function updateGoalProgress() {
     const total = goals.length;
-
     const completed = goals.filter(goal => goal.done).length;
 
     const percent = total === 0
@@ -303,63 +369,33 @@ function updateGoalProgress(){
     const bar = document.getElementById("goalProgressBar");
     const text = document.getElementById("goalProgressText");
 
-    if(bar){
-
-        bar.style.width = percent + "%";
-
-    }
-
-    if(text){
-
-        text.textContent = percent + "% Completed";
-
-    }
-
+    if (bar) bar.style.width = percent + "%";
+    if (text) text.textContent = percent + "% Completed";
 }
-// ==========================
-// AI Access to Goals
-// ==========================
 
+// AI access to the currently loaded goals
 function getGoals() {
-    return JSON.parse(localStorage.getItem("goals")) || [];
+    return goals.map(goal => {
+        const { dbId, ...goalData } = goal;
+        return goalData;
+    });
 }
-function getGoalSummary(){
 
-    const goals = getGoals();
-
+function getGoalSummary() {
     const total = goals.length;
-    const completed = goals.filter(g => g.done).length;
-    const pending = total - completed;
+    const completed = goals.filter(goal => goal.done).length;
 
     return {
         total,
         completed,
-        pending,
-        goals
+        pending: total - completed,
+        goals: getGoals()
     };
-
-}
-// Start
-
-function initializeGoals(){
-
-    renderGoals();
-
-    updateGoalSummary();
-
-    updateGoalProgress();
-
-    console.log("✅ Goals Engine Loaded");
-
 }
 
-document.addEventListener(
+// Initialize after the page loads
+document.addEventListener("DOMContentLoaded", loadGoals);
 
-    "DOMContentLoaded",
-
-    initializeGoals
-
-);
 
 async function migrateGoalsToSupabase() {
     try {
