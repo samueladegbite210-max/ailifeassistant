@@ -165,42 +165,36 @@ async function initializeHabits() {
             habits = rows.map(row => ({
                 ...row.habit_data,
                 dbId: row.id
-            }));
-        } else {
-            // Show defaults without importing shared browser data.
-            habits = [
-                {
-                    id: 1,
-                    title: "💧 Drink Water",
-                    streak: 0,
-                    lastCompleted: null
-                },
-                {
-                    id: 2,
-                    title: "🏃 Exercise",
-                    streak: 0,
-                    lastCompleted: null
-                },
-                {
-                    id: 3,
-                    title: "📖 Read",
-                    streak: 0,
-                    lastCompleted: null
-                },
-                {
-                    id: 4,
-                    title: "😴 Sleep Before 11PM",
-                    streak: 0,
-                    lastCompleted: null
-                },
-                {
-                    id: 5,
-                    title: "🙏 Pray",
-                    streak: 0,
-                    lastCompleted: null
-                }
-            ];
-        }
+            }));} else {
+    // Create and save fresh defaults for this account only.
+    const defaultHabits = [
+        { id: 1, title: "💧 Drink Water", streak: 0, lastCompleted: null },
+        { id: 2, title: "🏃 Exercise", streak: 0, lastCompleted: null },
+        { id: 3, title: "📖 Read", streak: 0, lastCompleted: null },
+        { id: 4, title: "😴 Sleep Before 11PM", streak: 0, lastCompleted: null },
+        { id: 5, title: "🙏 Pray", streak: 0, lastCompleted: null }
+    ];
+
+    habits = [];
+
+    for (const habit of defaultHabits) {
+        const { data, error } = await client
+            .from("habits")
+            .insert({
+                user_id: currentUser.id,
+                habit_data: habit
+            })
+            .select("id")
+            .single();
+
+        if (error) throw error;
+
+        habits.push({
+            ...habit,
+            dbId: data.id
+        });
+    }
+}
         habitsReady = true;
         renderHabits();
         updateHabitProgress();
