@@ -954,6 +954,8 @@ function initializeDashboard() {
     refreshDashboard();
     initSideMenu();
 
+ checkReminders();
+ 
     setInterval(updateClock, APP.clockInterval);
     setInterval(refreshDashboard, APP.refreshInterval);
 }
