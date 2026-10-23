@@ -51,11 +51,14 @@ async function saveGeneratedReminder(userId, message, type = "Reminder") {
 
     if (error) throw error;
 
-    const exists = (data || []).some(function (row) {
-        const reminder = row.reminder_data || {};
-        return reminder.text === message &&
-            reminder.date === new Date().toISOString().slice(0, 10);
-    });
+    const today = new Date().toISOString().slice(0, 10);
+
+const exists = (data || []).some(function (row) {
+    const reminder = row.reminder_data || {};
+
+    return reminder.text === message &&
+        reminder.date === today;
+});
 
     if (exists) return;
 
