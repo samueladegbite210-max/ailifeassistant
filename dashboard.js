@@ -622,7 +622,7 @@ function loadNotifications() {
     box.innerHTML = html;
 }
 
-function checkReminders() {
+function checkDashboardReminders() {
     const reminders = Storage.read("reminders", []);
     if (reminders.length === 0) return;
 
