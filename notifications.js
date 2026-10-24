@@ -714,7 +714,9 @@ async function initializeNotifications() {
         renderNotifications();
         updateNotificationSummary();
 
-        console.log("Notifications loaded for the signed-in 
+        
+console.log("Notifications loaded for the signed-in user.");
+
     } catch (error) {
         notificationsReady = false;
 
