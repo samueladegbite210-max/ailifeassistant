@@ -19,22 +19,45 @@ let notificationsReady = false;
 const notificationList =
     document.getElementById("notificationList");
 
+
 /*==========================================
- SAVE
+ SAVE — SUPABASE
 ==========================================*/
 
-function saveNotifications(){
-
-    localStorage.setItem(
-        "notifications",
-        JSON.stringify(notifications)
-    );
+async function saveNotifications() {
+    if (!notificationsReady || !notificationsUserId) {
+        console.warn("Notifications are not ready to save.");
+        return;
+    }
 
     renderNotifications();
-
     updateNotificationSummary();
 
+    const client = window.supabaseClient;
+
+    try {
+        for (const note of notifications) {
+            const { error } = await client
+                .from("notifications")
+                .upsert({
+                    user_id: notificationsUserId,
+                    notification_data: note,
+                    updated_at: new Date().toISOString()
+                });
+
+            if (error) {
+                console.error(
+                    "Could not save notification:",
+                    error
+                );
+                return;
+            }
+        }
+    } catch (error) {
+        console.error("Notification save failed:", error);
+    }
 }
+
 
 /*==========================================
  ADD NOTIFICATION
