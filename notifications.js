@@ -59,47 +59,29 @@ async function saveNotifications() {
 }
 
 
+
 /*==========================================
  ADD NOTIFICATION
 ==========================================*/
 
-function addNotification(
-
-    message,
-
-    type = "AI"
-
-){
-
+function addNotification(message, type = "AI") {
     const exists = notifications.find(
-
-        note =>
-
-        note.text === message &&
-
-        note.read === false
-
+        note => note.text === message && !note.read
     );
 
-    if(exists) return;
+    if (exists) return;
 
     notifications.unshift({
-
         id: Date.now(),
-
         type,
-
         text: message,
-
         read: false,
-
         time: new Date().toLocaleString()
-
     });
 
     saveNotifications();
-
 }
+
 /*==========================================
  SMART NOTIFICATION ENGINE
 ==========================================*/
