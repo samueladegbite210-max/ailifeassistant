@@ -5,15 +5,19 @@
 
 "use strict";
 
+
 /*==========================================
- STORAGE
+ STORAGE — SUPABASE PREPARATION
 ==========================================*/
 
-let notifications =
-JSON.parse(localStorage.getItem("notifications")) || [];
+let notifications = [];
+
+let notificationsUserId = null;
+
+let notificationsReady = false;
 
 const notificationList =
-document.getElementById("notificationList");
+    document.getElementById("notificationList");
 
 /*==========================================
  SAVE
