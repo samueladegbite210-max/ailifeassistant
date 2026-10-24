@@ -714,17 +714,26 @@ async function initializeNotifications() {
         renderNotifications();
         updateNotificationSummary();
 
-        console.log("Notifications loaded for the signed-in user.");
+        console.log("Notifications loaded for the signed-in 
     } catch (error) {
         notificationsReady = false;
+
+        const errorMessage =
+            error?.message || String(error) || "Unknown error";
 
         console.error("Notifications initialization failed:", error);
 
         if (notificationList) {
-            notificationList.innerHTML =
-                "<li>Notifications could not be loaded. Please check your connection and sign-in.</li>";
+            notificationList.innerHTML = "";
+
+            const errorItem = document.createElement("li");
+            errorItem.textContent =
+                "Notifications error: " + errorMessage;
+
+            notificationList.appendChild(errorItem);
         }
     } finally {
+
         notificationEngineStarting = false;
     }
 }
