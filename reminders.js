@@ -60,7 +60,9 @@ const exists = (data || []).some(function (row) {
         reminder.date === today;
 });
 
-    if (exists) return;
+if (exists) {
+    return;
+}
 
     const reminderData = {
         text: message,
