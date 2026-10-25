@@ -428,6 +428,9 @@ async function generateDailyReminders(source) {
     const today = getUserDateString();
     const key = `aiLifeAssistant_lastReminder_${notificationsUserId}`;
 
+   console.log("Reminder flag key:", key);
+console.log("Reminder flag value:", localStorage.getItem(key));
+   
     if (localStorage.getItem(key) === today) return;
 
     const tasks = source.tasks || [];
