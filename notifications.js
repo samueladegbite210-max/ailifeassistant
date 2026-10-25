@@ -431,7 +431,7 @@ async function generateDailyReminders(source) {
    console.log("Reminder flag key:", key);
 console.log("Reminder flag value:", localStorage.getItem(key));
    
-    if (localStorage.getItem(key) === today) return;
+// Diagnostic: do not skip daily reminders based on the saved flag.
 
     const tasks = source.tasks || [];
     const goals = source.goals || [];
