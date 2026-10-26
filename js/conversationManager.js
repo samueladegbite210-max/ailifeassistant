@@ -1569,7 +1569,7 @@ console.log("🚀 Conversation Manager loading...");
 
         saveConversations();
 
-
+        saveConversationToCloud(conversation);
         renderConversationList(
             searchInput
                 ? searchInput.value
