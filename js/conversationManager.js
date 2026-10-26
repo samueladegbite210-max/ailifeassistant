@@ -274,8 +274,13 @@ async function deleteConversationFromCloud(conversationId) {
 renderConversationList();
 
 // Delete this conversation from the signed-in user's cloud history.
-deleteConversationFromCloud(conversationId);
-}
+deleteConversationFromCloud(conversationId).then(function (success) {
+    if (success) {
+        console.log("Conversation deleted from Supabase.");
+    } else {
+        console.error("Conversation remains in Supabase. Check the cloud deletion error above.");
+    }
+});
 
     // Merge this account's cloud conversations with local history.
     async function syncConversationsWithCloud() {
