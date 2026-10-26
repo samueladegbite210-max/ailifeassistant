@@ -187,6 +187,58 @@ console.log("🚀 Conversation Manager loading...");
 
     }
 
+    
+    // Save one conversation to Supabase without affecting local storage.
+    async function saveConversationToCloud(conversation) {
+
+        if (!conversation || !conversation.id) {
+            return false;
+        }
+
+        try {
+
+            const { data: authData, error: authError } =
+                await window.supabaseClient.auth.getUser();
+
+            if (authError || !authData.user) {
+                console.warn(
+                    "Cloud conversation save skipped: no signed-in user."
+                );
+                return false;
+            }
+
+            const { error } = await window.supabaseClient
+                .from("conversations")
+                .upsert({
+                    user_id: authData.user.id,
+                    conversation_id: String(conversation.id),
+                    conversation_data: conversation,
+                    updated_at: new Date().toISOString()
+                }, {
+                    onConflict: "user_id,conversation_id"
+                });
+
+            if (error) {
+                console.error(
+                    "Cloud conversation save failed:",
+                    error.message
+                );
+                return false;
+            }
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Cloud conversation save failed:",
+                error
+            );
+            return false;
+
+        }
+    }
+
 
     function setCurrentConversationId(
         id
