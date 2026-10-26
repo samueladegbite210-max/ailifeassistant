@@ -239,7 +239,44 @@ console.log("🚀 Conversation Manager loading...");
         }
     }
 
-   
+
+    
+async function deleteConversationFromCloud(conversationId) {
+    try {
+        const { data: authData, error: authError } =
+            await window.supabaseClient.auth.getUser();
+
+        if (authError || !authData.user) {
+            console.warn("Cloud deletion skipped: no signed-in user.");
+            return false;
+        }
+
+        const { error } = await window.supabaseClient
+            .from("conversations")
+            .delete()
+            .eq("user_id", authData.user.id)
+            .eq("conversation_id", String(conversationId));
+
+        if (error) {
+            console.error("Cloud conversation deletion failed:", error.message);
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Cloud conversation deletion failed:", error);
+        return false;
+    }
+
+
+    saveConversations();
+
+renderConversationList();
+
+// Delete this conversation from the signed-in user's cloud history.
+deleteConversationFromCloud(conversationId);
+}
+
     // Merge this account's cloud conversations with local history.
     async function syncConversationsWithCloud() {
 
@@ -3813,9 +3850,12 @@ function showConversationBranches(
        INITIAL LOAD
     ===================================================== */
 
-    loadConversations();
+    
+saveConversations();
 
 renderConversationList();
+
+
 syncConversationsWithCloud();
 
 
