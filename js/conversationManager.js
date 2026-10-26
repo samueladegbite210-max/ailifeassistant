@@ -3816,7 +3816,7 @@ function showConversationBranches(
     loadConversations();
 
 renderConversationList();
-
+syncConversationsWithCloud();
 
 
 
