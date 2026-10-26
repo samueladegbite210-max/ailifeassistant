@@ -239,6 +239,76 @@ console.log("🚀 Conversation Manager loading...");
         }
     }
 
+   
+    // Merge this account's cloud conversations with local history.
+    async function syncConversationsWithCloud() {
+
+        try {
+
+            const { data: authData, error: authError } =
+                await window.supabaseClient.auth.getUser();
+
+            if (authError || !authData.user) {
+                console.warn("Cloud sync skipped: no signed-in user.");
+                return;
+            }
+
+            const userId = authData.user.id;
+
+            // Preserve a copy of all local conversations before merging.
+            const localConversations = conversations.slice();
+
+            const { data: cloudRows, error } =
+                await window.supabaseClient
+                    .from("conversations")
+                    .select("conversation_id, conversation_data")
+                    .eq("user_id", userId);
+
+            if (error) {
+                console.error("Could not load cloud conversations:", error.message);
+                return;
+            }
+
+            const cloudConversations = (cloudRows || [])
+                .map(row => row.conversation_data)
+                .filter(item => item && item.id);
+
+            // Local data wins when the same conversation exists in both places.
+            const merged = localConversations.slice();
+            const localIds = new Set(
+                localConversations.map(item => String(item.id))
+            );
+
+            cloudConversations.forEach(cloudItem => {
+                if (!localIds.has(String(cloudItem.id))) {
+                    merged.push(cloudItem);
+                    localIds.add(String(cloudItem.id));
+                }
+            });
+
+            conversations = merged;
+
+            // Save the merged history locally before uploading anything.
+            saveConversations();
+
+            // Upload each local or newly discovered conversation.
+            for (const item of conversations) {
+                await saveConversationToCloud(item);
+            }
+
+            renderConversationList(
+                searchInput ? searchInput.value : ""
+            );
+
+            console.log(
+                "Cloud conversation sync complete. Total:",
+                conversations.length
+            );
+
+        } catch (error) {
+            console.error("Cloud conversation sync failed:", error);
+        }
+    }
 
     function setCurrentConversationId(
         id
@@ -267,6 +337,7 @@ console.log("🚀 Conversation Manager loading...");
 
     }
 
+ 
 
     /* =====================================================
        COMPOSER DRAFT
