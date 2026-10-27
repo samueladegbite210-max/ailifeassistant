@@ -1,4 +1,4 @@
-alert("🧠 learnUser.js Loaded");
+
 
 function learnUserReply(msg, text){
 
