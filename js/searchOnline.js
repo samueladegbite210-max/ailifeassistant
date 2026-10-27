@@ -1,4 +1,4 @@
-alert("searchOnline.js loaded");
+
 
 function searchOnlineReply(msg){
 
