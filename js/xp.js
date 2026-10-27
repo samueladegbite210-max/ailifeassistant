@@ -1,4 +1,4 @@
-alert("⭐ XP System Loaded");
+
 
 let xpData = JSON.parse(localStorage.getItem("xpData")) || {
 
