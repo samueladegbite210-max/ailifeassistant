@@ -1,4 +1,4 @@
-alert("🌐 internet.js loaded");
+
 
 async function internetReply(msg){
 
