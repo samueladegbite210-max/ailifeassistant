@@ -1,4 +1,4 @@
-alert("search.js loaded");
+
 
 function searchReply(msg){
 
