@@ -1,4 +1,4 @@
-alert("📊 Dashboard Loaded");
+
 
 function updateDashboard(){
 
