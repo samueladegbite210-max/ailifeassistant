@@ -1,5 +1,5 @@
 
-alert("advice.js loaded");
+
 function adviceReply(msg){
 alert("Advice received: " + msg);
     
