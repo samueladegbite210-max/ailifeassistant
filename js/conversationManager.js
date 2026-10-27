@@ -258,9 +258,17 @@ async function deleteConversationFromCloud(conversationId) {
             .eq("conversation_id", String(conversationId));
 
         if (error) {
-            console.error("Cloud conversation deletion failed:", error.message);
-            return false;
-        }
+    console.error("Cloud conversation deletion failed:", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+    });
+    return false;
+}
+
+console.log("Cloud deletion request completed for:", conversationId);
+return true;
 
         return true;
     } catch (error) {
