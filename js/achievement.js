@@ -1,4 +1,4 @@
-alert("🏅 Achievement System Loaded");
+
 
 let achievements = JSON.parse(localStorage.getItem("achievements")) || [];
 
