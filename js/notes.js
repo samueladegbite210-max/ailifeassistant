@@ -1,4 +1,4 @@
-alert("NOTES FILE LOADED");
+
 
 let notes = JSON.parse(localStorage.getItem("notes")) || [];
 
