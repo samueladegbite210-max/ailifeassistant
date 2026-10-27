@@ -1,4 +1,4 @@
-alert("📚 Teacher Module Loaded");
+
 
 function teacherReply(msg){
 
