@@ -3612,11 +3612,22 @@ function showConversationBranches(
         }
 
 
-        saveConversations();
+        
+saveConversations();
 
-        renderConversationList();
+renderConversationList();
 
+// Remove this conversation from the signed-in user's Supabase history.
+deleteConversationFromCloud(conversationId).then(function (success) {
+    if (!success) {
+        console.error(
+            "Cloud deletion failed. The conversation may return after refresh."
+        );
     }
+});
+
+}
+
 
 
     /* =====================================================
