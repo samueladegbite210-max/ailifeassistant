@@ -1,4 +1,4 @@
-alert("🏆 Quiz Score Loaded");
+
 
 let quizScore = JSON.parse(localStorage.getItem("quizScore")) || {
 
