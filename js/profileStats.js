@@ -1,4 +1,4 @@
-alert("👤 Profile Stats Loaded");
+
 
 function showProfileStats(){
 
