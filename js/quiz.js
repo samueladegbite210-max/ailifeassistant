@@ -1,4 +1,4 @@
-alert("📝 Quiz Module Loaded");
+
 
 function quizReply(msg){
 
