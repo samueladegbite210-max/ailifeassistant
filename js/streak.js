@@ -1,4 +1,4 @@
-alert("🔥 Streak System Loaded");
+
 
 let streak = JSON.parse(localStorage.getItem("streak")) || {};
 
