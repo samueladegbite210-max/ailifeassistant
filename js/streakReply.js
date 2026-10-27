@@ -1,4 +1,4 @@
-alert("🔥 Streak Reply Loaded");
+
 
 function streakReply(msg){
 
