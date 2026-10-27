@@ -1,4 +1,4 @@
-alert("✅ FOOD.JS LOADED");
+
 function foodReply(msg){
 
     if(
