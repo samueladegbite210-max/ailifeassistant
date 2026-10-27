@@ -1,4 +1,4 @@
-alert("events loaded");
+
 let events = JSON.parse(localStorage.getItem("events")) || [];
 
 function eventReply(msg, text){
