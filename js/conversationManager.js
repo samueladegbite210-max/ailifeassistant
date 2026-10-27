@@ -241,54 +241,63 @@ console.log("🚀 Conversation Manager loading...");
 
 
     
+
 async function deleteConversationFromCloud(conversationId) {
     try {
         const { data: authData, error: authError } =
             await window.supabaseClient.auth.getUser();
 
         if (authError || !authData.user) {
-            console.warn("Cloud deletion skipped: no signed-in user.");
+            console.error(
+                "Cloud deletion skipped: no signed-in user.",
+                authError
+            );
             return false;
         }
 
-        const { error } = await window.supabaseClient
+        const { data, error } = await window.supabaseClient
             .from("conversations")
             .delete()
             .eq("user_id", authData.user.id)
-            .eq("conversation_id", String(conversationId));
+            .eq("conversation_id", String(conversationId))
+            .select("conversation_id");
 
         if (error) {
-    console.error("Cloud conversation deletion failed:", {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-    });
-    return false;
-}
+            console.error(
+                "Cloud conversation deletion failed:",
+                {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                }
+            );
+            return false;
+        }
 
-console.log("Cloud deletion request completed for:", conversationId);
-return true;
+        if (!data || data.length === 0) {
+            console.error(
+                "No conversation row was deleted. Check the conversation ID and Supabase DELETE policy.",
+                conversationId
+            );
+            return false;
+        }
+
+        console.log(
+            "Cloud conversation deleted successfully:",
+            conversationId
+        );
 
         return true;
+
     } catch (error) {
-        console.error("Cloud conversation deletion failed:", error);
+        console.error(
+            "Cloud conversation deletion failed:",
+            error
+        );
         return false;
     }
-
-
-    saveConversations();
-
-renderConversationList();
-
-// Delete this conversation from the signed-in user's cloud history.
-deleteConversationFromCloud(conversationId).then(function (success) {
-    if (success) {
-        console.log("Conversation deleted from Supabase.");
-    } else {
-        console.error("Conversation remains in Supabase. Check the cloud deletion error above.");
-    }
-});
+}
 
     // Merge this account's cloud conversations with local history.
     async function syncConversationsWithCloud() {
